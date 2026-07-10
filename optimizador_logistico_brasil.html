@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimizador Logístico — Brasil (ICMS)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --panel: #181c27;
+  --border: #2a2f45;
+  --accent: #3b82f6;
+  --green: #22c55e;
+  --orange: #f97316;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --input-bg: #1e2438;
+  --hover: #252b3d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; overflow: hidden; }
+
+/* TOOLBAR */
+#toolbar {
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+#toolbar h1 { font-size: 14px; font-weight: 700; color: var(--accent); margin-right: 8px; white-space: nowrap; }
+.tb-group { display: flex; gap: 4px; align-items: center; border-right: 1px solid var(--border); padding-right: 10px; margin-right: 4px; }
+.tb-group:last-child { border-right: none; }
+.tb-btn {
+  display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); cursor: pointer; font-size: 12px; transition: all .15s; white-space: nowrap;
+}
+.tb-btn:hover { background: var(--hover); color: var(--text); border-color: var(--accent); }
+.tb-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tb-btn.danger { border-color: var(--red); color: var(--red); }
+.tb-btn.danger:hover { background: var(--red); color: #fff; }
+.tb-btn.success { border-color: var(--green); color: var(--green); }
+.tb-btn.success:hover { background: var(--green); color: #fff; }
+.service-badge {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 11px;
+}
+.service-badge span { color: var(--muted); }
+.service-badge strong { color: var(--green); }
+
+/* MAIN LAYOUT */
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* PANEL */
+#panel {
+  width: 360px; min-width: 280px; background: var(--panel);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0;
+}
+#tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tab {
+  flex: 1; padding: 8px 4px; text-align: center; cursor: pointer; font-size: 11px;
+  color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+#panel-content { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* FORMS */
+.section { margin-bottom: 16px; }
+.section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 3px; }
+input[type=number], input[type=text], select {
+  width: 100%; padding: 6px 8px; background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 5px; color: var(--text); font-size: 12px; outline: none;
+}
+input:focus, select:focus { border-color: var(--accent); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.slider-row { display: flex; align-items: center; gap: 8px; }
+input[type=range] { flex: 1; accent-color: var(--accent); }
+.slider-val { color: var(--text); font-size: 12px; min-width: 50px; text-align: right; font-weight: 600; }
+
+/* NODE LIST */
+.node-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  margin-bottom: 5px; cursor: pointer; transition: all .15s;
+}
+.node-item:hover { border-color: var(--accent); background: var(--hover); }
+.node-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.node-item span { flex: 1; font-size: 12px; }
+.node-item small { color: var(--muted); font-size: 11px; }
+.node-del { color: var(--red); cursor: pointer; padding: 2px 5px; border-radius: 3px; }
+.node-del:hover { background: var(--red); color: #fff; }
+
+/* P&L TABLE */
+.pnl-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.pnl-table tr td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+.pnl-table .cat { color: var(--muted); font-size: 11px; font-weight: 600; padding-top: 10px; }
+.pnl-table .pos { color: var(--green); text-align: right; font-weight: 600; }
+.pnl-table .neg { color: var(--red); text-align: right; }
+.pnl-table .total { font-weight: 700; color: var(--accent); }
+.pnl-table .total td { border-top: 2px solid var(--border); padding-top: 6px; }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.kpi-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+.kpi-card .val { font-size: 18px; font-weight: 700; }
+.kpi-card .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.green { color: var(--green); }
+.orange { color: var(--orange); }
+.red { color: var(--red); }
+.blue { color: var(--accent); }
+
+/* SCENARIO */
+.scenario-btns { display: flex; gap: 6px; margin-bottom: 10px; }
+.sc-btn {
+  flex: 1; padding: 6px; background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 5px; color: var(--muted); cursor: pointer; font-size: 11px; text-align: center;
+}
+.sc-btn:hover { border-color: var(--accent); color: var(--accent); }
+.sc-btn.filled { border-color: var(--green); color: var(--green); }
+.compare-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+.compare-table th { color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+.compare-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+.compare-table .best { color: var(--green); font-weight: 700; }
+
+/* MAP */
+#map { flex: 1; }
+
+/* POPUP */
+.popup-form { min-width: 220px; }
+.popup-form h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+.popup-form label { display: block; color: #aaa; font-size: 11px; margin-bottom: 2px; }
+.popup-form input, .popup-form select { width: 100%; padding: 4px 7px; background: #1e2438; border: 1px solid #2a2f45; border-radius: 4px; color: #e2e8f0; font-size: 12px; margin-bottom: 7px; }
+.popup-form .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.popup-form .pf-slider { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+.popup-form .pf-slider input[type=range] { flex: 1; accent-color: #3b82f6; }
+.popup-form .pf-slider span { font-size: 11px; color: #e2e8f0; min-width: 55px; text-align: right; font-weight: 600; }
+.popup-btn {
+  width: 100%; padding: 6px; background: #3b82f6; border: none; border-radius: 5px;
+  color: #fff; cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 4px;
+}
+.popup-btn:hover { background: #2563eb; }
+.popup-btn.del { background: #ef4444; margin-top: 4px; }
+.popup-btn.del:hover { background: #dc2626; }
+.cost-hint { font-size: 10px; color: #64748b; margin-bottom: 7px; }
+
+/* Leaflet overrides */
+.leaflet-popup-content-wrapper { background: #181c27; border: 1px solid #2a2f45; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+.leaflet-popup-content { margin: 14px 16px; }
+.leaflet-popup-tip { background: #181c27; }
+.leaflet-container { background: #0f1117; }
+
+/* PROGRESS */
+#progress-bar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--border); z-index: 9999; }
+#progress-fill { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+#status-msg { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 12px; z-index: 9999; display: none; }
+
+/* Route legend */
+#legend { position: absolute; bottom: 24px; right: 16px; z-index: 999; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 11px; }
+#legend .leg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+#legend .leg-line { width: 28px; height: 3px; border-radius: 2px; }
+
+/* Algo description */
+#algo-desc { background: #1a2035; border: 1px solid #2a2f45; border-left: 3px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 11px; line-height: 1.5; color: var(--text); margin-top: 8px; display: none; }
+#algo-desc strong { color: var(--accent); display: block; margin-bottom: 3px; }
+#algo-desc .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px; margin-top: 4px; }
+.tag-speed  { background: #164e63; color: #67e8f9; }
+.tag-quality { background: #1a3a1a; color: #86efac; }
+.tag-size   { background: #3b2a00; color: #fbbf24; }
+
+/* CO2 badge */
+.co2-badge { background: #064e3b; border: 1px solid #059669; border-radius: 5px; color: #34d399; padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"><div id="progress-fill"></div></div>
+<div id="status-msg"></div>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <h1 style="color:#22c55e;">🇧🇷 Optimizador Logístico Brasil <span style="color:#eab308;font-size:11px;">ICMS-aware</span></h1>
+  <div class="tb-group">
+    <button class="tb-btn" id="btn-factory" onclick="setMode('factory')" title="Agregar Fábrica">🏭 Fábrica</button>
+    <button class="tb-btn" id="btn-warehouse" onclick="setMode('warehouse')" title="Agregar Bodega">🏪 Bodega</button>
+    <button class="tb-btn" id="btn-customer" onclick="setMode('customer')" title="Agregar Zona Cliente">👥 Clientes</button>
+    <button class="tb-btn" id="btn-select" onclick="setMode('select')" title="Seleccionar/Mover">↖ Mover</button>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn success" onclick="runOptimizer()" id="btn-opt">⚡ Optimizar</button>
+    <select id="opt-algo" style="background:var(--input-bg);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:5px 8px;font-size:11px;" onchange="updateAlgoDesc()">
+      <option value="greedy">Greedy</option>
+      <option value="twoopt">2-opt Local</option>
+      <option value="sa">Simulated Annealing</option>
+      <option value="genetic">Algoritmo Genético</option>
+    </select>
+    <button class="tb-btn" onclick="document.getElementById('algo-desc').style.display=document.getElementById('algo-desc').style.display==='none'?'block':'none';updateAlgoDesc()" title="Info del algoritmo" style="padding:5px 8px;">ℹ️</button>
+  </div>
+  <div class="tb-group">
+    <div class="service-badge">
+      <span>Nivel servicio:</span>
+      <input type="range" min="50" max="100" value="90" id="svc-slider" style="width:80px;accent-color:var(--accent);" oninput="document.getElementById('svc-val').textContent=this.value+'%'">
+      <strong id="svc-val">90%</strong>
+    </div>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn" style="border-color:#a855f7;color:#a855f7;" onclick="loadDemo()">🎯 Demo</button>
+    <button class="tb-btn danger" onclick="clearAll()">🗑 Limpiar</button>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn success" onclick="document.getElementById('csv-file-input').click()" title="Importar nodos desde CSV">⬆ Importar CSV</button>
+    <button class="tb-btn" onclick="exportCSV()" title="Exportar red actual + P&L a CSV">⬇ Exportar CSV</button>
+    <button class="tb-btn" onclick="downloadTemplate()" title="Descargar plantilla CSV para rellenar">📋 Plantilla</button>
+    <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="importCSV(this)">
+  </div>
+</div>
+
+<!-- ALGO DESCRIPTION (shown below toolbar) -->
+<div id="algo-desc"></div>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- PANEL -->
+  <div id="panel">
+    <div id="tabs">
+      <div class="tab active" onclick="showTab('params')">⚙ Params</div>
+      <div class="tab" onclick="showTab('nodes')">🔵 Nodos</div>
+      <div class="tab" onclick="showTab('pnl')">💰 P&L</div>
+      <div class="tab" onclick="showTab('scenarios')">📊 Escenarios</div>
+    </div>
+    <div id="panel-content">
+      <!-- PARAMS TAB -->
+      <div id="tab-params">
+        <div class="section" style="border:1px solid #eab30855;border-radius:8px;padding:10px;background:#eab30810;">
+          <div class="section-title" style="color:#eab308;">🏛 Impuestos — ICMS Brasil</div>
+          <label>Tipo de venta al cliente final</label>
+          <select id="p-sale-type" onchange="updatePnL()" style="margin-bottom:6px;">
+            <option value="b2b">B2B — Cliente contribuyente (sin DIFAL)</option>
+            <option value="b2c" selected>B2C — Consumidor final (paga DIFAL)</option>
+          </select>
+          <label>Precio de transferencia Fábrica → CD (% del precio venta)</label>
+          <div class="slider-row">
+            <input type="range" min="30" max="90" value="65" id="p-transfer-pct" oninput="document.getElementById('p-transfer-val').textContent=this.value+'%';updatePnL()">
+            <span class="slider-val" id="p-transfer-val">65%</span>
+          </div>
+          <label style="margin-top:4px;">Crédito ICMS de insumos en fábrica (% del débito)</label>
+          <div class="slider-row">
+            <input type="range" min="0" max="100" value="60" id="p-input-credit" oninput="document.getElementById('p-input-credit-val').textContent=this.value+'%';updatePnL()">
+            <span class="slider-val" id="p-input-credit-val">60%</span>
+          </div>
+          <p style="color:var(--muted);font-size:10px;margin-top:6px;">
+            Modelo débito/crédito: el CD acredita el ICMS de la transferencia y debita el de la venta.
+            Interestadual: 7% (S/SE→N/NE/CO/ES) o 12%. Interna: 17–23% según estado.
+            Estados con 🎁 dan crédito presumido (guerra fiscal) que condona parte del ICMS neto del CD.
+          </p>
+        </div>
+        <div class="section">
+          <div class="section-title">Modo de transporte</div>
+          <select id="p-transport-mode" onchange="updateTransportMode();updatePnL()" style="margin-bottom:8px;">
+            <option value="ltl">📦 LTL — Por unidad/km (menos camión completo)</option>
+            <option value="ftl">🚛 FTL — Camión completo (fijo + variable)</option>
+            <option value="mixed">🔀 Mixto — FTL fab→bod, LTL bod→cli</option>
+          </select>
+          <div id="ltl-params">
+            <label>Costo Fábrica → CD (R$/km/unidad)</label>
+            <input type="number" id="p-fab-km" value="0.04" step="0.01" oninput="updatePnL()">
+            <label>Costo CD → Cliente (R$/km/unidad)</label>
+            <input type="number" id="p-bod-km" value="0.06" step="0.01" oninput="updatePnL()">
+          </div>
+          <div id="ftl-params" style="display:none">
+            <div class="row2">
+              <div><label>Costo fijo camión (R$)</label><input type="number" id="p-ftl-fixed" value="2000" oninput="updatePnL()"></div>
+              <div><label>R$/km camión</label><input type="number" id="p-ftl-km" value="6" step="0.5" oninput="updatePnL()"></div>
+            </div>
+            <label>Cap. camión (unidades)</label>
+            <input type="number" id="p-ftl-cap" value="800" oninput="updatePnL()">
+          </div>
+          <label style="margin-top:6px;">Tipo vehículo</label>
+          <select id="p-transport" onchange="updatePnL()">
+            <option value="truck">🚛 Camión (factor ×1.0)</option>
+            <option value="train">🚂 Tren (factor ×0.6)</option>
+            <option value="mixed">🔀 Mixto (factor ×0.8)</option>
+          </select>
+        </div>
+        <div class="section">
+          <div class="section-title">CO₂ y sostenibilidad</div>
+          <div class="row2">
+            <div><label>Peso por unidad (kg)</label><input type="number" id="p-unit-kg" value="5" step="0.5" oninput="updatePnL()"></div>
+            <div><label>Factor CO₂ (kg/ton·km)</label><input type="number" id="p-co2-factor" value="0.13" step="0.01" oninput="updatePnL()"></div>
+          </div>
+          <p style="color:var(--muted);font-size:10px;">Factor estándar Brasil camión ~0.13 kg CO₂/ton·km. Ferrocarril ~0.03.</p>
+        </div>
+        <div class="section">
+          <div class="section-title">Inventario en bodega</div>
+          <div class="row2">
+            <div><label>Tasa holding (%/año)</label><input type="number" id="p-holding-rate" value="22" step="1" oninput="updatePnL()"></div>
+            <div><label>Valor unitario (R$/un)</label><input type="number" id="p-unit-value" value="400" step="25" oninput="updatePnL()"></div>
+          </div>
+          <label>Lead time promedio (días)</label>
+          <div class="slider-row">
+            <input type="range" min="1" max="30" value="7" id="p-lead-time" oninput="document.getElementById('p-lt-val').textContent=this.value+'d';updatePnL()">
+            <span class="slider-val" id="p-lt-val">7d</span>
+          </div>
+          <p style="color:var(--muted);font-size:10px;">Holding cost = inventario promedio × valor × tasa/12</p>
+        </div>
+        <div class="section">
+          <div class="section-title">Red logística</div>
+          <label>Radio máx. entrega desde CD (km)</label>
+          <div class="slider-row">
+            <input type="range" min="100" max="4000" value="2200" id="p-radius" oninput="document.getElementById('p-radius-val').textContent=this.value+'km';updatePnL()">
+            <span class="slider-val" id="p-radius-val">2200km</span>
+          </div>
+          <label>Precio arriendo base (R$/m²/mes — São Paulo)</label>
+          <input type="number" id="p-rent-base" value="28.0" step="0.50" oninput="updatePnL()">
+        </div>
+        <div class="section">
+          <div class="section-title">Sensibilidad — costo/km</div>
+          <div class="slider-row">
+            <input type="range" min="0.1" max="3.0" step="0.05" value="1.0" id="p-sens" oninput="sensUpdate(this.value)">
+            <span class="slider-val" id="p-sens-val">×1.0</span>
+          </div>
+          <p style="color:var(--muted);font-size:10px;">Multiplica costos de transporte para análisis de sensibilidad sin re-optimizar.</p>
+        </div>
+      </div>
+
+      <!-- NODES TAB -->
+      <div id="tab-nodes" style="display:none">
+        <div class="section">
+          <div class="section-title">🏭 Fábricas (<span id="cnt-fab">0</span>)</div>
+          <div id="list-factories"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">🏪 Bodegas (<span id="cnt-wh">0</span>)</div>
+          <div id="list-warehouses"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">👥 Zonas Clientes (<span id="cnt-cust">0</span>)</div>
+          <div id="list-customers"></div>
+        </div>
+      </div>
+
+      <!-- P&L TAB -->
+      <div id="tab-pnl" style="display:none">
+        <div id="pnl-empty" style="color:var(--muted);font-size:12px;text-align:center;padding:30px 0;">
+          Agrega nodos y ejecuta la optimización para ver el P&L
+        </div>
+        <div id="pnl-content" style="display:none">
+          <div id="svc-alert" style="display:none;background:#7f1d1d;border:1px solid #ef4444;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;"></div>
+          <div class="kpi-grid" id="kpi-grid"></div>
+          <table class="pnl-table" id="pnl-table"></table>
+          <div id="icms-detail"></div>
+          <div style="margin-top:16px;"><canvas id="pnl-chart" height="200"></canvas></div>
+        </div>
+      </div>
+
+      <!-- SCENARIOS TAB -->
+      <div id="tab-scenarios" style="display:none">
+        <div class="section">
+          <div class="section-title">Guardar escenario actual</div>
+          <div class="scenario-btns">
+            <div class="sc-btn" id="sc-a" onclick="saveScenario('A')">💾 A</div>
+            <div class="sc-btn" id="sc-b" onclick="saveScenario('B')">💾 B</div>
+            <div class="sc-btn" id="sc-c" onclick="saveScenario('C')">💾 C</div>
+          </div>
+          <button class="tb-btn" style="width:100%;justify-content:center;" onclick="loadScenario('A')">📂 Cargar A</button>
+          <button class="tb-btn" style="width:100%;justify-content:center;margin-top:4px;" onclick="loadScenario('B')">📂 Cargar B</button>
+          <button class="tb-btn" style="width:100%;justify-content:center;margin-top:4px;" onclick="loadScenario('C')">📂 Cargar C</button>
+        </div>
+        <div class="section">
+          <div class="section-title">Comparación A vs B vs C</div>
+          <div id="compare-view"><p style="color:var(--muted);font-size:11px;">Guarda al menos 2 escenarios para comparar.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map"></div>
+</div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <div class="leg-row"><div class="leg-line" style="background:#3b82f6"></div><span>Fábrica → Bodega</span></div>
+  <div class="leg-row"><div class="leg-line" style="background:#22c55e"></div><span>Bodega → Cliente</span></div>
+  <div class="leg-row"><div class="leg-line" style="background:#64748b"></div><span>Ruta inactiva</span></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let mode = 'select';
+let factories = [], warehouses = [], customers = [];
+let routes = [];       // {fromId, toId, kmReal, polyline, units}
+let optResult = null;  // resultado del optimizador
+let pnlChart = null;
+let sensFactor = 1.0;
+let uid = 0;
+const scenarios = { A: null, B: null, C: null };
+
+// ══════════════════════════════════════════════════════════════
+// BRASIL — ESTADOS, ICMS 2026 E INCENTIVOS FISCALES
+// interna: alícuota interna del estado (%)
+// inc: crédito presumido / incentivo fiscal típico para CDs
+//      (fracción del ICMS neto que se condona — guerra fiscal)
+// mult: multiplicador de arriendo bodega vs São Paulo
+// region: N=Norte, NE=Nordeste, CO=Centro-Oeste, SE=Sudeste, S=Sul
+// ══════════════════════════════════════════════════════════════
+const UFS = {
+  AC: { name:'Acre',                lat: -9.02, lng:-70.00, interna:19.0, inc:0.00, mult:0.45, region:'N'  },
+  AL: { name:'Alagoas',             lat: -9.57, lng:-36.62, interna:19.0, inc:0.00, mult:0.50, region:'NE' },
+  AP: { name:'Amapá',               lat:  1.41, lng:-51.77, interna:18.0, inc:0.00, mult:0.45, region:'N'  },
+  AM: { name:'Amazonas',            lat: -4.15, lng:-63.00, interna:20.0, inc:0.30, mult:0.70, region:'N'  },
+  BA: { name:'Bahia',               lat:-12.58, lng:-41.70, interna:20.5, inc:0.40, mult:0.60, region:'NE' },
+  CE: { name:'Ceará',               lat: -5.20, lng:-39.32, interna:20.0, inc:0.30, mult:0.60, region:'NE' },
+  DF: { name:'Distrito Federal',    lat:-15.78, lng:-47.93, interna:20.0, inc:0.00, mult:0.80, region:'CO' },
+  ES: { name:'Espírito Santo',      lat:-19.57, lng:-40.67, interna:17.0, inc:0.70, mult:0.70, region:'SE' },
+  GO: { name:'Goiás',               lat:-16.04, lng:-49.62, interna:19.0, inc:0.65, mult:0.65, region:'CO' },
+  MA: { name:'Maranhão',            lat: -5.06, lng:-45.22, interna:23.0, inc:0.00, mult:0.50, region:'NE' },
+  MG: { name:'Minas Gerais',        lat:-18.46, lng:-44.44, interna:18.0, inc:0.50, mult:0.75, region:'SE' },
+  MS: { name:'Mato Grosso do Sul',  lat:-20.51, lng:-54.63, interna:17.0, inc:0.50, mult:0.55, region:'CO' },
+  MT: { name:'Mato Grosso',         lat:-12.95, lng:-55.90, interna:17.0, inc:0.35, mult:0.55, region:'CO' },
+  PA: { name:'Pará',                lat: -3.97, lng:-52.48, interna:19.0, inc:0.00, mult:0.55, region:'N'  },
+  PB: { name:'Paraíba',             lat: -7.21, lng:-36.82, interna:20.0, inc:0.00, mult:0.50, region:'NE' },
+  PE: { name:'Pernambuco',          lat: -8.32, lng:-37.93, interna:20.5, inc:0.50, mult:0.65, region:'NE' },
+  PI: { name:'Piauí',               lat: -7.72, lng:-42.92, interna:22.5, inc:0.00, mult:0.45, region:'NE' },
+  PR: { name:'Paraná',              lat:-24.63, lng:-51.62, interna:19.5, inc:0.30, mult:0.80, region:'S'  },
+  RJ: { name:'Rio de Janeiro',      lat:-22.18, lng:-42.66, interna:22.0, inc:0.00, mult:0.95, region:'SE' },
+  RN: { name:'Rio Grande do Norte', lat: -5.84, lng:-36.58, interna:20.0, inc:0.00, mult:0.50, region:'NE' },
+  RO: { name:'Rondônia',            lat:-10.91, lng:-62.99, interna:19.5, inc:0.30, mult:0.50, region:'N'  },
+  RR: { name:'Roraima',             lat:  1.99, lng:-61.33, interna:20.0, inc:0.00, mult:0.45, region:'N'  },
+  RS: { name:'Rio Grande do Sul',   lat:-29.76, lng:-53.22, interna:17.0, inc:0.20, mult:0.75, region:'S'  },
+  SC: { name:'Santa Catarina',      lat:-27.25, lng:-50.47, interna:17.0, inc:0.65, mult:0.85, region:'S'  },
+  SE: { name:'Sergipe',             lat:-10.57, lng:-37.39, interna:19.0, inc:0.00, mult:0.50, region:'NE' },
+  SP: { name:'São Paulo',           lat:-22.26, lng:-48.73, interna:18.0, inc:0.00, mult:1.00, region:'SE' },
+  TO: { name:'Tocantins',           lat:-10.18, lng:-48.33, interna:20.0, inc:0.45, mult:0.50, region:'CO' },
+};
+
+// Regla interestadual ICMS (LC 87/96 + Res. Senado 22/89):
+// Origen Sul/Sudeste (excepto ES) → destino N/NE/CO/ES  = 7%
+// Todo el resto interestadual                            = 12%
+// Misma UF = alícuota interna
+const RICH_ORIGINS = ['SP','RJ','MG','PR','SC','RS'];
+function icmsRate(ufFrom, ufTo) {
+  if (!ufFrom || !ufTo) return 12;
+  if (ufFrom === ufTo) return UFS[ufFrom].interna;
+  const toPoor = UFS[ufTo].region === 'N' || UFS[ufTo].region === 'NE' || UFS[ufTo].region === 'CO' || ufTo === 'ES';
+  return (RICH_ORIGINS.includes(ufFrom) && toPoor) ? 7 : 12;
+}
+
+// ── Detección de estado por lat/lng ──
+let brStatesGeo = null; // GeoJSON features
+const GEO_NAME_TO_UF = {
+  'Acre':'AC','Alagoas':'AL','Amapá':'AP','Amazonas':'AM','Bahia':'BA','Ceará':'CE',
+  'Distrito Federal':'DF','Espírito Santo':'ES','Goiás':'GO','Maranhão':'MA','Minas Gerais':'MG',
+  'Mato Grosso do Sul':'MS','Mato Grosso':'MT','Pará':'PA','Paraíba':'PB','Pernambuco':'PE',
+  'Piauí':'PI','Paraná':'PR','Rio de Janeiro':'RJ','Rio Grande do Norte':'RN','Rondônia':'RO',
+  'Roraima':'RR','Rio Grande do Sul':'RS','Santa Catarina':'SC','Sergipe':'SE','São Paulo':'SP','Tocantins':'TO'
+};
+
+function pointInRing(lat, lng, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+    if (((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+function pointInGeom(lat, lng, geom) {
+  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+  for (const poly of polys) {
+    if (pointInRing(lat, lng, poly[0])) {
+      // check holes
+      let inHole = false;
+      for (let h = 1; h < poly.length; h++) if (pointInRing(lat, lng, poly[h])) { inHole = true; break; }
+      if (!inHole) return true;
+    }
+  }
+  return false;
+}
+function getUF(lat, lng) {
+  if (brStatesGeo) {
+    for (const f of brStatesGeo.features) {
+      if (pointInGeom(lat, lng, f.geometry)) {
+        const uf = GEO_NAME_TO_UF[f.properties.name] || f.properties.sigla || null;
+        if (uf) return uf;
+      }
+    }
+  }
+  // fallback: centroide más cercano
+  let best = 'SP', bestD = Infinity;
+  for (const [uf, d] of Object.entries(UFS)) {
+    const dist = Math.hypot(d.lat - lat, d.lng - lng);
+    if (dist < bestD) { bestD = dist; best = uf; }
+  }
+  return best;
+}
+
+function getNearestRegionMult(lat, lng) {
+  return UFS[getUF(lat, lng)].mult;
+}
+
+// ══════════════════════════════════════════════════════════════
+// MAP
+// ══════════════════════════════════════════════════════════════
+const map = L.map('map', { zoomControl: true }).setView([-14.5, -53.0], 4);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 18
+}).addTo(map);
+
+// Coropleta de estados por alícuota ICMS interna + badge de incentivo
+function icmsColor(rate) {
+  // 17% verde → 23% rojo
+  const t = Math.min(1, Math.max(0, (rate - 17) / 6));
+  const r = Math.round(34 + t * (239 - 34));
+  const g = Math.round(197 - t * (197 - 68));
+  const b = Math.round(94 - t * (94 - 68));
+  return `rgb(${r},${g},${b})`;
+}
+
+fetch('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson')
+  .then(r => r.json())
+  .then(data => {
+    brStatesGeo = data;
+    L.geoJSON(data, {
+      style: f => {
+        const uf = GEO_NAME_TO_UF[f.properties.name];
+        const d = uf ? UFS[uf] : null;
+        return {
+          color: '#475569', weight: 1, opacity: 0.8,
+          fillColor: d ? icmsColor(d.interna) : '#1e293b',
+          fillOpacity: d && d.inc > 0 ? 0.32 : 0.18
+        };
+      },
+      onEachFeature: (f, layer) => {
+        const uf = GEO_NAME_TO_UF[f.properties.name];
+        const d = uf ? UFS[uf] : null;
+        if (d) {
+          layer.bindTooltip(
+            `<b>${d.name} (${uf})</b><br>ICMS interna: ${d.interna}%` +
+            (d.inc > 0 ? `<br>🎁 Incentivo fiscal CD: −${Math.round(d.inc*100)}% ICMS neto` : '<br>Sin incentivo relevante'),
+            { sticky: true }
+          );
+        }
+        layer.on('click', e => { if (mode !== 'select') onMapClick(e); });
+      }
+    }).addTo(map);
+    // Badges 🎁 en estados con incentivo fuerte
+    Object.entries(UFS).filter(([,d]) => d.inc >= 0.45).forEach(([uf, d]) => {
+      L.marker([d.lat, d.lng], {
+        icon: L.divIcon({
+          html: `<div style="font-size:10px;color:#fde047;text-shadow:0 1px 3px #000;white-space:nowrap;">🎁 ${uf} −${Math.round(d.inc*100)}%</div>`,
+          className: '', iconAnchor: [14, 6]
+        }),
+        interactive: false
+      }).addTo(map);
+    });
+  })
+  .catch(() => {}); // fail silently if offline
+
+map.on('click', onMapClick);
+
+// ══════════════════════════════════════════════════════════════
+// MODE
+// ══════════════════════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  ['factory','warehouse','customer','select'].forEach(k => {
+    document.getElementById('btn-' + k)?.classList.toggle('active', k === m);
+  });
+  map.getContainer().style.cursor = m === 'select' ? '' : 'crosshair';
+}
+setMode('select');
+
+// ══════════════════════════════════════════════════════════════
+// OSRM
+// ══════════════════════════════════════════════════════════════
+const distCache = {};
+// Always fetch full geometry so routes follow real roads
+async function getRouteKm(latA, lngA, latB, lngB) {
+  const key = `${latA.toFixed(4)},${lngA.toFixed(4)};${latB.toFixed(4)},${lngB.toFixed(4)}`;
+  if (distCache[key]) return distCache[key];
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${lngA},${latA};${lngB},${latB}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok') return { km: haversineKm(latA, lngA, latB, lngB) * 1.3, coords: null };
+    const km = data.routes[0].distance / 1000;
+    const coords = data.routes[0].geometry.coordinates;
+    distCache[key] = { km, coords };
+    return distCache[key];
+  } catch {
+    return { km: haversineKm(latA, lngA, latB, lngB) * 1.3, coords: null };
+  }
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ══════════════════════════════════════════════════════════════
+// ICONS
+// ══════════════════════════════════════════════════════════════
+function makeIcon(color, emoji, size = 32) {
+  return L.divIcon({
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:${size*.5}px;border:2px solid rgba(255,255,255,.3);box-shadow:0 0 12px ${color}88">${emoji}</div>`,
+    className: '', iconSize: [size, size], iconAnchor: [size/2, size/2]
+  });
+}
+const ICONS = {
+  factory:   () => makeIcon('#3b82f6', '🏭'),
+  warehouse: (active) => makeIcon(active ? '#f97316' : '#4b5563', '🏪'),
+  customer:  () => makeIcon('#22c55e', '👥', 28),
+};
+
+// ══════════════════════════════════════════════════════════════
+// MAP CLICK → CREATE NODE
+// ══════════════════════════════════════════════════════════════
+function onMapClick(e) {
+  if (mode === 'select') return;
+  const { lat, lng } = e.latlng;
+  if (mode === 'factory')   createFactory(lat, lng);
+  if (mode === 'warehouse') createWarehouse(lat, lng);
+  if (mode === 'customer')  createCustomer(lat, lng);
+}
+
+// ══════════════════════════════════════════════════════════════
+// FACTORY
+// ══════════════════════════════════════════════════════════════
+function createFactory(lat, lng) {
+  const id = 'f' + (++uid);
+  const f = {
+    id, lat, lng, uf: getUF(lat, lng), name: 'Fábrica ' + uid,
+    baseCapacity: 10000,
+    extraCapPct: 0,           // 0-200%
+    extraCostPerThousand: 500,
+    baseCost: 2000000,
+    varCostPerUnit: 200,
+    marker: null
+  };
+  factories.push(f);
+  const m = L.marker([lat, lng], { icon: ICONS.factory(), draggable: true }).addTo(map);
+  m.on('dragend', () => { f.lat = m.getLatLng().lat; f.lng = m.getLatLng().lng; f.uf = getUF(f.lat, f.lng); clearRoutes(); updateNodeList(); });
+  m.on('click', () => openFactoryPopup(f, m));
+  f.marker = m;
+  openFactoryPopup(f, m);
+  updateNodeList();
+}
+
+function openFactoryPopup(f, m) {
+  const extraUnits = () => Math.round(f.baseCapacity * f.extraCapPct / 100);
+  const extraCost  = () => Math.round(extraUnits() / 1000 * f.extraCostPerThousand);
+  const totalCap   = () => f.baseCapacity + extraUnits();
+
+  const html = `<div class="popup-form">
+    <h3>🏭 Fábrica</h3>
+    <label>Nombre</label><input type="text" id="pf-name" value="${f.name}">
+    <div class="pf-row">
+      <div><label>Cap. base (un/mes)</label><input type="number" id="pf-bc" value="${f.baseCapacity}"></div>
+      <div><label>Costo base ($/mes)</label><input type="number" id="pf-cost" value="${f.baseCost}"></div>
+    </div>
+    <label>Capacidad adicional: <span id="pf-cap-lbl">${f.extraCapPct}%</span> (+<span id="pf-extra-u">${extraUnits().toLocaleString()}</span> un → +$<span id="pf-extra-c">${extraCost().toLocaleString()}</span>/mes)</label>
+    <div class="pf-slider">
+      <input type="range" min="0" max="200" value="${f.extraCapPct}" id="pf-cap-sl" oninput="
+        document.getElementById('pf-cap-lbl').textContent=this.value+'%';
+        const u=Math.round(document.getElementById('pf-bc').valueAsNumber*this.value/100);
+        const c=Math.round(u/1000*document.getElementById('pf-cpt').valueAsNumber);
+        document.getElementById('pf-extra-u').textContent=u.toLocaleString();
+        document.getElementById('pf-extra-c').textContent=c.toLocaleString();
+      ">
+      <span id="pf-total-cap-lbl" style="font-size:10px;color:#64748b;">Cap total: ${totalCap().toLocaleString()} un</span>
+    </div>
+    <div class="pf-row">
+      <div><label>$/mil un extra/mes</label><input type="number" id="pf-cpt" value="${f.extraCostPerThousand}"></div>
+      <div><label>Costo var ($/unidad)</label><input type="number" id="pf-var" value="${f.varCostPerUnit}"></div>
+    </div>
+    <button class="popup-btn" onclick="saveFactory('${f.id}')">💾 Guardar</button>
+    <button class="popup-btn del" onclick="deleteNode('${f.id}','factory')">🗑 Eliminar</button>
+  </div>`;
+  m.bindPopup(html, { maxWidth: 280 }).openPopup();
+}
+
+function saveFactory(id) {
+  const f = factories.find(x => x.id === id);
+  if (!f) return;
+  f.name = document.getElementById('pf-name').value;
+  f.baseCapacity = +document.getElementById('pf-bc').value;
+  f.extraCapPct = +document.getElementById('pf-cap-sl').value;
+  f.extraCostPerThousand = +document.getElementById('pf-cpt').value;
+  f.baseCost = +document.getElementById('pf-cost').value;
+  f.varCostPerUnit = +document.getElementById('pf-var').value;
+  f.marker.closePopup();
+  updateNodeList(); updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// WAREHOUSE
+// ══════════════════════════════════════════════════════════════
+function createWarehouse(lat, lng) {
+  const id = 'w' + (++uid);
+  const uf = getUF(lat, lng);
+  const mult = UFS[uf].mult;
+  const rentBase = +(document.getElementById('p-rent-base').value);
+  const w = {
+    id, lat, lng, uf, name: 'CD ' + uid,
+    taxInc: UFS[uf].inc,  // crédito presumido del estado (editable)
+    baseM2: 2000, extraM2Pct: 0,
+    pricePerM2: +(rentBase * mult).toFixed(2),
+    extraPricePct: 30,   // % más caro el m² adicional
+    fixedOpCost: 800000,
+    maxThroughput: 8000,
+    marker: null, circle: null, active: false
+  };
+  warehouses.push(w);
+  const m = L.marker([lat, lng], { icon: ICONS.warehouse(false), draggable: true }).addTo(map);
+  m.on('dragend', () => {
+    w.lat = m.getLatLng().lat; w.lng = m.getLatLng().lng;
+    const newUf = getUF(w.lat, w.lng);
+    if (newUf !== w.uf) { w.uf = newUf; w.taxInc = UFS[newUf].inc; }
+    clearRoutes(); updateNodeList();
+  });
+  m.on('click', () => openWarehousePopup(w, m));
+  w.marker = m;
+  openWarehousePopup(w, m);
+  updateNodeList();
+}
+
+function openWarehousePopup(w, m) {
+  const extraM2  = () => Math.round(w.baseM2 * w.extraM2Pct / 100);
+  const extraCost= () => Math.round(extraM2() * w.pricePerM2 * (1 + w.extraPricePct/100));
+  const totalM2  = () => w.baseM2 + extraM2();
+  const rentCost = () => Math.round(w.baseM2 * w.pricePerM2);
+
+  const ufd = UFS[w.uf] || {};
+  const html = `<div class="popup-form">
+    <h3>🏪 CD — ${ufd.name || ''} (${w.uf})</h3>
+    <p class="cost-hint" style="color:#eab308;">ICMS interna ${ufd.interna}% · ${ufd.inc > 0 ? '🎁 incentivo estadual disponible' : 'sin incentivo estadual'}</p>
+    <label>Nombre</label><input type="text" id="pw-name" value="${w.name}">
+    <label>Incentivo fiscal (crédito presumido, % del ICMS neto condonado)</label>
+    <input type="number" id="pw-taxinc" value="${Math.round(w.taxInc * 100)}" min="0" max="95" step="5">
+    <div class="pf-row">
+      <div><label>Tamaño base (m²)</label><input type="number" id="pw-m2" value="${w.baseM2}"></div>
+      <div><label>$/m²/mes</label><input type="number" id="pw-pm2" value="${w.pricePerM2}" step="0.1"></div>
+    </div>
+    <p class="cost-hint">Arriendo base: $<span id="pw-rent">${rentCost().toLocaleString()}</span>/mes</p>
+    <label>Ampliación: <span id="pw-m2-lbl">${w.extraM2Pct}%</span> (+<span id="pw-extra-m2">${extraM2().toLocaleString()}</span> m² → +$<span id="pw-extra-c">${extraCost().toLocaleString()}</span>/mes)</label>
+    <div class="pf-slider">
+      <input type="range" min="0" max="200" value="${w.extraM2Pct}" id="pw-m2-sl" oninput="
+        const pm2=document.getElementById('pw-pm2').valueAsNumber;
+        const bm2=document.getElementById('pw-m2').valueAsNumber;
+        const pct=+document.getElementById('pw-extra-pct').value||30;
+        const em2=Math.round(bm2*this.value/100);
+        const ec=Math.round(em2*pm2*(1+pct/100));
+        document.getElementById('pw-m2-lbl').textContent=this.value+'%';
+        document.getElementById('pw-extra-m2').textContent=em2.toLocaleString();
+        document.getElementById('pw-extra-c').textContent=ec.toLocaleString();
+        document.getElementById('pw-total-m2').textContent=(bm2+em2).toLocaleString();
+        document.getElementById('pw-rent').textContent=Math.round(bm2*pm2).toLocaleString();
+      ">
+      <span style="font-size:10px;color:#64748b;">Total: <span id="pw-total-m2">${totalM2().toLocaleString()}</span> m²</span>
+    </div>
+    <div class="pf-row">
+      <div><label>Costo extra m² (%+)</label><input type="number" id="pw-extra-pct" value="${w.extraPricePct}"></div>
+      <div><label>Op. fijo ($/mes)</label><input type="number" id="pw-op" value="${w.fixedOpCost}"></div>
+    </div>
+    <label>Throughput máx (un/mes)</label><input type="number" id="pw-thr" value="${w.maxThroughput}">
+    <button class="popup-btn" onclick="saveWarehouse('${w.id}')">💾 Guardar</button>
+    <button class="popup-btn del" onclick="deleteNode('${w.id}','warehouse')">🗑 Eliminar</button>
+  </div>`;
+  m.bindPopup(html, { maxWidth: 290 }).openPopup();
+}
+
+function saveWarehouse(id) {
+  const w = warehouses.find(x => x.id === id);
+  if (!w) return;
+  w.name = document.getElementById('pw-name').value;
+  w.taxInc = Math.min(0.95, Math.max(0, (+document.getElementById('pw-taxinc').value || 0) / 100));
+  w.baseM2 = +document.getElementById('pw-m2').value;
+  w.extraM2Pct = +document.getElementById('pw-m2-sl').value;
+  w.pricePerM2 = +document.getElementById('pw-pm2').value;
+  w.extraPricePct = +document.getElementById('pw-extra-pct').value;
+  w.fixedOpCost = +document.getElementById('pw-op').value;
+  w.maxThroughput = +document.getElementById('pw-thr').value;
+  w.marker.closePopup();
+  updateNodeList(); updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// CUSTOMER ZONE
+// ══════════════════════════════════════════════════════════════
+function createCustomer(lat, lng) {
+  const id = 'c' + (++uid);
+  const c = {
+    id, lat, lng, uf: getUF(lat, lng), name: 'Zona ' + uid,
+    demand: 3000, sellPrice: 1500, radius: 80,
+    marker: null, circle: null
+  };
+  customers.push(c);
+  const m = L.marker([lat, lng], { icon: ICONS.customer(), draggable: true }).addTo(map);
+  const circle = L.circle([lat, lng], { radius: c.radius * 1000, color: '#22c55e', fillColor: '#22c55e', fillOpacity: .08, weight: 1, dashArray: '4' }).addTo(map);
+  m.on('dragend', () => {
+    c.lat = m.getLatLng().lat; c.lng = m.getLatLng().lng; c.uf = getUF(c.lat, c.lng);
+    circle.setLatLng([c.lat, c.lng]);
+    clearRoutes(); updateNodeList();
+  });
+  m.on('click', () => openCustomerPopup(c, m, circle));
+  c.marker = m; c.circle = circle;
+  openCustomerPopup(c, m, circle);
+  updateNodeList();
+}
+
+// Silent helpers used by CSV importer / demo (no popup)
+function addFactory(lat, lng, opts = {}) {
+  const id = 'f' + (++uid);
+  const f = {
+    id, lat, lng, uf: opts.uf || getUF(lat, lng),
+    name: opts.nombre || ('Fábrica ' + uid),
+    baseCapacity: opts.baseCapacity || 10000,
+    extraCapPct: 0,
+    extraCostPerThousand: 500,
+    baseCost: opts.baseCost || 500000,
+    varCostPerUnit: opts.varCostPerUnit || 300,
+    marker: null
+  };
+  factories.push(f);
+  const m = L.marker([lat, lng], { icon: ICONS.factory(), draggable: true }).addTo(map);
+  m.on('dragend', () => { f.lat = m.getLatLng().lat; f.lng = m.getLatLng().lng; f.uf = getUF(f.lat, f.lng); clearRoutes(); updateNodeList(); });
+  m.on('click', () => openFactoryPopup(f, m));
+  f.marker = m;
+}
+
+function addWarehouse(lat, lng, opts = {}) {
+  const id = 'w' + (++uid);
+  const uf = opts.uf || getUF(lat, lng);
+  const w = {
+    id, lat, lng, uf,
+    name: opts.nombre || ('CD ' + uid),
+    taxInc: opts.taxInc !== undefined ? opts.taxInc : UFS[uf].inc,
+    baseM2: opts.baseM2 || 500,
+    extraM2Pct: 0,
+    pricePerM2: opts.pricePerM2 || 3.0,
+    extraPricePct: 30,
+    fixedOpCost: opts.fixedOpCost || 30000,
+    maxThroughput: opts.maxThroughput || 5000,
+    marker: null, circle: null, active: false
+  };
+  warehouses.push(w);
+  const m = L.marker([lat, lng], { icon: ICONS.warehouse(false), draggable: true }).addTo(map);
+  m.on('dragend', () => {
+    w.lat = m.getLatLng().lat; w.lng = m.getLatLng().lng;
+    const newUf = getUF(w.lat, w.lng);
+    if (newUf !== w.uf) { w.uf = newUf; w.taxInc = UFS[newUf].inc; }
+    clearRoutes(); updateNodeList();
+  });
+  m.on('click', () => openWarehousePopup(w, m));
+  w.marker = m;
+  const circle = L.circle([lat, lng], { radius: w.baseM2 * 5, color: '#f97316', fillOpacity: 0, weight: 1, dashArray: '3' }).addTo(map);
+  w.circle = circle;
+}
+
+function addCustomer(lat, lng, opts = {}) {
+  const id = 'c' + (++uid);
+  const radius = opts.radius || 100;
+  const c = {
+    id, lat, lng, uf: opts.uf || getUF(lat, lng),
+    name: opts.nombre || ('Zona ' + uid),
+    demand: opts.demand || 1000,
+    sellPrice: opts.sellPrice || 1000,
+    radius,
+    marker: null, circle: null
+  };
+  customers.push(c);
+  const m = L.marker([lat, lng], { icon: ICONS.customer(), draggable: true }).addTo(map);
+  const circle = L.circle([lat, lng], { radius: radius * 1000, color: '#22c55e', fillColor: '#22c55e', fillOpacity: .08, weight: 1, dashArray: '4' }).addTo(map);
+  m.on('dragend', () => { c.lat = m.getLatLng().lat; c.lng = m.getLatLng().lng; c.uf = getUF(c.lat, c.lng); circle.setLatLng([c.lat, c.lng]); clearRoutes(); updateNodeList(); });
+  m.on('click', () => openCustomerPopup(c, m, circle));
+  c.marker = m; c.circle = circle;
+}
+
+function openCustomerPopup(c, m, circle) {
+  const html = `<div class="popup-form">
+    <h3>👥 Zona Clientes</h3>
+    <label>Nombre zona</label><input type="text" id="pc-name" value="${c.name}">
+    <div class="pf-row">
+      <div><label>Demanda (un/mes)</label><input type="number" id="pc-dem" value="${c.demand}"></div>
+      <div><label>Precio venta ($/un)</label><input type="number" id="pc-price" value="${c.sellPrice}"></div>
+    </div>
+    <label>Radio zona (km): <span id="pc-rad-lbl">${c.radius} km</span></label>
+    <div class="pf-slider">
+      <input type="range" min="10" max="500" value="${c.radius}" id="pc-rad" oninput="
+        document.getElementById('pc-rad-lbl').textContent=this.value+' km';
+      ">
+    </div>
+    <button class="popup-btn" onclick="saveCustomer('${c.id}')">💾 Guardar</button>
+    <button class="popup-btn del" onclick="deleteNode('${c.id}','customer')">🗑 Eliminar</button>
+  </div>`;
+  m.bindPopup(html, { maxWidth: 260 }).openPopup();
+}
+
+function saveCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  c.name = document.getElementById('pc-name').value;
+  c.demand = +document.getElementById('pc-dem').value;
+  c.sellPrice = +document.getElementById('pc-price').value;
+  c.radius = +document.getElementById('pc-rad').value;
+  c.circle.setRadius(c.radius * 1000);
+  c.marker.closePopup();
+  updateNodeList(); updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// DELETE NODE
+// ══════════════════════════════════════════════════════════════
+function deleteNode(id, type) {
+  const removeFrom = arr => {
+    const idx = arr.findIndex(x => x.id === id);
+    if (idx < 0) return;
+    const n = arr[idx];
+    if (n.marker) map.removeLayer(n.marker);
+    if (n.circle) map.removeLayer(n.circle);
+    arr.splice(idx, 1);
+  };
+  if (type === 'factory')   removeFrom(factories);
+  if (type === 'warehouse') removeFrom(warehouses);
+  if (type === 'customer')  removeFrom(customers);
+  clearRoutes(); updateNodeList(); updatePnL();
+}
+
+function clearAll() {
+  if (!confirm('¿Limpiar todos los nodos?')) return;
+  [...factories, ...warehouses, ...customers].forEach(n => {
+    if (n.marker) map.removeLayer(n.marker);
+    if (n.circle) map.removeLayer(n.circle);
+  });
+  factories = []; warehouses = []; customers = [];
+  clearRoutes(); updateNodeList(); updatePnL(); optResult = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ROUTES
+// ══════════════════════════════════════════════════════════════
+function clearRoutes() {
+  routes.forEach(r => {
+    if (r.line) map.removeLayer(r.line);
+    if (r.arrow) map.removeLayer(r.arrow);
+  });
+  routes = [];
+}
+
+function bearing(a, b) {
+  const dLat = b[0] - a[0], dLng = b[1] - a[1];
+  return Math.atan2(dLng, dLat) * 180 / Math.PI;
+}
+
+function drawRoute(coords, fallbackA, fallbackB, color, weight) {
+  let latlngs;
+  if (coords && coords.length > 1) {
+    latlngs = coords.map(c => [c[1], c[0]]);
+  } else {
+    latlngs = [fallbackA, fallbackB];
+  }
+  const line = L.polyline(latlngs, { color, weight, opacity: .82 }).addTo(map);
+
+  // Arrow marker at 60% of route, rotated to match road direction
+  const idx = Math.max(1, Math.floor(latlngs.length * 0.6));
+  const ang = bearing(latlngs[idx - 1], latlngs[idx]);
+  const arrowIcon = L.divIcon({
+    html: `<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:13px solid ${color};transform:rotate(${ang}deg);transform-origin:center center;opacity:.9;"></div>`,
+    className: '', iconSize: [12, 13], iconAnchor: [6, 6]
+  });
+  const arrow = L.marker(latlngs[idx], { icon: arrowIcon, interactive: false }).addTo(map);
+  return { line, arrow };
+}
+
+// ══════════════════════════════════════════════════════════════
+// P&L ENGINE
+// ══════════════════════════════════════════════════════════════
+function computeTransportCost(km, units, type) {
+  // type: 'fab' (fab→wh) or 'bod' (wh→cli)
+  const modeF = { truck: 1.0, train: 0.6, mixed: 0.8 }[document.getElementById('p-transport').value] || 1.0;
+  const sf = sensFactor;
+  const tMode = document.getElementById('p-transport-mode').value;
+
+  if (tMode === 'ltl' || (tMode === 'mixed' && type === 'bod')) {
+    const rate = type === 'fab' ? +document.getElementById('p-fab-km').value : +document.getElementById('p-bod-km').value;
+    return km * units * rate * modeF * sf;
+  } else {
+    // FTL
+    const fixed = +document.getElementById('p-ftl-fixed').value;
+    const perKm  = +document.getElementById('p-ftl-km').value;
+    const cap    = +document.getElementById('p-ftl-cap').value || 500;
+    const trucks = Math.ceil(units / cap);
+    return trucks * (fixed + km * perKm) * modeF * sf;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// MOTOR ICMS — modelo débito/crédito (metodología Optilogic/LLamasoft)
+// Por cada CD activo:
+//   crédito  = valor transferencia (fáb→CD) × tasa(UF fáb → UF CD)
+//   débito   = valor venta (CD→cliente)     × tasa(UF CD → UF cliente)
+//   DIFAL    = si B2C interestadual: (interna destino − interestadual) × venta
+//   balance  = max(0, débito − crédito)   [crédito acumulado no recuperable]
+//   incentivo (guerra fiscal) condona taxInc % del balance del CD
+// La fábrica debita ICMS por la transferencia, neto de créditos de insumos.
+// ══════════════════════════════════════════════════════════════
+function computeICMS(sol) {
+  const saleType    = document.getElementById('p-sale-type').value;
+  const transferPct = +document.getElementById('p-transfer-pct').value / 100;
+  const inputCredit = +document.getElementById('p-input-credit').value / 100;
+
+  let fabIcms = 0, cdDebits = 0, cdCredits = 0, difal = 0, incentiveSavings = 0, cdNet = 0;
+  const byWh = [];
+
+  // UF de la fábrica que abastece cada CD
+  const fabUfByWh = {};
+  for (const ff of sol.fabFlows) {
+    const f = factories.find(x => x.id === ff.fabId);
+    if (f) fabUfByWh[ff.whId] = f.uf;
+  }
+
+  for (const wh of sol.activeWh) {
+    const w = warehouses.find(x => x.id === wh.whId);
+    if (!w) continue;
+    const fabUf = fabUfByWh[wh.whId] || w.uf;
+
+    let salesValue = 0, whDebit = 0, whDifal = 0;
+    for (const a of wh.assigned) {
+      const c = customers.find(x => x.id === a.custId);
+      if (!c) continue;
+      const val = a.units * c.sellPrice;
+      salesValue += val;
+      const rate = icmsRate(w.uf, c.uf) / 100;
+      whDebit += val * rate;
+      if (saleType === 'b2c' && w.uf !== c.uf) {
+        whDifal += val * Math.max(0, UFS[c.uf].interna / 100 - rate);
+      }
+    }
+
+    const transferValue = salesValue * transferPct;
+    const inRate  = icmsRate(fabUf, w.uf) / 100;
+    const whCredit = transferValue * inRate;
+
+    const balance = Math.max(0, whDebit - whCredit);
+    const saving  = balance * w.taxInc;
+
+    // ICMS pagado por la fábrica en la transferencia (neto de créditos de insumos)
+    const whFabIcms = transferValue * inRate * (1 - inputCredit);
+
+    fabIcms += whFabIcms;
+    cdDebits += whDebit;
+    cdCredits += Math.min(whCredit, whDebit); // crédito aprovechable
+    difal += whDifal;
+    incentiveSavings += saving;
+    cdNet += balance - saving;
+
+    byWh.push({ whId: w.id, name: w.name, uf: w.uf, debit: whDebit, credit: whCredit,
+                balance, saving, difal: whDifal, taxInc: w.taxInc });
+  }
+
+  const icmsTotal = fabIcms + cdNet + difal;
+  return { fabIcms, cdDebits, cdCredits, difal, incentiveSavings, cdNet, icmsTotal, byWh };
+}
+
+// Costo tributario unitario aproximado (para los optimizadores)
+function unitTaxCost(w, c) {
+  const saleType    = document.getElementById('p-sale-type').value;
+  const transferPct = +document.getElementById('p-transfer-pct').value / 100;
+  const rate = icmsRate(w.uf, c.uf) / 100;
+  const debit  = c.sellPrice * rate;
+  const credit = c.sellPrice * transferPct * 0.12; // crédito estimado a tasa interestadual típica
+  let dif = 0;
+  if (saleType === 'b2c' && w.uf !== c.uf) {
+    dif = c.sellPrice * Math.max(0, UFS[c.uf].interna / 100 - rate);
+  }
+  return Math.max(0, debit - credit) * (1 - w.taxInc) + dif;
+}
+
+function computePnL(sol) {
+  if (!sol) return null;
+  const unitKg       = +document.getElementById('p-unit-kg').value;
+  const co2Factor    = +document.getElementById('p-co2-factor').value;
+  const holdingRate  = +document.getElementById('p-holding-rate').value / 100 / 12;
+  const unitValue    = +document.getElementById('p-unit-value').value;
+  const leadTimeDays = +document.getElementById('p-lead-time').value;
+
+  let revenue = 0, fabFixed = 0, fabExtraCap = 0, fabVar = 0;
+  let whRent = 0, whExtra = 0, whOp = 0, whHolding = 0;
+  let transFab = 0, transBod = 0;
+  let co2Tons = 0;
+  let totalDemand = customers.reduce((s, c) => s + c.demand, 0);
+  let coveredDemand = 0;
+
+  // Revenue & coverage
+  for (const wh of sol.activeWh) {
+    for (const a of wh.assigned) {
+      const c = customers.find(x => x.id === a.custId);
+      if (!c) continue;
+      revenue += a.units * c.sellPrice;
+      coveredDemand += a.units;
+    }
+  }
+
+  // Factory costs
+  for (const ff of sol.fabFlows) {
+    const f = factories.find(x => x.id === ff.fabId);
+    if (!f) continue;
+    fabFixed += f.baseCost;
+    const extraUnits = f.baseCapacity * f.extraCapPct / 100;
+    fabExtraCap += Math.round(extraUnits / 1000 * f.extraCostPerThousand);
+    fabVar += ff.units * f.varCostPerUnit;
+    const km = sol.distMap[`${ff.fabId}-${ff.whId}`] || 0;
+    transFab += computeTransportCost(km, ff.units, 'fab');
+    co2Tons += km * ff.units * unitKg / 1000 * co2Factor / 1000;
+  }
+
+  // Warehouse costs
+  for (const wh of sol.activeWh) {
+    const w = warehouses.find(x => x.id === wh.whId);
+    if (!w) continue;
+    whRent += w.baseM2 * w.pricePerM2;
+    const extraM2 = w.baseM2 * w.extraM2Pct / 100;
+    whExtra += extraM2 * w.pricePerM2 * (1 + w.extraPricePct / 100);
+    whOp += w.fixedOpCost;
+    // Holding cost: avg inventory = throughput × lead_time/30 ÷ 2 (safety stock simplified)
+    const throughput = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const avgInv = throughput * leadTimeDays / 30 / 2;
+    whHolding += avgInv * unitValue * holdingRate;
+    for (const a of wh.assigned) {
+      const km = sol.distMap[`${wh.whId}-${a.custId}`] || 0;
+      transBod += computeTransportCost(km, a.units, 'bod');
+      co2Tons += km * a.units * unitKg / 1000 * co2Factor / 1000;
+    }
+  }
+
+  // ── Impuestos ICMS ──
+  const icms = computeICMS(sol);
+
+  const totalCosts = fabFixed + fabExtraCap + fabVar + whRent + whExtra + whOp + whHolding + transFab + transBod + icms.icmsTotal;
+  const ebitda = revenue - totalCosts;
+  const svcLevel = totalDemand > 0 ? coveredDemand / totalDemand * 100 : 0;
+  const costPerUnit = coveredDemand > 0 ? totalCosts / coveredDemand : 0;
+  const logRatio = revenue > 0 ? (transFab + transBod) / revenue * 100 : 0;
+  const taxRatio = revenue > 0 ? icms.icmsTotal / revenue * 100 : 0;
+  const landedCost = coveredDemand > 0 ? (fabVar + transFab + transBod + whHolding + icms.icmsTotal) / coveredDemand : 0;
+  const dio = coveredDemand > 0 ? (whHolding / (unitValue * holdingRate)) / coveredDemand * 30 : 0;
+
+  return { revenue, fabFixed, fabExtraCap, fabVar, whRent, whExtra, whOp, whHolding,
+           transFab, transBod, totalCosts, ebitda, svcLevel, costPerUnit, logRatio,
+           coveredDemand, totalDemand, co2Tons, landedCost, dio, icms, taxRatio };
+}
+
+// ══════════════════════════════════════════════════════════════
+// OPTIMIZER
+// ══════════════════════════════════════════════════════════════
+async function runOptimizer() {
+  if (factories.length === 0 || warehouses.length === 0 || customers.length === 0) {
+    showStatus('Agrega al menos 1 fábrica, 1 bodega y 1 zona de clientes'); return;
+  }
+  const algo = document.getElementById('opt-algo').value;
+  showProgress(10, 'Calculando distancias reales (OSRM)...');
+
+  // Build distance matrix
+  const distMap = {};
+  const pairs = [];
+  for (const f of factories) for (const w of warehouses) pairs.push([`${f.id}-${w.id}`, f.lat, f.lng, w.lat, w.lng]);
+  for (const w of warehouses) for (const c of customers)  pairs.push([`${w.id}-${c.id}`, w.lat, w.lng, c.lat, c.lng]);
+
+  const BATCH = 5;
+  for (let i = 0; i < pairs.length; i += BATCH) {
+    const batch = pairs.slice(i, i + BATCH);
+    await Promise.all(batch.map(async ([key, la, lo, lb, lb2]) => {
+      const { km } = await getRouteKm(la, lo, lb, lb2);
+      distMap[key] = km;
+    }));
+    showProgress(10 + Math.round(60 * i / pairs.length), 'Calculando distancias reales por carretera...');
+  }
+
+  showProgress(70, `Ejecutando algoritmo ${algo}...`);
+  let sol;
+  if (algo === 'greedy')  sol = optimizerGreedy(distMap);
+  if (algo === 'twoopt')  sol = optimizer2opt(distMap);
+  if (algo === 'sa')      sol = optimizerSA(distMap);
+  if (algo === 'genetic') sol = optimizerGenetic(distMap);
+  sol.distMap = distMap;
+
+  showProgress(85, 'Dibujando rutas por carretera real...');
+  clearRoutes();
+
+  // Draw fáb→wh routes (blue) — geometry already cached from matrix build
+  for (const ff of sol.fabFlows) {
+    const f = factories.find(x => x.id === ff.fabId);
+    const w = warehouses.find(x => x.id === ff.whId);
+    if (!f || !w) continue;
+    const { coords } = await getRouteKm(f.lat, f.lng, w.lat, w.lng);
+    const weight = Math.max(2, Math.min(8, ff.units / 1000));
+    const { line, arrow } = drawRoute(coords, [f.lat, f.lng], [w.lat, w.lng], '#3b82f6', weight);
+    routes.push({ fromId: ff.fabId, toId: ff.whId, kmReal: distMap[`${ff.fabId}-${ff.whId}`], line, arrow, units: ff.units });
+  }
+
+  // Draw wh→customer routes (green), update warehouse icons
+  for (const wh of sol.activeWh) {
+    const w = warehouses.find(x => x.id === wh.whId);
+    if (!w) continue;
+    w.active = true;
+    w.marker.setIcon(ICONS.warehouse(true));
+    for (const a of wh.assigned) {
+      const c = customers.find(x => x.id === a.custId);
+      if (!c) continue;
+      const { coords } = await getRouteKm(w.lat, w.lng, c.lat, c.lng);
+      const weight = Math.max(2, Math.min(8, a.units / 500));
+      const { line, arrow } = drawRoute(coords, [w.lat, w.lng], [c.lat, c.lng], '#22c55e', weight);
+      routes.push({ fromId: wh.whId, toId: a.custId, kmReal: distMap[`${wh.whId}-${a.custId}`], line, arrow, units: a.units });
+    }
+  }
+
+  // Dim inactive warehouses
+  const activeIds = new Set(sol.activeWh.map(x => x.whId));
+  warehouses.forEach(w => { if (!activeIds.has(w.id)) { w.active = false; w.marker.setIcon(ICONS.warehouse(false)); } });
+
+  optResult = sol;
+  showProgress(100, '');
+  setTimeout(() => hideProgress(), 600);
+  updatePnL();
+  showTab('pnl');
+
+  // Service level feedback
+  const p = computePnL({ ...sol, distMap });
+  const svcTarget = +document.getElementById('svc-slider').value;
+  const achieved = p ? p.svcLevel : 0;
+  if (p && achieved < svcTarget - 0.5) {
+    showStatus(`⚠️ Nivel servicio ${achieved.toFixed(1)}% — objetivo ${svcTarget}% no alcanzado. Agrega bodegas en el norte o amplía el radio de entrega.`);
+  } else {
+    showStatus(`✅ ${sol.activeWh.length} bodegas activas — Nivel servicio ${achieved.toFixed(1)}% ✓`);
+  }
+}
+
+// ── GREEDY ──
+function optimizerGreedy(distMap) {
+  const svcTarget = +document.getElementById('svc-slider').value / 100;
+  const maxRadius = +document.getElementById('p-radius').value;
+
+  const result = { activeWh: [], fabFlows: [] };
+  // Track units served per customer across all warehouses to avoid double-counting
+  const served = {};
+  const totalDemand = customers.reduce((s, c) => s + c.demand, 0);
+  let coveredDemand = 0;
+
+  // Rank warehouses by efficiency: reachable demand ÷ costo total estimado
+  // (flete + ICMS + fijos) — un CD con incentivo fiscal sube en el ranking
+  const ranked = warehouses.map(w => {
+    const reachable = customers.filter(c => (distMap[`${w.id}-${c.id}`] || Infinity) <= maxRadius);
+    const demand = reachable.reduce((s, c) => s + c.demand, 0);
+    const flowCost = reachable.reduce((s, c) => s + unitFlowCost(w, c, distMap) * c.demand, 0);
+    const totalCost = flowCost + w.fixedOpCost + w.baseM2 * w.pricePerM2;
+    return { w, demand, eff: demand > 0 ? demand / totalCost : 0 };
+  }).sort((a, b) => b.eff - a.eff);
+
+  for (const { w } of ranked) {
+    if (coveredDemand / totalDemand >= svcTarget) break;
+    const throughput = w.maxThroughput * (1 + w.extraM2Pct / 100 * 0.5);
+    const assigned = [];
+    let used = 0;
+
+    // Only customers with remaining unserved demand, sorted by unit cost (flete + ICMS)
+    const cands = customers
+      .filter(c => {
+        const remaining = c.demand - (served[c.id] || 0);
+        return remaining > 0 && (distMap[`${w.id}-${c.id}`] || Infinity) <= maxRadius;
+      })
+      .map(c => ({ c, cost: unitFlowCost(w, c, distMap) }))
+      .sort((a, b) => a.cost - b.cost);
+
+    for (const { c } of cands) {
+      const remaining = c.demand - (served[c.id] || 0);
+      const units = Math.min(remaining, throughput - used);
+      if (units <= 0) break;
+      assigned.push({ custId: c.id, units });
+      served[c.id] = (served[c.id] || 0) + units;
+      used += units;
+      coveredDemand += units;
+    }
+
+    if (assigned.length > 0) {
+      result.activeWh.push({ whId: w.id, assigned });
+    }
+  }
+
+  // Assign factory flows (nearest factory to each active warehouse)
+  result.activeWh.forEach(wh => {
+    const units = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const best = factories.map(f => ({ f, km: distMap[`${f.id}-${wh.whId}`] || Infinity })).sort((a,b) => a.km - b.km)[0];
+    if (best) result.fabFlows.push({ fabId: best.f.id, whId: wh.whId, units });
+  });
+
+  return result;
+}
+
+// ── Costo unitario total (flete + ICMS) — compartido por los optimizadores ──
+function unitFlowCost(w, c, distMap) {
+  const bodKmCost = +document.getElementById('p-bod-km').value;
+  const km = distMap[`${w.id}-${c.id}`] || 9999;
+  return km * bodKmCost + unitTaxCost(w, c);
+}
+
+// ── 2-OPT LOCAL SEARCH ──
+function optimizer2opt(distMap) {
+  // Start with greedy solution, then swap customer assignments between warehouses
+  const sol = optimizerGreedy(distMap);
+  if (sol.activeWh.length < 2) return sol;
+
+  const costAssign = (whId, custId, units) => {
+    const w = warehouses.find(x => x.id === whId);
+    const c = customers.find(x => x.id === custId);
+    if (!w || !c) return Infinity;
+    return unitFlowCost(w, c, distMap) * units;
+  };
+
+  let improved = true;
+  let iters = 0;
+  while (improved && iters < 50) {
+    improved = false; iters++;
+    for (let i = 0; i < sol.activeWh.length; i++) {
+      for (let j = i + 1; j < sol.activeWh.length; j++) {
+        const wA = sol.activeWh[i], wB = sol.activeWh[j];
+        for (const aA of wA.assigned) {
+          for (const aB of wB.assigned) {
+            const curCost = costAssign(wA.whId, aA.custId, aA.units) + costAssign(wB.whId, aB.custId, aB.units);
+            const swpCost = costAssign(wA.whId, aB.custId, aB.units) + costAssign(wB.whId, aA.custId, aA.units);
+            if (swpCost < curCost - 0.01) {
+              const tmp = aA.custId; aA.custId = aB.custId; aB.custId = tmp;
+              improved = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return sol;
+}
+
+// ── SIMULATED ANNEALING ──
+function optimizerSA(distMap) {
+  if (warehouses.length === 0 || customers.length === 0) return optimizerGreedy(distMap);
+  const maxRadius = +document.getElementById('p-radius').value;
+
+  // Initial solution: random assignment within radius
+  let assignment = customers.map(c => {
+    const valid = warehouses.filter(w => (distMap[`${w.id}-${c.id}`] || Infinity) <= maxRadius);
+    return valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)].id : (warehouses[0]?.id || null);
+  });
+
+  const totalCost = (asgn) => {
+    let cost = 0;
+    asgn.forEach((wId, ci) => {
+      if (!wId) return;
+      const c = customers[ci];
+      const w = warehouses.find(x => x.id === wId);
+      if (w) cost += unitFlowCost(w, c, distMap) * c.demand;
+    });
+    // Add fixed costs for active warehouses
+    const active = new Set(asgn.filter(Boolean));
+    active.forEach(wId => {
+      const w = warehouses.find(x => x.id === wId);
+      if (w) cost += w.fixedOpCost + w.baseM2 * w.pricePerM2;
+    });
+    return cost;
+  };
+
+  let T = 5000, cooling = 0.97, best = [...assignment], bestCost = totalCost(assignment);
+  for (let iter = 0; iter < 2000; iter++) {
+    const newA = [...assignment];
+    const ci = Math.floor(Math.random() * newA.length);
+    const valid = warehouses.filter(w => (distMap[`${w.id}-${customers[ci].id}`] || Infinity) <= maxRadius);
+    if (valid.length === 0) { T *= cooling; continue; }
+    newA[ci] = valid[Math.floor(Math.random() * valid.length)].id;
+    const newCost = totalCost(newA);
+    const delta = newCost - totalCost(assignment);
+    if (delta < 0 || Math.random() < Math.exp(-delta / T)) {
+      assignment = newA;
+      if (newCost < bestCost) { bestCost = newCost; best = [...newA]; }
+    }
+    T *= cooling;
+  }
+  assignment = best;
+
+  // Build solution structure
+  const whMap = {};
+  assignment.forEach((wId, ci) => {
+    if (!wId) return;
+    if (!whMap[wId]) whMap[wId] = [];
+    whMap[wId].push({ custId: customers[ci].id, units: customers[ci].demand });
+  });
+  const activeWh = Object.entries(whMap).map(([whId, assigned]) => ({ whId, assigned }));
+  const fabFlows = [];
+  activeWh.forEach(wh => {
+    const units = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const best = factories.map(f => ({ f, km: distMap[`${f.id}-${wh.whId}`] || Infinity })).sort((a,b) => a.km - b.km)[0];
+    if (best) fabFlows.push({ fabId: best.f.id, whId: wh.whId, units });
+  });
+  return { activeWh, fabFlows };
+}
+
+// ── GENETIC ALGORITHM ──
+function optimizerGenetic(distMap) {
+  const svcTarget = +document.getElementById('svc-slider').value / 100;
+  const maxRadius = +document.getElementById('p-radius').value;
+  const bodKmCost = +document.getElementById('p-bod-km').value;
+
+  if (warehouses.length === 0 || customers.length === 0) return optimizerGreedy(distMap);
+
+  const POP = 30, GENS = 60, MUTATION = 0.12;
+  const totalDemand = customers.reduce((s, c) => s + c.demand, 0);
+
+  // Chromosome: array of whId (or null) per customer
+  const validWhs = (cIdx) => warehouses.filter(w =>
+    (distMap[`${w.id}-${customers[cIdx].id}`] || Infinity) <= maxRadius
+  );
+
+  const randomChrom = () => customers.map((_, ci) => {
+    const v = validWhs(ci);
+    return v.length ? v[Math.floor(Math.random() * v.length)].id : null;
+  });
+
+  const fitness = (chrom) => {
+    let cost = 0, covered = 0;
+    const activeWhs = new Set(chrom.filter(Boolean));
+    activeWhs.forEach(wId => {
+      const w = warehouses.find(x => x.id === wId);
+      if (w) cost += w.fixedOpCost + w.baseM2 * w.pricePerM2;
+    });
+    chrom.forEach((wId, ci) => {
+      if (!wId) return;
+      const c = customers[ci];
+      const w = warehouses.find(x => x.id === wId);
+      if (w) cost += unitFlowCost(w, c, distMap) * c.demand;
+      covered += c.demand;
+    });
+    // Penalize for not meeting service level
+    if (covered / totalDemand < svcTarget) cost += (svcTarget - covered / totalDemand) * totalDemand * 5000;
+    return -cost; // maximize
+  };
+
+  let pop = Array.from({ length: POP }, randomChrom);
+
+  for (let g = 0; g < GENS; g++) {
+    pop.sort((a, b) => fitness(b) - fitness(a));
+    const survivors = pop.slice(0, Math.floor(POP / 2));
+    const children = [];
+    while (children.length < POP - survivors.length) {
+      const p1 = survivors[Math.floor(Math.random() * survivors.length)];
+      const p2 = survivors[Math.floor(Math.random() * survivors.length)];
+      const cut = Math.floor(Math.random() * customers.length);
+      const child = [...p1.slice(0, cut), ...p2.slice(cut)];
+      // Mutation
+      child.forEach((_, ci) => {
+        if (Math.random() < MUTATION) {
+          const v = validWhs(ci);
+          child[ci] = v.length ? v[Math.floor(Math.random() * v.length)].id : null;
+        }
+      });
+      children.push(child);
+    }
+    pop = [...survivors, ...children];
+  }
+
+  const best = pop.sort((a, b) => fitness(b) - fitness(a))[0];
+
+  // Build solution structure from best chromosome
+  const whMap = {};
+  const served = {};
+  best.forEach((wId, ci) => {
+    if (!wId) return;
+    const c = customers[ci];
+    const remaining = c.demand - (served[c.id] || 0);
+    if (remaining <= 0) return;
+    if (!whMap[wId]) whMap[wId] = [];
+    const w = warehouses.find(x => x.id === wId);
+    const maxU = w ? w.maxThroughput * (1 + w.extraM2Pct / 100 * 0.5) : Infinity;
+    const used = whMap[wId].reduce((s, a) => s + a.units, 0);
+    const units = Math.min(remaining, maxU - used);
+    if (units > 0) {
+      whMap[wId].push({ custId: c.id, units });
+      served[c.id] = (served[c.id] || 0) + units;
+    }
+  });
+
+  const activeWh = Object.entries(whMap).map(([whId, assigned]) => ({ whId, assigned }));
+  const fabFlows = [];
+  activeWh.forEach(wh => {
+    const units = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const best = factories.map(f => ({ f, km: distMap[`${f.id}-${wh.whId}`] || Infinity })).sort((a,b) => a.km - b.km)[0];
+    if (best) fabFlows.push({ fabId: best.f.id, whId: wh.whId, units });
+  });
+  return { activeWh, fabFlows };
+}
+
+// ══════════════════════════════════════════════════════════════
+// UPDATE P&L
+// ══════════════════════════════════════════════════════════════
+function updatePnL() {
+  if (!optResult) return;
+  optResult.distMap = optResult.distMap || {};
+  const p = computePnL(optResult);
+  if (!p) return;
+
+  document.getElementById('pnl-empty').style.display = 'none';
+  document.getElementById('pnl-content').style.display = 'block';
+
+  const fmt = v => v < 0 ? '-R$' + Math.abs(Math.round(v)).toLocaleString('pt-BR') : 'R$' + Math.round(v).toLocaleString('pt-BR');
+  const fmtn = v => Math.round(v).toLocaleString();
+
+  // Service level alert
+  const svcTarget = +document.getElementById('svc-slider').value;
+  const alert = document.getElementById('svc-alert');
+  if (p.svcLevel < svcTarget - 0.5) {
+    // Find unserved zones
+    const servedCustIds = new Set(optResult.activeWh.flatMap(wh => wh.assigned.map(a => a.custId)));
+    const unserved = customers.filter(c => !servedCustIds.has(c.id));
+    const partial = customers.filter(c => {
+      if (!servedCustIds.has(c.id)) return false;
+      const assigned = optResult.activeWh.flatMap(wh => wh.assigned).filter(a => a.custId === c.id);
+      const totalServed = assigned.reduce((s, a) => s + a.units, 0);
+      return totalServed < c.demand;
+    });
+    const gap = (svcTarget - p.svcLevel).toFixed(1);
+    let msg = `⚠️ <strong>Nivel de servicio ${p.svcLevel.toFixed(1)}% — falta ${gap}pp para el objetivo ${svcTarget}%</strong><br>`;
+    if (unserved.length) msg += `Sin cobertura: ${unserved.map(c=>c.name).join(', ')}<br>`;
+    if (partial.length) msg += `Cobertura parcial: ${partial.map(c=>c.name).join(', ')}<br>`;
+    msg += `→ Agrega bodegas en zonas sin cobertura o amplía el radio de entrega.`;
+    alert.innerHTML = msg;
+    alert.style.display = 'block';
+  } else {
+    alert.style.display = 'none';
+  }
+
+  // KPIs (6 cards)
+  const svcColor = p.svcLevel >= svcTarget ? 'green' : p.svcLevel >= svcTarget * 0.85 ? 'orange' : 'red';
+  const ebitdaColor = p.ebitda >= 0 ? 'green' : 'red';
+  const logColor = p.logRatio < 10 ? 'green' : p.logRatio < 15 ? 'orange' : 'red';
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card"><div class="val ${ebitdaColor}">${fmt(p.ebitda)}</div><div class="lbl">EBITDA/mes</div></div>
+    <div class="kpi-card"><div class="val ${svcColor}">${p.svcLevel.toFixed(1)}%</div><div class="lbl">Fill Rate</div></div>
+    <div class="kpi-card"><div class="val blue">${fmt(p.landedCost)}</div><div class="lbl">Total Landed Cost</div></div>
+    <div class="kpi-card"><div class="val ${logColor}">${p.logRatio.toFixed(1)}%</div><div class="lbl">Logística/Revenue</div></div>
+    <div class="kpi-card"><div class="val" style="color:#eab308;">${p.taxRatio.toFixed(1)}%</div><div class="lbl">🏛 ICMS/Revenue</div></div>
+    <div class="kpi-card"><div class="val" style="color:#34d399;">${fmt(p.icms.incentiveSavings)}</div><div class="lbl">🎁 Ahorro incentivos</div></div>
+  `;
+
+  // P&L Table
+  document.getElementById('pnl-table').innerHTML = `
+    <tr><td class="cat" colspan="2">INGRESOS</td></tr>
+    <tr><td>Revenue (${fmtn(p.coveredDemand)} un vendidas)</td><td class="pos">${fmt(p.revenue)}</td></tr>
+    <tr><td class="cat" colspan="2">COSTOS FÁBRICAS</td></tr>
+    <tr><td>Costo fijo fábricas</td><td class="neg">${fmt(-p.fabFixed)}</td></tr>
+    <tr><td>Costo capacidad adicional</td><td class="neg">${fmt(-p.fabExtraCap)}</td></tr>
+    <tr><td>Costo variable producción</td><td class="neg">${fmt(-p.fabVar)}</td></tr>
+    <tr><td class="cat" colspan="2">COSTOS BODEGAS</td></tr>
+    <tr><td>Arriendo (base)</td><td class="neg">${fmt(-p.whRent)}</td></tr>
+    <tr><td>Ampliación m²</td><td class="neg">${fmt(-p.whExtra)}</td></tr>
+    <tr><td>Operacional bodega</td><td class="neg">${fmt(-p.whOp)}</td></tr>
+    <tr><td>Holding cost (inventario)</td><td class="neg">${fmt(-p.whHolding)}</td></tr>
+    <tr><td class="cat" colspan="2">COSTOS TRANSPORTE</td></tr>
+    <tr><td>Transporte Fábrica → CD</td><td class="neg">${fmt(-p.transFab)}</td></tr>
+    <tr><td>Transporte CD → Cliente</td><td class="neg">${fmt(-p.transBod)}</td></tr>
+    <tr><td class="cat" colspan="2" style="color:#eab308;">🏛 IMPUESTOS — ICMS</td></tr>
+    <tr><td>Débitos ICMS en CDs (ventas)</td><td class="neg">${fmt(-p.icms.cdDebits)}</td></tr>
+    <tr><td>Créditos ICMS (transferencias)</td><td class="pos">+${fmt(p.icms.cdCredits)}</td></tr>
+    <tr><td>🎁 Incentivos fiscales (guerra fiscal)</td><td class="pos">+${fmt(p.icms.incentiveSavings)}</td></tr>
+    <tr><td>DIFAL (ventas interestaduales B2C)</td><td class="neg">${fmt(-p.icms.difal)}</td></tr>
+    <tr><td>ICMS fábrica (transferencia, neto insumos)</td><td class="neg">${fmt(-p.icms.fabIcms)}</td></tr>
+    <tr><td><strong>ICMS total a pagar</strong></td><td class="neg"><strong>${fmt(-p.icms.icmsTotal)}</strong></td></tr>
+    <tr class="total"><td><strong>EBITDA Operacional</strong></td><td class="${p.ebitda>=0?'pos':'neg'}"><strong>${fmt(p.ebitda)}</strong></td></tr>
+    <tr><td style="color:var(--muted);font-size:11px;">Total costos</td><td style="text-align:right;color:var(--muted);font-size:11px;">${fmt(-p.totalCosts)}</td></tr>
+    <tr><td style="color:#34d399;font-size:11px;">🌱 CO₂ total/mes</td><td style="text-align:right;color:#34d399;font-size:11px;">${p.co2Tons.toFixed(1)} ton</td></tr>
+  `;
+
+  // Detalle ICMS por CD
+  const icmsDetail = document.getElementById('icms-detail');
+  if (icmsDetail) {
+    icmsDetail.innerHTML = '<div class="section-title" style="color:#eab308;margin-top:10px;">🏛 ICMS por CD</div>' +
+      p.icms.byWh.map(d => `
+        <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;margin-bottom:4px;font-size:11px;">
+          <strong>${d.name}</strong> <span style="color:#eab308;">(${d.uf}${d.taxInc>0 ? ' · 🎁−'+Math.round(d.taxInc*100)+'%' : ''})</span><br>
+          <span style="color:var(--muted);">Débito ${fmt(d.debit)} · Crédito ${fmt(Math.min(d.credit,d.debit))} · ` +
+          `${d.saving>0 ? 'Ahorro <span style="color:#34d399;">'+fmt(d.saving)+'</span> · ' : ''}` +
+          `${d.difal>0 ? 'DIFAL '+fmt(d.difal)+' · ' : ''}` +
+          `Neto <strong>${fmt(d.balance - d.saving + d.difal)}</strong></span>
+        </div>`).join('');
+  }
+
+  // Chart
+  const labels = ['Revenue','Fab Fijo','Fab Var','WH Rent','WH Op','Holding','T F→B','T B→C','ICMS','EBITDA'];
+  const values = [p.revenue,-p.fabFixed,-p.fabVar,-p.whRent,-p.whOp,-p.whHolding,-p.transFab,-p.transBod,-p.icms.icmsTotal,p.ebitda];
+  const colors = values.map((v, i) => i === 0 ? '#22c55e' : i === labels.length-1 ? (v>=0?'#22c55e':'#ef4444') : '#ef4444');
+
+  if (pnlChart) pnlChart.destroy();
+  pnlChart = new Chart(document.getElementById('pnl-chart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 4 }] },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e2438' } },
+        y: { ticks: { color: '#64748b', font: { size: 9 }, callback: v => '$'+Math.round(v/1000)+'k' }, grid: { color: '#1e2438' } }
+      },
+      animation: false
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCENARIOS
+// ══════════════════════════════════════════════════════════════
+function saveScenario(key) {
+  const p = optResult ? computePnL({ ...optResult, distMap: optResult.distMap || {} }) : null;
+  scenarios[key] = {
+    factories: factories.map(f => ({ ...f, marker: null, circle: null })),
+    warehouses: warehouses.map(w => ({ ...w, marker: null, circle: null })),
+    customers:  customers.map(c => ({ ...c, marker: null, circle: null })),
+    optResult: optResult ? { ...optResult } : null,
+    pnl: p,
+    algo: document.getElementById('opt-algo').value,
+    ts: new Date().toLocaleTimeString()
+  };
+  localStorage.setItem('logopt_sc_' + key, JSON.stringify(scenarios[key]));
+  document.getElementById('sc-' + key.toLowerCase()).classList.add('filled');
+  document.getElementById('sc-' + key.toLowerCase()).textContent = '✅ ' + key + ' (' + scenarios[key].ts + ')';
+  updateCompare();
+}
+
+function loadScenario(key) {
+  const raw = localStorage.getItem('logopt_sc_' + key);
+  if (!raw) { showStatus('No hay escenario ' + key + ' guardado'); return; }
+  const sc = JSON.parse(raw);
+  showStatus('Escenario ' + key + ' cargado (solo datos, re-optimiza para rutas)');
+}
+
+function updateCompare() {
+  const filled = ['A','B','C'].filter(k => scenarios[k]?.pnl);
+  if (filled.length < 2) { document.getElementById('compare-view').innerHTML = '<p style="color:var(--muted);font-size:11px;">Guarda al menos 2 escenarios con P&L para comparar.</p>'; return; }
+  const rows = ['revenue','ebitda','totalCosts','costPerUnit','svcLevel','logRatio','taxRatio'];
+  const labels = { revenue:'Revenue', ebitda:'EBITDA', totalCosts:'Costo total', costPerUnit:'Costo/unidad', svcLevel:'Serv %', logRatio:'Log/Rev %', taxRatio:'ICMS/Rev %' };
+  const fmt = (k, v) => ['svcLevel','logRatio','taxRatio'].includes(k) ? (v ?? 0).toFixed(1)+'%' : 'R$'+Math.round(v ?? 0).toLocaleString('pt-BR');
+  const bestFn = (k) => {
+    const vals = filled.map(s => ({ s, v: scenarios[s].pnl[k] ?? 0 }));
+    if (['ebitda','revenue','svcLevel'].includes(k)) return vals.sort((a,b) => b.v-a.v)[0].s;
+    return vals.sort((a,b) => a.v-b.v)[0].s;
+  };
+  let html = `<table class="compare-table"><tr><th>Métrica</th>${filled.map(k=>`<th>${k}</th>`).join('')}</tr>`;
+  for (const row of rows) {
+    const best = bestFn(row);
+    html += `<tr><td>${labels[row]}</td>${filled.map(k => `<td class="${k===best?'best':''}">${fmt(row, scenarios[k].pnl[row])}</td>`).join('')}</tr>`;
+  }
+  html += `<tr><td>Algoritmo</td>${filled.map(k => `<td>${scenarios[k].algo}</td>`).join('')}</tr>`;
+  html += '</table>';
+  document.getElementById('compare-view').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SENSITIVITY
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// ALGORITHM DESCRIPTIONS
+// ══════════════════════════════════════════════════════════════
+const ALGO_INFO = {
+  greedy: {
+    name: 'Greedy (Heurística Constructiva)',
+    desc: 'Abre una bodega a la vez, siempre eligiendo la que más demanda cubre al menor costo marginal. Repite hasta alcanzar el nivel de servicio objetivo.',
+    pros: 'Muy rápido (&lt; 1 seg). Buena solución inicial. Ideal para explorar configuraciones.',
+    cons: 'Puede quedar en óptimos locales. No garantiza la solución global óptima.',
+    speed: '⚡⚡⚡', quality: '★★☆', size: 'Redes pequeñas/medianas (&lt;20 bodegas)',
+    tags: [['Rápido','speed'],['Simple','quality'],['&lt;20 bodegas','size']]
+  },
+  twoopt: {
+    name: '2-opt Local Search',
+    desc: 'Parte de la solución Greedy y mejora intercambiando asignaciones cliente↔bodega entre pares de centros. Acepta el intercambio si reduce el costo total.',
+    pros: 'Mejora la solución Greedy con poco esfuerzo computacional. Bueno para ajuste fino.',
+    cons: 'Solo encuentra mejoras locales. El resultado depende de la solución inicial Greedy.',
+    speed: '⚡⚡', quality: '★★★', size: 'Redes medianas (&lt;30 bodegas)',
+    tags: [['Moderado','speed'],['Buena calidad','quality'],['&lt;30 bodegas','size']]
+  },
+  sa: {
+    name: 'Simulated Annealing (Recocido Simulado)',
+    desc: 'Inspirado en el proceso físico de enfriamiento. Explora el espacio de soluciones aceptando temporalmente peores soluciones (con cierta probabilidad) para escapar de óptimos locales. La "temperatura" baja gradualmente hasta converger.',
+    pros: 'Encuentra mejores soluciones que Greedy y 2-opt en redes complejas. Escapa de mínimos locales.',
+    cons: 'Más lento (2-5 seg). Requiere ajuste de parámetros (temperatura, cooling rate). Resultado puede variar entre ejecuciones.',
+    speed: '⚡', quality: '★★★★', size: 'Redes grandes (&gt;20 bodegas)',
+    tags: [['Lento','speed'],['Alta calidad','quality'],['&gt;20 bodegas','size']]
+  },
+  genetic: {
+    name: 'Algoritmo Genético',
+    desc: 'Evoluciona una población de soluciones candidatas. Selecciona las mejores ("supervivientes"), las cruza para crear soluciones hijo, y aplica mutaciones aleatorias. Después de 60 generaciones, retiene la mejor solución encontrada.',
+    pros: 'Muy robusto para encontrar el óptimo global. Maneja bien múltiples restricciones simultáneas (capacidad, radio, nivel de servicio). Ideal cuando el espacio de búsqueda es grande.',
+    cons: 'El más lento de los cuatro (3-8 seg en browser). Resultado puede variar ligeramente entre ejecuciones por la aleatoriedad.',
+    speed: '⚡', quality: '★★★★★', size: 'Redes complejas con muchas restricciones',
+    tags: [['Más lento','speed'],['Mejor calidad','quality'],['Redes complejas','size']]
+  }
+};
+
+function updateAlgoDesc() {
+  const key = document.getElementById('opt-algo').value;
+  const info = ALGO_INFO[key];
+  const el = document.getElementById('algo-desc');
+  if (!info || el.style.display === 'none') return;
+  el.innerHTML = `
+    <strong>⚙️ ${info.name}</strong>
+    <p style="margin-bottom:5px;">${info.desc}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;margin-bottom:5px;">
+      <div style="color:#86efac;">✅ <em>${info.pros}</em></div>
+      <div style="color:#fca5a5;">⚠️ <em>${info.cons}</em></div>
+    </div>
+    <div>
+      ${info.tags.map(([t,c])=>`<span class="tag tag-${c}">${t}</span>`).join('')}
+      <span style="font-size:10px;color:var(--muted);margin-left:6px;">Velocidad: ${info.speed} | Calidad: ${info.quality}</span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:4px;">📐 Ideal para: ${info.size}</div>
+  `;
+  el.style.display = 'block';
+}
+
+function updateTransportMode() {
+  const mode = document.getElementById('p-transport-mode').value;
+  document.getElementById('ltl-params').style.display = mode === 'ftl' ? 'none' : 'block';
+  document.getElementById('ftl-params').style.display = mode !== 'ltl' ? 'block' : 'none';
+}
+
+function sensUpdate(val) {
+  sensFactor = +val;
+  document.getElementById('p-sens-val').textContent = '×' + (+val).toFixed(2);
+  updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════════════
+function showTab(name) {
+  ['params','nodes','pnl','scenarios'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', ['params','nodes','pnl','scenarios'][i] === name);
+  });
+}
+
+function updateNodeList() {
+  document.getElementById('cnt-fab').textContent = factories.length;
+  document.getElementById('cnt-wh').textContent  = warehouses.length;
+  document.getElementById('cnt-cust').textContent = customers.length;
+
+  const renderList = (items, containerId, color, emoji, type) => {
+    const el = document.getElementById(containerId);
+    el.innerHTML = items.length === 0 ? '<p style="color:var(--muted);font-size:11px;">Ninguno aún</p>' :
+      items.map(n => `<div class="node-item" onclick="n.marker?.openPopup?.()">
+        <div class="node-dot" style="background:${color}"></div>
+        <span>${emoji} ${n.name}</span>
+        <small>${type === 'factory' ? (n.baseCapacity/1000).toFixed(0)+'k un' : type === 'warehouse' ? n.baseM2+'m²' : n.demand+' un'}</small>
+        <span class="node-del" onclick="event.stopPropagation();deleteNode('${n.id}','${type}')">✕</span>
+      </div>`).join('');
+  };
+  renderList(factories,  'list-factories',  '#3b82f6', '🏭', 'factory');
+  renderList(warehouses, 'list-warehouses', '#f97316', '🏪', 'warehouse');
+  renderList(customers,  'list-customers',  '#22c55e', '👥', 'customer');
+}
+
+function showProgress(pct, msg) {
+  document.getElementById('progress-bar').style.display = 'block';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  if (msg) showStatus(msg);
+}
+function hideProgress() {
+  document.getElementById('progress-bar').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '0';
+}
+let statusTimer;
+function showStatus(msg) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+const CSV_HEADER = 'tipo,nombre,lat,lng,capacidad,costo_fijo,costo_var,area_m2,arriendo_m2,costo_op,throughput,demanda,precio_venta,radio_km';
+// tipo: fabrica | bodega | cliente
+// fabrica:  capacidad, costo_fijo, costo_var
+// bodega:   area_m2, arriendo_m2, costo_op, throughput
+// cliente:  demanda, precio_venta, radio_km
+
+function exportCSV() {
+  let csv = CSV_HEADER + '\n';
+  factories.forEach(f =>
+    csv += `fabrica,${f.name},${f.lat.toFixed(5)},${f.lng.toFixed(5)},${f.baseCapacity},${f.baseCost},${f.varCostPerUnit},,,,,,,\n`
+  );
+  warehouses.forEach(w =>
+    csv += `bodega,${w.name},${w.lat.toFixed(5)},${w.lng.toFixed(5)},,,, ${w.baseM2},${w.pricePerM2},${w.fixedOpCost},${w.maxThroughput},,,\n`
+  );
+  customers.forEach(c =>
+    csv += `cliente,${c.name},${c.lat.toFixed(5)},${c.lng.toFixed(5)},,,,,,,, ${c.demand},${c.sellPrice},${c.radius}\n`
+  );
+
+  // P&L section (read-only, not importable)
+  const p = optResult ? computePnL({ ...optResult, distMap: optResult.distMap || {} }) : null;
+  if (p) {
+    csv += `\n# P&L Mensual (solo lectura)\n# Revenue,$${Math.round(p.revenue)}\n# EBITDA,$${Math.round(p.ebitda)}\n# Nivel servicio,${p.svcLevel.toFixed(1)}%\n# CO2 total,${p.co2Tons.toFixed(1)} ton\n`;
+  }
+  triggerDownload(csv, 'red_logistica.csv');
+}
+
+function downloadTemplate() {
+  const csv = CSV_HEADER + '\n'
+    + '# Instrucciones: elimina estas líneas de comentario (#) antes de importar\n'
+    + '# Para FÁBRICAS rellena: nombre, lat, lng, capacidad (un/mes), costo_fijo (R$/mes), costo_var (R$/un)\n'
+    + '# Para CDs rellena:      nombre, lat, lng, area_m2, arriendo_m2 (R$/m2/mes), costo_op (R$/mes), throughput (un/mes)\n'
+    + '# Para CLIENTES rellena: nombre, lat, lng, demanda (un/mes), precio_venta (R$/un), radio_km\n'
+    + '# El estado (UF), su alícuota ICMS y el incentivo fiscal se detectan automáticamente por lat/lng\n'
+    + 'fabrica,Planta São Paulo,-23.5505,-46.6333,50000,2500000,180,,,,,,,\n'
+    + 'bodega,CD Serra ES,-20.1286,-40.3078,,,,3000,20,600000,25000,,,\n'
+    + 'bodega,CD Cajamar SP,-23.3561,-46.8764,,,,3000,28,750000,25000,,,\n'
+    + 'cliente,Grande São Paulo,-23.5505,-46.6333,,,,,,,,30000,950,120\n'
+    + 'cliente,Rio de Janeiro,-22.9068,-43.1729,,,,,,,,15000,950,100\n';
+  triggerDownload(csv, 'plantilla_red_brasil.csv');
+}
+
+function triggerDownload(content, filename) {
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
+  a.download = filename;
+  a.click();
+}
+
+async function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-imported
+
+  const text = await file.text();
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+
+  // Skip header row
+  const dataLines = lines.filter(l => !l.toLowerCase().startsWith('tipo'));
+
+  let nFab = 0, nBod = 0, nCli = 0, errors = [];
+
+  for (const line of dataLines) {
+    const cols = line.split(',').map(c => c.trim());
+    const tipo = cols[0]?.toLowerCase();
+    const nombre = cols[1] || 'Sin nombre';
+    const lat = parseFloat(cols[2]);
+    const lng = parseFloat(cols[3]);
+
+    if (isNaN(lat) || isNaN(lng)) { errors.push(`Fila ignorada (lat/lng inválido): ${line.slice(0, 40)}`); continue; }
+
+    if (tipo === 'fabrica' || tipo === 'fábrica') {
+      const baseCapacity = parseFloat(cols[4]) || 10000;
+      const baseCost     = parseFloat(cols[5]) || 500000;
+      const varCostPerUnit = parseFloat(cols[6]) || 300;
+      addFactory(lat, lng, { nombre, baseCapacity, baseCost, varCostPerUnit });
+      nFab++;
+    } else if (tipo === 'bodega') {
+      const baseM2       = parseFloat(cols[7]) || 500;
+      const pricePerM2   = parseFloat(cols[8]) || 3.0;
+      const fixedOpCost  = parseFloat(cols[9]) || 30000;
+      const maxThroughput = parseFloat(cols[10]) || 5000;
+      addWarehouse(lat, lng, { nombre, baseM2, pricePerM2, fixedOpCost, maxThroughput });
+      nBod++;
+    } else if (tipo === 'cliente') {
+      const demand    = parseFloat(cols[11]) || 1000;
+      const sellPrice = parseFloat(cols[12]) || 1000;
+      const radius    = parseFloat(cols[13]) || 300;
+      addCustomer(lat, lng, { nombre, demand, sellPrice, radius });
+      nCli++;
+    } else {
+      errors.push(`Tipo desconocido: "${tipo}" en fila: ${line.slice(0, 40)}`);
+    }
+  }
+
+  updateNodeList();
+  let msg = `✅ Importado: ${nFab} fábricas, ${nBod} bodegas, ${nCli} clientes`;
+  if (errors.length) msg += ` | ⚠️ ${errors.length} fila(s) con error`;
+  showStatus(msg);
+  if (errors.length) console.warn('CSV import errors:', errors);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DEMO DATA
+// ══════════════════════════════════════════════════════════════
+function clearAllSilent() {
+  [...factories, ...warehouses, ...customers].forEach(n => {
+    if (n.marker) map.removeLayer(n.marker);
+    if (n.circle) map.removeLayer(n.circle);
+  });
+  factories = []; warehouses = []; customers = [];
+  clearRoutes(); updateNodeList(); optResult = null;
+  document.getElementById('pnl-empty').style.display = '';
+  document.getElementById('pnl-content').style.display = 'none';
+}
+
+async function loadDemo() {
+  clearAllSilent();
+  showStatus('Cargando datos demo Brasil...');
+
+  // ── Fábricas ── (bien de consumo, producción concentrada en SP + una en el NE)
+  addFactory(-23.49, -46.85, { nombre: 'Planta Guarulhos SP', uf: 'SP', baseCapacity: 90000, baseCost: 4500000, varCostPerUnit: 180 });
+  addFactory( -8.29, -35.03, { nombre: 'Planta Recife PE',    uf: 'PE', baseCapacity: 35000, baseCost: 2100000, varCostPerUnit: 205 });
+
+  // ── CDs candidatos ── mezcla deliberada: estados caros sin incentivo (SP, RJ)
+  // vs estados con guerra fiscal (ES −70%, SC −65%, GO −65%, MG −50%, PE −50%)
+  const whData = [
+    { lat: -23.36, lng: -46.88, nombre: 'CD Cajamar SP',    uf: 'SP', baseM2: 5000, pricePerM2: 28.0, fixedOpCost: 950000, maxThroughput: 45000 },
+    { lat: -22.75, lng: -43.45, nombre: 'CD Duque Caxias RJ',uf: 'RJ', baseM2: 4000, pricePerM2: 26.6, fixedOpCost: 820000, maxThroughput: 30000 },
+    { lat: -20.13, lng: -40.31, nombre: 'CD Serra ES 🎁',   uf: 'ES', baseM2: 4000, pricePerM2: 19.6, fixedOpCost: 700000, maxThroughput: 35000 },
+    { lat: -26.91, lng: -48.67, nombre: 'CD Itajaí SC 🎁',  uf: 'SC', baseM2: 3500, pricePerM2: 23.8, fixedOpCost: 680000, maxThroughput: 28000 },
+    { lat: -16.33, lng: -48.95, nombre: 'CD Anápolis GO 🎁',uf: 'GO', baseM2: 4000, pricePerM2: 18.2, fixedOpCost: 620000, maxThroughput: 30000 },
+    { lat: -19.86, lng: -44.00, nombre: 'CD Contagem MG 🎁',uf: 'MG', baseM2: 4000, pricePerM2: 21.0, fixedOpCost: 720000, maxThroughput: 32000 },
+    { lat: -12.85, lng: -38.36, nombre: 'CD Salvador BA',   uf: 'BA', baseM2: 3000, pricePerM2: 16.8, fixedOpCost: 560000, maxThroughput: 22000 },
+    { lat: -8.25,  lng: -35.05, nombre: 'CD Cabo PE 🎁',    uf: 'PE', baseM2: 3000, pricePerM2: 18.2, fixedOpCost: 540000, maxThroughput: 22000 },
+  ];
+  whData.forEach(d => addWarehouse(d.lat, d.lng, d));
+
+  // ── Zonas Clientes ── demanda proporcional a población/consumo
+  const custData = [
+    { lat: -23.55, lng: -46.63, nombre: 'Grande São Paulo',  uf: 'SP', demand: 32000, sellPrice: 950, radius: 120 },
+    { lat: -22.91, lng: -43.17, nombre: 'Rio de Janeiro',    uf: 'RJ', demand: 16000, sellPrice: 950, radius: 100 },
+    { lat: -19.92, lng: -43.94, nombre: 'Belo Horizonte',    uf: 'MG', demand: 11000, sellPrice: 920, radius: 120 },
+    { lat: -25.43, lng: -49.27, nombre: 'Curitiba',          uf: 'PR', demand: 8000,  sellPrice: 930, radius: 110 },
+    { lat: -30.03, lng: -51.23, nombre: 'Porto Alegre',      uf: 'RS', demand: 7500,  sellPrice: 930, radius: 120 },
+    { lat: -15.79, lng: -47.88, nombre: 'Brasília DF',       uf: 'DF', demand: 7000,  sellPrice: 960, radius: 110 },
+    { lat: -16.68, lng: -49.25, nombre: 'Goiânia',           uf: 'GO', demand: 5000,  sellPrice: 910, radius: 110 },
+    { lat: -12.97, lng: -38.50, nombre: 'Salvador',          uf: 'BA', demand: 8500,  sellPrice: 940, radius: 120 },
+    { lat: -8.05,  lng: -34.90, nombre: 'Recife',            uf: 'PE', demand: 7500,  sellPrice: 940, radius: 120 },
+    { lat: -3.72,  lng: -38.54, nombre: 'Fortaleza',         uf: 'CE', demand: 7000,  sellPrice: 940, radius: 130 },
+    { lat: -1.46,  lng: -48.49, nombre: 'Belém',             uf: 'PA', demand: 4000,  sellPrice: 970, radius: 140 },
+    { lat: -20.32, lng: -40.34, nombre: 'Vitória',           uf: 'ES', demand: 3500,  sellPrice: 920, radius: 90  },
+    { lat: -27.60, lng: -48.55, nombre: 'Florianópolis',     uf: 'SC', demand: 3500,  sellPrice: 930, radius: 100 },
+    { lat: -20.44, lng: -54.65, nombre: 'Campo Grande',      uf: 'MS', demand: 2500,  sellPrice: 900, radius: 130 },
+  ];
+  custData.forEach(d => addCustomer(d.lat, d.lng, d));
+
+  updateNodeList();
+  map.setView([-15.5, -50.0], 4);
+  showStatus('✅ Demo Brasil — 2 fábricas, 8 CDs candidatos (5 con incentivo fiscal 🎁), 14 zonas de clientes');
+  // Auto-run optimizer after short delay
+  setTimeout(() => runOptimizer(), 800);
+}
+
+// Init
+updateNodeList();
+</script>
+</body>
+</html>
