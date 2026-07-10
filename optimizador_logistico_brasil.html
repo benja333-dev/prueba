@@ -160,6 +160,8 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
 
 /* Route legend */
 #legend { position: absolute; bottom: 24px; right: 16px; z-index: 999; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 11px; }
+#dual-panel { display: none; position: absolute; top: 120px; right: 16px; z-index: 1000; width: 340px; max-height: calc(100vh - 260px); overflow-y: auto; background: var(--panel); border: 1px solid #eab30866; border-radius: 10px; padding: 12px 14px; box-shadow: 0 8px 30px rgba(0,0,0,.55); }
+#dual-panel td { padding: 3px 0; border-bottom: 1px solid var(--border); }
 #legend .leg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 #legend .leg-line { width: 28px; height: 3px; border-radius: 2px; }
 
@@ -198,6 +200,7 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
       <option value="genetic">Algoritmo Genético</option>
     </select>
     <button class="tb-btn" onclick="document.getElementById('algo-desc').style.display=document.getElementById('algo-desc').style.display==='none'?'block':'none';updateAlgoDesc()" title="Info del algoritmo" style="padding:5px 8px;">ℹ️</button>
+    <button class="tb-btn" style="border-color:#eab308;color:#eab308;" onclick="runDualComparison()" title="Compara el óptimo logístico puro (sin ICMS) vs el óptimo fiscal (con ICMS)">⚖️ Log vs Fiscal</button>
   </div>
   <div class="tb-group">
     <div class="service-badge">
@@ -382,6 +385,8 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
 </div>
 
 <!-- LEGEND -->
+<div id="dual-panel"></div>
+
 <div id="legend">
   <div class="leg-row"><div class="leg-line" style="background:#3b82f6"></div><span>Fábrica → Bodega</span></div>
   <div class="leg-row"><div class="leg-line" style="background:#22c55e"></div><span>Bodega → Cliente</span></div>
@@ -1070,6 +1075,7 @@ function computeICMS(sol) {
 
 // Costo tributario unitario aproximado (para los optimizadores)
 function unitTaxCost(w, c) {
+  if (!taxEnabled) return 0; // modo "óptimo logístico puro"
   const saleType    = document.getElementById('p-sale-type').value;
   const transferPct = +document.getElementById('p-transfer-pct').value / 100;
   const rate = icmsRate(w.uf, c.uf) / 100;
@@ -1159,14 +1165,11 @@ function computePnL(sol) {
 // ══════════════════════════════════════════════════════════════
 // OPTIMIZER
 // ══════════════════════════════════════════════════════════════
-async function runOptimizer() {
-  if (factories.length === 0 || warehouses.length === 0 || customers.length === 0) {
-    showStatus('Agrega al menos 1 fábrica, 1 bodega y 1 zona de clientes'); return;
-  }
-  const algo = document.getElementById('opt-algo').value;
-  showProgress(10, 'Calculando distancias reales (OSRM)...');
+// Flag global: cuando es false, unitTaxCost devuelve 0 y los
+// optimizadores resuelven la red puramente logística (sin ICMS)
+let taxEnabled = true;
 
-  // Build distance matrix
+async function buildDistMap(progFrom = 10, progTo = 70) {
   const distMap = {};
   const pairs = [];
   for (const f of factories) for (const w of warehouses) pairs.push([`${f.id}-${w.id}`, f.lat, f.lng, w.lat, w.lng]);
@@ -1179,32 +1182,32 @@ async function runOptimizer() {
       const { km } = await getRouteKm(la, lo, lb, lb2);
       distMap[key] = km;
     }));
-    showProgress(10 + Math.round(60 * i / pairs.length), 'Calculando distancias reales por carretera...');
+    showProgress(progFrom + Math.round((progTo - progFrom) * i / pairs.length), 'Calculando distancias reales por carretera...');
   }
+  return distMap;
+}
 
-  showProgress(70, `Ejecutando algoritmo ${algo}...`);
-  let sol;
-  if (algo === 'greedy')  sol = optimizerGreedy(distMap);
-  if (algo === 'twoopt')  sol = optimizer2opt(distMap);
-  if (algo === 'sa')      sol = optimizerSA(distMap);
-  if (algo === 'genetic') sol = optimizerGenetic(distMap);
-  sol.distMap = distMap;
+function solveWith(algo, distMap) {
+  if (algo === 'twoopt')  return optimizer2opt(distMap);
+  if (algo === 'sa')      return optimizerSA(distMap);
+  if (algo === 'genetic') return optimizerGenetic(distMap);
+  return optimizerGreedy(distMap);
+}
 
-  showProgress(85, 'Dibujando rutas por carretera real...');
+// Dibuja una solución en el mapa (colores parametrizables para la vista dual)
+async function drawSolution(sol, distMap, colFab = '#3b82f6', colBod = '#22c55e') {
   clearRoutes();
 
-  // Draw fáb→wh routes (blue) — geometry already cached from matrix build
   for (const ff of sol.fabFlows) {
     const f = factories.find(x => x.id === ff.fabId);
     const w = warehouses.find(x => x.id === ff.whId);
     if (!f || !w) continue;
     const { coords } = await getRouteKm(f.lat, f.lng, w.lat, w.lng);
     const weight = Math.max(2, Math.min(8, ff.units / 1000));
-    const { line, arrow } = drawRoute(coords, [f.lat, f.lng], [w.lat, w.lng], '#3b82f6', weight);
+    const { line, arrow } = drawRoute(coords, [f.lat, f.lng], [w.lat, w.lng], colFab, weight);
     routes.push({ fromId: ff.fabId, toId: ff.whId, kmReal: distMap[`${ff.fabId}-${ff.whId}`], line, arrow, units: ff.units });
   }
 
-  // Draw wh→customer routes (green), update warehouse icons
   for (const wh of sol.activeWh) {
     const w = warehouses.find(x => x.id === wh.whId);
     if (!w) continue;
@@ -1215,14 +1218,29 @@ async function runOptimizer() {
       if (!c) continue;
       const { coords } = await getRouteKm(w.lat, w.lng, c.lat, c.lng);
       const weight = Math.max(2, Math.min(8, a.units / 500));
-      const { line, arrow } = drawRoute(coords, [w.lat, w.lng], [c.lat, c.lng], '#22c55e', weight);
+      const { line, arrow } = drawRoute(coords, [w.lat, w.lng], [c.lat, c.lng], colBod, weight);
       routes.push({ fromId: wh.whId, toId: a.custId, kmReal: distMap[`${wh.whId}-${a.custId}`], line, arrow, units: a.units });
     }
   }
 
-  // Dim inactive warehouses
   const activeIds = new Set(sol.activeWh.map(x => x.whId));
   warehouses.forEach(w => { if (!activeIds.has(w.id)) { w.active = false; w.marker.setIcon(ICONS.warehouse(false)); } });
+}
+
+async function runOptimizer() {
+  if (factories.length === 0 || warehouses.length === 0 || customers.length === 0) {
+    showStatus('Agrega al menos 1 fábrica, 1 bodega y 1 zona de clientes'); return;
+  }
+  const algo = document.getElementById('opt-algo').value;
+  showProgress(10, 'Calculando distancias reales (OSRM)...');
+  const distMap = await buildDistMap();
+
+  showProgress(70, `Ejecutando algoritmo ${algo}...`);
+  const sol = solveWith(algo, distMap);
+  sol.distMap = distMap;
+
+  showProgress(85, 'Dibujando rutas por carretera real...');
+  await drawSolution(sol, distMap);
 
   optResult = sol;
   showProgress(100, '');
@@ -1239,6 +1257,120 @@ async function runOptimizer() {
   } else {
     showStatus(`✅ ${sol.activeWh.length} bodegas activas — Nivel servicio ${achieved.toFixed(1)}% ✓`);
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+// COMPARACIÓN DUAL — Óptimo logístico (sin ICMS) vs Óptimo fiscal
+// Ambas redes se evalúan con el P&L COMPLETO (impuestos incluidos):
+// así se ve cuánto EBITDA pierde quien diseña la red ignorando taxes.
+// ══════════════════════════════════════════════════════════════
+let dualCompare = null; // { solLog, solTax, pLog, pTax, distMap, shown }
+
+async function runDualComparison() {
+  if (factories.length === 0 || warehouses.length === 0 || customers.length === 0) {
+    showStatus('Agrega al menos 1 fábrica, 1 CD y 1 zona de clientes'); return;
+  }
+  const algo = document.getElementById('opt-algo').value;
+  showProgress(5, 'Calculando distancias reales (OSRM)...');
+  const distMap = (optResult && optResult.distMap && Object.keys(optResult.distMap).length)
+    ? optResult.distMap
+    : await buildDistMap(5, 60);
+
+  showProgress(65, '🚛 Optimizando red logística pura (sin ICMS)...');
+  taxEnabled = false;
+  const solLog = solveWith(algo, distMap);
+  solLog.distMap = distMap;
+
+  showProgress(75, '🏛 Optimizando red fiscal (con ICMS)...');
+  taxEnabled = true;
+  const solTax = solveWith(algo, distMap);
+  solTax.distMap = distMap;
+
+  // Evaluar AMBAS con el P&L completo (impuestos siempre incluidos)
+  const pLog = computePnL(solLog);
+  const pTax = computePnL(solTax);
+
+  dualCompare = { solLog, solTax, pLog, pTax, distMap, shown: 'tax' };
+
+  showProgress(88, 'Dibujando red fiscal...');
+  await showDualNetwork('tax');
+  renderDualPanel();
+  showProgress(100, '');
+  setTimeout(() => hideProgress(), 600);
+  showStatus('⚖️ Comparación lista — usa los botones del panel para alternar entre redes');
+}
+
+async function showDualNetwork(which) {
+  if (!dualCompare) return;
+  dualCompare.shown = which;
+  const sol = which === 'tax' ? dualCompare.solTax : dualCompare.solLog;
+  // Fiscal: azul/verde estándar · Logística: morado/rosa
+  if (which === 'tax') await drawSolution(sol, dualCompare.distMap, '#3b82f6', '#22c55e');
+  else                 await drawSolution(sol, dualCompare.distMap, '#a855f7', '#ec4899');
+  optResult = sol;
+  updatePnL();
+  renderDualPanel(); // refresh active button state
+}
+
+function closeDualPanel() {
+  document.getElementById('dual-panel').style.display = 'none';
+}
+
+function renderDualPanel() {
+  if (!dualCompare) return;
+  const { pLog, pTax, solLog, solTax, shown } = dualCompare;
+  const el = document.getElementById('dual-panel');
+  const fmtM = v => (v < 0 ? '−' : '') + 'R$' + Math.abs(v / 1e6).toFixed(1) + 'M';
+  const cdNames = sol => sol.activeWh.map(w => {
+    const wh = warehouses.find(x => x.id === w.whId);
+    return wh ? `${wh.name.replace(' 🎁','')} <span style="color:#eab308;">(${wh.uf}${wh.taxInc>0?' 🎁':''})</span>` : '';
+  }).join('<br>');
+  const delta = pTax.ebitda - pLog.ebitda;
+
+  const row = (label, vLog, vTax, fmt, betterHigh = false) => {
+    const bLog = betterHigh ? vLog > vTax : vLog < vTax;
+    const bTax = betterHigh ? vTax > vLog : vTax < vLog;
+    return `<tr>
+      <td>${label}</td>
+      <td style="text-align:right;${bLog?'color:#4ade80;font-weight:700;':''}">${fmt(vLog)}</td>
+      <td style="text-align:right;${bTax?'color:#4ade80;font-weight:700;':''}">${fmt(vTax)}</td>
+    </tr>`;
+  };
+
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <strong style="color:#eab308;font-size:12px;">⚖️ Óptimo Logístico vs Óptimo Fiscal</strong>
+      <span style="cursor:pointer;color:var(--muted);font-size:14px;padding:0 4px;" onclick="closeDualPanel()">✕</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button class="tb-btn ${shown==='log'?'active':''}" style="flex:1;justify-content:center;${shown==='log'?'background:#a855f7;border-color:#a855f7;':''}" onclick="showDualNetwork('log')">🚛 Ver red logística</button>
+      <button class="tb-btn ${shown==='tax'?'active':''}" style="flex:1;justify-content:center;" onclick="showDualNetwork('tax')">🏛 Ver red fiscal</button>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <tr style="color:var(--muted);border-bottom:1px solid var(--border);">
+        <th style="text-align:left;padding:3px 0;">Métrica</th>
+        <th style="text-align:right;color:#a855f7;">🚛 Logístico<br><span style="font-weight:400;font-size:9px;">(ignora ICMS)</span></th>
+        <th style="text-align:right;color:#3b82f6;">🏛 Fiscal<br><span style="font-weight:400;font-size:9px;">(considera ICMS)</span></th>
+      </tr>
+      ${row('Flete total', pLog.transFab + pLog.transBod, pTax.transFab + pTax.transBod, fmtM)}
+      ${row('Costo CDs (arriendo+op)', pLog.whRent + pLog.whExtra + pLog.whOp, pTax.whRent + pTax.whExtra + pTax.whOp, fmtM)}
+      ${row('ICMS neto a pagar', pLog.icms.icmsTotal, pTax.icms.icmsTotal, fmtM)}
+      ${row('🎁 Ahorro incentivos', pLog.icms.incentiveSavings, pTax.icms.incentiveSavings, fmtM, true)}
+      ${row('Costo total', pLog.totalCosts, pTax.totalCosts, fmtM)}
+      ${row('Fill rate', pLog.svcLevel, pTax.svcLevel, v => v.toFixed(1) + '%', true)}
+      ${row('<strong>EBITDA/mes</strong>', pLog.ebitda, pTax.ebitda, fmtM, true)}
+    </table>
+    <div style="margin-top:8px;padding:7px 9px;border-radius:6px;background:${delta>=0?'#14532d':'#7f1d1d'};font-size:11px;line-height:1.45;">
+      ${delta >= 0
+        ? `💰 Diseñar la red considerando ICMS genera <strong>+${fmtM(delta)}/mes</strong> (${(delta*12/1e6).toFixed(0)}M R$/año) vs optimizar solo flete y bodegas.`
+        : `En esta configuración el óptimo logístico coincide o supera al fiscal (${fmtM(delta)}/mes).`}
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--muted);">
+      <div style="flex:1;"><span style="color:#a855f7;">🚛 CDs logísticos:</span><br>${cdNames(solLog)}</div>
+      <div style="flex:1;"><span style="color:#3b82f6;">🏛 CDs fiscales:</span><br>${cdNames(solTax)}</div>
+    </div>
+  `;
+  el.style.display = 'block';
 }
 
 // ── GREEDY ──
