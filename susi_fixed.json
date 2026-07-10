@@ -1,0 +1,429 @@
+{
+  "name": "🤖 Susi - Asistente Personal",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "a1",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [0, 256],
+      "webhookId": "194c8bc7-b7f8-4169-a09e-b5634b6c5824",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $input.item.json.message || {};\nconst chatId = (msg.chat && msg.chat.id ? msg.chat.id : '').toString();\nconst text = msg.text || msg.caption || '';\nconst voice = msg.voice || msg.audio;\nconst isVoice = !!voice;\n$execution.customData.set('chat_id', chatId);\nreturn [{ json: { chat_id: chatId, text, is_voice: isVoice, file_id: voice ? voice.file_id : '' }, binary: $input.item.binary || {} }];"
+      },
+      "id": "a2",
+      "name": "Extraer Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 256]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.is_voice }}",
+              "rightValue": true,
+              "operator": {"type": "boolean", "operation": "equals"}
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a3",
+      "name": "¿Es Voz?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [448, 256]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "bbaf8023-5736-4c8b-954a-ce9381d6e247",
+      "name": "Descargar Audio",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [672, 160],
+      "webhookId": "b32245ed-b171-4678-9422-f7686eb5ac8d",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {"__rl": true, "mode": "id", "value": "models/gemini-2.5-flash"},
+        "inputType": "binary",
+        "options": {}
+      },
+      "id": "3a6721b6-1346-4d40-a6b4-23816750fcc9",
+      "name": "Transcribir Audio",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [896, 160],
+      "credentials": {
+        "googlePalmApi": {"id": "InzYRDhfDgJFmwlQ", "name": "Google Gemini(PaLM) Api account"}
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) return [];\nconst j = items[0].json || {};\nlet text = '';\ntry { text = j.content.parts[0].text || ''; } catch(e) {}\nif (!text) { text = j.text || j.transcription || ''; }\ntext = (text || '').toString().trim();\nconst chat_id = ($execution.customData.get('chat_id') || '').toString();\nif (!text) return [{ json: { text: '[No se pudo transcribir el audio; intenta de nuevo o escribe el mensaje]', chat_id } }];\nreturn [{ json: { text, chat_id } }];"
+      },
+      "id": "1250cc7b-a532-47bf-9e88-37f329d35efa",
+      "name": "Texto desde Voz",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 160]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) return [];\nreturn [{ json: { text: items[0].json.text || '', chat_id: items[0].json.chat_id || '' } }];"
+      },
+      "id": "c1",
+      "name": "Set Texto Directo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 352]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) return [];\nconst text = items[0].json.text || '';\nconst chat_id = items[0].json.chat_id || '';\nif (!text || !chat_id) return [];\nconst now = new Date();\nconst pad = n => String(n).padStart(2, '0');\nconst fmt = d => `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}`;\nconst fmtISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;\nconst yest = new Date(now.getTime() - 86400000);\nconst tmrw = new Date(now.getTime() + 86400000);\nreturn [{ json: {\n  text, chat_id, session_id: chat_id,\n  today: fmt(now), yesterday: fmt(yest), tomorrow: fmt(tmrw),\n  todayISO: fmtISO(now), yesterdayISO: fmtISO(yest), tomorrowISO: fmtISO(tmrw)\n} }];"
+      },
+      "id": "d2",
+      "name": "Preparar para Susi",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1344, 256]
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.chat_id }}"
+      },
+      "id": "d1",
+      "name": "Susi Escribiendo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2032, 48],
+      "webhookId": "3b6717c7-f1a6-48bd-b14d-37f4766808b9",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 4,
+        "unit": "seconds"
+      },
+      "id": "w1",
+      "name": "Esperar 4s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2704, 48],
+      "webhookId": "w1-wait-susi"
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $('Preparar para Susi').first().json.chat_id }}"
+      },
+      "id": "d1b",
+      "name": "Susi Escribiendo 2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2928, 48],
+      "webhookId": "d1b-typing-2",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 4,
+        "unit": "seconds"
+      },
+      "id": "w2",
+      "name": "Esperar 4s 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [3152, 48],
+      "webhookId": "w2-wait-susi"
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $('Preparar para Susi').first().json.chat_id }}"
+      },
+      "id": "d1c",
+      "name": "Susi Escribiendo 3",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [3376, 48],
+      "webhookId": "d1c-typing-3",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 4,
+        "unit": "seconds"
+      },
+      "id": "w3",
+      "name": "Esperar 4s 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [3600, 48],
+      "webhookId": "w3-wait-susi"
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $('Preparar para Susi').first().json.chat_id }}"
+      },
+      "id": "d1d",
+      "name": "Susi Escribiendo 4",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [3824, 48],
+      "webhookId": "d1d-typing-4",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "Eres Susi, asistente personal de Benjamin Brunet. Hablas español natural, cálido y directo, como una amiga de confianza por Telegram. Máximo 300 palabras en tus respuestas.\n\nFECHAS EXACTAS (usa SIEMPRE estas para construir queries y parámetros):\n- Ayer: {{ $json.yesterdayISO }}\n- Hoy: {{ $json.todayISO }}\n- Mañana: {{ $json.tomorrowISO }}\n\nHERRAMIENTAS:\n1) Gmail — buscar correos. SIEMPRE úsala cuando el usuario pida ver correos, incluso sin filtro específico. Queries útiles:\n   • Hoy: newer_than:1d\n   • Ayer: after:{{ $json.yesterday }} before:{{ $json.today }}\n   • Por remitente: from:email@x.com\n   • Por asunto: subject:palabra\n   • No leídos: is:unread\n   NO pidas más detalles si el usuario pide 'correos de hoy', 'correos de ayer' o 'últimos correos'; construye el query de fecha directamente.\n\n2) Google Drive — buscar archivos por nombre.\n\n3) Buscar en Documentos — busca DENTRO del contenido de documentos indexados (PDFs, Docs, Sheets). Úsala para preguntas sobre qué dice un archivo. Al resumir: extrae los 5 puntos más relevantes, no copies texto literal.\n\n4) Buscar en Internet — clima, noticias, precios, datos. Úsala EXACTAMENTE UNA VEZ por consulta; no repitas aunque el resultado sea parcial.\n\n5) Google Calendar — ver eventos del calendario de Benjamin.\n   • Hoy: timeMin={{ $json.todayISO }}T00:00:00, timeMax={{ $json.todayISO }}T23:59:59\n   • Mañana: timeMin={{ $json.tomorrowISO }}T00:00:00, timeMax={{ $json.tomorrowISO }}T23:59:59\n   • Ayer: timeMin={{ $json.yesterdayISO }}T00:00:00, timeMax={{ $json.yesterdayISO }}T23:59:59\n   SIEMPRE úsala cuando pregunten por reuniones, agenda, eventos o citas.\n\nESTILO:\n- Breve y conversacional. Ve al grano.\n- Al resumir correos: remitente, asunto, 1 línea.\n- Si una herramienta no devuelve resultados, dílo y ofrece alternativa.\n- Texto plano, sin markdown. Sin WhatsApp.",
+          "maxIterations": 5
+        }
+      },
+      "id": "e1",
+      "name": "Susi",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [1888, 448],
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extraer Mensaje').item.json.chat_id }}",
+        "contextWindowLength": 10
+      },
+      "id": "e3",
+      "name": "Memoria Conversacion",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [1696, 672]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Busca y lee correos en el Gmail de Benjamín. Úsala SIEMPRE que pida ver correos. Query examples: newer_than:1d (hoy), after:2026/06/22 before:2026/06/23 (ayer), from:email, subject:texto, is:unread.",
+        "operation": "getAll",
+        "limit": 8,
+        "filters": {
+          "q": "={{ $fromAI('query', 'Sintaxis Gmail: newer_than:1d para hoy, after:YYYY/MM/DD before:YYYY/MM/DD para rango de fechas, from:email, subject:texto, is:unread.', 'string') }}"
+        }
+      },
+      "id": "e7",
+      "name": "Gmail Buscar Correos",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [1824, 672],
+      "webhookId": "e416b6c8-7442-4fa3-b8ab-3d4f0d3416d5",
+      "credentials": {
+        "gmailOAuth2": {"id": "GIlOgk58EyoAXQJU", "name": "Gmail - Susi"}
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search"
+      },
+      "id": "e8",
+      "name": "Drive Buscar Archivos",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [1952, 672],
+      "credentials": {
+        "googleDriveOAuth2Api": {"id": "0gAc2gdhjB0yJvqg", "name": "Google Drive - Susi"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Extraer Mensaje').item.json.chat_id }}",
+        "text": "={{ (() => { const t = $json.output || ''; return t.length > 4000 ? t.substring(0, 3997) + '...' : t; })() }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "f1",
+      "name": "Enviar Respuesta",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2704, 448],
+      "webhookId": "62aa6fea-0184-44de-9076-af7e4dd41a92",
+      "credentials": {
+        "telegramApi": {"id": "XaOm3AQdgGqHf49d", "name": "Susi Telegram Bot"}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [1568, 672],
+      "id": "80bee05d-b9c6-4f73-b412-f74102efb122",
+      "name": "Google Gemini Chat Model",
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googlePalmApi": {"id": "InzYRDhfDgJFmwlQ", "name": "Google Gemini(PaLM) Api account"}
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "105157a4-1f18-4071-a604-b78a4cdf1b2f",
+      "name": "Buscar en Internet",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [2080, 672],
+      "credentials": {
+        "serpApi": {"id": "uCfoW8Yrw5iBL3dR", "name": "SerpAPI Susi"}
+      }
+    },
+    {
+      "parameters": {},
+      "id": "76303a9f-53d7-4c8e-a919-ba1d46c93059",
+      "name": "Embeddings Gemini",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [2288, 880],
+      "credentials": {
+        "googlePalmApi": {"id": "InzYRDhfDgJFmwlQ", "name": "Google Gemini(PaLM) Api account"}
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca DENTRO del contenido de documentos de Benjamin indexados desde Drive (PDFs, Docs, Sheets). Úsala cuando pregunten qué dice un archivo o sobre un tema en sus documentos.",
+        "tableName": {"__rl": true, "mode": "id", "value": "susi_documents"},
+        "topK": 5,
+        "options": {"queryName": "match_susi_documents"}
+      },
+      "id": "aca0ebf2-3940-4a75-967d-edb0aedfa062",
+      "name": "Buscar en Documentos",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [2208, 672],
+      "credentials": {
+        "supabaseApi": {"id": "mEOSnztVYjTLSsj6", "name": "Supabase Susi"}
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta el Google Calendar de Benjamin. Úsala para ver reuniones, citas o qué tiene agendado. Filtra siempre por fecha usando timeMin y timeMax.",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "bbrunetm@gmail.com",
+          "cachedResultName": "bbrunetm@gmail.com"
+        },
+        "limit": 10,
+        "options": {
+          "timeMin": "={{ $fromAI('timeMin', 'Inicio del rango en ISO 8601. Hoy: ' + $('Preparar para Susi').first().json.todayISO + 'T00:00:00, Mañana: ' + $('Preparar para Susi').first().json.tomorrowISO + 'T00:00:00', 'string') }}",
+          "timeMax": "={{ $fromAI('timeMax', 'Fin del rango en ISO 8601. Hoy: ' + $('Preparar para Susi').first().json.todayISO + 'T23:59:59, Mañana: ' + $('Preparar para Susi').first().json.tomorrowISO + 'T23:59:59', 'string') }}"
+        }
+      },
+      "id": "cal1",
+      "name": "Google Calendar",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [2496, 672],
+      "credentials": {
+        "googleCalendarOAuth2Api": {"id": "6XZ7S5jP8au7uHGm", "name": "Google Calendar - Susi"}
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {"main": [[{"node": "Extraer Mensaje", "type": "main", "index": 0}]]},
+    "Extraer Mensaje": {"main": [[{"node": "¿Es Voz?", "type": "main", "index": 0}]]},
+    "¿Es Voz?": {"main": [
+      [{"node": "Descargar Audio", "type": "main", "index": 0}],
+      [{"node": "Set Texto Directo", "type": "main", "index": 0}]
+    ]},
+    "Descargar Audio": {"main": [[{"node": "Transcribir Audio", "type": "main", "index": 0}]]},
+    "Transcribir Audio": {"main": [[{"node": "Texto desde Voz", "type": "main", "index": 0}]]},
+    "Texto desde Voz": {"main": [[{"node": "Preparar para Susi", "type": "main", "index": 0}]]},
+    "Set Texto Directo": {"main": [[{"node": "Preparar para Susi", "type": "main", "index": 0}]]},
+    "Preparar para Susi": {"main": [[
+      {"node": "Susi Escribiendo", "type": "main", "index": 0},
+      {"node": "Susi", "type": "main", "index": 0}
+    ]]},
+    "Susi Escribiendo": {"main": [[{"node": "Esperar 4s", "type": "main", "index": 0}]]},
+    "Esperar 4s": {"main": [[{"node": "Susi Escribiendo 2", "type": "main", "index": 0}]]},
+    "Susi Escribiendo 2": {"main": [[{"node": "Esperar 4s 2", "type": "main", "index": 0}]]},
+    "Esperar 4s 2": {"main": [[{"node": "Susi Escribiendo 3", "type": "main", "index": 0}]]},
+    "Susi Escribiendo 3": {"main": [[{"node": "Esperar 4s 3", "type": "main", "index": 0}]]},
+    "Esperar 4s 3": {"main": [[{"node": "Susi Escribiendo 4", "type": "main", "index": 0}]]},
+    "Susi": {"main": [[{"node": "Enviar Respuesta", "type": "main", "index": 0}]]},
+    "Google Gemini Chat Model": {"ai_languageModel": [[{"node": "Susi", "type": "ai_languageModel", "index": 0}]]},
+    "Memoria Conversacion": {"ai_memory": [[{"node": "Susi", "type": "ai_memory", "index": 0}]]},
+    "Gmail Buscar Correos": {"ai_tool": [[{"node": "Susi", "type": "ai_tool", "index": 0}]]},
+    "Drive Buscar Archivos": {"ai_tool": [[{"node": "Susi", "type": "ai_tool", "index": 0}]]},
+    "Buscar en Internet": {"ai_tool": [[{"node": "Susi", "type": "ai_tool", "index": 0}]]},
+    "Buscar en Documentos": {"ai_tool": [[{"node": "Susi", "type": "ai_tool", "index": 0}]]},
+    "Embeddings Gemini": {"ai_embedding": [[{"node": "Buscar en Documentos", "type": "ai_embedding", "index": 0}]]},
+    "Google Calendar": {"ai_tool": [[{"node": "Susi", "type": "ai_tool", "index": 0}]]}
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {"templateCredsSetupCompleted": true},
+  "pinData": {}
+}

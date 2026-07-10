@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/benjaminbrunet/.claude/**)",
+      "Bash(n8n --version)",
+      "Read(//Users/benjaminbrunet/**)",
+      "Bash(curl -s http://localhost:5678/api/v1/workflows -H \"X-N8N-API-KEY: \")",
+      "Bash(curl -s http://localhost:5678/api/v1/workflows)",
+      "Bash(curl -s -X POST https://bbrunetm.app.n8n.cloud/mcp-server/http -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNmJlNzcwOC02MjkzLTRjNzEtYjRiZi03ZDRjOTRiYTE2OGYiLCJpc3MiOiJuOG4iLCJhdWQiOiJtY3Atc2VydmVyLWFwaSIsImp0aSI6Ijk1NGNmZTEwLWQxNTgtNGRhZC05NTIzLWJmMjNhMWZmYWIwNiIsImlhdCI6MTc3OTkzMTA5M30.qS_okfk-WtzWf_KR70dcnAwxkmVY5aCni1GmwVYLhIA' -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude\",\"version\":\"1.0\"}}}')",
+      "Bash(curl -s -X POST https://bbrunetm.app.n8n.cloud/mcp-server/http -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNmJlNzcwOC02MjkzLTRjNzEtYjRiZi03ZDRjOTRiYTE2OGYiLCJpc3MiOiJuOG4iLCJhdWQiOiJtY3Atc2VydmVyLWFwaSIsImp0aSI6Ijk1NGNmZTEwLWQxNTgtNGRhZC05NTIzLWJmMjNhMWZmYWIwNiIsImlhdCI6MTc3OTkzMTA5M30.qS_okfk-WtzWf_KR70dcnAwxkmVY5aCni1GmwVYLhIA' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\",\"params\":{}}')",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -X POST https://bbrunetm.app.n8n.cloud/mcp-server/http -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNmJlNzcwOC02MjkzLTRjNzEtYjRiZi03ZDRjOTRiYTE2OGYiLCJpc3MiOiJuOG4iLCJhdWQiOiJtY3Atc2VydmVyLWFwaSIsImp0aSI6Ijk1NGNmZTEwLWQxNTgtNGRhZC05NTIzLWJmMjNhMWZmYWIwNiIsImlhdCI6MTc3OTkzMTA5M30.qS_okfk-WtzWf_KR70dcnAwxkmVY5aCni1GmwVYLhIA' -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"test\",\"version\":\"1.0\"}},\"id\":1}')",
+      "WebSearch",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:8765/optimizador_logistico.html)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "WebFetch(domain:www.theanalystacademy.com)",
+      "WebFetch(domain:slideworks.io)",
+      "Bash(node -e \"require.resolve\\('pptxgenjs'\\); console.log\\('pptxgenjs OK'\\)\")",
+      "Bash(npm ls *)",
+      "Bash(python3 -c \"import pptx; print\\('python-pptx', pptx.__version__\\)\")",
+      "Bash(pip3 install *)",
+      "Bash(python3 build_deck.py)",
+      "Bash(command -v soffice)"
+    ]
+  }
+}

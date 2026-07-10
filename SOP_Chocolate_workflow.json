@@ -1,0 +1,111 @@
+{
+  "name": "S&OP / IBP - Chocolate (Demanda → Supply → Finanzas → Exec Review)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "11111111-1111-1111-1111-111111111101",
+      "name": "▶ Ejecutar ciclo S&OP",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-1120, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================================\n// PASO 1 — DATA GATHERING / INGESTA (formato estándar)\n// =============================================================\n// Formato estándar de entrada por SKU. Reemplaza este nodo por un\n// nodo \"Google Sheets > Read rows\" cuando tengas la planilla:\n//   columnas: marca, sku, mes(1-12), unidades, precio_unitario, costo_unitario\n//\n// Aquí va 1 SKU de chocolate con 24 meses de histórico real de ventas\n// (unidades). El motor proyectará los próximos 12 meses.\n\nconst config = {\n  marca: 'ChocoAndes',\n  sku: 'BARRA-70CACAO-100G',\n  unidad: 'unidades',\n  precio_unitario: 1890,      // CLP\n  costo_unitario: 1100,       // CLP (COGS)\n  moneda: 'CLP',\n  hemisferio: 'sur',          // Chile: invierno Jun-Ago = peak chocolate\n  horizonte_meses: 12\n};\n\n// Histórico de ventas (mes calendario 1..12 -> unidades). 24 meses.\n// Tendencia suave al alza + estacionalidad (peak invierno + Navidad + Pascua).\nconst historico = [\n  { anio: 2024, mes: 1,  unidades: 8200 },\n  { anio: 2024, mes: 2,  unidades: 7900 },\n  { anio: 2024, mes: 3,  unidades: 11200 }, // Pascua\n  { anio: 2024, mes: 4,  unidades: 10100 },\n  { anio: 2024, mes: 5,  unidades: 12800 },\n  { anio: 2024, mes: 6,  unidades: 15600 }, // invierno\n  { anio: 2024, mes: 7,  unidades: 16200 },\n  { anio: 2024, mes: 8,  unidades: 15100 },\n  { anio: 2024, mes: 9,  unidades: 12400 },\n  { anio: 2024, mes: 10, unidades: 11800 },\n  { anio: 2024, mes: 11, unidades: 12900 },\n  { anio: 2024, mes: 12, unidades: 17800 }, // Navidad\n  { anio: 2025, mes: 1,  unidades: 8800 },\n  { anio: 2025, mes: 2,  unidades: 8400 },\n  { anio: 2025, mes: 3,  unidades: 12100 },\n  { anio: 2025, mes: 4,  unidades: 11000 },\n  { anio: 2025, mes: 5,  unidades: 13700 },\n  { anio: 2025, mes: 6,  unidades: 16800 },\n  { anio: 2025, mes: 7,  unidades: 17500 },\n  { anio: 2025, mes: 8,  unidades: 16300 },\n  { anio: 2025, mes: 9,  unidades: 13300 },\n  { anio: 2025, mes: 10, unidades: 12600 },\n  { anio: 2025, mes: 11, unidades: 13900 },\n  { anio: 2025, mes: 12, unidades: 19100 }\n];\n\nreturn [{ json: { config, historico } }];"
+      },
+      "id": "11111111-1111-1111-1111-111111111102",
+      "name": "① Ingesta (formato estándar)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-900, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================================\n// PASO 2 — DEMAND PLANNING: baseline estadístico\n// =============================================================\n// 1) Tendencia: regresión lineal sobre el histórico (nivel global)\n// 2) Estacionalidad: índice por mes (promedio mes / promedio total)\n// 3) Baseline = tendencia proyectada * índice estacional del mes\n\nconst { config, historico } = $input.first().json;\n\nconst n = historico.length;\nconst ys = historico.map(h => h.unidades);\nconst xs = historico.map((_, i) => i + 1);\n\n// --- Regresión lineal simple (mínimos cuadrados) ---\nconst sumX = xs.reduce((a, b) => a + b, 0);\nconst sumY = ys.reduce((a, b) => a + b, 0);\nconst sumXY = xs.reduce((a, x, i) => a + x * ys[i], 0);\nconst sumX2 = xs.reduce((a, x) => a + x * x, 0);\nconst slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);\nconst intercept = (sumY - slope * sumX) / n;\nconst trendAt = (x) => intercept + slope * x;\n\n// --- Índice estacional por mes calendario (1..12) ---\nconst mediaTotal = sumY / n;\nconst porMes = {};\nfor (let m = 1; m <= 12; m++) {\n  const vals = historico.filter(h => h.mes === m).map(h => h.unidades);\n  const prom = vals.reduce((a, b) => a + b, 0) / vals.length;\n  porMes[m] = +(prom / mediaTotal).toFixed(4); // índice estacional\n}\n\n// --- Proyección de los próximos 'horizonte' meses ---\nconst nombresMes = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];\nconst ultimo = historico[historico.length - 1];\nlet anio = ultimo.anio;\nlet mes = ultimo.mes;\n\nconst baseline = [];\nfor (let k = 1; k <= config.horizonte_meses; k++) {\n  mes += 1; if (mes > 12) { mes = 1; anio += 1; }\n  const x = n + k;\n  const tendencia = trendAt(x);\n  const indice = porMes[mes];\n  const unidades = Math.round(tendencia * indice);\n  baseline.push({\n    anio, mes, mes_nombre: nombresMes[mes - 1],\n    tendencia: Math.round(tendencia),\n    indice_estacional: indice,\n    baseline_unidades: unidades\n  });\n}\n\nreturn [{ json: {\n  config,\n  modelo: { slope: +slope.toFixed(2), intercept: Math.round(intercept), media_total: Math.round(mediaTotal), indices_estacionales: porMes },\n  baseline\n} }];"
+      },
+      "id": "11111111-1111-1111-1111-111111111103",
+      "name": "② Demand Planning (baseline)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-680, 320]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": { "temperature": 0.2 }
+      },
+      "id": "11111111-1111-1111-1111-111111111110",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [-440, 540],
+      "credentials": {
+        "openAiApi": { "id": "cjetZrgB2dd22xkH", "name": "n8n free OpenAI API credits" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un demand planner experto en consumo de chocolate. Hemisferio: {{ $json.config.hemisferio }} (en Chile el chocolate sube en otoño-invierno Mar-Ago, peaks en Pascua (Mar/Abr) y Navidad (Dic), y baja en verano Ene-Feb por el calor).\n\nMarca/SKU: {{ $json.config.marca }} / {{ $json.config.sku }}.\n\nBaseline estadístico de los próximos 12 meses (unidades):\n{{ JSON.stringify($json.baseline.map(b => ({mes: b.mes_nombre, anio: b.anio, baseline: b.baseline_unidades}))) }}\n\nAjusta la curva por variables externas de DEMANDA (clima/temperatura esperada por estación, feriados, eventos). Para cada uno de los 12 meses entrega un factor multiplicador entre 0.80 y 1.20 (1.00 = sin cambio) y una razón breve.\n\nResponde SOLO un JSON válido con esta forma exacta, sin texto adicional ni markdown:\n{\"ajustes\":[{\"mes\":\"Ene\",\"anio\":2026,\"factor\":0.92,\"razon\":\"...\"}, ... 12 items]}",
+        "messages": { "messageValues": [] }
+      },
+      "id": "11111111-1111-1111-1111-111111111104",
+      "name": "③ AI Demand Shaping (clima)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [-440, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================================\n// PASO 3b — APLICAR AJUSTE AI + OVERRIDE MANUAL\n// =============================================================\n// Toma el baseline (nodo 2) y el factor del AI (nodo 3) y produce el\n// CONSENSUS FORECAST. El planner puede sobrescribir manualmente en\n// 'overrideManual' (mes_nombre -> unidades fijas).\n\nconst base = $('② Demand Planning (baseline)').first().json;\nconst aiText = $input.first().json.text || $input.first().json.response || '';\n\n// --- Parseo robusto del JSON que devolvió GPT ---\nlet ajustes = [];\ntry {\n  const limpio = String(aiText).replace(/```json|```/g, '').trim();\n  const match = limpio.match(/\\{[\\s\\S]*\\}/);\n  ajustes = JSON.parse(match ? match[0] : limpio).ajustes || [];\n} catch (e) {\n  ajustes = []; // si el AI falla, factor = 1.00 (degrada con gracia)\n}\nconst factorDe = (mesNombre, anio) => {\n  const a = ajustes.find(x => x.mes === mesNombre && (!x.anio || x.anio === anio));\n  return a ? { factor: Math.max(0.8, Math.min(1.2, Number(a.factor) || 1)), razon: a.razon || '' } : { factor: 1, razon: 'sin ajuste AI' };\n};\n\n// --- OVERRIDE MANUAL del planner (edítalo aquí o vía Google Sheets) ---\nconst overrideManual = {\n  // 'Dic': 21000,\n};\n\nconst demand = base.baseline.map(b => {\n  const { factor, razon } = factorDe(b.mes_nombre, b.anio);\n  const ajustado = Math.round(b.baseline_unidades * factor);\n  const manual = overrideManual[b.mes_nombre];\n  const consensus = manual != null ? manual : ajustado;\n  return {\n    anio: b.anio, mes: b.mes, mes_nombre: b.mes_nombre,\n    baseline_unidades: b.baseline_unidades,\n    factor_ai: factor,\n    razon_ai: razon,\n    demanda_ajustada_ai: ajustado,\n    override_manual: manual != null ? manual : null,\n    consensus_forecast: consensus\n  };\n});\n\nreturn [{ json: { config: base.config, demand } }];"
+      },
+      "id": "11111111-1111-1111-1111-111111111105",
+      "name": "④ Ajuste AI + Override manual",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-200, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================================\n// PASO 4 — SUPPLY PLANNING: capacidad de fábrica vs demanda\n// =============================================================\nconst { config, demand } = $input.first().json;\n\n// Parámetros de supply (edítalos o léelos de Google Sheets / ERP):\nconst supply = {\n  capacidad_mensual_unidades: 17000, // techo de producción por mes para este SKU\n  inventario_inicial: 4000,          // stock disponible al arranque\n  stock_seguridad: 2500              // colchón objetivo\n};\n\nlet inventario = supply.inventario_inicial;\nconst plan = demand.map(d => {\n  const demandaNeta = d.consensus_forecast + supply.stock_seguridad - inventario;\n  const produccion_plan = Math.max(0, Math.min(supply.capacidad_mensual_unidades, demandaNeta));\n  const disponible = inventario + produccion_plan;\n  const ventas = Math.min(disponible, d.consensus_forecast);\n  const quiebre = Math.max(0, d.consensus_forecast - disponible); // demanda no satisfecha\n  const utilizacion = +(produccion_plan / supply.capacidad_mensual_unidades).toFixed(3);\n  inventario = disponible - ventas;\n  return {\n    anio: d.anio, mes_nombre: d.mes_nombre,\n    consensus_forecast: d.consensus_forecast,\n    produccion_plan,\n    utilizacion_capacidad: utilizacion,\n    inventario_cierre: Math.round(inventario),\n    quiebre_unidades: quiebre,\n    alerta: quiebre > 0 ? '🔴 QUIEBRE: capacidad insuficiente' : (utilizacion > 0.95 ? '🟠 Capacidad al límite' : '🟢 OK')\n  };\n});\n\nreturn [{ json: { config, supply, plan } }];"
+      },
+      "id": "11111111-1111-1111-1111-111111111106",
+      "name": "⑤ Supply Planning (capacidad)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================================\n// PASO 5 — RECONCILIACIÓN FINANCIERA\n// =============================================================\nconst { config, supply, plan } = $input.first().json;\nconst P = config.precio_unitario;\nconst C = config.costo_unitario;\n\nconst fin = plan.map(p => {\n  const ventas_unid = p.consensus_forecast - p.quiebre_unidades;\n  const ingresos = ventas_unid * P;\n  const costo = p.produccion_plan * C;\n  const margen_bruto = ingresos - (ventas_unid * C);\n  return {\n    anio: p.anio, mes_nombre: p.mes_nombre,\n    ventas_unid,\n    ingresos,\n    costo_produccion: costo,\n    margen_bruto,\n    margen_pct: ingresos ? +((margen_bruto / ingresos) * 100).toFixed(1) : 0,\n    venta_perdida_quiebre: p.quiebre_unidades * P\n  };\n});\n\nconst tot = (k) => fin.reduce((a, x) => a + x[k], 0);\nconst totales = {\n  ingresos_total: tot('ingresos'),\n  margen_bruto_total: tot('margen_bruto'),\n  margen_pct_promedio: +((tot('margen_bruto') / tot('ingresos')) * 100).toFixed(1),\n  venta_perdida_total: tot('venta_perdida_quiebre'),\n  unidades_total: tot('ventas_unid')\n};\n\nreturn [{ json: { config, fin, totales, supply, plan } }];"
+      },
+      "id": "11111111-1111-1111-1111-111111111107",
+      "name": "⑥ Reconciliación Financiera",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================================\n// PASO 6 — EXECUTIVE REVIEW: plan consensuado + alertas\n// =============================================================\nconst { config, fin, totales, plan } = $input.first().json;\nconst fmt = (n) => new Intl.NumberFormat('es-CL').format(Math.round(n));\n\nconst alertas = plan.filter(p => p.alerta !== '🟢 OK');\nconst fmtMon = (n) => `${config.moneda} ${fmt(n)}`;\n\nlet resumen = `📊 PLAN S&OP — ${config.marca} / ${config.sku}\\n`;\nresumen += `Horizonte: ${config.horizonte_meses} meses\\n`;\nresumen += `\\n— RESULTADO FINANCIERO —\\n`;\nresumen += `Volumen total:     ${fmt(totales.unidades_total)} ${config.unidad}\\n`;\nresumen += `Ingresos:          ${fmtMon(totales.ingresos_total)}\\n`;\nresumen += `Margen bruto:      ${fmtMon(totales.margen_bruto_total)} (${totales.margen_pct_promedio}%)\\n`;\nresumen += `Venta perdida x quiebre: ${fmtMon(totales.venta_perdida_total)}\\n`;\nresumen += `\\n— ALERTAS DE SUPPLY (${alertas.length}) —\\n`;\nresumen += alertas.length\n  ? alertas.map(a => `${a.mes_nombre} ${a.anio}: ${a.alerta} (quiebre ${fmt(a.quiebre_unidades)}u, util ${(a.utilizacion_capacidad*100).toFixed(0)}%)`).join('\\n')\n  : 'Sin alertas: capacidad cubre la demanda consensuada.';\nresumen += `\\n\\n— DECISIÓN EJECUTIVA —\\n`;\nresumen += alertas.length\n  ? '⚠️ Requiere decisión: ampliar capacidad / turno extra / adelantar producción / repriorizar SKU.'\n  : '✅ Plan aprobable sin restricciones de capacidad.';\n\nreturn [{ json: { resumen, totales, fin, plan, config } }];"
+      },
+      "id": "11111111-1111-1111-1111-111111111108",
+      "name": "⑦ Executive Review (resumen)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 320]
+    }
+  ],
+  "connections": {
+    "▶ Ejecutar ciclo S&OP": { "main": [[{ "node": "① Ingesta (formato estándar)", "type": "main", "index": 0 }]] },
+    "① Ingesta (formato estándar)": { "main": [[{ "node": "② Demand Planning (baseline)", "type": "main", "index": 0 }]] },
+    "② Demand Planning (baseline)": { "main": [[{ "node": "③ AI Demand Shaping (clima)", "type": "main", "index": 0 }]] },
+    "OpenAI Chat Model": { "ai_languageModel": [[{ "node": "③ AI Demand Shaping (clima)", "type": "ai_languageModel", "index": 0 }]] },
+    "③ AI Demand Shaping (clima)": { "main": [[{ "node": "④ Ajuste AI + Override manual", "type": "main", "index": 0 }]] },
+    "④ Ajuste AI + Override manual": { "main": [[{ "node": "⑤ Supply Planning (capacidad)", "type": "main", "index": 0 }]] },
+    "⑤ Supply Planning (capacidad)": { "main": [[{ "node": "⑥ Reconciliación Financiera", "type": "main", "index": 0 }]] },
+    "⑥ Reconciliación Financiera": { "main": [[{ "node": "⑦ Executive Review (resumen)", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

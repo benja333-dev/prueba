@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Norms Optimizer — Best in Class</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
+    --txt:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#818cf8;
+    --a:#ef4444; --b:#f59e0b; --c:#22c55e; --ok:#22c55e; --warn:#fbbf24;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.5}
+  header{padding:24px 28px;background:linear-gradient(120deg,#1e293b,#0f172a);border-bottom:1px solid var(--line)}
+  header h1{margin:0;font-size:22px}
+  header p{margin:6px 0 0;color:var(--muted);font-size:14px;max-width:960px}
+  .wrap{padding:22px 28px;max-width:1440px;margin:0 auto}
+  .grid{display:grid;gap:18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .panel h2{margin:0 0 12px;font-size:15px;letter-spacing:.3px;text-transform:uppercase;color:var(--accent)}
+  .panel h2 .tag{font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0;margin-left:8px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  input,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:8px;padding:8px 10px;font-size:14px;width:100%}
+  input[type=checkbox]{width:auto}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:150px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);margin-top:22px}
+  button{background:var(--accent);color:#062033;border:none;border-radius:8px;padding:10px 16px;
+    font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+  button:hover{filter:brightness(1.1)}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+  button.ghost:hover{background:rgba(56,189,248,.1)}
+  .btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin-top:4px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .kpi .v{font-size:22px;font-weight:700}
+  .kpi .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .kpi.good{border-left:3px solid var(--ok)} .kpi.warn{border-left:3px solid var(--warn)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{position:sticky;top:0;background:var(--panel2);cursor:pointer;font-size:11px;text-transform:uppercase;
+    color:var(--muted);letter-spacing:.3px}
+  th:first-child,td:first-child{text-align:left}
+  td:nth-child(2){text-align:left}
+  .tblwrap{max-height:540px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+  .badge.A{background:rgba(239,68,68,.2);color:#fca5a5}
+  .badge.B{background:rgba(245,158,11,.2);color:#fcd34d}
+  .badge.C{background:rgba(34,197,94,.2);color:#86efac}
+  .chartsgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.chartsgrid{grid-template-columns:1fr}}
+  .chartbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;height:340px;display:flex;flex-direction:column}
+  .chartbox h3{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:600}
+  .chartbox .cvwrap{position:relative;flex:1;min-height:0}
+  .muted{color:var(--muted);font-size:13px}
+  .hidden{display:none}
+  details{margin-top:10px}
+  summary{cursor:pointer;color:var(--accent);font-size:13px}
+  .method{font-size:13px;color:var(--muted)}
+  .method code{background:var(--panel2);padding:2px 6px;border-radius:5px;color:var(--accent);font-size:12px}
+  .method li{margin:6px 0}
+  .filedrop{border:2px dashed var(--line);border-radius:10px;padding:22px;text-align:center;color:var(--muted);
+    cursor:pointer;transition:.15s}
+  .filedrop:hover{border-color:var(--accent);color:var(--accent)}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;
+    padding:3px 10px;font-size:12px;margin:2px}
+  .pill.opt{opacity:.6}
+  .warntxt{color:#fcd34d;font-size:13px}
+  select.sku{max-width:360px}
+  .abcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px}
+  .subtle{font-size:11px;color:var(--muted)}
+  .flag-hi{color:#fca5a5;font-weight:600}
+  .flag-lo{color:#fcd34d;font-weight:600}
+  .flag-ok{color:#86efac}
+</style>
+</head>
+<body>
+<header>
+  <h1>📦 Inventory Norms Optimizer <span style="color:var(--muted);font-weight:400;font-size:15px">— Best in Class</span></h1>
+  <p>Optimización de niveles de inventario para SKUs a partir de consumo, lead times y variabilidad. Segmentación ABC, safety stock por fill-rate, desestacionalización del error de pronóstico, validación por simulación Monte Carlo, curvas de trade-off y análisis de brecha de capital de trabajo.</p>
+</header>
+
+<div class="wrap grid" style="gap:18px">
+
+  <!-- STEP 1: Config + Upload -->
+  <div class="panel">
+    <h2>1 · Parámetros globales & carga de datos</h2>
+    <div class="row">
+      <div>
+        <label>Periodicidad del consumo</label>
+        <select id="periodicity">
+          <option value="1">Diario</option>
+          <option value="7">Semanal</option>
+          <option value="30.4" selected>Mensual</option>
+        </select>
+      </div>
+      <div>
+        <label>Método de safety stock <span class="subtle" title="Cycle Service Level = prob. de no quiebre por ciclo. Fill Rate = % de demanda servida (más accionable).">ⓘ</span></label>
+        <select id="ssMethod">
+          <option value="fill" selected>Fill Rate (tasa de abastecimiento)</option>
+          <option value="csl">Cycle Service Level (prob. no quiebre)</option>
+        </select>
+      </div>
+      <div>
+        <label>Objetivo de servicio por defecto (%)</label>
+        <input id="defServ" type="number" value="95" min="50" max="99.9" step="0.5">
+      </div>
+      <div>
+        <label>Costo de mantener inventario (% anual)</label>
+        <input id="holdRate" type="number" value="25" min="1" max="100" step="1">
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div>
+        <label>Política de reorden</label>
+        <select id="policy">
+          <option value="auto" selected>Auto (EOQ si hay costos, si no revisión)</option>
+          <option value="eoq">EOQ (lote económico)</option>
+          <option value="review">Revisión periódica</option>
+          <option value="lot">Lote = 1 periodo de consumo</option>
+        </select>
+      </div>
+      <div>
+        <label>Costo de quiebre por unidad ($, opcional)</label>
+        <input id="stockoutCost" type="number" value="" placeholder="para optimizar servicio" min="0" step="1">
+      </div>
+      <div>
+        <label>Corridas Monte Carlo (periodos)</label>
+        <input id="mcRuns" type="number" value="800" min="0" max="5000" step="100">
+      </div>
+      <div class="chk">
+        <input type="checkbox" id="deseason" checked>
+        <label for="deseason" style="margin:0">Desestacionalizar σ (protege el error de pronóstico)</label>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px;align-items:flex-end">
+      <div style="max-width:460px">
+        <label><input type="checkbox" id="diffServ" checked onchange="document.getElementById('abcServ').style.opacity=this.checked?1:.4"> Diferenciar objetivo de servicio por clase ABC</label>
+        <div class="abcgrid" id="abcServ">
+          <div><label>Clase A (%)</label><input id="servA" type="number" value="98" min="50" max="99.9" step="0.5"></div>
+          <div><label>Clase B (%)</label><input id="servB" type="number" value="95" min="50" max="99.9" step="0.5"></div>
+          <div><label>Clase C (%)</label><input id="servC" type="number" value="90" min="50" max="99.9" step="0.5"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="ghost" onclick="downloadTemplate()">⬇️ Descargar plantilla Excel</button>
+      <button class="ghost" onclick="loadDemo()">▶️ Cargar datos de ejemplo (100 SKUs)</button>
+      <button id="recalcBtn" class="ghost hidden" onclick="recalc()">🔄 Recalcular con parámetros actuales</button>
+    </div>
+
+    <div style="margin-top:16px">
+      <label class="filedrop" for="fileInput" id="dropLabel">
+        📁 Haz clic o arrastra aquí tu archivo Excel (.xlsx / .csv) con los consumos
+      </label>
+      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" class="hidden">
+      <div id="fileMsg" class="muted" style="margin-top:8px"></div>
+    </div>
+
+    <details>
+      <summary>📖 Formato del archivo & metodología best-in-class</summary>
+      <div class="method" style="margin-top:10px">
+        <p><b>Columnas reconocidas</b> (el resto de columnas numéricas = serie histórica de consumo por periodo):</p>
+        <div>
+          <span class="pill">SKU / Codigo</span>
+          <span class="pill">Producto / Nombre</span>
+          <span class="pill opt">LeadTime_dias</span>
+          <span class="pill opt">LeadTimeStd_dias</span>
+          <span class="pill opt">NivelServicio_%</span>
+          <span class="pill opt">PeriodoRevision_dias</span>
+          <span class="pill opt">CostoUnitario</span>
+          <span class="pill opt">CostoPedido</span>
+          <span class="pill opt">StockActual</span>
+          <span class="pill">Consumo_1, Consumo_2, …</span>
+        </div>
+        <p style="margin-top:10px" class="subtle">Solo SKU y consumos son obligatorios; el resto usa valores por defecto. <span class="pill opt">opcional</span></p>
+        <p style="margin-top:12px"><b>Fórmulas & prácticas aplicadas</b>:</p>
+        <ul>
+          <li><b>Desestacionalización</b>: se estiman índices estacionales, se descompone la serie y <code>σ</code> se calcula del <b>error de pronóstico residual</b> (variabilidad no predecible), no del ruido estacional planificable.</li>
+          <li><b>σ durante lead time</b> (King, demanda + lead time variables): <code>σ_DLT = √(L·σ_D² + μ_D²·σ_L²)</code></li>
+          <li><b>Safety Stock por Cycle Service Level</b>: <code>SS = z·σ_DLT</code>, con <code>z = Φ⁻¹(servicio)</code></li>
+          <li><b>Safety Stock por Fill Rate</b> (función de pérdida): resuelve <code>G(z) = (1−FR)·Q / σ_DLT</code> → <code>SS = z·σ_DLT</code></li>
+          <li><b>Punto de reorden</b>: <code>ROP = μ_D·L + SS</code> · <b>EOQ</b>: <code>√(2·D·S/(H·c))</code></li>
+          <li><b>Stock objetivo</b> (revisión periódica): <code>μ_D·(L+R) + SS</code></li>
+          <li><b>Segmentación ABC</b> por valor de consumo anual (Pareto 80/15/5) → objetivo de servicio diferenciado.</li>
+          <li><b>Validación Monte Carlo</b>: simula la política (Q,R) con demanda y lead time aleatorios y reporta el <b>fill rate y servicio realmente logrados</b>.</li>
+          <li><b>Optimización de costo</b>: costo total = pedido + mantención + quiebre; si das costo de quiebre, sugiere el servicio óptimo económico.</li>
+          <li><b>Brecha de capital de trabajo</b>: compara stock actual vs objetivo → exceso/déficit en $.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <!-- STEP 2: KPIs -->
+  <div class="panel hidden" id="kpiPanel">
+    <h2>2 · Resumen ejecutivo <span class="tag" id="kpiSub"></span></h2>
+    <div class="kpis" id="kpis"></div>
+  </div>
+
+  <!-- STEP 3: Charts -->
+  <div class="panel hidden" id="chartPanel">
+    <h2>3 · Visualización & diagnóstico</h2>
+    <div style="margin-bottom:14px">
+      <label>SKU para perfil de inventario, estacionalidad y curva de costo:</label>
+      <select id="skuSelect" class="sku" onchange="drawSkuCharts()"></select>
+    </div>
+    <div class="chartsgrid">
+      <div class="chartbox"><h3>Comportamiento del inventario (simulado)</h3><div class="cvwrap"><canvas id="sawtooth"></canvas></div></div>
+      <div class="chartbox"><h3>Estacionalidad & pronóstico del SKU</h3><div class="cvwrap"><canvas id="seasonChart"></canvas></div></div>
+      <div class="chartbox"><h3>Curva de costo total (lote óptimo)</h3><div class="cvwrap"><canvas id="costChart"></canvas></div></div>
+      <div class="chartbox"><h3>Trade-off servicio ↔ inversión (frontera eficiente)</h3><div class="cvwrap"><canvas id="frontierChart"></canvas></div></div>
+      <div class="chartbox"><h3>Valor de inventario por clase ABC</h3><div class="cvwrap"><canvas id="abcChart"></canvas></div></div>
+      <div class="chartbox"><h3>Composición Safety vs Cycle Stock (Top 15)</h3><div class="cvwrap"><canvas id="compChart"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Table -->
+  <div class="panel hidden" id="tablePanel">
+    <h2>4 · Normas de inventario por SKU</h2>
+    <div class="btnrow" style="margin-top:0;margin-bottom:12px">
+      <button onclick="exportResults()">⬇️ Exportar resultados a Excel</button>
+      <span class="muted" id="tblHint">Clic en encabezados para ordenar. Columna <b>Fill sim.</b> valida la norma vía Monte Carlo.</span>
+    </div>
+    <div class="tblwrap">
+      <table id="resultTable"><thead></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============ stats util ============ */
+function erf(x){const t=1/(1+0.3275911*Math.abs(x));
+  const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return x>=0?y:-y;}
+function stdNormCdf(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function stdNormPdf(z){return Math.exp(-z*z/2)/Math.sqrt(2*Math.PI);}
+function lossFn(z){return stdNormPdf(z)-z*(1-stdNormCdf(z));} // standard normal loss G(z), decreasing
+function normInv(p){
+  const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+  const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+  const plow=0.02425,phigh=1-plow;let q,r;
+  if(p<plow){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p<=phigh){q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+function zFromLoss(target){ // solve G(z)=target
+  if(target<=0)return 5; if(target>=lossFn(-6))return -6;
+  let lo=-6,hi=12;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(lossFn(m)>target)lo=m;else hi=m;}return(lo+hi)/2;}
+function mean(a){return a.length?a.reduce((s,x)=>s+x,0)/a.length:0;}
+function stdev(a){if(a.length<2)return 0;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)*(x-m),0)/(a.length-1));}
+let _g2=null;
+function gaussian(){if(_g2!=null){const v=_g2;_g2=null;return v;}
+  let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();
+  const r=Math.sqrt(-2*Math.log(u));_g2=r*Math.sin(2*Math.PI*v);return r*Math.cos(2*Math.PI*v);}
+function norm(s){return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');}
+function fmt(n,d=0){if(n==null||isNaN(n))return'-';return Number(n).toLocaleString('es-CL',{maximumFractionDigits:d,minimumFractionDigits:d});}
+function money(n){if(n==null||isNaN(n))return'-';const a=Math.abs(n);
+  if(a>=1e6)return (n<0?'-$':'$')+fmt(a/1e6,1)+'M';
+  if(a>=1e3)return (n<0?'-$':'$')+fmt(a/1e3,0)+'K';
+  return (n<0?'-$':'$')+fmt(a,0);}
+
+/* ============ seasonality ============ */
+// returns {level, sigma (residual/forecast error), seasonalIdx[], fitted[]}
+function decompose(series,seasonLen,useDeseason){
+  const n=series.length, mu=mean(series);
+  // require >=2 full seasonal cycles, else seasonal indices overfit (residual -> 0)
+  if(!useDeseason || n<2*seasonLen || seasonLen<2){
+    return {level:mu,sigma:stdev(series),seasonalIdx:series.map(()=>1),fitted:series.map(()=>mu),seasonal:false};
+  }
+  // seasonal index by position mod seasonLen (multiplicative), normalized to avg 1
+  const sums=new Array(seasonLen).fill(0), cnt=new Array(seasonLen).fill(0);
+  series.forEach((v,i)=>{const p=i%seasonLen;sums[p]+=v;cnt[p]++;});
+  let idx=sums.map((s,p)=>cnt[p]?(s/cnt[p])/(mu||1):1);
+  const im=mean(idx)||1; idx=idx.map(v=>v/im);
+  const fitted=series.map((v,i)=>mu*idx[i%seasonLen]);
+  const resid=series.map((v,i)=>v-fitted[i]);
+  return {level:mu,sigma:stdev(resid),seasonalIdx:idx,fitted,seasonal:true};
+}
+
+/* ============ Monte Carlo (Q,R) continuous review, daily steps, lost sales ============ */
+// muP,sigmaP = demand per period; simulated in DAILY steps for realistic continuous review.
+function simulate(muP,sigmaP,periodDays,leadDays,leadStdDays,Q,ROP,periods){
+  if(periods<=0||muP<=0)return{fill:null,csl:null};
+  const dMu=muP/periodDays, dSig=sigmaP/Math.sqrt(periodDays); // variance scales with time
+  let simDays=Math.min(Math.round(periods*periodDays),12000); if(simDays<300)simDays=300;
+  let onHand=ROP+Q, unmet=0, tot=0, stockoutDays=0;
+  let cycles=0, failedCycles=0, cycleFail=false;
+  const pipe=[]; // {arrive, qty}
+  for(let t=0;t<simDays;t++){
+    for(let k=pipe.length-1;k>=0;k--){if(pipe[k].arrive<=t){onHand+=pipe[k].qty;pipe.splice(k,1);}}
+    let d=dMu+dSig*gaussian(); if(d<0)d=0; tot+=d;
+    if(d>onHand){unmet+=(d-onHand);onHand=0;stockoutDays++;cycleFail=true;} else onHand-=d;
+    let pos=onHand; for(const o of pipe)pos+=o.qty;
+    if(pos<=ROP){ // close previous cycle, open new
+      cycles++; if(cycleFail)failedCycles++; cycleFail=false;
+      let lt=Math.round(leadDays+leadStdDays*gaussian());if(lt<0)lt=0;pipe.push({arrive:t+lt+1,qty:Q});
+    }
+  }
+  return {fill:tot>0?1-unmet/tot:1, csl:cycles>0?1-failedCycles/cycles:1};
+}
+
+/* ============ column matching ============ */
+const FIELDMAP={
+  sku:['sku','codigo','cod','id','material','item','codigoproducto'],
+  nombre:['producto','nombre','descripcion','desc','articulo'],
+  lead:['leadtimedias','leadtime','lt','plazo','plazoentrega','tiempoentrega','leadtimedays'],
+  leadStd:['leadtimestddias','leadtimestd','ltstd','desviacionleadtime','variabilidadleadtime','sigmalt'],
+  serv:['nivelservicio','servicelevel','servicio','fillrate','nivelservicioo'],
+  review:['periodorevision','revision','reviewperiod','periodorevisiondias'],
+  cost:['costounitario','costo','precio','costounit','valorunitario','preciounitario'],
+  order:['costopedido','costoorden','orderingcost','costoemision'],
+  onhand:['stockactual','inventarioactual','stock','onhand','existencias','inventario']
+};
+function matchField(h){
+  const n=norm(h);
+  for(const[k,alts]of Object.entries(FIELDMAP))if(alts.includes(n))return k;
+  if(n.startsWith('nivelservicio')||n.startsWith('servicelevel')||n.startsWith('fillrate'))return 'serv';
+  return null;
+}
+
+/* ============ core computation ============ */
+let RESULTS=[], RAW=[];
+function compute(rows){
+  const periodDays=parseFloat(document.getElementById('periodicity').value);
+  const defServ=clampServ(parseFloat(document.getElementById('defServ').value)/100);
+  const holdRate=parseFloat(document.getElementById('holdRate').value)/100;
+  const policy=document.getElementById('policy').value;
+  const ssMethod=document.getElementById('ssMethod').value;
+  const useDeseason=document.getElementById('deseason').checked;
+  const diffServ=document.getElementById('diffServ').checked;
+  const soCost=parseFloat(document.getElementById('stockoutCost').value)||0;
+  const mcRuns=parseInt(document.getElementById('mcRuns').value)||0;
+  const servABC={A:clampServ(parseFloat(document.getElementById('servA').value)/100),
+                 B:clampServ(parseFloat(document.getElementById('servB').value)/100),
+                 C:clampServ(parseFloat(document.getElementById('servC').value)/100)};
+  const periodsPerYear=365/periodDays;
+  const seasonLen=Math.round(365/periodDays); // 12 monthly, 52 weekly
+
+  if(!rows.length)return[];
+  const headers=Object.keys(rows[0]);
+  const mapped={}, consumptionCols=[];
+  headers.forEach(h=>{const f=matchField(h);if(f&&!mapped[f])mapped[f]=h;else consumptionCols.push(h);});
+
+  // PASS 1: base stats
+  const base=[];
+  rows.forEach((r,idx)=>{
+    let series=consumptionCols.map(c=>parseFloat(r[c])).filter(v=>!isNaN(v));
+    if(series.length===0)return;
+    const dec=decompose(series,seasonLen,useDeseason);
+    const mu=mean(series), sigma=dec.sigma;
+    const cost=mapped.cost?parseFloat(r[mapped.cost])||0:0;
+    base.push({idx,r,series,dec,mu,sigma,cost,
+      annualConsValue:mu*periodsPerYear*cost});
+  });
+
+  // ABC by annual consumption value
+  const totAnnual=base.reduce((s,x)=>s+x.annualConsValue,0);
+  if(totAnnual>0){
+    const sorted=[...base].sort((a,b)=>b.annualConsValue-a.annualConsValue);
+    let cum=0;sorted.forEach(x=>{cum+=x.annualConsValue;const p=cum/totAnnual;x.abc=p<=0.8?'A':(p<=0.95?'B':'C');});
+  }else base.forEach(x=>x.abc='A');
+
+  // PASS 2: norms
+  const out=[];
+  base.forEach(b=>{
+    const r=b.r, series=b.series;
+    const sku=mapped.sku?String(r[mapped.sku]):('SKU-'+(b.idx+1));
+    const nombre=mapped.nombre?String(r[mapped.nombre]):sku;
+    const lead=mapped.lead?parseFloat(r[mapped.lead]):periodDays;
+    const leadStd=mapped.leadStd?parseFloat(r[mapped.leadStd])||0:0;
+    let servRaw=mapped.serv?parseFloat(r[mapped.serv]):null;
+    let serv;
+    if(servRaw!=null&&!isNaN(servRaw))serv=clampServ(servRaw>1?servRaw/100:servRaw);
+    else serv=diffServ?servABC[b.abc]:defServ;
+    const review=mapped.review?parseFloat(r[mapped.review])||0:0;
+    const cost=b.cost;
+    const orderCost=mapped.order?parseFloat(r[mapped.order])||0:0;
+    const onHand=mapped.onhand?parseFloat(r[mapped.onhand]):null;
+
+    const mu=b.mu, sigma=b.sigma;
+    const L=(lead||0)/periodDays, Lstd=(leadStd||0)/periodDays, R=(review||0)/periodDays;
+    const dailyDemand=mu/periodDays;
+    const sigmaDLT=Math.sqrt(Math.max(L,0)*sigma*sigma + mu*mu*Lstd*Lstd);
+
+    // Order quantity
+    const Dannual=mu*periodsPerYear;
+    let EOQ=null,Q;
+    if(cost>0&&orderCost>0&&holdRate>0&&Dannual>0)EOQ=Math.sqrt(2*Dannual*orderCost/(holdRate*cost));
+    if(policy==='eoq')Q=EOQ||mu*Math.max(R,1);
+    else if(policy==='review')Q=mu*Math.max(R,1);
+    else if(policy==='lot')Q=mu;
+    else Q=EOQ||(R>0?mu*R:mu);
+    Q=Math.max(Q,0.0001);
+
+    // Safety stock: CSL or Fill rate
+    let Z, SS;
+    if(ssMethod==='fill'){
+      const G=sigmaDLT>0?(1-serv)*Q/sigmaDLT:0;
+      Z=zFromLoss(G); SS=Math.max(0,Z*sigmaDLT);
+    }else{Z=normInv(serv);SS=Math.max(0,Z*sigmaDLT);}
+
+    const DLT=mu*L, ROP=DLT+SS;
+    const cycleStock=Q/2, avgInv=cycleStock+SS;
+    const orderUpTo=(R>0)?(mu*(L+R)+SS):(Q+SS);
+    const daysCover=dailyDemand>0?avgInv/dailyDemand:0;
+    const invValue=avgInv*cost, ssValue=SS*cost, cycValue=cycleStock*cost;
+    const turns=avgInv>0?Dannual/avgInv:0;
+
+    // costs
+    const orderingCostY=Q>0?(Dannual/Q)*orderCost:0;
+    const holdingCostY=avgInv*holdRate*cost;
+    const expShortPerCycle=sigmaDLT*lossFn(Z);
+    const cyclesY=Q>0?Dannual/Q:0;
+    const stockoutCostY=soCost>0?expShortPerCycle*cyclesY*soCost:0;
+    const totalCostY=orderingCostY+holdingCostY+stockoutCostY;
+
+    // cost-optimal service (only if stockout cost given): critical ratio
+    let optServ=null;
+    if(soCost>0&&cost>0&&holdRate>0){
+      const cr=1-(Q*holdRate*cost)/(Dannual*soCost); // 1 - (Q h)/(D b)
+      optServ=Math.min(0.9999,Math.max(0.5,cr));
+    }
+
+    // Monte Carlo validation (daily-step simulation)
+    const sim=simulate(mu,sigma,periodDays,lead,leadStd,Q,ROP,mcRuns);
+
+    // current stock gap
+    let gapUnits=null,gapValue=null,status=null;
+    if(onHand!=null&&!isNaN(onHand)){
+      gapUnits=onHand-avgInv; gapValue=gapUnits*cost;
+      const doc=dailyDemand>0?onHand/dailyDemand:0;
+      if(onHand<ROP)status='Bajo ROP';
+      else if(gapUnits>Q)status='Exceso';
+      else status='OK';
+    }
+
+    out.push({sku,nombre,abc:b.abc,mu,sigma,rawStd:stdev(series),cv:mu>0?sigma/mu:0,
+      seasonal:b.dec.seasonal,lead,leadStd,serv,Z,ssMethod,
+      SS,sigmaDLT,DLT,ROP,EOQ,Q,cycleStock,avgInv,orderUpTo,daysCover,cost,
+      invValue,ssValue,cycValue,annualConsValue:b.annualConsValue,dailyDemand,turns,L,R,
+      orderingCostY,holdingCostY,stockoutCostY,totalCostY,optServ,
+      simFill:sim.fill,simCsl:sim.csl,onHand,gapUnits,gapValue,status,
+      dec:b.dec,series});
+  });
+  return out;
+}
+function clampServ(s){return Math.min(Math.max(s,0.5),0.9999);}
+
+/* ============ render table ============ */
+const COLS=[
+  {k:'sku',t:'SKU',f:v=>v},
+  {k:'abc',t:'ABC',f:v=>`<span class="badge ${v}">${v}</span>`,raw:true},
+  {k:'mu',t:'μ/periodo',f:v=>fmt(v,1)},
+  {k:'cv',t:'CV',f:v=>fmt(v,2)},
+  {k:'lead',t:'LT (d)',f:v=>fmt(v,0)},
+  {k:'serv',t:'Servicio',f:v=>fmt(v*100,1)+'%'},
+  {k:'SS',t:'Safety Stock',f:v=>fmt(v,0)},
+  {k:'ROP',t:'Reorden',f:v=>fmt(v,0)},
+  {k:'Q',t:'Lote (Q)',f:v=>fmt(v,0)},
+  {k:'orderUpTo',t:'Stock obj.',f:v=>fmt(v,0)},
+  {k:'avgInv',t:'Inv. prom.',f:v=>fmt(v,0)},
+  {k:'daysCover',t:'Días cob.',f:v=>fmt(v,0)},
+  {k:'simFill',t:'Fill sim.',f:v=>v==null?'-':`<span class="${v>=0.98?'flag-ok':(v>=0.9?'':'flag-lo')}">${fmt(v*100,1)}%</span>`,raw:true},
+  {k:'turns',t:'Rot./año',f:v=>fmt(v,1)},
+  {k:'invValue',t:'Valor inv.',f:v=>money(v)},
+  {k:'status',t:'Estado',f:v=>v==null?'-':`<span class="${v==='Exceso'?'flag-hi':(v==='Bajo ROP'?'flag-lo':'flag-ok')}">${v}</span>`,raw:true},
+  {k:'gapValue',t:'Brecha $',f:v=>v==null?'-':money(v),raw:false}
+];
+let sortKey='invValue',sortDir=-1;
+function renderTable(){
+  const hasGap=RESULTS.some(x=>x.onHand!=null);
+  const cols=COLS.filter(c=>hasGap||(c.k!=='status'&&c.k!=='gapValue'));
+  const thead=document.querySelector('#resultTable thead');
+  const tbody=document.querySelector('#resultTable tbody');
+  thead.innerHTML='<tr>'+cols.map(c=>`<th onclick="sortBy('${c.k}')">${c.t}${sortKey===c.k?(sortDir<0?' ▾':' ▴'):''}</th>`).join('')+'</tr>';
+  const rows=[...RESULTS].sort((a,b)=>{let x=a[sortKey],y=b[sortKey];
+    if(x==null)x=-Infinity;if(y==null)y=-Infinity;
+    if(typeof x==='string')return sortDir*x.localeCompare(y);return sortDir*((x||0)-(y||0));});
+  tbody.innerHTML=rows.map(r=>'<tr>'+cols.map(c=>`<td>${c.f(r[c.k])}</td>`).join('')+'</tr>').join('');
+}
+function sortBy(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='sku')?1:-1;}renderTable();}
+
+/* ============ KPIs ============ */
+function renderKPIs(){
+  const totVal=RESULTS.reduce((s,x)=>s+x.invValue,0);
+  const totSS=RESULTS.reduce((s,x)=>s+x.ssValue,0);
+  const avgCover=mean(RESULTS.map(x=>x.daysCover));
+  const simFills=RESULTS.map(x=>x.simFill).filter(v=>v!=null);
+  const avgSimFill=simFills.length?mean(simFills)*100:null;
+  const cA=RESULTS.filter(x=>x.abc==='A').length,cB=RESULTS.filter(x=>x.abc==='B').length,cC=RESULTS.filter(x=>x.abc==='C').length;
+  const totCost=RESULTS.reduce((s,x)=>s+x.totalCostY,0);
+  const hasGap=RESULTS.some(x=>x.onHand!=null);
+  const excess=RESULTS.filter(x=>x.gapValue>0).reduce((s,x)=>s+x.gapValue,0);
+  const deficit=RESULTS.filter(x=>x.gapValue<0).reduce((s,x)=>s+x.gapValue,0);
+
+  const k=[
+    ['SKUs analizados',fmt(RESULTS.length),''],
+    ['Valor inventario objetivo',money(totVal),''],
+    ['Inversión en Safety Stock',money(totSS)+' · '+fmt(totVal>0?totSS/totVal*100:0,0)+'%',''],
+    ['Cobertura promedio',fmt(avgCover,0)+' días',''],
+    ['Costo total anual estimado',money(totCost),''],
+    ['ABC (# SKUs)',`A:${cA} · B:${cB} · C:${cC}`,'']
+  ];
+  if(avgSimFill!=null)k.push(['Fill rate simulado (real)',fmt(avgSimFill,1)+'%',avgSimFill>=93?'good':'warn']);
+  if(hasGap){
+    k.push(['Exceso de inventario',money(excess),'warn']);
+    k.push(['Déficit vs objetivo',money(deficit),'warn']);
+  }
+  document.getElementById('kpis').innerHTML=k.map(([l,v,cls])=>`<div class="kpi ${cls}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  const m=document.getElementById('ssMethod').value==='fill'?'Fill Rate':'Cycle Service Level';
+  document.getElementById('kpiSub').textContent='método: '+m+(document.getElementById('deseason').checked?' · σ desestacionalizada':'');
+}
+
+/* ============ charts ============ */
+let charts={};
+function destroy(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+const AX={x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#33415588'}},y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#33415588'}}};
+const BASE={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#cbd5e1',boxWidth:12,font:{size:11}}}},scales:AX};
+
+function drawCharts(){
+  destroy('abc');
+  const abcVal={A:0,B:0,C:0};RESULTS.forEach(x=>{if(abcVal[x.abc]!=null)abcVal[x.abc]+=x.invValue;});
+  charts.abc=new Chart(document.getElementById('abcChart'),{type:'doughnut',
+    data:{labels:['A (crítico)','B','C'],datasets:[{data:[abcVal.A,abcVal.B,abcVal.C],
+      backgroundColor:['#ef4444','#f59e0b','#22c55e'],borderColor:'#1e293b',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#cbd5e1',font:{size:11}}}}}});
+
+  destroy('comp');
+  const top=[...RESULTS].sort((a,b)=>b.invValue-a.invValue).slice(0,15);
+  charts.comp=new Chart(document.getElementById('compChart'),{type:'bar',
+    data:{labels:top.map(x=>x.sku),datasets:[
+      {label:'Safety Stock',data:top.map(x=>x.ssValue),backgroundColor:'#818cf8'},
+      {label:'Cycle Stock',data:top.map(x=>x.cycValue),backgroundColor:'#38bdf8'}]},
+    options:{...BASE,scales:{x:{...AX.x,stacked:true},y:{...AX.y,stacked:true}}}});
+
+  drawFrontier();
+
+  const sel=document.getElementById('skuSelect');
+  sel.innerHTML=RESULTS.map((x,i)=>`<option value="${i}">${x.sku} — ${x.nombre}</option>`).join('');
+  drawSkuCharts();
+}
+
+function drawFrontier(){
+  destroy('frontier');
+  const ssMethod=document.getElementById('ssMethod').value;
+  const levels=[80,85,88,90,92,94,95,96,97,98,98.5,99,99.5];
+  const inv=levels.map(L=>{
+    const s=clampServ(L/100);
+    return RESULTS.reduce((acc,x)=>{
+      let z;
+      if(ssMethod==='fill'){const G=x.sigmaDLT>0?(1-s)*x.Q/x.sigmaDLT:0;z=zFromLoss(G);}
+      else z=normInv(s);
+      return acc+Math.max(0,z*x.sigmaDLT)*x.cost;
+    },0);
+  });
+  charts.frontier=new Chart(document.getElementById('frontierChart'),{type:'line',
+    data:{labels:levels.map(l=>l+'%'),datasets:[{label:'Inversión en Safety Stock',data:inv,
+      borderColor:'#38bdf8',backgroundColor:'#38bdf822',fill:true,tension:.3,pointRadius:3}]},
+    options:{...BASE,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.raw)}}},
+      scales:{x:{...AX.x,title:{display:true,text:'Objetivo de servicio',color:'#94a3b8'}},
+        y:{...AX.y,ticks:{color:'#94a3b8',callback:v=>money(v)}}}}});
+}
+
+function drawSkuCharts(){drawSawtooth();drawSeason();drawCost();}
+
+function drawSawtooth(){
+  destroy('saw');
+  const i=parseInt(document.getElementById('skuSelect').value)||0;const r=RESULTS[i];if(!r)return;
+  const dd=r.dailyDemand,leadDays=r.lead,Q=r.Q,SS=r.SS,ROP=r.ROP;
+  const days=Math.max(90,Math.round((Q/Math.max(dd,1e-6))*3));const maxDays=Math.min(days,400);
+  let inv=ROP+Q,pending=-1;const labels=[],invS=[],ssL=[],ropL=[];
+  for(let d=0;d<=maxDays;d++){labels.push('d'+d);invS.push(Math.max(inv,0));ssL.push(SS);ropL.push(ROP);
+    if(pending===d){inv+=Q;pending=-1;}if(inv<=ROP&&pending<0)pending=d+Math.round(leadDays);inv-=dd;}
+  charts.saw=new Chart(document.getElementById('sawtooth'),{type:'line',
+    data:{labels,datasets:[
+      {label:'Inventario',data:invS,borderColor:'#38bdf8',backgroundColor:'#38bdf822',fill:true,pointRadius:0,tension:.05,borderWidth:2},
+      {label:'Safety Stock',data:ssL,borderColor:'#ef4444',borderDash:[6,4],pointRadius:0,borderWidth:1.5},
+      {label:'Punto de reorden',data:ropL,borderColor:'#f59e0b',borderDash:[3,3],pointRadius:0,borderWidth:1.5}]},
+    options:{...BASE,plugins:{legend:{labels:{color:'#cbd5e1',font:{size:11}}},
+      title:{display:true,text:`${r.sku} · Q=${fmt(Q)} · ROP=${fmt(ROP)} · SS=${fmt(SS)} · fill sim=${r.simFill!=null?fmt(r.simFill*100,1)+'%':'-'}`,color:'#94a3b8',font:{size:11}}}}});
+}
+
+function drawSeason(){
+  destroy('season');
+  const i=parseInt(document.getElementById('skuSelect').value)||0;const r=RESULTS[i];if(!r)return;
+  const s=r.series, fitted=r.dec.fitted;
+  const labels=s.map((_,k)=>'P'+(k+1));
+  const ds=[{label:'Consumo real',data:s,borderColor:'#38bdf8',backgroundColor:'#38bdf822',pointRadius:2,tension:.2,borderWidth:2}];
+  if(r.dec.seasonal)ds.push({label:'Pronóstico estacional',data:fitted,borderColor:'#818cf8',borderDash:[5,4],pointRadius:0,tension:.2,borderWidth:1.5});
+  charts.season=new Chart(document.getElementById('seasonChart'),{type:'line',data:{labels,datasets:ds},
+    options:{...BASE,plugins:{legend:{labels:{color:'#cbd5e1',font:{size:11}}},
+      title:{display:true,text:r.dec.seasonal?`σ error pronóstico=${fmt(r.sigma,1)} vs σ bruta=${fmt(r.rawStd,1)}`:`sin estacionalidad detectada · σ=${fmt(r.sigma,1)}`,color:'#94a3b8',font:{size:11}}}}});
+}
+
+function drawCost(){
+  destroy('cost');
+  const i=parseInt(document.getElementById('skuSelect').value)||0;const r=RESULTS[i];if(!r)return;
+  const holdRate=parseFloat(document.getElementById('holdRate').value)/100;
+  const orderCost=(function(){const raw=RAW.mapped_order&&RAW.rows?null:null;return null;})();
+  // reconstruct ordering cost from orderingCostY: Dannual/Q * S -> S = orderingCostY*Q/Dannual
+  const periodDays=parseFloat(document.getElementById('periodicity').value);
+  const Dannual=r.mu*365/periodDays;
+  const S=(r.Q>0&&Dannual>0)?r.orderingCostY*r.Q/Dannual:0;
+  if(!(r.cost>0&&S>0&&Dannual>0)){
+    charts.cost=new Chart(document.getElementById('costChart'),{type:'line',data:{labels:['—'],datasets:[{data:[0]}]},
+      options:{...BASE,plugins:{legend:{display:false},title:{display:true,text:'Requiere CostoUnitario y CostoPedido',color:'#94a3b8',font:{size:11}}}}});
+    return;
+  }
+  const H=holdRate*r.cost;
+  const qOpt=r.EOQ||r.Q;
+  const qs=[],ord=[],hold=[],tot=[];
+  for(let f=0.2;f<=2.6;f+=0.1){const Q=qOpt*f;qs.push(Math.round(Q));
+    const o=(Dannual/Q)*S,h=(Q/2)*H;ord.push(o);hold.push(h);tot.push(o+h);}
+  charts.cost=new Chart(document.getElementById('costChart'),{type:'line',
+    data:{labels:qs,datasets:[
+      {label:'Costo total',data:tot,borderColor:'#38bdf8',pointRadius:0,borderWidth:2.5,tension:.2},
+      {label:'Mantención',data:hold,borderColor:'#22c55e',pointRadius:0,borderWidth:1.5,tension:.2},
+      {label:'Pedido',data:ord,borderColor:'#f59e0b',pointRadius:0,borderWidth:1.5,tension:.2}]},
+    options:{...BASE,plugins:{legend:{labels:{color:'#cbd5e1',font:{size:11}}},
+      title:{display:true,text:`EOQ ≈ ${fmt(qOpt)} u.`,color:'#94a3b8',font:{size:11}},
+      tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.raw)}}},
+      scales:{x:{...AX.x,title:{display:true,text:'Tamaño de lote Q',color:'#94a3b8'}},
+        y:{...AX.y,ticks:{color:'#94a3b8',callback:v=>money(v)}}}}});
+}
+
+/* ============ pipeline ============ */
+function runAll(rows){
+  RAW.rows=rows;
+  const t0=performance.now();
+  RESULTS=compute(rows);
+  const ms=Math.round(performance.now()-t0);
+  if(!RESULTS.length){document.getElementById('fileMsg').innerHTML='<span class="warntxt">No se encontraron filas con consumo válido. Revisa el formato.</span>';return;}
+  document.getElementById('fileMsg').innerHTML=`✅ ${RESULTS.length} SKUs procesados (${ms} ms, incl. simulación Monte Carlo).`;
+  document.getElementById('recalcBtn').classList.remove('hidden');
+  ['kpiPanel','chartPanel','tablePanel'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
+  renderKPIs();renderTable();drawCharts();
+  document.getElementById('kpiPanel').scrollIntoView({behavior:'smooth'});
+}
+function recalc(){if(RAW.rows)runAll(RAW.rows);}
+
+/* ============ file handling ============ */
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  document.getElementById('fileMsg').textContent='Procesando '+f.name+'…';
+  const reader=new FileReader();
+  reader.onload=ev=>{try{
+    const wb=XLSX.read(ev.target.result,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+    runAll(rows);
+  }catch(err){document.getElementById('fileMsg').innerHTML='<span class="warntxt">Error al leer: '+err.message+'</span>';}};
+  reader.readAsArrayBuffer(f);
+});
+const drop=document.getElementById('dropLabel');
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='#38bdf8';}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='';}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(!f)return;
+  const dt=new DataTransfer();dt.items.add(f);document.getElementById('fileInput').files=dt.files;
+  document.getElementById('fileInput').dispatchEvent(new Event('change'));});
+
+/* ============ template & demo ============ */
+const MONTH_NAMES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+// seasonal profile (1=flat), example: demand peaks mid-year
+const SEASON=[0.85,0.8,0.9,1.0,1.1,1.2,1.25,1.15,1.05,0.95,0.9,0.85];
+function monthCols(years){const c=[];for(let y=1;y<=years;y++)for(let m=0;m<12;m++)c.push('Consumo_Y'+y+'_'+MONTH_NAMES[m]);return c;}
+function makeRow(cols,sku,nom,lt,ltstd,serv,rev,cost,ord,muBase,noise,onhand,seasonal){
+  const r={SKU:sku,Producto:nom,LeadTime_dias:lt,LeadTimeStd_dias:ltstd,
+    'NivelServicio_%':serv,PeriodoRevision_dias:rev,CostoUnitario:cost,CostoPedido:ord};
+  if(onhand!=null)r.StockActual=onhand;
+  cols.forEach((m,k)=>{const seas=seasonal?SEASON[k%12]:1;
+    r[m]=Math.max(0,Math.round(muBase*seas*(1+(Math.random()-0.5)*2*noise)));});
+  return r;
+}
+function downloadTemplate(){
+  const cols=monthCols(2); // 2 años de historia (recomendado para detectar estacionalidad)
+  const rows=[
+    makeRow(cols,'SKU-001','Producto ejemplo A',30,5,98,30,12500,45000,120,0.20,2200,true),
+    makeRow(cols,'SKU-002','Producto ejemplo B',15,2,95,15,3200,45000,540,0.15,1500,false),
+    makeRow(cols,'SKU-003','Producto ejemplo C',45,10,90,30,890,45000,60,0.35,900,true)
+  ];
+  const ws=XLSX.utils.json_to_sheet(rows,{header:['SKU','Producto','LeadTime_dias','LeadTimeStd_dias','NivelServicio_%','PeriodoRevision_dias','CostoUnitario','CostoPedido','StockActual',...cols]});
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Consumos');
+  XLSX.writeFile(wb,'plantilla_inventory_norms.xlsx');
+}
+function loadDemo(){
+  const cols=monthCols(2); // 24 meses -> permite desestacionalizar
+  const names=['Tornillo','Válvula','Rodamiento','Filtro','Correa','Sensor','Motor','Bomba','Cable','Junta',
+    'Resorte','Pistón','Engranaje','Bujía','Manguera','Tubo','Placa','Chip','Batería','Resistencia'];
+  const rows=[];
+  for(let i=1;i<=100;i++){
+    const lt=[7,15,21,30,45,60][Math.floor(Math.random()*6)];
+    const serv=[90,95,97,98,99][Math.floor(Math.random()*5)];
+    const cost=Math.round((Math.random()*Math.random()*20000+50));
+    const muBase=Math.round(Math.random()*Math.random()*800+10);
+    const seasonal=Math.random()<0.5;
+    const noise=0.1+Math.random()*0.45;
+    const onhand=Math.round(muBase*(0.5+Math.random()*3)); // varied current stock
+    rows.push(makeRow(cols,'SKU-'+String(i).padStart(3,'0'),
+      names[i%names.length]+' '+Math.ceil(i/names.length),
+      lt,Math.round(lt*0.2),serv,30,cost,45000,muBase,noise,onhand,seasonal));
+  }
+  runAll(rows);
+}
+
+/* ============ export ============ */
+function exportResults(){
+  if(!RESULTS.length)return;
+  const data=RESULTS.map(r=>({
+    SKU:r.sku,Producto:r.nombre,Clase_ABC:r.abc,
+    Consumo_medio_periodo:Math.round(r.mu*10)/10,
+    Sigma_error_pronostico:Math.round(r.sigma*10)/10,
+    Sigma_bruta:Math.round(r.rawStd*10)/10,
+    Estacional:r.seasonal?'Si':'No',
+    Coef_variacion:Math.round(r.cv*100)/100,
+    LeadTime_dias:r.lead,LeadTimeStd_dias:r.leadStd,
+    Objetivo_servicio_pct:Math.round(r.serv*1000)/10,Z:Math.round(r.Z*100)/100,
+    Metodo_SS:r.ssMethod==='fill'?'Fill rate':'CSL',
+    Sigma_durante_leadtime:Math.round(r.sigmaDLT*10)/10,
+    Safety_Stock:Math.round(r.SS),
+    Demanda_en_leadtime:Math.round(r.DLT),
+    Punto_reorden_ROP:Math.round(r.ROP),
+    EOQ:r.EOQ?Math.round(r.EOQ):'',Lote_Q:Math.round(r.Q),
+    Cycle_stock:Math.round(r.cycleStock),Stock_objetivo:Math.round(r.orderUpTo),
+    Inventario_promedio:Math.round(r.avgInv),Dias_cobertura:Math.round(r.daysCover),
+    Rotacion_anual:Math.round(r.turns*10)/10,
+    Fill_rate_simulado_pct:r.simFill!=null?Math.round(r.simFill*1000)/10:'',
+    CSL_simulado_pct:r.simCsl!=null?Math.round(r.simCsl*1000)/10:'',
+    Costo_pedido_anual:Math.round(r.orderingCostY),
+    Costo_mantencion_anual:Math.round(r.holdingCostY),
+    Costo_quiebre_anual:Math.round(r.stockoutCostY),
+    Costo_total_anual:Math.round(r.totalCostY),
+    Servicio_optimo_pct:r.optServ!=null?Math.round(r.optServ*1000)/10:'',
+    Costo_unitario:r.cost,Valor_inventario:Math.round(r.invValue),Valor_safety_stock:Math.round(r.ssValue),
+    Stock_actual:r.onHand!=null?Math.round(r.onHand):'',
+    Brecha_unidades:r.gapUnits!=null?Math.round(r.gapUnits):'',
+    Brecha_valor:r.gapValue!=null?Math.round(r.gapValue):'',
+    Estado:r.status||''
+  }));
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Inventory Norms');
+  XLSX.writeFile(wb,'inventory_norms_resultados.xlsx');
+}
+</script>
+</body>
+</html>

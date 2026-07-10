@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimizador Logístico — Chile</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --panel: #181c27;
+  --border: #2a2f45;
+  --accent: #3b82f6;
+  --green: #22c55e;
+  --orange: #f97316;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --input-bg: #1e2438;
+  --hover: #252b3d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; overflow: hidden; }
+
+/* TOOLBAR */
+#toolbar {
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+#toolbar h1 { font-size: 14px; font-weight: 700; color: var(--accent); margin-right: 8px; white-space: nowrap; }
+.tb-group { display: flex; gap: 4px; align-items: center; border-right: 1px solid var(--border); padding-right: 10px; margin-right: 4px; }
+.tb-group:last-child { border-right: none; }
+.tb-btn {
+  display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); cursor: pointer; font-size: 12px; transition: all .15s; white-space: nowrap;
+}
+.tb-btn:hover { background: var(--hover); color: var(--text); border-color: var(--accent); }
+.tb-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tb-btn.danger { border-color: var(--red); color: var(--red); }
+.tb-btn.danger:hover { background: var(--red); color: #fff; }
+.tb-btn.success { border-color: var(--green); color: var(--green); }
+.tb-btn.success:hover { background: var(--green); color: #fff; }
+.service-badge {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 11px;
+}
+.service-badge span { color: var(--muted); }
+.service-badge strong { color: var(--green); }
+
+/* MAIN LAYOUT */
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* PANEL */
+#panel {
+  width: 360px; min-width: 280px; background: var(--panel);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0;
+}
+#tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tab {
+  flex: 1; padding: 8px 4px; text-align: center; cursor: pointer; font-size: 11px;
+  color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+#panel-content { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* FORMS */
+.section { margin-bottom: 16px; }
+.section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 3px; }
+input[type=number], input[type=text], select {
+  width: 100%; padding: 6px 8px; background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 5px; color: var(--text); font-size: 12px; outline: none;
+}
+input:focus, select:focus { border-color: var(--accent); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.slider-row { display: flex; align-items: center; gap: 8px; }
+input[type=range] { flex: 1; accent-color: var(--accent); }
+.slider-val { color: var(--text); font-size: 12px; min-width: 50px; text-align: right; font-weight: 600; }
+
+/* NODE LIST */
+.node-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  margin-bottom: 5px; cursor: pointer; transition: all .15s;
+}
+.node-item:hover { border-color: var(--accent); background: var(--hover); }
+.node-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.node-item span { flex: 1; font-size: 12px; }
+.node-item small { color: var(--muted); font-size: 11px; }
+.node-del { color: var(--red); cursor: pointer; padding: 2px 5px; border-radius: 3px; }
+.node-del:hover { background: var(--red); color: #fff; }
+
+/* P&L TABLE */
+.pnl-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.pnl-table tr td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+.pnl-table .cat { color: var(--muted); font-size: 11px; font-weight: 600; padding-top: 10px; }
+.pnl-table .pos { color: var(--green); text-align: right; font-weight: 600; }
+.pnl-table .neg { color: var(--red); text-align: right; }
+.pnl-table .total { font-weight: 700; color: var(--accent); }
+.pnl-table .total td { border-top: 2px solid var(--border); padding-top: 6px; }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.kpi-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+.kpi-card .val { font-size: 18px; font-weight: 700; }
+.kpi-card .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.green { color: var(--green); }
+.orange { color: var(--orange); }
+.red { color: var(--red); }
+.blue { color: var(--accent); }
+
+/* SCENARIO */
+.scenario-btns { display: flex; gap: 6px; margin-bottom: 10px; }
+.sc-btn {
+  flex: 1; padding: 6px; background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 5px; color: var(--muted); cursor: pointer; font-size: 11px; text-align: center;
+}
+.sc-btn:hover { border-color: var(--accent); color: var(--accent); }
+.sc-btn.filled { border-color: var(--green); color: var(--green); }
+.compare-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+.compare-table th { color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+.compare-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+.compare-table .best { color: var(--green); font-weight: 700; }
+
+/* MAP */
+#map { flex: 1; }
+
+/* POPUP */
+.popup-form { min-width: 220px; }
+.popup-form h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+.popup-form label { display: block; color: #aaa; font-size: 11px; margin-bottom: 2px; }
+.popup-form input, .popup-form select { width: 100%; padding: 4px 7px; background: #1e2438; border: 1px solid #2a2f45; border-radius: 4px; color: #e2e8f0; font-size: 12px; margin-bottom: 7px; }
+.popup-form .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.popup-form .pf-slider { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+.popup-form .pf-slider input[type=range] { flex: 1; accent-color: #3b82f6; }
+.popup-form .pf-slider span { font-size: 11px; color: #e2e8f0; min-width: 55px; text-align: right; font-weight: 600; }
+.popup-btn {
+  width: 100%; padding: 6px; background: #3b82f6; border: none; border-radius: 5px;
+  color: #fff; cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 4px;
+}
+.popup-btn:hover { background: #2563eb; }
+.popup-btn.del { background: #ef4444; margin-top: 4px; }
+.popup-btn.del:hover { background: #dc2626; }
+.cost-hint { font-size: 10px; color: #64748b; margin-bottom: 7px; }
+
+/* Leaflet overrides */
+.leaflet-popup-content-wrapper { background: #181c27; border: 1px solid #2a2f45; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+.leaflet-popup-content { margin: 14px 16px; }
+.leaflet-popup-tip { background: #181c27; }
+.leaflet-container { background: #0f1117; }
+
+/* PROGRESS */
+#progress-bar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--border); z-index: 9999; }
+#progress-fill { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+#status-msg { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 12px; z-index: 9999; display: none; }
+
+/* Route legend */
+#legend { position: absolute; bottom: 24px; right: 16px; z-index: 999; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 11px; }
+#legend .leg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+#legend .leg-line { width: 28px; height: 3px; border-radius: 2px; }
+
+/* Algo description */
+#algo-desc { background: #1a2035; border: 1px solid #2a2f45; border-left: 3px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 11px; line-height: 1.5; color: var(--text); margin-top: 8px; display: none; }
+#algo-desc strong { color: var(--accent); display: block; margin-bottom: 3px; }
+#algo-desc .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px; margin-top: 4px; }
+.tag-speed  { background: #164e63; color: #67e8f9; }
+.tag-quality { background: #1a3a1a; color: #86efac; }
+.tag-size   { background: #3b2a00; color: #fbbf24; }
+
+/* CO2 badge */
+.co2-badge { background: #064e3b; border: 1px solid #059669; border-radius: 5px; color: #34d399; padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"><div id="progress-fill"></div></div>
+<div id="status-msg"></div>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <h1>🗺 Optimizador Logístico Chile</h1>
+  <div class="tb-group">
+    <button class="tb-btn" id="btn-factory" onclick="setMode('factory')" title="Agregar Fábrica">🏭 Fábrica</button>
+    <button class="tb-btn" id="btn-warehouse" onclick="setMode('warehouse')" title="Agregar Bodega">🏪 Bodega</button>
+    <button class="tb-btn" id="btn-customer" onclick="setMode('customer')" title="Agregar Zona Cliente">👥 Clientes</button>
+    <button class="tb-btn" id="btn-select" onclick="setMode('select')" title="Seleccionar/Mover">↖ Mover</button>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn success" onclick="runOptimizer()" id="btn-opt">⚡ Optimizar</button>
+    <select id="opt-algo" style="background:var(--input-bg);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:5px 8px;font-size:11px;" onchange="updateAlgoDesc()">
+      <option value="greedy">Greedy</option>
+      <option value="twoopt">2-opt Local</option>
+      <option value="sa">Simulated Annealing</option>
+      <option value="genetic">Algoritmo Genético</option>
+    </select>
+    <button class="tb-btn" onclick="document.getElementById('algo-desc').style.display=document.getElementById('algo-desc').style.display==='none'?'block':'none';updateAlgoDesc()" title="Info del algoritmo" style="padding:5px 8px;">ℹ️</button>
+  </div>
+  <div class="tb-group">
+    <div class="service-badge">
+      <span>Nivel servicio:</span>
+      <input type="range" min="50" max="100" value="90" id="svc-slider" style="width:80px;accent-color:var(--accent);" oninput="document.getElementById('svc-val').textContent=this.value+'%'">
+      <strong id="svc-val">90%</strong>
+    </div>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn" style="border-color:#a855f7;color:#a855f7;" onclick="loadDemo()">🎯 Demo</button>
+    <button class="tb-btn danger" onclick="clearAll()">🗑 Limpiar</button>
+  </div>
+  <div class="tb-group">
+    <button class="tb-btn success" onclick="document.getElementById('csv-file-input').click()" title="Importar nodos desde CSV">⬆ Importar CSV</button>
+    <button class="tb-btn" onclick="exportCSV()" title="Exportar red actual + P&L a CSV">⬇ Exportar CSV</button>
+    <button class="tb-btn" onclick="downloadTemplate()" title="Descargar plantilla CSV para rellenar">📋 Plantilla</button>
+    <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="importCSV(this)">
+  </div>
+</div>
+
+<!-- ALGO DESCRIPTION (shown below toolbar) -->
+<div id="algo-desc"></div>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- PANEL -->
+  <div id="panel">
+    <div id="tabs">
+      <div class="tab active" onclick="showTab('params')">⚙ Params</div>
+      <div class="tab" onclick="showTab('nodes')">🔵 Nodos</div>
+      <div class="tab" onclick="showTab('pnl')">💰 P&L</div>
+      <div class="tab" onclick="showTab('scenarios')">📊 Escenarios</div>
+    </div>
+    <div id="panel-content">
+      <!-- PARAMS TAB -->
+      <div id="tab-params">
+        <div class="section">
+          <div class="section-title">Modo de transporte</div>
+          <select id="p-transport-mode" onchange="updateTransportMode();updatePnL()" style="margin-bottom:8px;">
+            <option value="ltl">📦 LTL — Por unidad/km (menos camión completo)</option>
+            <option value="ftl">🚛 FTL — Camión completo (fijo + variable)</option>
+            <option value="mixed">🔀 Mixto — FTL fab→bod, LTL bod→cli</option>
+          </select>
+          <div id="ltl-params">
+            <label>Costo Fábrica → Bodega ($/km/unidad)</label>
+            <input type="number" id="p-fab-km" value="0.50" step="0.05" oninput="updatePnL()">
+            <label>Costo Bodega → Cliente ($/km/unidad)</label>
+            <input type="number" id="p-bod-km" value="0.80" step="0.05" oninput="updatePnL()">
+          </div>
+          <div id="ftl-params" style="display:none">
+            <div class="row2">
+              <div><label>Costo fijo camión ($)</label><input type="number" id="p-ftl-fixed" value="180000" oninput="updatePnL()"></div>
+              <div><label>$/km camión</label><input type="number" id="p-ftl-km" value="850" oninput="updatePnL()"></div>
+            </div>
+            <label>Cap. camión (unidades)</label>
+            <input type="number" id="p-ftl-cap" value="500" oninput="updatePnL()">
+          </div>
+          <label style="margin-top:6px;">Tipo vehículo</label>
+          <select id="p-transport" onchange="updatePnL()">
+            <option value="truck">🚛 Camión (factor ×1.0)</option>
+            <option value="train">🚂 Tren (factor ×0.6)</option>
+            <option value="mixed">🔀 Mixto (factor ×0.8)</option>
+          </select>
+        </div>
+        <div class="section">
+          <div class="section-title">CO₂ y sostenibilidad</div>
+          <div class="row2">
+            <div><label>Peso por unidad (kg)</label><input type="number" id="p-unit-kg" value="5" step="0.5" oninput="updatePnL()"></div>
+            <div><label>Factor CO₂ (kg/ton·km)</label><input type="number" id="p-co2-factor" value="0.13" step="0.01" oninput="updatePnL()"></div>
+          </div>
+          <p style="color:var(--muted);font-size:10px;">Factor estándar Chile camión ~0.13 kg CO₂/ton·km. Tren ~0.03.</p>
+        </div>
+        <div class="section">
+          <div class="section-title">Inventario en bodega</div>
+          <div class="row2">
+            <div><label>Tasa holding (%/año)</label><input type="number" id="p-holding-rate" value="22" step="1" oninput="updatePnL()"></div>
+            <div><label>Valor unitario ($/un)</label><input type="number" id="p-unit-value" value="900" step="50" oninput="updatePnL()"></div>
+          </div>
+          <label>Lead time promedio (días)</label>
+          <div class="slider-row">
+            <input type="range" min="1" max="30" value="7" id="p-lead-time" oninput="document.getElementById('p-lt-val').textContent=this.value+'d';updatePnL()">
+            <span class="slider-val" id="p-lt-val">7d</span>
+          </div>
+          <p style="color:var(--muted);font-size:10px;">Holding cost = inventario promedio × valor × tasa/12</p>
+        </div>
+        <div class="section">
+          <div class="section-title">Red logística</div>
+          <label>Radio máx. entrega desde bodega (km)</label>
+          <div class="slider-row">
+            <input type="range" min="50" max="3000" value="1500" id="p-radius" oninput="document.getElementById('p-radius-val').textContent=this.value+'km';updatePnL()">
+            <span class="slider-val" id="p-radius-val">1500km</span>
+          </div>
+          <label>Precio arriendo base ($/m²/mes — Stgo)</label>
+          <input type="number" id="p-rent-base" value="3.50" step="0.10" oninput="updatePnL()">
+        </div>
+        <div class="section">
+          <div class="section-title">Sensibilidad — costo/km</div>
+          <div class="slider-row">
+            <input type="range" min="0.1" max="3.0" step="0.05" value="1.0" id="p-sens" oninput="sensUpdate(this.value)">
+            <span class="slider-val" id="p-sens-val">×1.0</span>
+          </div>
+          <p style="color:var(--muted);font-size:10px;">Multiplica costos de transporte para análisis de sensibilidad sin re-optimizar.</p>
+        </div>
+      </div>
+
+      <!-- NODES TAB -->
+      <div id="tab-nodes" style="display:none">
+        <div class="section">
+          <div class="section-title">🏭 Fábricas (<span id="cnt-fab">0</span>)</div>
+          <div id="list-factories"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">🏪 Bodegas (<span id="cnt-wh">0</span>)</div>
+          <div id="list-warehouses"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">👥 Zonas Clientes (<span id="cnt-cust">0</span>)</div>
+          <div id="list-customers"></div>
+        </div>
+      </div>
+
+      <!-- P&L TAB -->
+      <div id="tab-pnl" style="display:none">
+        <div id="pnl-empty" style="color:var(--muted);font-size:12px;text-align:center;padding:30px 0;">
+          Agrega nodos y ejecuta la optimización para ver el P&L
+        </div>
+        <div id="pnl-content" style="display:none">
+          <div id="svc-alert" style="display:none;background:#7f1d1d;border:1px solid #ef4444;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;"></div>
+          <div class="kpi-grid" id="kpi-grid"></div>
+          <table class="pnl-table" id="pnl-table"></table>
+          <div style="margin-top:16px;"><canvas id="pnl-chart" height="200"></canvas></div>
+        </div>
+      </div>
+
+      <!-- SCENARIOS TAB -->
+      <div id="tab-scenarios" style="display:none">
+        <div class="section">
+          <div class="section-title">Guardar escenario actual</div>
+          <div class="scenario-btns">
+            <div class="sc-btn" id="sc-a" onclick="saveScenario('A')">💾 A</div>
+            <div class="sc-btn" id="sc-b" onclick="saveScenario('B')">💾 B</div>
+            <div class="sc-btn" id="sc-c" onclick="saveScenario('C')">💾 C</div>
+          </div>
+          <button class="tb-btn" style="width:100%;justify-content:center;" onclick="loadScenario('A')">📂 Cargar A</button>
+          <button class="tb-btn" style="width:100%;justify-content:center;margin-top:4px;" onclick="loadScenario('B')">📂 Cargar B</button>
+          <button class="tb-btn" style="width:100%;justify-content:center;margin-top:4px;" onclick="loadScenario('C')">📂 Cargar C</button>
+        </div>
+        <div class="section">
+          <div class="section-title">Comparación A vs B vs C</div>
+          <div id="compare-view"><p style="color:var(--muted);font-size:11px;">Guarda al menos 2 escenarios para comparar.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map"></div>
+</div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <div class="leg-row"><div class="leg-line" style="background:#3b82f6"></div><span>Fábrica → Bodega</span></div>
+  <div class="leg-row"><div class="leg-line" style="background:#22c55e"></div><span>Bodega → Cliente</span></div>
+  <div class="leg-row"><div class="leg-line" style="background:#64748b"></div><span>Ruta inactiva</span></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let mode = 'select';
+let factories = [], warehouses = [], customers = [];
+let routes = [];       // {fromId, toId, kmReal, polyline, units}
+let optResult = null;  // resultado del optimizador
+let pnlChart = null;
+let sensFactor = 1.0;
+let uid = 0;
+const scenarios = { A: null, B: null, C: null };
+
+// Region cost multipliers (vs Santiago)
+const REGION_RENT = [
+  { name: 'Arica-Parinacota', lat: -18.48, lng: -70.30, mult: 0.55 },
+  { name: 'Tarapacá',         lat: -20.25, lng: -69.60, mult: 0.50 },
+  { name: 'Antofagasta',      lat: -23.63, lng: -70.40, mult: 0.60 },
+  { name: 'Atacama',          lat: -27.36, lng: -70.30, mult: 0.48 },
+  { name: 'Coquimbo',         lat: -30.02, lng: -71.30, mult: 0.65 },
+  { name: 'Valparaíso',       lat: -32.95, lng: -71.61, mult: 0.80 },
+  { name: 'Metropolitana',    lat: -33.45, lng: -70.67, mult: 1.00 },
+  { name: "O'Higgins",        lat: -34.17, lng: -70.74, mult: 0.70 },
+  { name: 'Maule',            lat: -35.43, lng: -71.54, mult: 0.57 },
+  { name: 'Ñuble',            lat: -36.67, lng: -71.94, mult: 0.50 },
+  { name: 'Biobío',           lat: -37.47, lng: -72.35, mult: 0.58 },
+  { name: 'La Araucanía',     lat: -38.74, lng: -72.10, mult: 0.45 },
+  { name: 'Los Ríos',         lat: -39.81, lng: -73.23, mult: 0.42 },
+  { name: 'Los Lagos',        lat: -41.13, lng: -72.09, mult: 0.40 },
+  { name: 'Aysén',            lat: -45.60, lng: -71.97, mult: 0.35 },
+  { name: 'Magallanes',       lat: -52.38, lng: -70.58, mult: 0.30 },
+];
+
+function getNearestRegionMult(lat, lng) {
+  let best = REGION_RENT[0], bestD = Infinity;
+  for (const r of REGION_RENT) {
+    const d = Math.hypot(r.lat - lat, r.lng - lng);
+    if (d < bestD) { bestD = d; best = r; }
+  }
+  return best.mult;
+}
+
+// ══════════════════════════════════════════════════════════════
+// MAP
+// ══════════════════════════════════════════════════════════════
+const map = L.map('map', { zoomControl: true }).setView([-35.5, -71.0], 6);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 18
+}).addTo(map);
+
+// Highlight Chile polygon
+fetch('https://raw.githubusercontent.com/glynnbird/countriesgeojson/master/chile.geojson')
+  .then(r => r.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: {
+        color: '#3b82f6',
+        fillColor: '#1d3461',
+        fillOpacity: 0.22,
+        weight: 1.5,
+        opacity: 0.7
+      },
+      interactive: false
+    }).addTo(map);
+    // Chile label
+    L.marker([-35.5, -71.5], {
+      icon: L.divIcon({
+        html: '<div style="color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-shadow:0 1px 4px #000;white-space:nowrap">🇨🇱 CHILE</div>',
+        className: '', iconAnchor: [0, 0]
+      }),
+      interactive: false
+    }).addTo(map);
+  })
+  .catch(() => {}); // fail silently if offline
+
+map.on('click', onMapClick);
+
+// ══════════════════════════════════════════════════════════════
+// MODE
+// ══════════════════════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  ['factory','warehouse','customer','select'].forEach(k => {
+    document.getElementById('btn-' + k)?.classList.toggle('active', k === m);
+  });
+  map.getContainer().style.cursor = m === 'select' ? '' : 'crosshair';
+}
+setMode('select');
+
+// ══════════════════════════════════════════════════════════════
+// OSRM
+// ══════════════════════════════════════════════════════════════
+const distCache = {};
+// Always fetch full geometry so routes follow real roads
+async function getRouteKm(latA, lngA, latB, lngB) {
+  const key = `${latA.toFixed(4)},${lngA.toFixed(4)};${latB.toFixed(4)},${lngB.toFixed(4)}`;
+  if (distCache[key]) return distCache[key];
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${lngA},${latA};${lngB},${latB}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok') return { km: haversineKm(latA, lngA, latB, lngB) * 1.3, coords: null };
+    const km = data.routes[0].distance / 1000;
+    const coords = data.routes[0].geometry.coordinates;
+    distCache[key] = { km, coords };
+    return distCache[key];
+  } catch {
+    return { km: haversineKm(latA, lngA, latB, lngB) * 1.3, coords: null };
+  }
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ══════════════════════════════════════════════════════════════
+// ICONS
+// ══════════════════════════════════════════════════════════════
+function makeIcon(color, emoji, size = 32) {
+  return L.divIcon({
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:${size*.5}px;border:2px solid rgba(255,255,255,.3);box-shadow:0 0 12px ${color}88">${emoji}</div>`,
+    className: '', iconSize: [size, size], iconAnchor: [size/2, size/2]
+  });
+}
+const ICONS = {
+  factory:   () => makeIcon('#3b82f6', '🏭'),
+  warehouse: (active) => makeIcon(active ? '#f97316' : '#4b5563', '🏪'),
+  customer:  () => makeIcon('#22c55e', '👥', 28),
+};
+
+// ══════════════════════════════════════════════════════════════
+// MAP CLICK → CREATE NODE
+// ══════════════════════════════════════════════════════════════
+function onMapClick(e) {
+  if (mode === 'select') return;
+  const { lat, lng } = e.latlng;
+  if (mode === 'factory')   createFactory(lat, lng);
+  if (mode === 'warehouse') createWarehouse(lat, lng);
+  if (mode === 'customer')  createCustomer(lat, lng);
+}
+
+// ══════════════════════════════════════════════════════════════
+// FACTORY
+// ══════════════════════════════════════════════════════════════
+function createFactory(lat, lng) {
+  const id = 'f' + (++uid);
+  const f = {
+    id, lat, lng, name: 'Fábrica ' + uid,
+    baseCapacity: 10000,
+    extraCapPct: 0,           // 0-200%
+    extraCostPerThousand: 500,
+    baseCost: 2000000,
+    varCostPerUnit: 200,
+    marker: null
+  };
+  factories.push(f);
+  const m = L.marker([lat, lng], { icon: ICONS.factory(), draggable: true }).addTo(map);
+  m.on('dragend', () => { f.lat = m.getLatLng().lat; f.lng = m.getLatLng().lng; clearRoutes(); updateNodeList(); });
+  m.on('click', () => openFactoryPopup(f, m));
+  f.marker = m;
+  openFactoryPopup(f, m);
+  updateNodeList();
+}
+
+function openFactoryPopup(f, m) {
+  const extraUnits = () => Math.round(f.baseCapacity * f.extraCapPct / 100);
+  const extraCost  = () => Math.round(extraUnits() / 1000 * f.extraCostPerThousand);
+  const totalCap   = () => f.baseCapacity + extraUnits();
+
+  const html = `<div class="popup-form">
+    <h3>🏭 Fábrica</h3>
+    <label>Nombre</label><input type="text" id="pf-name" value="${f.name}">
+    <div class="pf-row">
+      <div><label>Cap. base (un/mes)</label><input type="number" id="pf-bc" value="${f.baseCapacity}"></div>
+      <div><label>Costo base ($/mes)</label><input type="number" id="pf-cost" value="${f.baseCost}"></div>
+    </div>
+    <label>Capacidad adicional: <span id="pf-cap-lbl">${f.extraCapPct}%</span> (+<span id="pf-extra-u">${extraUnits().toLocaleString()}</span> un → +$<span id="pf-extra-c">${extraCost().toLocaleString()}</span>/mes)</label>
+    <div class="pf-slider">
+      <input type="range" min="0" max="200" value="${f.extraCapPct}" id="pf-cap-sl" oninput="
+        document.getElementById('pf-cap-lbl').textContent=this.value+'%';
+        const u=Math.round(document.getElementById('pf-bc').valueAsNumber*this.value/100);
+        const c=Math.round(u/1000*document.getElementById('pf-cpt').valueAsNumber);
+        document.getElementById('pf-extra-u').textContent=u.toLocaleString();
+        document.getElementById('pf-extra-c').textContent=c.toLocaleString();
+      ">
+      <span id="pf-total-cap-lbl" style="font-size:10px;color:#64748b;">Cap total: ${totalCap().toLocaleString()} un</span>
+    </div>
+    <div class="pf-row">
+      <div><label>$/mil un extra/mes</label><input type="number" id="pf-cpt" value="${f.extraCostPerThousand}"></div>
+      <div><label>Costo var ($/unidad)</label><input type="number" id="pf-var" value="${f.varCostPerUnit}"></div>
+    </div>
+    <button class="popup-btn" onclick="saveFactory('${f.id}')">💾 Guardar</button>
+    <button class="popup-btn del" onclick="deleteNode('${f.id}','factory')">🗑 Eliminar</button>
+  </div>`;
+  m.bindPopup(html, { maxWidth: 280 }).openPopup();
+}
+
+function saveFactory(id) {
+  const f = factories.find(x => x.id === id);
+  if (!f) return;
+  f.name = document.getElementById('pf-name').value;
+  f.baseCapacity = +document.getElementById('pf-bc').value;
+  f.extraCapPct = +document.getElementById('pf-cap-sl').value;
+  f.extraCostPerThousand = +document.getElementById('pf-cpt').value;
+  f.baseCost = +document.getElementById('pf-cost').value;
+  f.varCostPerUnit = +document.getElementById('pf-var').value;
+  f.marker.closePopup();
+  updateNodeList(); updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// WAREHOUSE
+// ══════════════════════════════════════════════════════════════
+function createWarehouse(lat, lng) {
+  const id = 'w' + (++uid);
+  const mult = getNearestRegionMult(lat, lng);
+  const rentBase = +(document.getElementById('p-rent-base').value);
+  const w = {
+    id, lat, lng, name: 'Bodega ' + uid,
+    baseM2: 2000, extraM2Pct: 0,
+    pricePerM2: +(rentBase * mult).toFixed(2),
+    extraPricePct: 30,   // % más caro el m² adicional
+    fixedOpCost: 800000,
+    maxThroughput: 8000,
+    marker: null, circle: null, active: false
+  };
+  warehouses.push(w);
+  const m = L.marker([lat, lng], { icon: ICONS.warehouse(false), draggable: true }).addTo(map);
+  m.on('dragend', () => { w.lat = m.getLatLng().lat; w.lng = m.getLatLng().lng; clearRoutes(); updateNodeList(); });
+  m.on('click', () => openWarehousePopup(w, m));
+  w.marker = m;
+  openWarehousePopup(w, m);
+  updateNodeList();
+}
+
+function openWarehousePopup(w, m) {
+  const extraM2  = () => Math.round(w.baseM2 * w.extraM2Pct / 100);
+  const extraCost= () => Math.round(extraM2() * w.pricePerM2 * (1 + w.extraPricePct/100));
+  const totalM2  = () => w.baseM2 + extraM2();
+  const rentCost = () => Math.round(w.baseM2 * w.pricePerM2);
+
+  const html = `<div class="popup-form">
+    <h3>🏪 Bodega</h3>
+    <label>Nombre</label><input type="text" id="pw-name" value="${w.name}">
+    <div class="pf-row">
+      <div><label>Tamaño base (m²)</label><input type="number" id="pw-m2" value="${w.baseM2}"></div>
+      <div><label>$/m²/mes</label><input type="number" id="pw-pm2" value="${w.pricePerM2}" step="0.1"></div>
+    </div>
+    <p class="cost-hint">Arriendo base: $<span id="pw-rent">${rentCost().toLocaleString()}</span>/mes</p>
+    <label>Ampliación: <span id="pw-m2-lbl">${w.extraM2Pct}%</span> (+<span id="pw-extra-m2">${extraM2().toLocaleString()}</span> m² → +$<span id="pw-extra-c">${extraCost().toLocaleString()}</span>/mes)</label>
+    <div class="pf-slider">
+      <input type="range" min="0" max="200" value="${w.extraM2Pct}" id="pw-m2-sl" oninput="
+        const pm2=document.getElementById('pw-pm2').valueAsNumber;
+        const bm2=document.getElementById('pw-m2').valueAsNumber;
+        const pct=+document.getElementById('pw-extra-pct').value||30;
+        const em2=Math.round(bm2*this.value/100);
+        const ec=Math.round(em2*pm2*(1+pct/100));
+        document.getElementById('pw-m2-lbl').textContent=this.value+'%';
+        document.getElementById('pw-extra-m2').textContent=em2.toLocaleString();
+        document.getElementById('pw-extra-c').textContent=ec.toLocaleString();
+        document.getElementById('pw-total-m2').textContent=(bm2+em2).toLocaleString();
+        document.getElementById('pw-rent').textContent=Math.round(bm2*pm2).toLocaleString();
+      ">
+      <span style="font-size:10px;color:#64748b;">Total: <span id="pw-total-m2">${totalM2().toLocaleString()}</span> m²</span>
+    </div>
+    <div class="pf-row">
+      <div><label>Costo extra m² (%+)</label><input type="number" id="pw-extra-pct" value="${w.extraPricePct}"></div>
+      <div><label>Op. fijo ($/mes)</label><input type="number" id="pw-op" value="${w.fixedOpCost}"></div>
+    </div>
+    <label>Throughput máx (un/mes)</label><input type="number" id="pw-thr" value="${w.maxThroughput}">
+    <button class="popup-btn" onclick="saveWarehouse('${w.id}')">💾 Guardar</button>
+    <button class="popup-btn del" onclick="deleteNode('${w.id}','warehouse')">🗑 Eliminar</button>
+  </div>`;
+  m.bindPopup(html, { maxWidth: 290 }).openPopup();
+}
+
+function saveWarehouse(id) {
+  const w = warehouses.find(x => x.id === id);
+  if (!w) return;
+  w.name = document.getElementById('pw-name').value;
+  w.baseM2 = +document.getElementById('pw-m2').value;
+  w.extraM2Pct = +document.getElementById('pw-m2-sl').value;
+  w.pricePerM2 = +document.getElementById('pw-pm2').value;
+  w.extraPricePct = +document.getElementById('pw-extra-pct').value;
+  w.fixedOpCost = +document.getElementById('pw-op').value;
+  w.maxThroughput = +document.getElementById('pw-thr').value;
+  w.marker.closePopup();
+  updateNodeList(); updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// CUSTOMER ZONE
+// ══════════════════════════════════════════════════════════════
+function createCustomer(lat, lng) {
+  const id = 'c' + (++uid);
+  const c = {
+    id, lat, lng, name: 'Zona ' + uid,
+    demand: 3000, sellPrice: 1500, radius: 80,
+    marker: null, circle: null
+  };
+  customers.push(c);
+  const m = L.marker([lat, lng], { icon: ICONS.customer(), draggable: true }).addTo(map);
+  const circle = L.circle([lat, lng], { radius: c.radius * 1000, color: '#22c55e', fillColor: '#22c55e', fillOpacity: .08, weight: 1, dashArray: '4' }).addTo(map);
+  m.on('dragend', () => {
+    c.lat = m.getLatLng().lat; c.lng = m.getLatLng().lng;
+    circle.setLatLng([c.lat, c.lng]);
+    clearRoutes(); updateNodeList();
+  });
+  m.on('click', () => openCustomerPopup(c, m, circle));
+  c.marker = m; c.circle = circle;
+  openCustomerPopup(c, m, circle);
+  updateNodeList();
+}
+
+// Silent helpers used by CSV importer (no popup)
+function addFactory(lat, lng, opts = {}) {
+  const id = 'f' + (++uid);
+  const f = {
+    id, lat, lng,
+    name: opts.nombre || ('Fábrica ' + uid),
+    baseCapacity: opts.baseCapacity || 10000,
+    extraCapPct: 0,
+    extraCostPerThousand: 500,
+    baseCost: opts.baseCost || 500000,
+    varCostPerUnit: opts.varCostPerUnit || 300,
+    marker: null
+  };
+  factories.push(f);
+  const m = L.marker([lat, lng], { icon: ICONS.factory(), draggable: true }).addTo(map);
+  m.on('dragend', () => { f.lat = m.getLatLng().lat; f.lng = m.getLatLng().lng; clearRoutes(); updateNodeList(); });
+  m.on('click', () => openFactoryPopup(f, m));
+  f.marker = m;
+}
+
+function addWarehouse(lat, lng, opts = {}) {
+  const id = 'w' + (++uid);
+  const w = {
+    id, lat, lng,
+    name: opts.nombre || ('Bodega ' + uid),
+    baseM2: opts.baseM2 || 500,
+    extraM2Pct: 0,
+    pricePerM2: opts.pricePerM2 || 3.0,
+    extraPricePct: 30,
+    fixedOpCost: opts.fixedOpCost || 30000,
+    maxThroughput: opts.maxThroughput || 5000,
+    marker: null, circle: null, active: false
+  };
+  warehouses.push(w);
+  const m = L.marker([lat, lng], { icon: ICONS.warehouse(false), draggable: true }).addTo(map);
+  m.on('dragend', () => { w.lat = m.getLatLng().lat; w.lng = m.getLatLng().lng; clearRoutes(); updateNodeList(); });
+  m.on('click', () => openWarehousePopup(w, m));
+  w.marker = m;
+  const circle = L.circle([lat, lng], { radius: w.baseM2 * 5, color: '#f97316', fillOpacity: 0, weight: 1, dashArray: '3' }).addTo(map);
+  w.circle = circle;
+}
+
+function addCustomer(lat, lng, opts = {}) {
+  const id = 'c' + (++uid);
+  const radius = opts.radius || 100;
+  const c = {
+    id, lat, lng,
+    name: opts.nombre || ('Zona ' + uid),
+    demand: opts.demand || 1000,
+    sellPrice: opts.sellPrice || 1000,
+    radius,
+    marker: null, circle: null
+  };
+  customers.push(c);
+  const m = L.marker([lat, lng], { icon: ICONS.customer(), draggable: true }).addTo(map);
+  const circle = L.circle([lat, lng], { radius: radius * 1000, color: '#22c55e', fillColor: '#22c55e', fillOpacity: .08, weight: 1, dashArray: '4' }).addTo(map);
+  m.on('dragend', () => { c.lat = m.getLatLng().lat; c.lng = m.getLatLng().lng; circle.setLatLng([c.lat, c.lng]); clearRoutes(); updateNodeList(); });
+  m.on('click', () => openCustomerPopup(c, m, circle));
+  c.marker = m; c.circle = circle;
+}
+
+function openCustomerPopup(c, m, circle) {
+  const html = `<div class="popup-form">
+    <h3>👥 Zona Clientes</h3>
+    <label>Nombre zona</label><input type="text" id="pc-name" value="${c.name}">
+    <div class="pf-row">
+      <div><label>Demanda (un/mes)</label><input type="number" id="pc-dem" value="${c.demand}"></div>
+      <div><label>Precio venta ($/un)</label><input type="number" id="pc-price" value="${c.sellPrice}"></div>
+    </div>
+    <label>Radio zona (km): <span id="pc-rad-lbl">${c.radius} km</span></label>
+    <div class="pf-slider">
+      <input type="range" min="10" max="500" value="${c.radius}" id="pc-rad" oninput="
+        document.getElementById('pc-rad-lbl').textContent=this.value+' km';
+      ">
+    </div>
+    <button class="popup-btn" onclick="saveCustomer('${c.id}')">💾 Guardar</button>
+    <button class="popup-btn del" onclick="deleteNode('${c.id}','customer')">🗑 Eliminar</button>
+  </div>`;
+  m.bindPopup(html, { maxWidth: 260 }).openPopup();
+}
+
+function saveCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  c.name = document.getElementById('pc-name').value;
+  c.demand = +document.getElementById('pc-dem').value;
+  c.sellPrice = +document.getElementById('pc-price').value;
+  c.radius = +document.getElementById('pc-rad').value;
+  c.circle.setRadius(c.radius * 1000);
+  c.marker.closePopup();
+  updateNodeList(); updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// DELETE NODE
+// ══════════════════════════════════════════════════════════════
+function deleteNode(id, type) {
+  const removeFrom = arr => {
+    const idx = arr.findIndex(x => x.id === id);
+    if (idx < 0) return;
+    const n = arr[idx];
+    if (n.marker) map.removeLayer(n.marker);
+    if (n.circle) map.removeLayer(n.circle);
+    arr.splice(idx, 1);
+  };
+  if (type === 'factory')   removeFrom(factories);
+  if (type === 'warehouse') removeFrom(warehouses);
+  if (type === 'customer')  removeFrom(customers);
+  clearRoutes(); updateNodeList(); updatePnL();
+}
+
+function clearAll() {
+  if (!confirm('¿Limpiar todos los nodos?')) return;
+  [...factories, ...warehouses, ...customers].forEach(n => {
+    if (n.marker) map.removeLayer(n.marker);
+    if (n.circle) map.removeLayer(n.circle);
+  });
+  factories = []; warehouses = []; customers = [];
+  clearRoutes(); updateNodeList(); updatePnL(); optResult = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ROUTES
+// ══════════════════════════════════════════════════════════════
+function clearRoutes() {
+  routes.forEach(r => {
+    if (r.line) map.removeLayer(r.line);
+    if (r.arrow) map.removeLayer(r.arrow);
+  });
+  routes = [];
+}
+
+function bearing(a, b) {
+  const dLat = b[0] - a[0], dLng = b[1] - a[1];
+  return Math.atan2(dLng, dLat) * 180 / Math.PI;
+}
+
+function drawRoute(coords, fallbackA, fallbackB, color, weight) {
+  let latlngs;
+  if (coords && coords.length > 1) {
+    latlngs = coords.map(c => [c[1], c[0]]);
+  } else {
+    latlngs = [fallbackA, fallbackB];
+  }
+  const line = L.polyline(latlngs, { color, weight, opacity: .82 }).addTo(map);
+
+  // Arrow marker at 60% of route, rotated to match road direction
+  const idx = Math.max(1, Math.floor(latlngs.length * 0.6));
+  const ang = bearing(latlngs[idx - 1], latlngs[idx]);
+  const arrowIcon = L.divIcon({
+    html: `<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:13px solid ${color};transform:rotate(${ang}deg);transform-origin:center center;opacity:.9;"></div>`,
+    className: '', iconSize: [12, 13], iconAnchor: [6, 6]
+  });
+  const arrow = L.marker(latlngs[idx], { icon: arrowIcon, interactive: false }).addTo(map);
+  return { line, arrow };
+}
+
+// ══════════════════════════════════════════════════════════════
+// P&L ENGINE
+// ══════════════════════════════════════════════════════════════
+function computeTransportCost(km, units, type) {
+  // type: 'fab' (fab→wh) or 'bod' (wh→cli)
+  const modeF = { truck: 1.0, train: 0.6, mixed: 0.8 }[document.getElementById('p-transport').value] || 1.0;
+  const sf = sensFactor;
+  const tMode = document.getElementById('p-transport-mode').value;
+
+  if (tMode === 'ltl' || (tMode === 'mixed' && type === 'bod')) {
+    const rate = type === 'fab' ? +document.getElementById('p-fab-km').value : +document.getElementById('p-bod-km').value;
+    return km * units * rate * modeF * sf;
+  } else {
+    // FTL
+    const fixed = +document.getElementById('p-ftl-fixed').value;
+    const perKm  = +document.getElementById('p-ftl-km').value;
+    const cap    = +document.getElementById('p-ftl-cap').value || 500;
+    const trucks = Math.ceil(units / cap);
+    return trucks * (fixed + km * perKm) * modeF * sf;
+  }
+}
+
+function computePnL(sol) {
+  if (!sol) return null;
+  const unitKg       = +document.getElementById('p-unit-kg').value;
+  const co2Factor    = +document.getElementById('p-co2-factor').value;
+  const holdingRate  = +document.getElementById('p-holding-rate').value / 100 / 12;
+  const unitValue    = +document.getElementById('p-unit-value').value;
+  const leadTimeDays = +document.getElementById('p-lead-time').value;
+
+  let revenue = 0, fabFixed = 0, fabExtraCap = 0, fabVar = 0;
+  let whRent = 0, whExtra = 0, whOp = 0, whHolding = 0;
+  let transFab = 0, transBod = 0;
+  let co2Tons = 0;
+  let totalDemand = customers.reduce((s, c) => s + c.demand, 0);
+  let coveredDemand = 0;
+
+  // Revenue & coverage
+  for (const wh of sol.activeWh) {
+    for (const a of wh.assigned) {
+      const c = customers.find(x => x.id === a.custId);
+      if (!c) continue;
+      revenue += a.units * c.sellPrice;
+      coveredDemand += a.units;
+    }
+  }
+
+  // Factory costs
+  for (const ff of sol.fabFlows) {
+    const f = factories.find(x => x.id === ff.fabId);
+    if (!f) continue;
+    fabFixed += f.baseCost;
+    const extraUnits = f.baseCapacity * f.extraCapPct / 100;
+    fabExtraCap += Math.round(extraUnits / 1000 * f.extraCostPerThousand);
+    fabVar += ff.units * f.varCostPerUnit;
+    const km = sol.distMap[`${ff.fabId}-${ff.whId}`] || 0;
+    transFab += computeTransportCost(km, ff.units, 'fab');
+    co2Tons += km * ff.units * unitKg / 1000 * co2Factor / 1000;
+  }
+
+  // Warehouse costs
+  for (const wh of sol.activeWh) {
+    const w = warehouses.find(x => x.id === wh.whId);
+    if (!w) continue;
+    whRent += w.baseM2 * w.pricePerM2;
+    const extraM2 = w.baseM2 * w.extraM2Pct / 100;
+    whExtra += extraM2 * w.pricePerM2 * (1 + w.extraPricePct / 100);
+    whOp += w.fixedOpCost;
+    // Holding cost: avg inventory = throughput × lead_time/30 ÷ 2 (safety stock simplified)
+    const throughput = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const avgInv = throughput * leadTimeDays / 30 / 2;
+    whHolding += avgInv * unitValue * holdingRate;
+    for (const a of wh.assigned) {
+      const km = sol.distMap[`${wh.whId}-${a.custId}`] || 0;
+      transBod += computeTransportCost(km, a.units, 'bod');
+      co2Tons += km * a.units * unitKg / 1000 * co2Factor / 1000;
+    }
+  }
+
+  const totalCosts = fabFixed + fabExtraCap + fabVar + whRent + whExtra + whOp + whHolding + transFab + transBod;
+  const ebitda = revenue - totalCosts;
+  const svcLevel = totalDemand > 0 ? coveredDemand / totalDemand * 100 : 0;
+  const costPerUnit = coveredDemand > 0 ? totalCosts / coveredDemand : 0;
+  const logRatio = revenue > 0 ? (transFab + transBod) / revenue * 100 : 0;
+  const landedCost = coveredDemand > 0 ? (fabVar + transFab + transBod + whHolding) / coveredDemand : 0;
+  const dio = coveredDemand > 0 ? (whHolding / (unitValue * holdingRate)) / coveredDemand * 30 : 0;
+  const inventoryTurns = whHolding > 0 ? (fabVar / unitValue) / (whHolding / unitValue / holdingRate * 12) : 0;
+
+  return { revenue, fabFixed, fabExtraCap, fabVar, whRent, whExtra, whOp, whHolding,
+           transFab, transBod, totalCosts, ebitda, svcLevel, costPerUnit, logRatio,
+           coveredDemand, totalDemand, co2Tons, landedCost, dio };
+}
+
+// ══════════════════════════════════════════════════════════════
+// OPTIMIZER
+// ══════════════════════════════════════════════════════════════
+async function runOptimizer() {
+  if (factories.length === 0 || warehouses.length === 0 || customers.length === 0) {
+    showStatus('Agrega al menos 1 fábrica, 1 bodega y 1 zona de clientes'); return;
+  }
+  const algo = document.getElementById('opt-algo').value;
+  showProgress(10, 'Calculando distancias reales (OSRM)...');
+
+  // Build distance matrix
+  const distMap = {};
+  const pairs = [];
+  for (const f of factories) for (const w of warehouses) pairs.push([`${f.id}-${w.id}`, f.lat, f.lng, w.lat, w.lng]);
+  for (const w of warehouses) for (const c of customers)  pairs.push([`${w.id}-${c.id}`, w.lat, w.lng, c.lat, c.lng]);
+
+  const BATCH = 5;
+  for (let i = 0; i < pairs.length; i += BATCH) {
+    const batch = pairs.slice(i, i + BATCH);
+    await Promise.all(batch.map(async ([key, la, lo, lb, lb2]) => {
+      const { km } = await getRouteKm(la, lo, lb, lb2);
+      distMap[key] = km;
+    }));
+    showProgress(10 + Math.round(60 * i / pairs.length), 'Calculando distancias reales por carretera...');
+  }
+
+  showProgress(70, `Ejecutando algoritmo ${algo}...`);
+  let sol;
+  if (algo === 'greedy')  sol = optimizerGreedy(distMap);
+  if (algo === 'twoopt')  sol = optimizer2opt(distMap);
+  if (algo === 'sa')      sol = optimizerSA(distMap);
+  if (algo === 'genetic') sol = optimizerGenetic(distMap);
+  sol.distMap = distMap;
+
+  showProgress(85, 'Dibujando rutas por carretera real...');
+  clearRoutes();
+
+  // Draw fáb→wh routes (blue) — geometry already cached from matrix build
+  for (const ff of sol.fabFlows) {
+    const f = factories.find(x => x.id === ff.fabId);
+    const w = warehouses.find(x => x.id === ff.whId);
+    if (!f || !w) continue;
+    const { coords } = await getRouteKm(f.lat, f.lng, w.lat, w.lng);
+    const weight = Math.max(2, Math.min(8, ff.units / 1000));
+    const { line, arrow } = drawRoute(coords, [f.lat, f.lng], [w.lat, w.lng], '#3b82f6', weight);
+    routes.push({ fromId: ff.fabId, toId: ff.whId, kmReal: distMap[`${ff.fabId}-${ff.whId}`], line, arrow, units: ff.units });
+  }
+
+  // Draw wh→customer routes (green), update warehouse icons
+  for (const wh of sol.activeWh) {
+    const w = warehouses.find(x => x.id === wh.whId);
+    if (!w) continue;
+    w.active = true;
+    w.marker.setIcon(ICONS.warehouse(true));
+    for (const a of wh.assigned) {
+      const c = customers.find(x => x.id === a.custId);
+      if (!c) continue;
+      const { coords } = await getRouteKm(w.lat, w.lng, c.lat, c.lng);
+      const weight = Math.max(2, Math.min(8, a.units / 500));
+      const { line, arrow } = drawRoute(coords, [w.lat, w.lng], [c.lat, c.lng], '#22c55e', weight);
+      routes.push({ fromId: wh.whId, toId: a.custId, kmReal: distMap[`${wh.whId}-${a.custId}`], line, arrow, units: a.units });
+    }
+  }
+
+  // Dim inactive warehouses
+  const activeIds = new Set(sol.activeWh.map(x => x.whId));
+  warehouses.forEach(w => { if (!activeIds.has(w.id)) { w.active = false; w.marker.setIcon(ICONS.warehouse(false)); } });
+
+  optResult = sol;
+  showProgress(100, '');
+  setTimeout(() => hideProgress(), 600);
+  updatePnL();
+  showTab('pnl');
+
+  // Service level feedback
+  const p = computePnL({ ...sol, distMap });
+  const svcTarget = +document.getElementById('svc-slider').value;
+  const achieved = p ? p.svcLevel : 0;
+  if (p && achieved < svcTarget - 0.5) {
+    showStatus(`⚠️ Nivel servicio ${achieved.toFixed(1)}% — objetivo ${svcTarget}% no alcanzado. Agrega bodegas en el norte o amplía el radio de entrega.`);
+  } else {
+    showStatus(`✅ ${sol.activeWh.length} bodegas activas — Nivel servicio ${achieved.toFixed(1)}% ✓`);
+  }
+}
+
+// ── GREEDY ──
+function optimizerGreedy(distMap) {
+  const svcTarget = +document.getElementById('svc-slider').value / 100;
+  const maxRadius = +document.getElementById('p-radius').value;
+
+  const result = { activeWh: [], fabFlows: [] };
+  // Track units served per customer across all warehouses to avoid double-counting
+  const served = {};
+  const totalDemand = customers.reduce((s, c) => s + c.demand, 0);
+  let coveredDemand = 0;
+
+  // Rank warehouses by reachable demand (descending)
+  const ranked = warehouses.map(w => {
+    const reachable = customers.filter(c => (distMap[`${w.id}-${c.id}`] || Infinity) <= maxRadius);
+    return { w, demand: reachable.reduce((s, c) => s + c.demand, 0) };
+  }).sort((a, b) => b.demand - a.demand);
+
+  for (const { w } of ranked) {
+    if (coveredDemand / totalDemand >= svcTarget) break;
+    const throughput = w.maxThroughput * (1 + w.extraM2Pct / 100 * 0.5);
+    const assigned = [];
+    let used = 0;
+
+    // Only customers with remaining unserved demand, sorted by distance to this warehouse
+    const cands = customers
+      .filter(c => {
+        const remaining = c.demand - (served[c.id] || 0);
+        return remaining > 0 && (distMap[`${w.id}-${c.id}`] || Infinity) <= maxRadius;
+      })
+      .map(c => ({ c, km: distMap[`${w.id}-${c.id}`] || Infinity }))
+      .sort((a, b) => a.km - b.km);
+
+    for (const { c } of cands) {
+      const remaining = c.demand - (served[c.id] || 0);
+      const units = Math.min(remaining, throughput - used);
+      if (units <= 0) break;
+      assigned.push({ custId: c.id, units });
+      served[c.id] = (served[c.id] || 0) + units;
+      used += units;
+      coveredDemand += units;
+    }
+
+    if (assigned.length > 0) {
+      result.activeWh.push({ whId: w.id, assigned });
+    }
+  }
+
+  // Assign factory flows (nearest factory to each active warehouse)
+  result.activeWh.forEach(wh => {
+    const units = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const best = factories.map(f => ({ f, km: distMap[`${f.id}-${wh.whId}`] || Infinity })).sort((a,b) => a.km - b.km)[0];
+    if (best) result.fabFlows.push({ fabId: best.f.id, whId: wh.whId, units });
+  });
+
+  return result;
+}
+
+// ── 2-OPT LOCAL SEARCH ──
+function optimizer2opt(distMap) {
+  // Start with greedy solution, then swap customer assignments between warehouses
+  const sol = optimizerGreedy(distMap);
+  if (sol.activeWh.length < 2) return sol;
+
+  const bodKmCost = +document.getElementById('p-bod-km').value;
+  const costAssign = (whId, custId, units) => (distMap[`${whId}-${custId}`] || 9999) * units * bodKmCost;
+
+  let improved = true;
+  let iters = 0;
+  while (improved && iters < 50) {
+    improved = false; iters++;
+    for (let i = 0; i < sol.activeWh.length; i++) {
+      for (let j = i + 1; j < sol.activeWh.length; j++) {
+        const wA = sol.activeWh[i], wB = sol.activeWh[j];
+        for (const aA of wA.assigned) {
+          for (const aB of wB.assigned) {
+            const curCost = costAssign(wA.whId, aA.custId, aA.units) + costAssign(wB.whId, aB.custId, aB.units);
+            const swpCost = costAssign(wA.whId, aB.custId, aB.units) + costAssign(wB.whId, aA.custId, aA.units);
+            if (swpCost < curCost - 0.01) {
+              const tmp = aA.custId; aA.custId = aB.custId; aB.custId = tmp;
+              improved = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return sol;
+}
+
+// ── SIMULATED ANNEALING ──
+function optimizerSA(distMap) {
+  if (warehouses.length === 0 || customers.length === 0) return optimizerGreedy(distMap);
+  const bodKmCost = +document.getElementById('p-bod-km').value;
+  const maxRadius = +document.getElementById('p-radius').value;
+
+  // Initial solution: random assignment within radius
+  let assignment = customers.map(c => {
+    const valid = warehouses.filter(w => (distMap[`${w.id}-${c.id}`] || Infinity) <= maxRadius);
+    return valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)].id : (warehouses[0]?.id || null);
+  });
+
+  const totalCost = (asgn) => {
+    let cost = 0;
+    asgn.forEach((wId, ci) => {
+      if (!wId) return;
+      const c = customers[ci];
+      cost += (distMap[`${wId}-${c.id}`] || 9999) * c.demand * bodKmCost;
+    });
+    // Add fixed costs for active warehouses
+    const active = new Set(asgn.filter(Boolean));
+    active.forEach(wId => {
+      const w = warehouses.find(x => x.id === wId);
+      if (w) cost += w.fixedOpCost + w.baseM2 * w.pricePerM2;
+    });
+    return cost;
+  };
+
+  let T = 5000, cooling = 0.97, best = [...assignment], bestCost = totalCost(assignment);
+  for (let iter = 0; iter < 2000; iter++) {
+    const newA = [...assignment];
+    const ci = Math.floor(Math.random() * newA.length);
+    const valid = warehouses.filter(w => (distMap[`${w.id}-${customers[ci].id}`] || Infinity) <= maxRadius);
+    if (valid.length === 0) { T *= cooling; continue; }
+    newA[ci] = valid[Math.floor(Math.random() * valid.length)].id;
+    const newCost = totalCost(newA);
+    const delta = newCost - totalCost(assignment);
+    if (delta < 0 || Math.random() < Math.exp(-delta / T)) {
+      assignment = newA;
+      if (newCost < bestCost) { bestCost = newCost; best = [...newA]; }
+    }
+    T *= cooling;
+  }
+  assignment = best;
+
+  // Build solution structure
+  const whMap = {};
+  assignment.forEach((wId, ci) => {
+    if (!wId) return;
+    if (!whMap[wId]) whMap[wId] = [];
+    whMap[wId].push({ custId: customers[ci].id, units: customers[ci].demand });
+  });
+  const activeWh = Object.entries(whMap).map(([whId, assigned]) => ({ whId, assigned }));
+  const fabFlows = [];
+  activeWh.forEach(wh => {
+    const units = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const best = factories.map(f => ({ f, km: distMap[`${f.id}-${wh.whId}`] || Infinity })).sort((a,b) => a.km - b.km)[0];
+    if (best) fabFlows.push({ fabId: best.f.id, whId: wh.whId, units });
+  });
+  return { activeWh, fabFlows };
+}
+
+// ── GENETIC ALGORITHM ──
+function optimizerGenetic(distMap) {
+  const svcTarget = +document.getElementById('svc-slider').value / 100;
+  const maxRadius = +document.getElementById('p-radius').value;
+  const bodKmCost = +document.getElementById('p-bod-km').value;
+
+  if (warehouses.length === 0 || customers.length === 0) return optimizerGreedy(distMap);
+
+  const POP = 30, GENS = 60, MUTATION = 0.12;
+  const totalDemand = customers.reduce((s, c) => s + c.demand, 0);
+
+  // Chromosome: array of whId (or null) per customer
+  const validWhs = (cIdx) => warehouses.filter(w =>
+    (distMap[`${w.id}-${customers[cIdx].id}`] || Infinity) <= maxRadius
+  );
+
+  const randomChrom = () => customers.map((_, ci) => {
+    const v = validWhs(ci);
+    return v.length ? v[Math.floor(Math.random() * v.length)].id : null;
+  });
+
+  const fitness = (chrom) => {
+    let cost = 0, covered = 0;
+    const activeWhs = new Set(chrom.filter(Boolean));
+    activeWhs.forEach(wId => {
+      const w = warehouses.find(x => x.id === wId);
+      if (w) cost += w.fixedOpCost + w.baseM2 * w.pricePerM2;
+    });
+    chrom.forEach((wId, ci) => {
+      if (!wId) return;
+      const c = customers[ci];
+      cost += (distMap[`${wId}-${c.id}`] || 9999) * c.demand * bodKmCost;
+      covered += c.demand;
+    });
+    // Penalize for not meeting service level
+    if (covered / totalDemand < svcTarget) cost += (svcTarget - covered / totalDemand) * totalDemand * 5000;
+    return -cost; // maximize
+  };
+
+  let pop = Array.from({ length: POP }, randomChrom);
+
+  for (let g = 0; g < GENS; g++) {
+    pop.sort((a, b) => fitness(b) - fitness(a));
+    const survivors = pop.slice(0, Math.floor(POP / 2));
+    const children = [];
+    while (children.length < POP - survivors.length) {
+      const p1 = survivors[Math.floor(Math.random() * survivors.length)];
+      const p2 = survivors[Math.floor(Math.random() * survivors.length)];
+      const cut = Math.floor(Math.random() * customers.length);
+      const child = [...p1.slice(0, cut), ...p2.slice(cut)];
+      // Mutation
+      child.forEach((_, ci) => {
+        if (Math.random() < MUTATION) {
+          const v = validWhs(ci);
+          child[ci] = v.length ? v[Math.floor(Math.random() * v.length)].id : null;
+        }
+      });
+      children.push(child);
+    }
+    pop = [...survivors, ...children];
+  }
+
+  const best = pop.sort((a, b) => fitness(b) - fitness(a))[0];
+
+  // Build solution structure from best chromosome
+  const whMap = {};
+  const served = {};
+  best.forEach((wId, ci) => {
+    if (!wId) return;
+    const c = customers[ci];
+    const remaining = c.demand - (served[c.id] || 0);
+    if (remaining <= 0) return;
+    if (!whMap[wId]) whMap[wId] = [];
+    const w = warehouses.find(x => x.id === wId);
+    const maxU = w ? w.maxThroughput * (1 + w.extraM2Pct / 100 * 0.5) : Infinity;
+    const used = whMap[wId].reduce((s, a) => s + a.units, 0);
+    const units = Math.min(remaining, maxU - used);
+    if (units > 0) {
+      whMap[wId].push({ custId: c.id, units });
+      served[c.id] = (served[c.id] || 0) + units;
+    }
+  });
+
+  const activeWh = Object.entries(whMap).map(([whId, assigned]) => ({ whId, assigned }));
+  const fabFlows = [];
+  activeWh.forEach(wh => {
+    const units = wh.assigned.reduce((s, a) => s + a.units, 0);
+    const best = factories.map(f => ({ f, km: distMap[`${f.id}-${wh.whId}`] || Infinity })).sort((a,b) => a.km - b.km)[0];
+    if (best) fabFlows.push({ fabId: best.f.id, whId: wh.whId, units });
+  });
+  return { activeWh, fabFlows };
+}
+
+// ══════════════════════════════════════════════════════════════
+// UPDATE P&L
+// ══════════════════════════════════════════════════════════════
+function updatePnL() {
+  if (!optResult) return;
+  optResult.distMap = optResult.distMap || {};
+  const p = computePnL(optResult);
+  if (!p) return;
+
+  document.getElementById('pnl-empty').style.display = 'none';
+  document.getElementById('pnl-content').style.display = 'block';
+
+  const fmt = v => v < 0 ? '-$' + Math.abs(Math.round(v)).toLocaleString() : '$' + Math.round(v).toLocaleString();
+  const fmtn = v => Math.round(v).toLocaleString();
+
+  // Service level alert
+  const svcTarget = +document.getElementById('svc-slider').value;
+  const alert = document.getElementById('svc-alert');
+  if (p.svcLevel < svcTarget - 0.5) {
+    // Find unserved zones
+    const servedCustIds = new Set(optResult.activeWh.flatMap(wh => wh.assigned.map(a => a.custId)));
+    const unserved = customers.filter(c => !servedCustIds.has(c.id));
+    const partial = customers.filter(c => {
+      if (!servedCustIds.has(c.id)) return false;
+      const assigned = optResult.activeWh.flatMap(wh => wh.assigned).filter(a => a.custId === c.id);
+      const totalServed = assigned.reduce((s, a) => s + a.units, 0);
+      return totalServed < c.demand;
+    });
+    const gap = (svcTarget - p.svcLevel).toFixed(1);
+    let msg = `⚠️ <strong>Nivel de servicio ${p.svcLevel.toFixed(1)}% — falta ${gap}pp para el objetivo ${svcTarget}%</strong><br>`;
+    if (unserved.length) msg += `Sin cobertura: ${unserved.map(c=>c.name).join(', ')}<br>`;
+    if (partial.length) msg += `Cobertura parcial: ${partial.map(c=>c.name).join(', ')}<br>`;
+    msg += `→ Agrega bodegas en zonas sin cobertura o amplía el radio de entrega.`;
+    alert.innerHTML = msg;
+    alert.style.display = 'block';
+  } else {
+    alert.style.display = 'none';
+  }
+
+  // KPIs (6 cards)
+  const svcColor = p.svcLevel >= svcTarget ? 'green' : p.svcLevel >= svcTarget * 0.85 ? 'orange' : 'red';
+  const ebitdaColor = p.ebitda >= 0 ? 'green' : 'red';
+  const logColor = p.logRatio < 10 ? 'green' : p.logRatio < 15 ? 'orange' : 'red';
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card"><div class="val ${ebitdaColor}">${fmt(p.ebitda)}</div><div class="lbl">EBITDA/mes</div></div>
+    <div class="kpi-card"><div class="val ${svcColor}">${p.svcLevel.toFixed(1)}%</div><div class="lbl">Fill Rate</div></div>
+    <div class="kpi-card"><div class="val blue">${fmt(p.landedCost)}</div><div class="lbl">Total Landed Cost</div></div>
+    <div class="kpi-card"><div class="val ${logColor}">${p.logRatio.toFixed(1)}%</div><div class="lbl">Logística/Revenue</div></div>
+    <div class="kpi-card"><div class="val orange">${p.dio.toFixed(1)}d</div><div class="lbl">DIO (días inv.)</div></div>
+    <div class="kpi-card"><div class="val" style="color:#34d399;">${p.co2Tons.toFixed(1)}t</div><div class="lbl">CO₂ mensual</div></div>
+  `;
+
+  // P&L Table
+  document.getElementById('pnl-table').innerHTML = `
+    <tr><td class="cat" colspan="2">INGRESOS</td></tr>
+    <tr><td>Revenue (${fmtn(p.coveredDemand)} un vendidas)</td><td class="pos">${fmt(p.revenue)}</td></tr>
+    <tr><td class="cat" colspan="2">COSTOS FÁBRICAS</td></tr>
+    <tr><td>Costo fijo fábricas</td><td class="neg">${fmt(-p.fabFixed)}</td></tr>
+    <tr><td>Costo capacidad adicional</td><td class="neg">${fmt(-p.fabExtraCap)}</td></tr>
+    <tr><td>Costo variable producción</td><td class="neg">${fmt(-p.fabVar)}</td></tr>
+    <tr><td class="cat" colspan="2">COSTOS BODEGAS</td></tr>
+    <tr><td>Arriendo (base)</td><td class="neg">${fmt(-p.whRent)}</td></tr>
+    <tr><td>Ampliación m²</td><td class="neg">${fmt(-p.whExtra)}</td></tr>
+    <tr><td>Operacional bodega</td><td class="neg">${fmt(-p.whOp)}</td></tr>
+    <tr><td>Holding cost (inventario)</td><td class="neg">${fmt(-p.whHolding)}</td></tr>
+    <tr><td class="cat" colspan="2">COSTOS TRANSPORTE</td></tr>
+    <tr><td>Transporte Fábrica → Bodega</td><td class="neg">${fmt(-p.transFab)}</td></tr>
+    <tr><td>Transporte Bodega → Cliente</td><td class="neg">${fmt(-p.transBod)}</td></tr>
+    <tr class="total"><td><strong>EBITDA Operacional</strong></td><td class="${p.ebitda>=0?'pos':'neg'}"><strong>${fmt(p.ebitda)}</strong></td></tr>
+    <tr><td style="color:var(--muted);font-size:11px;">Total costos</td><td style="text-align:right;color:var(--muted);font-size:11px;">${fmt(-p.totalCosts)}</td></tr>
+    <tr><td style="color:#34d399;font-size:11px;">🌱 CO₂ total/mes</td><td style="text-align:right;color:#34d399;font-size:11px;">${p.co2Tons.toFixed(1)} ton</td></tr>
+  `;
+
+  // Chart
+  const labels = ['Revenue','Fab Fijo','Fab Var','WH Rent','WH Op','Holding','T F→B','T B→C','EBITDA'];
+  const values = [p.revenue,-p.fabFixed,-p.fabVar,-p.whRent,-p.whOp,-p.whHolding,-p.transFab,-p.transBod,p.ebitda];
+  const colors = values.map((v, i) => i === 0 ? '#22c55e' : i === labels.length-1 ? (v>=0?'#22c55e':'#ef4444') : '#ef4444');
+
+  if (pnlChart) pnlChart.destroy();
+  pnlChart = new Chart(document.getElementById('pnl-chart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 4 }] },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e2438' } },
+        y: { ticks: { color: '#64748b', font: { size: 9 }, callback: v => '$'+Math.round(v/1000)+'k' }, grid: { color: '#1e2438' } }
+      },
+      animation: false
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCENARIOS
+// ══════════════════════════════════════════════════════════════
+function saveScenario(key) {
+  const p = optResult ? computePnL({ ...optResult, distMap: optResult.distMap || {} }) : null;
+  scenarios[key] = {
+    factories: factories.map(f => ({ ...f, marker: null, circle: null })),
+    warehouses: warehouses.map(w => ({ ...w, marker: null, circle: null })),
+    customers:  customers.map(c => ({ ...c, marker: null, circle: null })),
+    optResult: optResult ? { ...optResult } : null,
+    pnl: p,
+    algo: document.getElementById('opt-algo').value,
+    ts: new Date().toLocaleTimeString()
+  };
+  localStorage.setItem('logopt_sc_' + key, JSON.stringify(scenarios[key]));
+  document.getElementById('sc-' + key.toLowerCase()).classList.add('filled');
+  document.getElementById('sc-' + key.toLowerCase()).textContent = '✅ ' + key + ' (' + scenarios[key].ts + ')';
+  updateCompare();
+}
+
+function loadScenario(key) {
+  const raw = localStorage.getItem('logopt_sc_' + key);
+  if (!raw) { showStatus('No hay escenario ' + key + ' guardado'); return; }
+  const sc = JSON.parse(raw);
+  showStatus('Escenario ' + key + ' cargado (solo datos, re-optimiza para rutas)');
+}
+
+function updateCompare() {
+  const filled = ['A','B','C'].filter(k => scenarios[k]?.pnl);
+  if (filled.length < 2) { document.getElementById('compare-view').innerHTML = '<p style="color:var(--muted);font-size:11px;">Guarda al menos 2 escenarios con P&L para comparar.</p>'; return; }
+  const rows = ['revenue','ebitda','totalCosts','costPerUnit','svcLevel','logRatio'];
+  const labels = { revenue:'Revenue', ebitda:'EBITDA', totalCosts:'Costo total', costPerUnit:'Costo/unidad', svcLevel:'Serv %', logRatio:'Log/Rev %' };
+  const fmt = (k, v) => ['svcLevel','logRatio'].includes(k) ? v.toFixed(1)+'%' : '$'+Math.round(v).toLocaleString();
+  const bestFn = (k) => {
+    const vals = filled.map(s => ({ s, v: scenarios[s].pnl[k] }));
+    if (['ebitda','revenue','svcLevel'].includes(k)) return vals.sort((a,b) => b.v-a.v)[0].s;
+    return vals.sort((a,b) => a.v-b.v)[0].s;
+  };
+  let html = `<table class="compare-table"><tr><th>Métrica</th>${filled.map(k=>`<th>${k}</th>`).join('')}</tr>`;
+  for (const row of rows) {
+    const best = bestFn(row);
+    html += `<tr><td>${labels[row]}</td>${filled.map(k => `<td class="${k===best?'best':''}">${fmt(row, scenarios[k].pnl[row])}</td>`).join('')}</tr>`;
+  }
+  html += `<tr><td>Algoritmo</td>${filled.map(k => `<td>${scenarios[k].algo}</td>`).join('')}</tr>`;
+  html += '</table>';
+  document.getElementById('compare-view').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SENSITIVITY
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// ALGORITHM DESCRIPTIONS
+// ══════════════════════════════════════════════════════════════
+const ALGO_INFO = {
+  greedy: {
+    name: 'Greedy (Heurística Constructiva)',
+    desc: 'Abre una bodega a la vez, siempre eligiendo la que más demanda cubre al menor costo marginal. Repite hasta alcanzar el nivel de servicio objetivo.',
+    pros: 'Muy rápido (&lt; 1 seg). Buena solución inicial. Ideal para explorar configuraciones.',
+    cons: 'Puede quedar en óptimos locales. No garantiza la solución global óptima.',
+    speed: '⚡⚡⚡', quality: '★★☆', size: 'Redes pequeñas/medianas (&lt;20 bodegas)',
+    tags: [['Rápido','speed'],['Simple','quality'],['&lt;20 bodegas','size']]
+  },
+  twoopt: {
+    name: '2-opt Local Search',
+    desc: 'Parte de la solución Greedy y mejora intercambiando asignaciones cliente↔bodega entre pares de centros. Acepta el intercambio si reduce el costo total.',
+    pros: 'Mejora la solución Greedy con poco esfuerzo computacional. Bueno para ajuste fino.',
+    cons: 'Solo encuentra mejoras locales. El resultado depende de la solución inicial Greedy.',
+    speed: '⚡⚡', quality: '★★★', size: 'Redes medianas (&lt;30 bodegas)',
+    tags: [['Moderado','speed'],['Buena calidad','quality'],['&lt;30 bodegas','size']]
+  },
+  sa: {
+    name: 'Simulated Annealing (Recocido Simulado)',
+    desc: 'Inspirado en el proceso físico de enfriamiento. Explora el espacio de soluciones aceptando temporalmente peores soluciones (con cierta probabilidad) para escapar de óptimos locales. La "temperatura" baja gradualmente hasta converger.',
+    pros: 'Encuentra mejores soluciones que Greedy y 2-opt en redes complejas. Escapa de mínimos locales.',
+    cons: 'Más lento (2-5 seg). Requiere ajuste de parámetros (temperatura, cooling rate). Resultado puede variar entre ejecuciones.',
+    speed: '⚡', quality: '★★★★', size: 'Redes grandes (&gt;20 bodegas)',
+    tags: [['Lento','speed'],['Alta calidad','quality'],['&gt;20 bodegas','size']]
+  },
+  genetic: {
+    name: 'Algoritmo Genético',
+    desc: 'Evoluciona una población de soluciones candidatas. Selecciona las mejores ("supervivientes"), las cruza para crear soluciones hijo, y aplica mutaciones aleatorias. Después de 60 generaciones, retiene la mejor solución encontrada.',
+    pros: 'Muy robusto para encontrar el óptimo global. Maneja bien múltiples restricciones simultáneas (capacidad, radio, nivel de servicio). Ideal cuando el espacio de búsqueda es grande.',
+    cons: 'El más lento de los cuatro (3-8 seg en browser). Resultado puede variar ligeramente entre ejecuciones por la aleatoriedad.',
+    speed: '⚡', quality: '★★★★★', size: 'Redes complejas con muchas restricciones',
+    tags: [['Más lento','speed'],['Mejor calidad','quality'],['Redes complejas','size']]
+  }
+};
+
+function updateAlgoDesc() {
+  const key = document.getElementById('opt-algo').value;
+  const info = ALGO_INFO[key];
+  const el = document.getElementById('algo-desc');
+  if (!info || el.style.display === 'none') return;
+  el.innerHTML = `
+    <strong>⚙️ ${info.name}</strong>
+    <p style="margin-bottom:5px;">${info.desc}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;margin-bottom:5px;">
+      <div style="color:#86efac;">✅ <em>${info.pros}</em></div>
+      <div style="color:#fca5a5;">⚠️ <em>${info.cons}</em></div>
+    </div>
+    <div>
+      ${info.tags.map(([t,c])=>`<span class="tag tag-${c}">${t}</span>`).join('')}
+      <span style="font-size:10px;color:var(--muted);margin-left:6px;">Velocidad: ${info.speed} | Calidad: ${info.quality}</span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:4px;">📐 Ideal para: ${info.size}</div>
+  `;
+  el.style.display = 'block';
+}
+
+function updateTransportMode() {
+  const mode = document.getElementById('p-transport-mode').value;
+  document.getElementById('ltl-params').style.display = mode === 'ftl' ? 'none' : 'block';
+  document.getElementById('ftl-params').style.display = mode !== 'ltl' ? 'block' : 'none';
+}
+
+function sensUpdate(val) {
+  sensFactor = +val;
+  document.getElementById('p-sens-val').textContent = '×' + (+val).toFixed(2);
+  updatePnL();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════════════
+function showTab(name) {
+  ['params','nodes','pnl','scenarios'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', ['params','nodes','pnl','scenarios'][i] === name);
+  });
+}
+
+function updateNodeList() {
+  document.getElementById('cnt-fab').textContent = factories.length;
+  document.getElementById('cnt-wh').textContent  = warehouses.length;
+  document.getElementById('cnt-cust').textContent = customers.length;
+
+  const renderList = (items, containerId, color, emoji, type) => {
+    const el = document.getElementById(containerId);
+    el.innerHTML = items.length === 0 ? '<p style="color:var(--muted);font-size:11px;">Ninguno aún</p>' :
+      items.map(n => `<div class="node-item" onclick="n.marker?.openPopup?.()">
+        <div class="node-dot" style="background:${color}"></div>
+        <span>${emoji} ${n.name}</span>
+        <small>${type === 'factory' ? (n.baseCapacity/1000).toFixed(0)+'k un' : type === 'warehouse' ? n.baseM2+'m²' : n.demand+' un'}</small>
+        <span class="node-del" onclick="event.stopPropagation();deleteNode('${n.id}','${type}')">✕</span>
+      </div>`).join('');
+  };
+  renderList(factories,  'list-factories',  '#3b82f6', '🏭', 'factory');
+  renderList(warehouses, 'list-warehouses', '#f97316', '🏪', 'warehouse');
+  renderList(customers,  'list-customers',  '#22c55e', '👥', 'customer');
+}
+
+function showProgress(pct, msg) {
+  document.getElementById('progress-bar').style.display = 'block';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  if (msg) showStatus(msg);
+}
+function hideProgress() {
+  document.getElementById('progress-bar').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '0';
+}
+let statusTimer;
+function showStatus(msg) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+const CSV_HEADER = 'tipo,nombre,lat,lng,capacidad,costo_fijo,costo_var,area_m2,arriendo_m2,costo_op,throughput,demanda,precio_venta,radio_km';
+// tipo: fabrica | bodega | cliente
+// fabrica:  capacidad, costo_fijo, costo_var
+// bodega:   area_m2, arriendo_m2, costo_op, throughput
+// cliente:  demanda, precio_venta, radio_km
+
+function exportCSV() {
+  let csv = CSV_HEADER + '\n';
+  factories.forEach(f =>
+    csv += `fabrica,${f.name},${f.lat.toFixed(5)},${f.lng.toFixed(5)},${f.baseCapacity},${f.baseCost},${f.varCostPerUnit},,,,,,,\n`
+  );
+  warehouses.forEach(w =>
+    csv += `bodega,${w.name},${w.lat.toFixed(5)},${w.lng.toFixed(5)},,,, ${w.baseM2},${w.pricePerM2},${w.fixedOpCost},${w.maxThroughput},,,\n`
+  );
+  customers.forEach(c =>
+    csv += `cliente,${c.name},${c.lat.toFixed(5)},${c.lng.toFixed(5)},,,,,,,, ${c.demand},${c.sellPrice},${c.radius}\n`
+  );
+
+  // P&L section (read-only, not importable)
+  const p = optResult ? computePnL({ ...optResult, distMap: optResult.distMap || {} }) : null;
+  if (p) {
+    csv += `\n# P&L Mensual (solo lectura)\n# Revenue,$${Math.round(p.revenue)}\n# EBITDA,$${Math.round(p.ebitda)}\n# Nivel servicio,${p.svcLevel.toFixed(1)}%\n# CO2 total,${p.co2Tons.toFixed(1)} ton\n`;
+  }
+  triggerDownload(csv, 'red_logistica.csv');
+}
+
+function downloadTemplate() {
+  const csv = CSV_HEADER + '\n'
+    + '# Instrucciones: elimina estas líneas de comentario (#) antes de importar\n'
+    + '# Para FÁBRICAS rellena: nombre, lat, lng, capacidad (un/mes), costo_fijo ($/mes), costo_var ($/un)\n'
+    + '# Para BODEGAS rellena:  nombre, lat, lng, area_m2, arriendo_m2 ($/m2/mes), costo_op ($/mes), throughput (un/mes)\n'
+    + '# Para CLIENTES rellena: nombre, lat, lng, demanda (un/mes), precio_venta ($/un), radio_km\n'
+    + 'fabrica,Mi Fábrica 1,-33.4569,-70.6483,30000,850000,320,,,,,,,\n'
+    + 'fabrica,Mi Fábrica 2,-23.6509,-70.3954,15000,480000,290,,,,,,,\n'
+    + 'bodega,Bodega Norte,-29.9027,-71.2519,,,,800,2.8,42000,8000,,,\n'
+    + 'bodega,Bodega Centro,-33.0472,-71.6127,,,,1200,3.5,55000,12000,,,\n'
+    + 'cliente,Zona Arica,-18.4783,-70.3126,,,,,,,,3200,1380,150\n'
+    + 'cliente,Zona Santiago,-33.4569,-70.6483,,,,,,,,18000,1380,80\n';
+  triggerDownload(csv, 'plantilla_red_logistica.csv');
+}
+
+function triggerDownload(content, filename) {
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
+  a.download = filename;
+  a.click();
+}
+
+async function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-imported
+
+  const text = await file.text();
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+
+  // Skip header row
+  const dataLines = lines.filter(l => !l.toLowerCase().startsWith('tipo'));
+
+  let nFab = 0, nBod = 0, nCli = 0, errors = [];
+
+  for (const line of dataLines) {
+    const cols = line.split(',').map(c => c.trim());
+    const tipo = cols[0]?.toLowerCase();
+    const nombre = cols[1] || 'Sin nombre';
+    const lat = parseFloat(cols[2]);
+    const lng = parseFloat(cols[3]);
+
+    if (isNaN(lat) || isNaN(lng)) { errors.push(`Fila ignorada (lat/lng inválido): ${line.slice(0, 40)}`); continue; }
+
+    if (tipo === 'fabrica' || tipo === 'fábrica') {
+      const baseCapacity = parseFloat(cols[4]) || 10000;
+      const baseCost     = parseFloat(cols[5]) || 500000;
+      const varCostPerUnit = parseFloat(cols[6]) || 300;
+      addFactory(lat, lng, { nombre, baseCapacity, baseCost, varCostPerUnit });
+      nFab++;
+    } else if (tipo === 'bodega') {
+      const baseM2       = parseFloat(cols[7]) || 500;
+      const pricePerM2   = parseFloat(cols[8]) || 3.0;
+      const fixedOpCost  = parseFloat(cols[9]) || 30000;
+      const maxThroughput = parseFloat(cols[10]) || 5000;
+      addWarehouse(lat, lng, { nombre, baseM2, pricePerM2, fixedOpCost, maxThroughput });
+      nBod++;
+    } else if (tipo === 'cliente') {
+      const demand    = parseFloat(cols[11]) || 1000;
+      const sellPrice = parseFloat(cols[12]) || 1000;
+      const radius    = parseFloat(cols[13]) || 300;
+      addCustomer(lat, lng, { nombre, demand, sellPrice, radius });
+      nCli++;
+    } else {
+      errors.push(`Tipo desconocido: "${tipo}" en fila: ${line.slice(0, 40)}`);
+    }
+  }
+
+  updateNodeList();
+  let msg = `✅ Importado: ${nFab} fábricas, ${nBod} bodegas, ${nCli} clientes`;
+  if (errors.length) msg += ` | ⚠️ ${errors.length} fila(s) con error`;
+  showStatus(msg);
+  if (errors.length) console.warn('CSV import errors:', errors);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DEMO DATA
+// ══════════════════════════════════════════════════════════════
+function clearAllSilent() {
+  [...factories, ...warehouses, ...customers].forEach(n => {
+    if (n.marker) map.removeLayer(n.marker);
+    if (n.circle) map.removeLayer(n.circle);
+  });
+  factories = []; warehouses = []; customers = [];
+  clearRoutes(); updateNodeList(); optResult = null;
+  document.getElementById('pnl-empty').style.display = '';
+  document.getElementById('pnl-content').style.display = 'none';
+}
+
+async function loadDemo() {
+  clearAllSilent();
+  showStatus('Cargando datos demo...');
+
+  // ── Fábricas ──
+  const fabData = [
+    { lat: -33.45, lng: -70.65, name: 'Fábrica Santiago',    baseCapacity: 30000, baseCost: 850000, extraCapPct: 20, extraCostPerThousand: 28, varCostPerUnit: 320 },
+    { lat: -23.65, lng: -70.40, name: 'Fábrica Antofagasta', baseCapacity: 15000, baseCost: 480000, extraCapPct: 0,  extraCostPerThousand: 35, varCostPerUnit: 360 },
+  ];
+  for (const d of fabData) {
+    const id = 'f' + (++uid);
+    const f = { id, ...d, marker: null };
+    factories.push(f);
+    const m = L.marker([d.lat, d.lng], { icon: ICONS.factory(), draggable: true }).addTo(map);
+    m.on('dragend', () => { f.lat = m.getLatLng().lat; f.lng = m.getLatLng().lng; clearRoutes(); updateNodeList(); });
+    m.on('click', () => openFactoryPopup(f, m));
+    f.marker = m;
+  }
+
+  // ── Bodegas candidatas ──
+  const whData = [
+    { lat: -29.91, lng: -71.25, name: 'CD La Serena',    baseM2: 3000, extraM2Pct: 0,  pricePerM2: 2.28, extraPricePct: 25, fixedOpCost: 85000,  maxThroughput: 9000  },
+    { lat: -33.04, lng: -71.62, name: 'CD Valparaíso',   baseM2: 4000, extraM2Pct: 30, pricePerM2: 2.80, extraPricePct: 30, fixedOpCost: 110000, maxThroughput: 12000 },
+    { lat: -34.17, lng: -70.74, name: 'CD Rancagua',     baseM2: 3500, extraM2Pct: 0,  pricePerM2: 2.45, extraPricePct: 28, fixedOpCost: 92000,  maxThroughput: 10000 },
+    { lat: -35.43, lng: -71.67, name: 'CD Talca',        baseM2: 2500, extraM2Pct: 0,  pricePerM2: 2.00, extraPricePct: 20, fixedOpCost: 68000,  maxThroughput: 7500  },
+    { lat: -36.82, lng: -73.05, name: 'CD Concepción',   baseM2: 4500, extraM2Pct: 20, pricePerM2: 2.03, extraPricePct: 25, fixedOpCost: 105000, maxThroughput: 13000 },
+    { lat: -38.74, lng: -72.60, name: 'CD Temuco',       baseM2: 2000, extraM2Pct: 0,  pricePerM2: 1.58, extraPricePct: 20, fixedOpCost: 58000,  maxThroughput: 6000  },
+  ];
+  for (const d of whData) {
+    const id = 'w' + (++uid);
+    const w = { id, ...d, marker: null, circle: null, active: false };
+    warehouses.push(w);
+    const m = L.marker([d.lat, d.lng], { icon: ICONS.warehouse(false), draggable: true }).addTo(map);
+    m.on('dragend', () => { w.lat = m.getLatLng().lat; w.lng = m.getLatLng().lng; clearRoutes(); updateNodeList(); });
+    m.on('click', () => openWarehousePopup(w, m));
+    w.marker = m;
+  }
+
+  // ── Zonas Clientes ──
+  const custData = [
+    { lat: -18.48, lng: -70.30, name: 'Arica-Tarapacá',   demand: 1800, sellPrice: 1200, radius: 120 },
+    { lat: -23.65, lng: -70.40, name: 'Antofagasta',       demand: 3200, sellPrice: 1200, radius: 100 },
+    { lat: -27.36, lng: -70.33, name: 'Atacama',           demand: 1500, sellPrice: 1200, radius: 130 },
+    { lat: -30.02, lng: -71.34, name: 'Coquimbo-Serena',   demand: 4000, sellPrice: 1300, radius: 90  },
+    { lat: -32.95, lng: -71.54, name: 'Valparaíso-Viña',   demand: 8500, sellPrice: 1400, radius: 70  },
+    { lat: -33.45, lng: -70.65, name: 'Gran Santiago',     demand: 22000, sellPrice: 1500, radius: 60  },
+    { lat: -34.17, lng: -70.74, name: "O'Higgins",         demand: 3500, sellPrice: 1300, radius: 80  },
+    { lat: -35.43, lng: -71.67, name: 'Maule',             demand: 3000, sellPrice: 1250, radius: 90  },
+    { lat: -36.82, lng: -73.05, name: 'Biobío-Concepción', demand: 6500, sellPrice: 1350, radius: 75  },
+    { lat: -38.74, lng: -72.60, name: 'La Araucanía',      demand: 3200, sellPrice: 1200, radius: 100 },
+    { lat: -40.57, lng: -73.13, name: 'Los Lagos',         demand: 2500, sellPrice: 1150, radius: 110 },
+  ];
+  for (const d of custData) {
+    const id = 'c' + (++uid);
+    const c = { id, ...d, marker: null, circle: null };
+    customers.push(c);
+    const m = L.marker([d.lat, d.lng], { icon: ICONS.customer(), draggable: true }).addTo(map);
+    const circle = L.circle([d.lat, d.lng], { radius: d.radius * 1000, color: '#22c55e', fillColor: '#22c55e', fillOpacity: .08, weight: 1, dashArray: '4' }).addTo(map);
+    m.on('dragend', () => { c.lat = m.getLatLng().lat; c.lng = m.getLatLng().lng; circle.setLatLng([c.lat, c.lng]); clearRoutes(); updateNodeList(); });
+    m.on('click', () => openCustomerPopup(c, m, circle));
+    c.marker = m; c.circle = circle;
+  }
+
+  updateNodeList();
+  map.setView([-33.5, -71.0], 6);
+  showStatus('✅ Demo cargado — 2 fábricas, 6 bodegas candidatas, 11 zonas de clientes');
+  // Auto-run optimizer after short delay
+  setTimeout(() => runOptimizer(), 800);
+}
+
+// Init
+updateNodeList();
+</script>
+</body>
+</html>

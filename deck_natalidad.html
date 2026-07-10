@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La encrucijada demográfica — Natalidad en el mundo y en Chile</title>
+<style>
+  :root{
+    --navy:#051C2C;        /* McKinsey deep blue */
+    --blue:#2251FF;        /* McKinsey electric blue */
+    --cyan:#00A9F4;
+    --cyan-light:#AAE6F0;
+    --gray-1:#333333;
+    --gray-2:#666666;
+    --gray-3:#B3B3B3;
+    --gray-4:#E6E6E6;
+    --bg:#F0F0F0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    font-family:Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color:var(--gray-1);
+    overflow:hidden;
+  }
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  .slide{
+    width:1280px;height:720px;background:#fff;
+    box-shadow:0 4px 24px rgba(5,28,44,.18);
+    padding:34px 52px 30px 52px;
+    position:absolute;display:none;flex-direction:column;
+  }
+  .slide.active{display:flex;}
+
+  /* ---------- Tracker + sticker row ---------- */
+  .toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .tracker{display:flex;gap:6px;}
+  .trk{
+    font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-3);
+    padding:4px 10px;border:1px solid var(--gray-4);font-weight:600;white-space:nowrap;
+  }
+  .trk.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .sticker{
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);
+    border:1.5px solid var(--blue);padding:5px 12px;font-weight:700;white-space:nowrap;
+  }
+
+  /* ---------- Title block ---------- */
+  h1.action-title{
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:26px;line-height:1.28;color:var(--navy);font-weight:700;
+    max-width:1130px;margin-bottom:7px;letter-spacing:-.01em;
+  }
+  .subtitle{font-size:13.5px;color:var(--gray-2);margin-bottom:12px;}
+  .subtitle b{color:var(--gray-1);}
+  .title-rule{height:1px;background:var(--gray-4);margin-bottom:14px;}
+
+  /* ---------- Body: exhibit + sidebar ---------- */
+  .body{flex:1;display:flex;gap:26px;min-height:0;}
+  .exhibit-main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;}
+  .exhibit-label{
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gray-3);margin-bottom:6px;font-weight:700;
+  }
+  .exhibit-main svg{flex:1;min-height:0;width:100%;}
+
+  .sidebar{
+    flex:0 0 316px;border-left:1px solid var(--gray-4);padding-left:24px;
+    display:flex;flex-direction:column;gap:13px;
+  }
+  .sidebar-label{
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--blue);font-weight:700;padding-bottom:8px;border-bottom:2px solid var(--navy);
+  }
+  .tk{display:flex;flex-direction:column;}
+  .tk .n{
+    font-size:40px;font-weight:700;color:var(--blue);line-height:1.02;
+    font-family:Georgia, serif;letter-spacing:-.02em;margin-bottom:4px;
+  }
+  .tk .n small{font-size:19px;font-weight:700;}
+  .tk .t{font-size:12px;line-height:1.45;color:var(--gray-1);}
+  .tk .t b{color:var(--navy);}
+  .tk.dark .n{color:var(--navy);}
+  .sidebar .sowhat{
+    margin-top:auto;background:var(--navy);color:#fff;padding:10px 13px;
+    font-size:11.5px;line-height:1.45;
+  }
+  .sidebar .sowhat b{color:var(--cyan);display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px;}
+
+  /* ---------- Footer ---------- */
+  .footer{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-top:1px solid var(--gray-4);padding-top:8px;margin-top:12px;
+  }
+  .source{font-size:9.5px;color:var(--gray-2);line-height:1.5;max-width:1020px;}
+  .source .fn{display:block;}
+  .pageno{font-size:12px;color:var(--gray-2);white-space:nowrap;}
+  .pageno b{color:var(--navy);}
+
+  /* ---------- Cover ---------- */
+  .cover{background:var(--navy);color:#fff;justify-content:space-between;padding:44px 56px;}
+  .cover .brandbar{display:flex;justify-content:space-between;align-items:center;}
+  .cover .logo{font-family:Georgia, serif;font-size:21px;font-weight:700;}
+  .cover .logo span{font-weight:400;font-style:italic;}
+  .cover .conf{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8CA3B5;}
+  .cover .cover-mid{margin-top:26px;}
+  .cover .cover-rule{width:64px;height:4px;background:var(--cyan);margin-bottom:26px;}
+  .cover h1{font-family:Georgia, serif;font-size:42px;line-height:1.18;font-weight:700;max-width:920px;}
+  .cover h2{font-size:18px;font-weight:300;color:#C9D6DF;margin-top:16px;max-width:820px;line-height:1.5;}
+  .cover .cover-stats{display:flex;gap:56px;margin-top:38px;}
+  .cover .cs .n{font-family:Georgia, serif;font-size:46px;font-weight:700;color:var(--cyan);line-height:1;}
+  .cover .cs .c{font-size:11.5px;color:#8CA3B5;margin-top:7px;max-width:200px;line-height:1.45;}
+  .cover .cover-foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:13px;color:#8CA3B5;}
+  .cover .cover-foot .draft{border:1px solid #35505F;padding:6px 12px;letter-spacing:.14em;font-size:10.5px;text-transform:uppercase;}
+
+  /* ---------- Exec summary ---------- */
+  .exec-list{display:flex;flex-direction:column;flex:1;justify-content:space-between;}
+  .exec-item{display:flex;gap:16px;align-items:center;padding:7px 0;border-bottom:1px solid #F2F2F2;}
+  .exec-item:last-child{border-bottom:none;}
+  .exec-num{
+    flex:0 0 30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  }
+  .exec-item .txt{font-size:14.5px;line-height:1.5;color:var(--gray-1);}
+  .exec-item .txt b{color:var(--navy);}
+  .exec-item .big{
+    flex:0 0 190px;margin-left:auto;text-align:right;
+    font-family:Georgia, serif;font-size:40px;font-weight:700;color:var(--blue);line-height:1;
+  }
+  .exec-item .big span{display:block;font-family:Arial;font-size:10.5px;font-weight:400;color:var(--gray-2);margin-top:4px;line-height:1.35;}
+
+  /* ---------- Charts ---------- */
+  svg text{font-family:Arial, sans-serif;}
+  .axis{stroke:var(--gray-3);stroke-width:1;}
+  .gridline{stroke:var(--gray-4);stroke-width:1;}
+  .tick-label{font-size:12px;fill:var(--gray-2);}
+  .val-label{font-size:12.5px;fill:var(--navy);font-weight:700;}
+  .panel-title{font-size:13.5px;fill:var(--navy);font-weight:700;}
+  .panel-sub{font-size:11px;fill:var(--gray-2);}
+  .anno{font-size:11.5px;fill:var(--gray-2);}
+  .anno-strong{font-size:12px;fill:var(--blue);font-weight:700;}
+
+  .callout{
+    background:#F5F8FF;border-left:4px solid var(--blue);
+    padding:10px 16px;font-size:13px;color:var(--navy);line-height:1.5;
+  }
+  .callout b{color:var(--blue);}
+
+  /* ---------- Driver columns (slide 7) ---------- */
+  .cols3{display:flex;gap:14px;flex:1;min-height:0;}
+  .drv{flex:1;border:1px solid var(--gray-4);display:flex;flex-direction:column;}
+  .drv-head{background:var(--navy);color:#fff;font-size:13px;font-weight:700;padding:9px 13px;}
+  .drv-head span{color:var(--cyan);margin-right:6px;}
+  .drv-body{padding:11px 13px;display:flex;flex-direction:column;gap:9px;flex:1;}
+  .drv-item{font-size:12.5px;line-height:1.45;color:var(--gray-1);padding-left:13px;position:relative;}
+  .drv-item::before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;background:var(--cyan);}
+
+  /* ---------- Impact grid (slide 9) ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px;flex:1;min-height:0;}
+  .imp{border:1px solid var(--gray-4);padding:13px 15px;display:flex;flex-direction:column;}
+  .imp-tag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:5px;}
+  .imp-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.3;}
+  .imp-txt{font-size:12px;color:var(--gray-2);line-height:1.45;}
+  .imp-num{margin-top:auto;padding-top:8px;font-family:Georgia, serif;font-size:30px;font-weight:700;color:var(--blue);line-height:1;}
+  .imp-num span{font-family:Arial;font-size:10.5px;font-weight:400;color:var(--gray-2);display:block;margin-top:3px;line-height:1.35;}
+
+  /* ---------- Recommendations (slide 10) ---------- */
+  .rec-table{width:100%;border-collapse:collapse;}
+  .rec-table th{
+    background:var(--navy);color:#fff;font-size:12.5px;text-align:left;
+    padding:8px 12px;font-weight:700;vertical-align:top;width:33.3%;
+  }
+  .rec-table th .roman{color:var(--cyan);display:block;font-size:10px;letter-spacing:.14em;margin-bottom:2px;text-transform:uppercase;}
+  .rec-table td{
+    border:1px solid var(--gray-4);padding:7px 12px;font-size:11.5px;line-height:1.42;
+    color:var(--gray-1);vertical-align:top;
+  }
+  .rec-table td b{color:var(--navy);}
+  .next-steps{display:flex;gap:12px;margin-top:11px;}
+  .step{flex:1;background:#F5F8FF;padding:8px 12px;font-size:11.5px;line-height:1.4;color:var(--navy);border-top:3px solid var(--blue);}
+  .step b{display:block;margin-bottom:2px;}
+
+  /* ---------- Navigation UI ---------- */
+  #nav{position:fixed;bottom:18px;right:24px;z-index:50;display:flex;gap:8px;align-items:center;}
+  #nav button{width:38px;height:38px;border:none;background:var(--navy);color:#fff;font-size:17px;cursor:pointer;border-radius:3px;}
+  #nav button:hover{background:var(--blue);}
+  #counter{font-size:13px;color:var(--gray-2);padding:0 6px;}
+
+  /* ---------- Edit toolbar ---------- */
+  #edit-toolbar{
+    position:fixed;bottom:18px;left:24px;z-index:60;display:flex;gap:6px;align-items:center;
+    background:#fff;box-shadow:0 2px 12px rgba(5,28,44,.2);border-radius:6px;padding:6px 8px;
+    font-family:Arial, sans-serif;
+  }
+  #edit-toolbar button{
+    border:1px solid var(--gray-4);background:#fff;color:var(--navy);font-size:13px;
+    padding:7px 11px;cursor:pointer;border-radius:4px;font-weight:600;line-height:1;
+  }
+  #edit-toolbar button:hover{background:var(--gray-4);}
+  #edit-toolbar button.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  #edit-toolbar button.primary.on{background:var(--blue);border-color:var(--blue);}
+  #edit-toolbar .sep{width:1px;height:22px;background:var(--gray-4);margin:0 2px;}
+  #edit-toolbar .align-grp{display:none;gap:4px;}
+  #edit-toolbar.editing .align-grp{display:flex;}
+  #edit-toolbar .hint{display:none;font-size:11px;color:var(--gray-2);max-width:190px;line-height:1.3;}
+  #edit-toolbar.editing .hint{display:block;}
+
+  /* highlight editable elements while editing */
+  body.edit-mode [data-editable]{outline:1px dashed transparent;transition:outline-color .1s;cursor:text;border-radius:2px;}
+  body.edit-mode [data-editable]:hover{outline-color:var(--cyan);background:rgba(0,169,244,.06);}
+  body.edit-mode [data-editable]:focus{outline:2px solid var(--blue);background:rgba(34,81,255,.05);}
+
+  @media print{ #edit-toolbar{display:none;} }
+
+  @media print{
+    body{overflow:visible;background:#fff;}
+    #stage{position:static;display:block;}
+    .slide{display:flex !important;position:relative;box-shadow:none;page-break-after:always;margin:0 auto;transform:none !important;}
+    #nav{display:none;}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ============ SLIDE 1 — COVER ============ -->
+<section class="slide cover active">
+  <div class="brandbar">
+    <div class="logo">Brunet <span>&amp; Company</span></div>
+    <div class="conf">Confidencial — Borrador para discusión</div>
+  </div>
+  <div class="cover-mid">
+    <div class="cover-rule"></div>
+    <h1>La encrucijada demográfica: natalidad en el mundo y en Chile</h1>
+    <h2>Diagnóstico histórico, proyecciones al 2100 y una agenda de acción para enfrentar la caída de la fecundidad</h2>
+    <div class="cover-stats">
+      <div class="cs"><div class="n">1,16</div><div class="c">hijos por mujer en Chile (2023) — reemplazo: 2,1</div></div>
+      <div class="cs"><div class="n">-31%</div><div class="c">nacimientos anuales en Chile entre 2010 y 2023</div></div>
+      <div class="cs"><div class="n">~2050</div><div class="c">año estimado del peak poblacional de Chile</div></div>
+      <div class="cs"><div class="n">25%</div><div class="c">de los chilenos tendrá 65+ años al 2050</div></div>
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Julio 2026 &nbsp;·&nbsp; Documento de trabajo</div>
+    <div class="draft">Borrador — v2.0</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 2 — EXEC SUMMARY ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk on">Resumen</div><div class="trk">Contexto global</div><div class="trk">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Resumen ejecutivo</div>
+  </div>
+  <h1 class="action-title">Chile registra una de las caídas de fecundidad más rápidas del mundo; la ventana para actuar es esta década</h1>
+  <div class="subtitle">Cinco mensajes centrales del documento</div>
+  <div class="title-rule"></div>
+  <div class="exec-list">
+    <div class="exec-item">
+      <div class="exec-num">1</div>
+      <div class="txt"><b>El fenómeno es global:</b> la fecundidad mundial cayó de ~5 hijos por mujer en 1960 a ~2,2 hoy; dos de cada tres personas ya viven en países bajo el nivel de reemplazo (2,1)</div>
+      <div class="big">-55%<span>fecundidad mundial, 1960–2024</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">2</div>
+      <div class="txt"><b>Chile es un caso extremo:</b> pasó de 2,1 hijos por mujer en 2000 a 1,16 en 2023 — hoy al nivel de Japón, Italia y España, y entre las caídas más rápidas de la OCDE</div>
+      <div class="big">1,16<span>hijos por mujer en Chile (2023)</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">3</div>
+      <div class="txt"><b>La caída es estructural, no transitoria:</b> postergación de la maternidad, costos de crianza y vivienda, y cambio de preferencias — factores que no se revierten solos</div>
+      <div class="big">-31%<span>nacimientos anuales, 2010–2023</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">4</div>
+      <div class="txt"><b>Las consecuencias llegan pronto:</b> la población alcanzaría su máximo hacia ~2050; a esa fecha 1 de cada 4 chilenos tendrá 65+ años, presionando crecimiento, pensiones y salud</div>
+      <div class="big">4 → 2<span>personas en edad de trabajar por adulto mayor, 2024–50</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">5</div>
+      <div class="txt"><b>No existe bala de plata:</b> se requiere un portafolio de tres pilares — apoyar a las familias, adaptar la economía (productividad, participación, migración) y gestionar la transición fiscal</div>
+      <div class="big">3<span>pilares de la agenda de acción propuesta</span></div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: ONU World Population Prospects 2024; INE Chile; OCDE; análisis del equipo</div>
+    <div class="pageno"><b>2</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3 — WORLD TFR HISTORY ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk on">Contexto global</div><div class="trk">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">La fecundidad mundial cayó a menos de la mitad desde 1960 y convergerá bajo el nivel de reemplazo hacia mediados de siglo</h1>
+  <div class="subtitle">Tasa global de fecundidad (TGF)¹, <b>hijos por mujer</b>, mundo, 1950–2100</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 1 — Fecundidad mundial, histórico y proyección</div>
+      <svg viewBox="0 0 810 440" preserveAspectRatio="xMidYMid meet">
+        <line class="gridline" x1="55" y1="60"  x2="760" y2="60"/>
+        <line class="gridline" x1="55" y1="145" x2="760" y2="145"/>
+        <line class="gridline" x1="55" y1="230" x2="760" y2="230"/>
+        <line class="gridline" x1="55" y1="315" x2="760" y2="315"/>
+        <text class="tick-label" x="46" y="64"  text-anchor="end">6</text>
+        <text class="tick-label" x="46" y="149" text-anchor="end">4,5</text>
+        <text class="tick-label" x="46" y="234" text-anchor="end">3</text>
+        <text class="tick-label" x="46" y="319" text-anchor="end">1,5</text>
+        <text class="tick-label" x="46" y="404" text-anchor="end">0</text>
+        <line x1="55" y1="281" x2="760" y2="281" stroke="#B3B3B3" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <text class="anno" x="758" y="270" text-anchor="end">Nivel de reemplazo: 2,1</text>
+        <polyline fill="none" stroke="#2251FF" stroke-width="3.5"
+          points="55,122 102,117 149,128 196,190 243,213 290,247 337,253 403,275"/>
+        <polyline fill="none" stroke="#00A9F4" stroke-width="3.5" stroke-dasharray="9 6"
+          points="403,275 525,287 760,298"/>
+        <circle cx="55"  cy="122" r="5" fill="#2251FF"/>
+        <circle cx="196" cy="190" r="5" fill="#2251FF"/>
+        <circle cx="290" cy="247" r="5" fill="#2251FF"/>
+        <circle cx="403" cy="275" r="6" fill="#051C2C"/>
+        <circle cx="760" cy="298" r="5" fill="#00A9F4"/>
+        <text class="val-label" x="55"  y="105" text-anchor="middle">4,9</text>
+        <text class="val-label" x="196" y="173" text-anchor="middle">3,7</text>
+        <text class="val-label" x="290" y="230" text-anchor="middle">2,8</text>
+        <text class="val-label" x="403" y="258" text-anchor="middle">2,2</text>
+        <text class="val-label" x="742" y="322" text-anchor="middle">1,8</text>
+        <line class="axis" x1="55" y1="400" x2="760" y2="400"/>
+        <text class="tick-label" x="55"  y="422" text-anchor="middle">1950</text>
+        <text class="tick-label" x="196" y="422" text-anchor="middle">1980</text>
+        <text class="tick-label" x="290" y="422" text-anchor="middle">2000</text>
+        <text class="tick-label" x="403" y="422" text-anchor="middle">2024</text>
+        <text class="tick-label" x="525" y="422" text-anchor="middle">2050</text>
+        <text class="tick-label" x="760" y="422" text-anchor="middle">2100</text>
+        <text class="anno-strong" x="440" y="140">Proyección ONU (escenario medio)</text>
+        <text class="anno" x="440" y="158">La TGF mundial cruzaría el umbral de reemplazo</text>
+        <text class="anno" x="440" y="174">hacia ~2050 y seguiría cayendo hasta ~1,8</text>
+        <text class="anno" x="110" y="243">Transición demográfica acelerada:</text>
+        <text class="anno" x="110" y="259">urbanización, educación, planificación familiar</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk">
+        <div class="n">-55%</div>
+        <div class="t">La TGF mundial cayó de <b>4,9 (1950)</b> a <b>2,2 (2024)</b> — la transición demográfica más rápida de la historia</div>
+      </div>
+      <div class="tk">
+        <div class="n">~2050</div>
+        <div class="t">Año en que el mundo cruzaría el <b>umbral de reemplazo (2,1)</b> según el escenario medio de la ONU</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">10,3<small> mm</small></div>
+        <div class="t">Peak de población mundial hacia <b>2084</b>; luego, primer declive sostenido de la era moderna</div>
+      </div>
+      <div class="sowhat"><b>So what</b>La baja fecundidad dejó de ser un fenómeno de países ricos: es la nueva normalidad global, y Chile está en la frontera de esa tendencia</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source"><span class="fn">1. TGF = número promedio de hijos por mujer al final de su vida fértil; proyección corresponde al escenario medio (mediana) de la ONU</span>Fuente: ONU World Population Prospects 2024; análisis del equipo</div>
+    <div class="pageno"><b>3</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4 — REGIONS ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk on">Contexto global</div><div class="trk">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">El mundo está dividido: dos de cada tres personas viven ya en países con fecundidad bajo el nivel de reemplazo</h1>
+  <div class="subtitle">Tasa global de fecundidad por región, <b>hijos por mujer</b>, 2024</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 2 — Fecundidad por región del mundo</div>
+      <svg viewBox="0 0 810 460" preserveAspectRatio="xMidYMid meet">
+        <line x1="60" y1="251" x2="770" y2="251" stroke="#051C2C" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <text class="anno" x="768" y="240" text-anchor="end">Reemplazo: 2,1</text>
+        <rect x="90"  y="94"  width="58" height="306" fill="#051C2C"/>
+        <rect x="176" y="201" width="58" height="199" fill="#2251FF"/>
+        <rect x="262" y="244" width="58" height="156" fill="#2251FF"/>
+        <rect x="348" y="251" width="58" height="149" fill="#2251FF"/>
+        <rect x="434" y="272" width="58" height="128" fill="#00A9F4"/>
+        <rect x="520" y="286" width="58" height="114" fill="#AAE6F0"/>
+        <rect x="606" y="293" width="58" height="107" fill="#AAE6F0"/>
+        <rect x="692" y="300" width="58" height="100" fill="#AAE6F0"/>
+        <text class="val-label" x="119" y="82"  text-anchor="middle" font-size="15">4,3</text>
+        <text class="val-label" x="205" y="189" text-anchor="middle" font-size="15">2,8</text>
+        <text class="val-label" x="291" y="232" text-anchor="middle" font-size="15">2,2</text>
+        <text class="val-label" x="377" y="239" text-anchor="middle" font-size="15">2,1</text>
+        <text class="val-label" x="463" y="260" text-anchor="middle" font-size="15">1,8</text>
+        <text class="val-label" x="549" y="274" text-anchor="middle" font-size="15">1,6</text>
+        <text class="val-label" x="635" y="281" text-anchor="middle" font-size="15">1,5</text>
+        <text class="val-label" x="721" y="288" text-anchor="middle" font-size="15">1,4</text>
+        <line class="axis" x1="60" y1="400" x2="770" y2="400"/>
+        <text class="tick-label" x="119" y="418" text-anchor="middle" font-size="10.5">África</text>
+        <text class="tick-label" x="119" y="431" text-anchor="middle" font-size="10.5">Subsahariana</text>
+        <text class="tick-label" x="205" y="418" text-anchor="middle" font-size="10.5">África N. y</text>
+        <text class="tick-label" x="205" y="431" text-anchor="middle" font-size="10.5">Asia Occ.</text>
+        <text class="tick-label" x="291" y="418" text-anchor="middle" font-size="10.5">Asia</text>
+        <text class="tick-label" x="291" y="431" text-anchor="middle" font-size="10.5">Centro-Sur</text>
+        <text class="tick-label" x="377" y="418" text-anchor="middle" font-size="10.5">Oceanía</text>
+        <text class="tick-label" x="463" y="418" text-anchor="middle" font-size="10.5" font-weight="700" fill="#051C2C">América Latina</text>
+        <text class="tick-label" x="463" y="431" text-anchor="middle" font-size="10.5" font-weight="700" fill="#051C2C">y Caribe</text>
+        <text class="tick-label" x="549" y="418" text-anchor="middle" font-size="10.5">América del</text>
+        <text class="tick-label" x="549" y="431" text-anchor="middle" font-size="10.5">Norte</text>
+        <text class="tick-label" x="635" y="418" text-anchor="middle" font-size="10.5">Asia Or. y</text>
+        <text class="tick-label" x="635" y="431" text-anchor="middle" font-size="10.5">Sudeste</text>
+        <text class="tick-label" x="721" y="418" text-anchor="middle" font-size="10.5">Europa</text>
+        <text class="anno-strong" x="463" y="452" text-anchor="middle">↑ incluye Chile</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk">
+        <div class="n">2/3</div>
+        <div class="t">De la población mundial vive en países con fecundidad <b>bajo el reemplazo</b> — incluidos China, EE.UU., Brasil e India</div>
+      </div>
+      <div class="tk">
+        <div class="n">4,3</div>
+        <div class="t">Solo <b>África Subsahariana</b> mantiene fecundidad alta; concentrará la mayor parte del crecimiento poblacional futuro</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">1,8</div>
+        <div class="t"><b>América Latina ya cayó bajo el reemplazo</b> y converge aceleradamente con Europa (1,4) y Asia Oriental (1,5)</div>
+      </div>
+      <div class="sowhat"><b>So what</b>La competencia global por talento migrante se intensificará: quien actúe primero tendrá ventaja</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: ONU World Population Prospects 2024; análisis del equipo</div>
+    <div class="pageno"><b>4</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5 — CHILE HISTORY ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Contexto global</div><div class="trk on">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">Chile pasó de 2,1 hijos por mujer en 2000 a 1,16 en 2023; los nacimientos anuales cayeron un tercio en poco más de una década</h1>
+  <div class="subtitle">Tasa global de fecundidad (<b>hijos por mujer</b>) y nacimientos anuales (<b>miles de nacidos vivos</b>), Chile</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 3 — Fecundidad y nacimientos en Chile</div>
+      <svg viewBox="0 0 810 450" preserveAspectRatio="xMidYMid meet">
+        <text class="panel-title" x="50" y="26">Tasa global de fecundidad</text>
+        <text class="panel-sub" x="50" y="43">Hijos por mujer, 1960–2023</text>
+        <line class="gridline" x1="50" y1="103" x2="380" y2="103"/>
+        <line class="gridline" x1="50" y1="235" x2="380" y2="235"/>
+        <line x1="50" y1="284" x2="380" y2="284" stroke="#B3B3B3" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <text class="anno" x="378" y="273" text-anchor="end">Reemplazo: 2,1</text>
+        <polyline fill="none" stroke="#2251FF" stroke-width="3.5"
+          points="50,103 102,186 155,241 207,257 260,285 312,296 338,301 364,323 380,336"/>
+        <circle cx="50"  cy="103" r="5" fill="#2251FF"/>
+        <circle cx="207" cy="257" r="5" fill="#2251FF"/>
+        <circle cx="260" cy="285" r="5" fill="#2251FF"/>
+        <circle cx="380" cy="336" r="6" fill="#051C2C"/>
+        <text class="val-label" x="62"  y="95">5,4</text>
+        <text class="val-label" x="207" y="243" text-anchor="middle">2,6</text>
+        <text class="val-label" x="260" y="271" text-anchor="middle">2,1</text>
+        <text class="val-label" x="380" y="360" text-anchor="end">1,16</text>
+        <line class="axis" x1="50" y1="400" x2="380" y2="400"/>
+        <text class="tick-label" x="50"  y="422" text-anchor="middle">1960</text>
+        <text class="tick-label" x="155" y="422" text-anchor="middle">1980</text>
+        <text class="tick-label" x="260" y="422" text-anchor="middle">2000</text>
+        <text class="tick-label" x="364" y="422" text-anchor="middle">2020</text>
+        <line x1="412" y1="15" x2="412" y2="430" stroke="#E6E6E6" stroke-width="1"/>
+        <text class="panel-title" x="445" y="26">Nacimientos anuales</text>
+        <text class="panel-sub" x="445" y="43">Miles de nacidos vivos</text>
+        <rect x="445" y="84"  width="42" height="316" fill="#2251FF"/>
+        <rect x="503" y="131" width="42" height="269" fill="#2251FF"/>
+        <rect x="561" y="141" width="42" height="259" fill="#2251FF"/>
+        <rect x="619" y="147" width="42" height="253" fill="#2251FF"/>
+        <rect x="677" y="200" width="42" height="200" fill="#2251FF"/>
+        <rect x="735" y="221" width="42" height="179" fill="#00A9F4"/>
+        <text class="val-label" x="466" y="72"  text-anchor="middle">307</text>
+        <text class="val-label" x="524" y="119" text-anchor="middle">261</text>
+        <text class="val-label" x="582" y="129" text-anchor="middle">251</text>
+        <text class="val-label" x="640" y="135" text-anchor="middle">245</text>
+        <text class="val-label" x="698" y="188" text-anchor="middle">194</text>
+        <text class="val-label" x="756" y="209" text-anchor="middle">174</text>
+        <line class="axis" x1="445" y1="400" x2="790" y2="400"/>
+        <text class="tick-label" x="466" y="422" text-anchor="middle">1990</text>
+        <text class="tick-label" x="524" y="422" text-anchor="middle">2000</text>
+        <text class="tick-label" x="582" y="422" text-anchor="middle">2010</text>
+        <text class="tick-label" x="640" y="422" text-anchor="middle">2015</text>
+        <text class="tick-label" x="698" y="422" text-anchor="middle">2020</text>
+        <text class="tick-label" x="756" y="422" text-anchor="middle">2023</text>
+        <path d="M 582 58 L 582 48 L 756 48 L 756 58" fill="none" stroke="#666" stroke-width="1.2"/>
+        <text class="anno-strong" x="669" y="40" text-anchor="middle">-31% (2010–23)</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk">
+        <div class="n">1,16</div>
+        <div class="t">Hijos por mujer en 2023 — Chile perdió <b>casi un hijo por mujer en solo dos décadas</b> (2,1 en 2000)</div>
+      </div>
+      <div class="tk">
+        <div class="n">-31%</div>
+        <div class="t">Caída de nacimientos 2010–23 (251 mil → 174 mil): las cohortes escolares de los próximos 15 años <b>ya están definidas</b></div>
+      </div>
+      <div class="tk dark">
+        <div class="n">2x</div>
+        <div class="t">La caída se <b>aceleró post-2015</b>: el ritmo de descenso de la última década duplica el de los 2000</div>
+      </div>
+      <div class="sowhat"><b>So what</b>Chile ya no discute si tendrá el problema de Europa o Japón — lo tiene hoy, con 20 años menos de preparación institucional</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: INE Chile, Estadísticas Vitales; ONU World Population Prospects 2024; análisis del equipo</div>
+    <div class="pageno"><b>5</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 6 — BENCHMARK ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Contexto global</div><div class="trk on">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">Chile ya tiene una fecundidad al nivel de Japón, Italia y España — solo Corea del Sur registra un nivel menor entre economías relevantes</h1>
+  <div class="subtitle">Tasa global de fecundidad, <b>hijos por mujer</b>, países seleccionados, 2023 o último dato disponible</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 4 — Benchmark internacional de fecundidad</div>
+      <svg viewBox="0 0 810 440" preserveAspectRatio="xMidYMid meet">
+        <line x1="620" y1="30" x2="620" y2="425" stroke="#051C2C" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <text class="anno" x="620" y="20" text-anchor="middle">Reemplazo: 2,1</text>
+        <text class="tick-label" x="120" y="63"  text-anchor="end">Corea del Sur</text>
+        <rect x="130" y="45"  width="168" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="306" y="63" font-size="14">0,72</text>
+        <text class="tick-label" x="120" y="101" text-anchor="end" font-weight="700" fill="#051C2C" font-size="13">Chile</text>
+        <rect x="130" y="83"  width="271" height="26" fill="#2251FF"/>
+        <text class="val-label" x="409" y="101" font-size="14" fill="#2251FF">1,16</text>
+        <text class="tick-label" x="120" y="139" text-anchor="end">España</text>
+        <rect x="130" y="121" width="278" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="416" y="139" font-size="14">1,19</text>
+        <text class="tick-label" x="120" y="177" text-anchor="end">Japón</text>
+        <rect x="130" y="159" width="280" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="418" y="177" font-size="14">1,20</text>
+        <text class="tick-label" x="120" y="215" text-anchor="end">Italia</text>
+        <rect x="130" y="197" width="280" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="418" y="215" font-size="14">1,20</text>
+        <text class="tick-label" x="120" y="253" text-anchor="end">Alemania</text>
+        <rect x="130" y="235" width="315" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="453" y="253" font-size="14">1,35</text>
+        <text class="tick-label" x="120" y="291" text-anchor="end">EE.UU.</text>
+        <rect x="130" y="273" width="378" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="516" y="291" font-size="14">1,62</text>
+        <text class="tick-label" x="120" y="329" text-anchor="end">Francia</text>
+        <rect x="130" y="311" width="387" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="525" y="329" font-size="14">1,66</text>
+        <text class="tick-label" x="120" y="367" text-anchor="end">México</text>
+        <rect x="130" y="349" width="420" height="26" fill="#AAE6F0"/>
+        <text class="val-label" x="558" y="367" font-size="14">1,80</text>
+        <text class="tick-label" x="120" y="405" text-anchor="end">Mundo</text>
+        <rect x="130" y="387" width="523" height="26" fill="#051C2C"/>
+        <text class="val-label" x="661" y="405" font-size="14">2,24</text>
+        <text class="anno-strong" x="450" y="63">Chile alcanzó en ~20 años niveles que a</text>
+        <text class="anno-strong" x="450" y="80">Europa le tomaron ~50 años</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk">
+        <div class="n">#2</div>
+        <div class="t">Chile tiene la <b>segunda fecundidad más baja</b> del grupo comparado, solo por sobre Corea del Sur (0,72)</div>
+      </div>
+      <div class="tk">
+        <div class="n">~20<small> años</small></div>
+        <div class="t">Lo que a Europa le tomó medio siglo, Chile lo recorrió en dos décadas — <b>sin tiempo para adaptar</b> pensiones, salud ni ciudades</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">-0,5</div>
+        <div class="t">Brecha vs. Francia (1,66), el país OCDE con <b>política familiar más agresiva</b> — el benchmark de referencia</div>
+      </div>
+      <div class="sowhat"><b>So what</b>El caso coreano muestra el riesgo de no actuar: bajo ~1,0 la recuperación es muy difícil y costosa</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source"><span class="fn">1. Cifras 2023; países seleccionados por relevancia comparativa (OCDE y pares regionales)</span>Fuente: INE Chile; OCDE Family Database; Banco Mundial; análisis del equipo</div>
+    <div class="pageno"><b>6</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 7 — DRIVERS ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Contexto global</div><div class="trk on">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">La caída responde a factores estructurales — postergación, costos y nuevas preferencias — y no a un shock transitorio</h1>
+  <div class="subtitle">Principales drivers de la baja fecundidad en Chile, con indicadores seleccionados</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 5 — Drivers de la caída de la natalidad</div>
+      <div class="cols3">
+        <div class="drv">
+          <div class="drv-head"><span>A</span>Postergación biográfica</div>
+          <div class="drv-body">
+            <div class="drv-item">Edad promedio del primer hijo subió de ~24 a ~30 años en tres décadas</div>
+            <div class="drv-item">Mayor escolaridad femenina y entrada más tardía a la vida laboral estable</div>
+            <div class="drv-item">Postergar comprime la ventana fértil y reduce el número final de hijos</div>
+          </div>
+        </div>
+        <div class="drv">
+          <div class="drv-head"><span>B</span>Barreras económicas</div>
+          <div class="drv-body">
+            <div class="drv-item">Costo de vivienda, educación y cuidado infantil percibido como incompatible con más hijos</div>
+            <div class="drv-item">Penalidad laboral de la maternidad: brecha de ingresos persistente post-hijo</div>
+            <div class="drv-item">Oferta insuficiente de salas cuna y jornadas flexibles</div>
+          </div>
+        </div>
+        <div class="drv">
+          <div class="drv-head"><span>C</span>Cambio de preferencias</div>
+          <div class="drv-body">
+            <div class="drv-item">Ideal de familia más pequeña; valoración de proyectos personales y profesionales</div>
+            <div class="drv-item">Incertidumbre económica y social pospone decisiones de largo plazo</div>
+            <div class="drv-item">Menos matrimonios y uniones más tardías e inestables</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:12px;"><b>Implicación:</b> ninguno de estos factores se revierte espontáneamente — sin intervención, la fecundidad tiende a estabilizarse en niveles bajos ("trampa de baja fecundidad")</div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Los números detrás</div>
+      <div class="tk">
+        <div class="n">~30<small> años</small></div>
+        <div class="t">Edad promedio de la madre al primer hijo <b>(vs. ~24 en 1990)</b> — driver A</div>
+      </div>
+      <div class="tk">
+        <div class="n">-17<small> p.p.</small></div>
+        <div class="t">Caída aproximada del ingreso laboral femenino tras el primer hijo, <b>persistente en el tiempo</b> ("child penalty") — driver B</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">&lt;2</div>
+        <div class="t">Hijos deseados promedio que declaran las nuevas generaciones: <b>incluso el ideal cayó</b> bajo el reemplazo — driver C</div>
+      </div>
+      <div class="sowhat"><b>So what</b>Una política efectiva debe atacar los tres frentes a la vez; subsidios aislados no mueven la aguja</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: INE; Encuesta Casen; OCDE Family Database; literatura académica (child penalty); análisis del equipo</div>
+    <div class="pageno"><b>7</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 8 — PROJECTIONS ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Contexto global</div><div class="trk">Chile</div><div class="trk on">Proyecciones</div><div class="trk">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Escenario medio</div>
+  </div>
+  <h1 class="action-title">Sin cambios, la población de Chile alcanzará su máximo hacia ~2050 y uno de cada cuatro chilenos tendrá 65 años o más</h1>
+  <div class="subtitle">Población total (<b>millones</b>) y población de 65+ años (<b>% del total</b>), Chile, escenario medio ONU</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 6 — Población total y envejecimiento</div>
+      <svg viewBox="0 0 810 460" preserveAspectRatio="xMidYMid meet">
+        <text class="panel-title" x="50" y="26">Población total de Chile</text>
+        <text class="panel-sub" x="50" y="43">Millones de habitantes, 1990–2100</text>
+        <line class="gridline" x1="50" y1="140" x2="380" y2="140"/>
+        <line class="gridline" x1="50" y1="260" x2="380" y2="260"/>
+        <polyline fill="none" stroke="#2251FF" stroke-width="3.5"
+          points="50,344 78,278 106,230 146,146"/>
+        <polyline fill="none" stroke="#00A9F4" stroke-width="3.5" stroke-dasharray="9 6"
+          points="146,146 219,122 290,161 360,215"/>
+        <circle cx="50"  cy="344" r="5" fill="#2251FF"/>
+        <circle cx="146" cy="146" r="6" fill="#051C2C"/>
+        <circle cx="219" cy="122" r="6" fill="#2251FF"/>
+        <circle cx="360" cy="215" r="5" fill="#00A9F4"/>
+        <text class="val-label" x="50"  y="368" text-anchor="middle">13,2</text>
+        <text class="val-label" x="146" y="132" text-anchor="middle">19,8</text>
+        <text class="val-label" x="219" y="106" text-anchor="middle">~20,6</text>
+        <text class="val-label" x="360" y="240" text-anchor="middle">~17,5</text>
+        <line x1="219" y1="130" x2="219" y2="330" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <text class="anno-strong" x="228" y="300">Peak poblacional</text>
+        <text class="anno" x="228" y="316">hacia ~2050</text>
+        <line class="axis" x1="50" y1="400" x2="380" y2="400"/>
+        <text class="tick-label" x="50"  y="422" text-anchor="middle">1990</text>
+        <text class="tick-label" x="146" y="422" text-anchor="middle">2024</text>
+        <text class="tick-label" x="219" y="422" text-anchor="middle">2050</text>
+        <text class="tick-label" x="290" y="422" text-anchor="middle">2075</text>
+        <text class="tick-label" x="360" y="422" text-anchor="middle">2100</text>
+        <line x1="412" y1="15" x2="412" y2="430" stroke="#E6E6E6" stroke-width="1"/>
+        <text class="panel-title" x="445" y="26">Población de 65+ años</text>
+        <text class="panel-sub" x="445" y="43">% de la población total</text>
+        <rect x="460" y="240" width="70" height="140" fill="#AAE6F0"/>
+        <rect x="580" y="190" width="70" height="190" fill="#00A9F4"/>
+        <rect x="700" y="130" width="70" height="250" fill="#2251FF"/>
+        <text class="val-label" x="495" y="226" text-anchor="middle" font-size="17">14%</text>
+        <text class="val-label" x="615" y="176" text-anchor="middle" font-size="17">19%</text>
+        <text class="val-label" x="735" y="116" text-anchor="middle" font-size="17">25%</text>
+        <line class="axis" x1="445" y1="380" x2="790" y2="380"/>
+        <text class="tick-label" x="495" y="402" text-anchor="middle">2024</text>
+        <text class="tick-label" x="615" y="402" text-anchor="middle">2035</text>
+        <text class="tick-label" x="735" y="402" text-anchor="middle">2050</text>
+        <text class="anno" x="445" y="435">Razón de dependencia: de ~4 personas en edad de</text>
+        <text class="anno" x="445" y="450">trabajar por adulto mayor hoy, a ~2 hacia 2050</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk">
+        <div class="n">~2050</div>
+        <div class="t">Peak de <b>~20,6 millones</b> de habitantes; luego el país entra en declive poblacional sostenido</div>
+      </div>
+      <div class="tk">
+        <div class="n">25%</div>
+        <div class="t">De la población tendrá <b>65+ años al 2050</b> (vs. 14% hoy) — el perfil etario de la Europa actual</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">4 → 2</div>
+        <div class="t">Personas en edad de trabajar por cada adulto mayor: la <b>razón de dependencia se duplica</b> en 25 años</div>
+      </div>
+      <div class="sowhat"><b>So what</b>La migración puede desplazar el peak algunos años, pero no cambia la tendencia: el envejecimiento ya está "cocinado" en la pirámide actual</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source"><span class="fn">1. Escenario medio; el año exacto del peak depende del supuesto migratorio (rango 2045–2060 entre escenarios)</span>Fuente: ONU World Population Prospects 2024; INE proyecciones de población; análisis del equipo</div>
+    <div class="pageno"><b>8</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9 — IMPLICATIONS ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Contexto global</div><div class="trk">Chile</div><div class="trk">Proyecciones</div><div class="trk on">Implicancias</div><div class="trk">Recomendaciones</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">El envejecimiento presionará el crecimiento, las pensiones y la salud — los efectos se sentirán antes de lo que se cree</h1>
+  <div class="subtitle">Principales impactos esperados de la transición demográfica en Chile, 2025–2050</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 7 — Impactos económicos y sociales</div>
+      <div class="grid2">
+        <div class="imp">
+          <div class="imp-tag">Crecimiento</div>
+          <div class="imp-title">Menos fuerza laboral, menos PIB potencial</div>
+          <div class="imp-txt">La población en edad de trabajar se estanca esta década y luego cae; sin ganancias de productividad, el crecimiento potencial se reduce estructuralmente</div>
+          <div class="imp-num">-0,5 a -1,0 p.p.<span>de crecimiento potencial anual hacia 2050</span></div>
+        </div>
+        <div class="imp">
+          <div class="imp-tag">Pensiones</div>
+          <div class="imp-title">La base contributiva se estrecha</div>
+          <div class="imp-txt">Menos cotizantes por pensionado presiona el pilar contributivo y el gasto fiscal en pilar solidario (PGU)</div>
+          <div class="imp-num">4 → 2<span>personas en edad de trabajar por adulto de 65+, 2024–2050</span></div>
+        </div>
+        <div class="imp">
+          <div class="imp-tag">Salud y cuidados</div>
+          <div class="imp-title">Demanda creciente de salud y cuidado de largo plazo</div>
+          <div class="imp-txt">El gasto en salud se concentra en edades avanzadas; el déficit de cuidadores y de infraestructura geriátrica se ampliará</div>
+          <div class="imp-num">2–3x<span>gasto sanitario per cápita de un adulto 65+ vs. un adulto joven</span></div>
+        </div>
+        <div class="imp">
+          <div class="imp-tag">Educación y ciudades</div>
+          <div class="imp-title">Capacidad instalada excedente y reconversión</div>
+          <div class="imp-txt">Matrícula escolar en declive obliga a consolidar establecimientos y reconvertir infraestructura; algunas comunas ya pierden población</div>
+          <div class="imp-num">-31%<span>de nacimientos 2010–23 define las cohortes escolares próximas</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk">
+        <div class="n">-1<small> p.p.</small></div>
+        <div class="t">De crecimiento potencial anual en juego: equivale a <b>perder ~un tercio del crecimiento tendencial</b> de Chile</div>
+      </div>
+      <div class="tk">
+        <div class="n">2030s</div>
+        <div class="t">Década en que la presión fiscal de pensiones y salud <b>se vuelve estructural</b> — no es un problema de 2050</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">15<small> años</small></div>
+        <div class="t">De anticipación efectiva: los nacimientos que faltan hoy son los <b>trabajadores que faltarán en 2040</b></div>
+      </div>
+      <div class="sowhat"><b>So what</b>Cada año de inacción encarece la transición; el costo fiscal de esperar crece de forma no lineal</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: ONU World Population Prospects 2024; OCDE; literatura de crecimiento y demografía; análisis del equipo</div>
+    <div class="pageno"><b>9</b> / 10</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 10 — RECOMMENDATIONS ============ -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Contexto global</div><div class="trk">Chile</div><div class="trk">Proyecciones</div><div class="trk">Implicancias</div><div class="trk on">Recomendaciones</div>
+    </div>
+    <div class="sticker">Agenda de acción</div>
+  </div>
+  <h1 class="action-title">La respuesta requiere un portafolio integral: apoyar a las familias, adaptar la economía y gestionar la transición con anticipación</h1>
+  <div class="subtitle">Tres pilares, nueve palancas y una hoja de ruta a 24 meses</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 8 — Agenda de acción propuesta</div>
+      <table class="rec-table">
+        <tr>
+          <th><span class="roman">Pilar I</span>Apoyar la decisión de tener hijos</th>
+          <th><span class="roman">Pilar II</span>Adaptar la economía y el Estado</th>
+          <th><span class="roman">Pilar III</span>Gestionar la transición</th>
+        </tr>
+        <tr>
+          <td><b>Cuidado infantil universal:</b> sala cuna garantizada y de calidad, desacoplada del contrato de la madre</td>
+          <td><b>Productividad:</b> automatización, IA y capacitación para compensar una fuerza laboral menguante</td>
+          <td><b>Sostenibilidad fiscal:</b> proyectar y presupuestar hoy el gasto 2035–50 en pensiones y salud</td>
+        </tr>
+        <tr>
+          <td><b>Corresponsabilidad:</b> postnatal parental efectivo y flexibilidad laboral real para madres y padres</td>
+          <td><b>Participación:</b> elevar empleo femenino y de mayores de 55 con jornadas flexibles y reconversión</td>
+          <td><b>Reconversión de infraestructura:</b> plan de consolidación escolar y expansión de capacidad geriátrica</td>
+        </tr>
+        <tr>
+          <td><b>Costo de formar familia:</b> acceso a vivienda para familias jóvenes; transferencias por hijo simples y significativas</td>
+          <td><b>Migración ordenada:</b> política selectiva orientada a brechas de talento y sectores críticos</td>
+          <td><b>Institucionalidad:</b> unidad de demografía con metas, tablero público y evaluación rigurosa</td>
+        </tr>
+      </table>
+      <div class="next-steps">
+        <div class="step"><b>Próximos 90 días</b>Diagnóstico fino por región y quintil; línea base de indicadores</div>
+        <div class="step"><b>6–12 meses</b>Diseño y costeo del paquete integral; pilotos de cuidado infantil y flexibilidad</div>
+        <div class="step"><b>12–24 meses</b>Escalamiento nacional, tablero público de seguimiento y ajuste continuo</div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Por qué así</div>
+      <div class="tk">
+        <div class="n">+0,2–0,3</div>
+        <div class="t">Hijos por mujer de ventaja logran los <b>paquetes integrales y sostenidos</b> (nórdicos, Francia)</div>
+      </div>
+      <div class="tk">
+        <div class="n">0</div>
+        <div class="t">Países que han revertido la caída <b>solo con bonos aislados</b> — la evidencia es categórica</div>
+      </div>
+      <div class="tk dark">
+        <div class="n">24<small> meses</small></div>
+        <div class="t">Horizonte de diagnóstico a <b>escalamiento nacional</b> con tablero público</div>
+      </div>
+      <div class="sowhat"><b>So what</b>El objetivo realista no es volver a 2,1 — es estabilizar la fecundidad y ganar tiempo para adaptar la economía</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: Benchmarks OCDE de política familiar; experiencia Francia, países nórdicos, Corea del Sur y Hungría; análisis del equipo</div>
+    <div class="pageno"><b>10</b> / 10</div>
+  </div>
+</section>
+
+</div>
+
+<div id="edit-toolbar">
+  <button id="editToggle" class="primary" title="Activar / desactivar edición">✏️ Editar</button>
+  <div class="align-grp">
+    <span class="sep"></span>
+    <button data-align="left" title="Alinear a la izquierda">Izq</button>
+    <button data-align="center" title="Centrar">Centro</button>
+    <button data-align="right" title="Alinear a la derecha">Der</button>
+    <span class="sep"></span>
+    <button id="downloadBtn" class="primary" title="Descargar el archivo con tus cambios">⬇ Descargar</button>
+  </div>
+  <span class="hint">Haz click en cualquier texto y escribe. Luego usa Izq / Centro / Der para alinear.</span>
+</div>
+
+<div id="nav">
+  <button id="prev" title="Anterior (←)">‹</button>
+  <span id="counter">1 / 10</span>
+  <button id="next" title="Siguiente (→)">›</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let cur = 0;
+  function fit(){
+    const s = Math.min(window.innerWidth/1320, window.innerHeight/770, 1);
+    slides.forEach(sl => sl.style.transform = `scale(${s})`);
+  }
+  function show(i){
+    cur = Math.max(0, Math.min(slides.length-1, i));
+    slides.forEach((sl,k)=>sl.classList.toggle('active', k===cur));
+    document.getElementById('counter').textContent = `${cur+1} / ${slides.length}`;
+  }
+  document.getElementById('prev').onclick = ()=>show(cur-1);
+  document.getElementById('next').onclick = ()=>show(cur+1);
+  window.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') show(cur+1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp') show(cur-1);
+    if(e.key==='Home') show(0);
+    if(e.key==='End') show(slides.length-1);
+  });
+  window.addEventListener('resize', fit);
+
+  /* ---------- Edit mode ---------- */
+  // Selectors of text elements that become editable (HTML text; SVG chart text stays code-only)
+  const EDITABLE_SEL = 'h1.action-title, h2, .subtitle, .kicker, .exhibit-label, .sidebar-label,'
+    + ' .tk .t, .sowhat, .callout, .exec-item .txt, .exec-item .big, .drv-head, .drv-item,'
+    + ' .imp-tag, .imp-title, .imp-txt, .imp-num, .rec-table td, .rec-table th, .step,'
+    + ' .source, .cs .c, .cover h1, .cover h2, .panel-title, .tracker .trk, .sticker';
+  const editables = Array.from(document.querySelectorAll(EDITABLE_SEL));
+  editables.forEach(el => el.setAttribute('data-editable',''));
+
+  const toolbar = document.getElementById('edit-toolbar');
+  const editToggle = document.getElementById('editToggle');
+  let editing = false;
+  let lastFocused = null;
+
+  function setEditing(on){
+    editing = on;
+    document.body.classList.toggle('edit-mode', on);
+    toolbar.classList.toggle('editing', on);
+    editToggle.classList.toggle('on', on);
+    editToggle.textContent = on ? '✓ Editando' : '✏️ Editar';
+    editables.forEach(el => el.contentEditable = on ? 'true' : 'false');
+  }
+  editToggle.onclick = ()=> setEditing(!editing);
+
+  // remember which editable is focused so alignment buttons know the target
+  document.addEventListener('focusin', e=>{
+    if(e.target.hasAttribute && e.target.hasAttribute('data-editable')) lastFocused = e.target;
+  });
+
+  document.querySelectorAll('#edit-toolbar [data-align]').forEach(btn=>{
+    btn.addEventListener('mousedown', e=> e.preventDefault()); // keep focus on the text
+    btn.onclick = ()=>{
+      const target = lastFocused || (document.activeElement.hasAttribute
+        && document.activeElement.hasAttribute('data-editable') ? document.activeElement : null);
+      if(target) target.style.textAlign = btn.dataset.align;
+    };
+  });
+
+  // Download the current state (with edits) as a clean HTML file
+  document.getElementById('downloadBtn').onclick = ()=>{
+    const wasEditing = editing;
+    setEditing(false);                         // strip contenteditable before export
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelectorAll('[data-editable]').forEach(el=>{
+      el.removeAttribute('data-editable'); el.removeAttribute('contenteditable');
+    });
+    const tb = clone.querySelector('#edit-toolbar'); if(tb) tb.remove();
+    const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    const blob = new Blob([html], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'deck_natalidad_editado.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    if(wasEditing) setEditing(true);
+  };
+
+  fit(); show(0);
+</script>
+</body>
+</html>

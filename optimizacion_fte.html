@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimización de FTEs — Línea de Bebidas</title>
+<style>
+  :root{
+    --navy:#051c2c; --navy2:#0a2e44; --blue:#2251ff; --cyan:#00a9f4;
+    --teal:#00c9a7; --amber:#ffb84d; --red:#ff5a5a;
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1c2b36; --muted:#6b7c8a;
+    --line:#dde5ec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink);}
+
+  header{background:var(--navy); color:#fff; padding:18px 28px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  header h1{font-size:20px; font-weight:600; letter-spacing:.3px;}
+  header span{color:#9fb8c9; font-size:13px;}
+
+  .wrap{max-width:1500px; margin:0 auto; padding:18px 22px 60px;}
+
+  /* KPI cards */
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:16px;}
+  .kpi{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 16px;}
+  .kpi .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:4px;}
+  .kpi .val{font-size:26px; font-weight:700; color:var(--navy);}
+  .kpi .sub{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .kpi.hl{border-left:4px solid var(--blue);}
+  .kpi .val.good{color:var(--teal);} .kpi .val.bad{color:var(--red);}
+
+  .banner{display:none; background:#fff1f1; border:1px solid var(--red); color:#a02020;
+    border-radius:8px; padding:10px 16px; margin-bottom:14px; font-size:13.5px; font-weight:600;}
+
+  .grid{display:grid; grid-template-columns:330px 1fr; gap:16px; align-items:start;}
+  .grid > *{min-width:0;}
+  @media(max-width:1000px){ .grid{grid-template-columns:1fr;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .card h2{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--navy); margin-bottom:12px;
+    border-bottom:2px solid var(--line); padding-bottom:8px;}
+
+  /* sliders */
+  .ctl{margin-bottom:13px;}
+  .ctl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;}
+  .ctl label{font-size:12.5px; font-weight:600; color:var(--ink);}
+  .ctl output{font-size:13px; font-weight:700; color:var(--blue); font-variant-numeric:tabular-nums;}
+  .ctl input[type=range]{width:100%; accent-color:var(--blue); height:22px; cursor:pointer;}
+  .ctl .hint{font-size:10.5px; color:var(--muted); line-height:1.35;}
+  .ctl.star label{color:var(--blue);}
+  .divider{border-top:1px dashed var(--line); margin:14px 0 12px; position:relative;}
+  .divider span{position:absolute; top:-8px; left:0; background:var(--card); padding-right:8px;
+    font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted);}
+
+  .oee-pill{display:flex; gap:8px; margin:4px 0 14px;}
+  .oee-pill div{flex:1; text-align:center; background:var(--navy); color:#fff; border-radius:8px; padding:7px 4px;}
+  .oee-pill .n{font-size:17px; font-weight:700;}
+  .oee-pill .t{font-size:9.5px; text-transform:uppercase; letter-spacing:.6px; color:#9fb8c9;}
+
+  /* plant SVG */
+  .plant-card{padding:10px 12px 6px;}
+  .plant-scroll{overflow-x:auto;}
+  svg#plant{display:block; min-width:1000px; width:100%;}
+  .st-name{font-size:11.5px; font-weight:700; fill:var(--navy);}
+  .st-crew{font-size:11px; font-weight:700; fill:var(--blue);}
+
+  .legend{display:flex; gap:18px; padding:6px 8px 8px; font-size:11px; color:var(--muted); flex-wrap:wrap;}
+  .legend b{color:var(--navy);}
+  .dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:middle;}
+
+  .charts{display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-top:16px;}
+  .charts > *{min-width:0; overflow-x:auto;}
+  @media(max-width:1000px){ .charts{grid-template-columns:1fr;} }
+  canvas{width:100%; height:260px; display:block;}
+
+  table.staff{width:100%; border-collapse:collapse; font-size:12.5px; margin-top:4px;}
+  table.staff th{ text-align:left; color:var(--muted); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:.6px; padding:4px 6px; border-bottom:1px solid var(--line);}
+  table.staff td{padding:5px 6px; border-bottom:1px solid #eef2f6; font-variant-numeric:tabular-nums;}
+  table.staff td:last-child, table.staff th:last-child{text-align:right;}
+  table.staff tr.total td{font-weight:700; border-top:2px solid var(--navy); border-bottom:none;}
+
+  details.model{margin-top:18px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 20px;}
+  details.model summary{cursor:pointer; font-weight:700; color:var(--navy); font-size:14px;}
+  details.model .body{font-size:13px; line-height:1.6; color:#33454f; margin-top:10px;}
+  details.model code{background:#eef3f8; padding:1px 6px; border-radius:4px; font-size:12px;}
+  details.model h3{font-size:13px; margin:12px 0 4px; color:var(--navy);}
+  details.model a{color:var(--blue);}
+  details.model ul{margin:4px 0 8px 20px;}
+
+  .btn{background:var(--navy); color:#fff; border:none; border-radius:7px; padding:8px 14px;
+    font-size:12px; font-weight:600; cursor:pointer; letter-spacing:.4px;}
+  .btn:hover{background:var(--navy2);}
+  .btn.ghost{background:#fff; color:var(--navy); border:1px solid var(--line);}
+  .presets{display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Optimización de FTEs — Planta de Bebidas Punta a Punta</h1>
+  <span>Simulador de dotación · OEE × Wrench Time × Polivalencia</span>
+</header>
+
+<div class="wrap">
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi hl"><div class="lbl">Dotación total</div><div class="val" id="kTotal">–</div><div class="sub" id="kTotalSub"></div></div>
+    <div class="kpi"><div class="lbl">Δ vs. línea base</div><div class="val" id="kDelta">–</div><div class="sub" id="kDeltaSub"></div></div>
+    <div class="kpi"><div class="lbl">Ahorro anual</div><div class="val" id="kSave">–</div><div class="sub">vs. base (WT 30% · OEE 57%)</div></div>
+    <div class="kpi"><div class="lbl">Productividad</div><div class="val" id="kProd">–</div><div class="sub">cajas / FTE / día</div></div>
+    <div class="kpi"><div class="lbl">OEE</div><div class="val" id="kOee">–</div><div class="sub" id="kOeeSub"></div></div>
+    <div class="kpi"><div class="lbl">Horas programadas</div><div class="val" id="kHrs">–</div><div class="sub" id="kShifts"></div></div>
+  </div>
+
+  <div class="banner" id="banner">⚠ La demanda no es alcanzable en 22 h de operación con este OEE y velocidad. Sube OEE, velocidad, o baja demanda.</div>
+
+  <div class="grid">
+
+    <!-- Controls -->
+    <div class="card">
+      <h2>Palancas de optimización</h2>
+
+      <div class="ctl star">
+        <div class="row"><label>🔧 Wrench time (tiempo efectivo)</label><output id="oWt">35%</output></div>
+        <input type="range" id="wt" min="25" max="65" value="35" step="1">
+        <div class="hint">Típico industria: 25–35% · Con planificación: 45% · World-class: 55–65%</div>
+      </div>
+
+      <div class="divider"><span>OEE (equipos)</span></div>
+
+      <div class="ctl">
+        <div class="row"><label>Disponibilidad</label><output id="oAv">80%</output></div>
+        <input type="range" id="av" min="55" max="95" value="80" step="1">
+        <div class="hint">Paradas no planificadas, fallas de equipo</div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Rendimiento</label><output id="oPf">85%</output></div>
+        <input type="range" id="pf" min="60" max="100" value="85" step="1">
+        <div class="hint">Microparadas y velocidad reducida vs. nominal</div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Calidad (FTT)</label><output id="oQl">97%</output></div>
+        <input type="range" id="ql" min="88" max="100" value="97" step="0.5">
+        <div class="hint">Merma y retrabajo (first-time-through)</div>
+      </div>
+
+      <div class="oee-pill">
+        <div><div class="n" id="pOee">66%</div><div class="t">OEE</div></div>
+        <div><div class="n" id="pRate">–</div><div class="t">cajas/h efect.</div></div>
+      </div>
+
+      <div class="divider"><span>Organización del trabajo</span></div>
+
+      <div class="ctl">
+        <div class="row"><label>Ausentismo</label><output id="oAb">6%</output></div>
+        <input type="range" id="ab" min="0" max="15" value="6" step="0.5">
+        <div class="hint">Licencias, atrasos, vacaciones no cubiertas</div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Polivalencia (multi-skilling)</label><output id="oPo">20%</output></div>
+        <input type="range" id="po" min="0" max="100" value="20" step="5">
+        <div class="hint">% de operadores certificados en ≥3 estaciones → permite compartir gente entre puestos (pooling)</div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Cambios de formato / día</label><output id="oCo">2</output></div>
+        <input type="range" id="co" min="0" max="6" value="2" step="1">
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Duración cambio (SMED)</label><output id="oCd">45 min</output></div>
+        <input type="range" id="cd" min="10" max="120" value="45" step="5">
+        <div class="hint">World-class con SMED: &lt;15 min</div>
+      </div>
+
+      <div class="divider"><span>Demanda y línea</span></div>
+
+      <div class="ctl">
+        <div class="row"><label>Demanda</label><output id="oDm">20.000 cajas/día</output></div>
+        <input type="range" id="dm" min="5000" max="50000" value="20000" step="1000">
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Velocidad nominal</label><output id="oSp">500 bpm</output></div>
+        <input type="range" id="sp" min="200" max="900" value="500" step="20">
+        <div class="hint">Botellas/min · caja = 12 botellas</div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label>Costo total empresa por FTE</label><output id="oCt">USD 22.000/año</output></div>
+        <input type="range" id="ct" min="10000" max="60000" value="22000" step="1000">
+      </div>
+
+      <div class="presets">
+        <button class="btn ghost" onclick="preset('typ')">Planta típica</button>
+        <button class="btn ghost" onclick="preset('good')">Buenas prácticas</button>
+        <button class="btn" onclick="preset('wc')">World-class</button>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div>
+      <div class="card plant-card">
+        <h2 style="margin-bottom:6px;">Línea de producción — personas requeridas por turno</h2>
+        <div class="plant-scroll"><svg id="plant" viewBox="0 0 1400 365" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--navy)"></span><b>Operador requerido</b></span>
+          <span><span class="dot" style="background:#b9c9d6"></span>Persona que se libera al mejorar palancas</span>
+          <span><span class="dot" style="background:var(--cyan)"></span>Flujo de producto</span>
+          <span id="legShifts"></span>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="card">
+          <h2>Curva FTEs vs. Wrench Time (resto de palancas constante)</h2>
+          <canvas id="curve" width="760" height="260"></canvas>
+        </div>
+        <div class="card">
+          <h2>Desglose de dotación (FTEs totales)</h2>
+          <table class="staff" id="staffTbl"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <details class="model">
+    <summary>📘 Modelo de cálculo, benchmarks y fuentes</summary>
+    <div class="body">
+      <h3>Lógica del modelo</h3>
+      <ul>
+        <li><b>Horas de línea:</b> <code>horas = demanda / (velocidad_nominal × OEE)</code> + tiempo de cambios de formato. El OEE (Disponibilidad × Rendimiento × Calidad) alarga la jornada necesaria: a menor OEE, más horas de línea → más horas-hombre.</li>
+        <li><b>FTEs directos por estación:</b> cada estación demanda <code>b</code> horas efectivas de trabajo por hora de línea. Un operador entrega <code>8h × wrench_time × (1 − ausentismo)</code> horas efectivas por turno, entonces <code>FTE = b × horas_línea / (8 × WT × (1−aus))</code>. Subir el wrench time reduce personas de forma directa e inversa.</li>
+        <li><b>Polivalencia (pooling):</b> sin polivalencia cada estación redondea hacia arriba su dotación (la fracción se pierde); con 100% de polivalencia el redondeo se hace sobre el total de la línea. Es la palanca que captura las "medias personas".</li>
+        <li><b>Mantenimiento:</b> las horas de falla (<code>horas_línea × (1 − disponibilidad)</code>) generan carga de técnicos, también divididas por su wrench time — el uso clásico del indicador.</li>
+        <li><b>Calidad:</b> el retrabajo por merma (<code>1 − calidad</code>) agrega horas de manipulación además del inspector base por turno.</li>
+      </ul>
+      <h3>Benchmarks de la industria</h3>
+      <ul>
+        <li><b>Wrench time:</b> típico 25–35%; con planificación y programación formal se llega a ~45% (equivale a +35% de capacidad sin contratar); world-class 55–65%.</li>
+        <li><b>OEE en alimentos y bebidas:</b> típico 55–65%; world-class 85%. Pasar de 60% a 75% de OEE equivale a +15% de capacidad sin CAPEX.</li>
+        <li><b>SMED:</b> el cambio de formato es la palanca más controlable de corto plazo; objetivo &lt;10–15 min.</li>
+        <li><b>Ausentismo y polivalencia:</b> las matrices de habilidades (skill matrix) permiten cubrir ausencias sin dotación de respaldo dedicada.</li>
+      </ul>
+      <h3>Otras variables para seguir jugando (no incluidas como slider)</h3>
+      <ul>
+        <li><b>Nivel de automatización</b> por estación (paletizado y empaque son los primeros candidatos).</li>
+        <li><b>Patrón de turnos</b> (4×3, 5×2, turnos de 12 h) y factor de relevo para operación 24/7.</li>
+        <li><b>Curva de aprendizaje</b> y rotación de personal (afecta el rendimiento del OEE).</li>
+        <li><b>Mantenimiento predictivo</b> (sube disponibilidad y baja la carga correctiva a la vez).</li>
+      </ul>
+      <h3>Fuentes</h3>
+      <ul>
+        <li><a href="https://www.innovapptive.com/blog/wrench-time" target="_blank">Wrench Time: Formula, Benchmarks and How to Improve — Innovapptive</a></li>
+        <li><a href="https://www.prometheusgroup.com/resources/posts/5-things-you-need-to-know-about-measuring-wrench-time" target="_blank">Measuring Wrench Time — Prometheus Group</a></li>
+        <li><a href="https://maintboard.com/wrench-time" target="_blank">Guide to Wrench Time — MaintBoard</a></li>
+        <li><a href="https://teeptrak.com/en/oee-in-the-food-beverage-industry-performance-optimization/" target="_blank">OEE in Food & Beverage — TeepTrak</a></li>
+        <li><a href="https://ifactoryapp.com/industries/food-manufacturing/oee-improvement-strategies-food-beverage-production-lines" target="_blank">OEE Improvement Strategies for F&B Lines — iFactory</a></li>
+        <li><a href="https://www.vorne.com/solutions/industries/food-and-beverage/" target="_blank">OEE for Food & Beverage Manufacturing — Vorne</a></li>
+        <li><a href="https://www.tandfonline.com/doi/full/10.1080/00207543.2024.2347572" target="_blank">Assembly line worker integration & balancing — Intl. Journal of Production Research</a></li>
+      </ul>
+    </div>
+  </details>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- configuración de la línea ---------- */
+const BOTTLES_PER_CASE = 12;
+const SHIFT_H = 8;
+const MAX_OP_H = 22;          // 2h reservadas a sanitización diaria
+const STATIONS = [
+  {id:'depal',  name:'Depaletizado',    icon:'📦', base:0.35},
+  {id:'rinser', name:'Rinser/Lavado',   icon:'🚿', base:0.20},
+  {id:'mix',    name:'Sala de jarabes', icon:'⚗️', base:0.50},
+  {id:'filler', name:'Llenado/Tapado',  icon:'🍾', base:0.70},
+  {id:'label',  name:'Etiquetado',      icon:'🏷️', base:0.45},
+  {id:'insp',   name:'Inspección',      icon:'🔍', base:0.35},
+  {id:'pack',   name:'Empaque',         icon:'🧃', base:0.60},
+  {id:'palet',  name:'Paletizado',      icon:'🤖', base:0.35},
+  {id:'wh',     name:'Bodega PT',       icon:'🚜', base:0.70},
+];
+
+/* línea base para comparar ahorros: planta típica sin programa de mejora */
+const BASELINE = {wt:.30, av:.75, pf:.80, ql:.95, ab:.08, po:0, co:2, cd:60};
+
+const $ = id => document.getElementById(id);
+const IDS = ['wt','av','pf','ql','ab','po','co','cd','dm','sp','ct'];
+
+function readInputs(){
+  return {
+    wt:+$('wt').value/100, av:+$('av').value/100, pf:+$('pf').value/100, ql:+$('ql').value/100,
+    ab:+$('ab').value/100, po:+$('po').value/100, co:+$('co').value, cd:+$('cd').value,
+    dm:+$('dm').value, sp:+$('sp').value, ct:+$('ct').value
+  };
+}
+
+/* ---------- modelo ---------- */
+function compute(p){
+  const oee = p.av*p.pf*p.ql;
+  const caseRateNom = p.sp*60/BOTTLES_PER_CASE;      // cajas/h nominal
+  const caseRateEff = caseRateNom*oee;
+  const runHours = p.dm/caseRateEff;                  // horas reloj de línea (incluye pérdidas OEE)
+  const coHours  = p.co*p.cd/60;
+  const schedHours = runHours + coHours;
+  const feasible = schedHours <= MAX_OP_H;
+  const shifts = Math.min(3, Math.max(1, Math.ceil(schedHours/SHIFT_H)));
+
+  const effFactor = p.wt*(1-p.ab);                    // horas efectivas por hora de presencia
+
+  // dotación directa por estación (FTEs día = presencia total / 8h)
+  const stRaw = STATIONS.map(s => s.base*schedHours/(effFactor*SHIFT_H));
+  const crewRaw = stRaw.map(v => v/shifts);           // personas por turno (fraccional)
+  const sumCrew = crewRaw.reduce((a,b)=>a+b,0);
+  const noPool  = crewRaw.reduce((a,b)=>a+Math.ceil(b-1e-9),0);
+  const pooled  = Math.ceil(sumCrew-1e-9);
+  const crewShift = Math.max(pooled, Math.round(noPool+(pooled-noPool)*p.po));
+  const direct = crewShift*shifts;
+
+  // mantenimiento: fallas + 2h/día de preventivo, con wrench time de técnicos
+  const downtime = runHours*(1-p.av);
+  const maintRaw = (downtime*1.2 + 2)/(effFactor*SHIFT_H);
+  const maint = Math.max(shifts, Math.ceil(maintRaw));      // mínimo 1 técnico por turno
+
+  // calidad: 1 inspector de laboratorio por turno + retrabajo de merma
+  const reworkH = p.dm*(1-p.ql)*0.3/60;                     // 0,3 min por caja defectuosa
+  const quality = shifts + Math.ceil(reworkH/(effFactor*SHIFT_H)-1e-9);
+
+  const superv = shifts;                                    // 1 supervisor por turno
+  const total = direct+maint+quality+superv;
+
+  return {oee, caseRateEff, runHours, coHours, schedHours, feasible, shifts,
+          crewRaw, crewShift, direct, maint, quality, superv, total,
+          prod: p.dm/total};
+}
+
+function computeBaseline(p){
+  return compute({...p, ...BASELINE});
+}
+
+/* ---------- render KPIs & tabla ---------- */
+const fmt = (n,d=0) => n.toLocaleString('es-CL',{maximumFractionDigits:d,minimumFractionDigits:d});
+
+function render(){
+  const p = readInputs();
+  const r = compute(p);
+  const b = computeBaseline(p);
+
+  // outputs de sliders
+  $('oWt').textContent = fmt(p.wt*100)+'%';
+  $('oAv').textContent = fmt(p.av*100)+'%';
+  $('oPf').textContent = fmt(p.pf*100)+'%';
+  $('oQl').textContent = fmt(p.ql*100,1).replace(',0','')+'%';
+  $('oAb').textContent = fmt(p.ab*100,1).replace(',0','')+'%';
+  $('oPo').textContent = fmt(p.po*100)+'%';
+  $('oCo').textContent = p.co;
+  $('oCd').textContent = p.cd+' min';
+  $('oDm').textContent = fmt(p.dm)+' cajas/día';
+  $('oSp').textContent = p.sp+' bpm';
+  $('oCt').textContent = 'USD '+fmt(p.ct)+'/año';
+  $('pOee').textContent = fmt(r.oee*100)+'%';
+  $('pRate').textContent = fmt(r.caseRateEff);
+
+  // KPIs
+  $('kTotal').textContent = r.total;
+  $('kTotalSub').textContent = r.crewShift+' operadores/turno × '+r.shifts+' turno(s) + soporte';
+  const d = b.total-r.total;
+  $('kDelta').textContent = (d>=0?'−':'+')+Math.abs(d)+' FTEs';
+  $('kDelta').className = 'val '+(d>0?'good':d<0?'bad':'');
+  $('kDeltaSub').textContent = 'base: '+b.total+' FTEs';
+  $('kSave').textContent = 'USD '+fmt(d*p.ct/1000)+'k';
+  $('kSave').className = 'val '+(d>0?'good':d<0?'bad':'');
+  $('kProd').textContent = fmt(r.prod);
+  $('kOee').textContent = fmt(r.oee*100)+'%';
+  $('kOeeSub').textContent = 'World-class F&B: 85%';
+  $('kHrs').textContent = fmt(r.schedHours,1)+' h';
+  $('kShifts').textContent = r.shifts+' turno(s) de 8 h · '+fmt(r.coHours,1)+' h de cambios';
+  $('banner').style.display = r.feasible?'none':'block';
+  $('legShifts').innerHTML = '<b>'+r.shifts+' turno(s)</b> — la línea muestra 1 turno';
+
+  // tabla desglose
+  $('staffTbl').innerHTML =
+    '<tr><th>Categoría</th><th>Detalle</th><th>FTEs</th></tr>'+
+    '<tr><td>Operadores directos</td><td>'+r.crewShift+' × '+r.shifts+' turnos</td><td>'+r.direct+'</td></tr>'+
+    '<tr><td>Mantenimiento</td><td>'+fmt(r.runHours*(1-p.av),1)+' h falla/día</td><td>'+r.maint+'</td></tr>'+
+    '<tr><td>Calidad</td><td>lab + retrabajo merma</td><td>'+r.quality+'</td></tr>'+
+    '<tr><td>Supervisión</td><td>1 por turno</td><td>'+r.superv+'</td></tr>'+
+    '<tr class="total"><td>Total</td><td>'+fmt(r.prod)+' cajas/FTE/día</td><td>'+r.total+'</td></tr>';
+
+  drawPlant(r, b);
+  drawCurve(p, r);
+}
+
+/* ---------- SVG planta (isométrico 2.5D) ---------- */
+const DX=16, DY=-9;                    // vector de profundidad isométrica
+const MACH_Y=206;                      // línea de piso de las máquinas
+const BELT_Y=212, BELT_H=13;           // correa: borde frontal superior y alto
+const BOTTLE_Y=209;                    // base de botellas sobre la correa
+
+function shade(hex,f){                 // aclara (f>0) u oscurece (f<0) un color
+  const n=parseInt(hex.slice(1),16); let r=n>>16, g=(n>>8)&255, b=n&255;
+  if(f>=0){ r+=(255-r)*f; g+=(255-g)*f; b+=(255-b)*f; } else { r*=1+f; g*=1+f; b*=1+f; }
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')';
+}
+function box3d(x,y,w,h,c){             // caja extruida: x,y = esquina frontal-inferior-izquierda
+  return '<rect x="'+x+'" y="'+(y-h)+'" width="'+w+'" height="'+h+'" fill="'+c+'"/>'+
+    '<path d="M'+x+','+(y-h)+' l'+DX+','+DY+' h'+w+' l'+(-DX)+','+(-DY)+' z" fill="'+shade(c,.32)+'"/>'+
+    '<path d="M'+(x+w)+','+(y-h)+' l'+DX+','+DY+' v'+h+' l'+(-DX)+','+(-DY)+' z" fill="'+shade(c,-.26)+'"/>';
+}
+function cyl3d(cx,y,r,h,topC){         // cilindro vertical: cx centro, y base
+  const ry=r*.32;
+  return '<path d="M'+(cx-r)+','+y+' v'+(-h)+' a'+r+','+ry+' 0 0 1 '+(2*r)+',0 v'+h+
+    ' a'+r+','+ry+' 0 0 1 '+(-2*r)+',0 z" fill="url(#gradSteel)"/>'+
+    '<ellipse cx="'+cx+'" cy="'+(y-h)+'" rx="'+r+'" ry="'+ry+'" fill="'+topC+'" stroke="'+shade(topC,-.18)+'" stroke-width=".6"/>';
+}
+function kraftBox(x,y,w,h){ return box3d(x,y,w,h,'#c9a06b'); }
+
+function workerSVG(x,y,ghost){         // y = centro de la cabeza
+  const body = ghost?'#c3cfd9':'#14324a';
+  const vest = ghost?'#cdd6de':'#ff8c42';
+  const hat  = ghost?'#dbe2e8':'#ffb84d';
+  const skin = ghost?'#cfd8e0':'#e8b88a';
+  return '<g transform="translate('+x+','+y+')">'+
+    '<ellipse cx="0" cy="22" rx="8.5" ry="2.4" fill="rgba(5,28,44,.13)"/>'+
+    '<rect x="-4.2" y="12.5" width="3.2" height="8.5" rx="1.2" fill="'+body+'"/>'+
+    '<rect x="1" y="12.5" width="3.2" height="8.5" rx="1.2" fill="'+body+'"/>'+
+    '<path d="M-5.4,5 Q0,2.6 5.4,5 L4.6,13.5 H-4.6 Z" fill="'+body+'"/>'+
+    '<rect x="-2.8" y="5.6" width="5.6" height="6.6" rx="1" fill="'+vest+'"/>'+
+    '<circle cx="0" cy="0" r="4" fill="'+skin+'"/>'+
+    '<path d="M-4.6,-1.4 a4.6,4.6 0 0 1 9.2,0 z" fill="'+hat+'"/>'+
+    '<rect x="-5.5" y="-1.8" width="11" height="1.5" rx=".75" fill="'+hat+'"/>'+
+    '</g>';
+}
+
+function bottleArt(){                  // botella pequeña, origen = base
+  return '<path d="M-3.2,0 v-6.5 q0,-2.2 1.3,-3.2 v-2 h3.8 v2 q1.3,1 1.3,3.2 v6.5 z"'+
+    ' fill="url(#gradBottle)" stroke="#0e86c0" stroke-width=".5"/>'+
+    '<rect x="-1.7" y="-13.4" width="3.4" height="1.9" rx=".7" fill="#0a5c86"/>';
+}
+
+/* arte por estación: cx centro, y = MACH_Y */
+const ART = {
+  depal(cx,y){ let s='';
+    s+=box3d(cx-45,y,7,80,'#8fa3b3')+box3d(cx+38,y,7,80,'#8fa3b3')+box3d(cx-49,y-80,104,9,'#7c93a5');
+    s+=box3d(cx-30,y,60,7,'#a8814f');
+    s+=kraftBox(cx-27,y-7,25,19)+box3d(cx+1,y-7,25,19,'#bf935c')+box3d(cx-13,y-26,27,18,'#d8b57e');
+    return s; },
+  rinser(cx,y){ let s='';
+    s+=box3d(cx-36,y,72,50,'#6fb0d8');
+    s+=box3d(cx-22,y-50,20,6,'#5795b8');
+    s+='<circle cx="'+(cx-10)+'" cy="'+(y-28)+'" r="9" fill="#eaf6fc" stroke="#4a86ab" stroke-width="1.2"/>';
+    s+='<path d="M'+(cx+12)+','+(y-38)+' q6,8 0,16 M'+(cx+20)+','+(y-38)+' q7,8 1,17"'+
+       ' stroke="#00d0ff" fill="none" stroke-width="1.8" stroke-linecap="round" opacity=".85"/>';
+    s+='<circle cx="'+(cx+15)+'" cy="'+(y-14)+'" r="1.6" fill="#00d0ff"/><circle cx="'+(cx+23)+'" cy="'+(y-12)+'" r="1.3" fill="#00d0ff"/>';
+    return s; },
+  mix(cx,y){ let s='';
+    s+=box3d(cx-30,y,60,6,'#93a7b6');
+    s+=cyl3d(cx,y-6,25,62,'#dbe4eb');
+    s+='<path d="M'+(cx-25)+','+(y-68)+' a25,12 0 0 1 50,0 z" fill="#eef3f7" stroke="#b6c5d1" stroke-width=".6"/>';
+    s+='<path d="M'+(cx+25)+','+(y-36)+' h12 v31" stroke="#93a7b6" stroke-width="4.5" fill="none" stroke-linejoin="round"/>';
+    s+='<circle cx="'+(cx-9)+'" cy="'+(y-44)+'" r="4.5" fill="#fff" stroke="#37505f"/>'+
+       '<line x1="'+(cx-9)+'" y1="'+(y-44)+'" x2="'+(cx-6.5)+'" y2="'+(y-47)+'" stroke="#e2544a" stroke-width="1.2"/>';
+    return s; },
+  filler(cx,y){ let s='';
+    s+=box3d(cx-40,y,80,26,'#0f3a57');
+    s+='<rect x="'+(cx-34)+'" y="'+(y-22)+'" width="40" height="16" rx="2" fill="rgba(140,210,250,.30)" stroke="rgba(255,255,255,.45)" stroke-width=".7"/>';
+    s+=cyl3d(cx,y-26,30,24,'#dbe4eb');
+    s+=cyl3d(cx,y-50,12,10,'#e6ecf1');
+    s+='<circle cx="'+cx+'" cy="'+(y-64)+'" r="3.6" fill="#ffb84d"/><circle cx="'+cx+'" cy="'+(y-64)+'" r="6.5" fill="#ffb84d" opacity=".25"/>';
+    return s; },
+  label(cx,y){ let s='';
+    s+=box3d(cx-35,y,70,46,'#0d8f7a');
+    s+='<circle cx="'+(cx-14)+'" cy="'+(y-58)+'" r="10" fill="#f2f5f8" stroke="#8296a3" stroke-width="1"/>'+
+       '<circle cx="'+(cx-14)+'" cy="'+(y-58)+'" r="3" fill="#56707f"/>'+
+       '<circle cx="'+(cx+9)+'" cy="'+(y-55)+'" r="6.5" fill="#f2f5f8" stroke="#8296a3" stroke-width="1"/>'+
+       '<circle cx="'+(cx+9)+'" cy="'+(y-55)+'" r="2.2" fill="#56707f"/>';
+    s+='<path d="M'+(cx-14)+','+(y-48)+' L'+(cx+9)+','+(y-48.5)+'" stroke="#fff" stroke-width="2"/>';
+    s+='<rect x="'+(cx+13)+'" y="'+(y-38)+'" width="16" height="11" rx="2" fill="#06283b"/>'+
+       '<rect x="'+(cx+15.5)+'" y="'+(y-35)+'" width="11" height="1.8" fill="#00d0ff" opacity=".8"/>';
+    return s; },
+  insp(cx,y){ let s='';
+    s+='<path d="M'+(cx-7)+','+(y-58)+' L'+(cx-16)+','+(y-2)+' L'+(cx+16)+','+(y-2)+' L'+(cx+7)+','+(y-58)+' z" fill="rgba(0,208,255,.10)"/>';
+    s+=box3d(cx-32,y,8,58,'#5b7080')+box3d(cx+24,y,8,58,'#5b7080');
+    s+=box3d(cx-36,y-58,80,16,'#37505f');
+    s+='<circle cx="'+cx+'" cy="'+(y-65)+'" r="6.5" fill="#0a2e44" stroke="#7c93a5" stroke-width="1"/>'+
+       '<circle cx="'+cx+'" cy="'+(y-65)+'" r="2.6" fill="#00d0ff"/>';
+    s+='<circle cx="'+(cx+26)+'" cy="'+(y-65)+'" r="2" fill="#3ddc84"/><circle cx="'+(cx+33)+'" cy="'+(y-65)+'" r="2" fill="#ffb84d"/>';
+    return s; },
+  pack(cx,y){ let s='';
+    s+=box3d(cx-42,y,84,50,'#e29b36');
+    s+='<rect x="'+(cx-36)+'" y="'+(y-42)+'" width="26" height="18" rx="2" fill="#06283b"/>'+
+       '<rect x="'+(cx-33)+'" y="'+(y-38)+'" width="20" height="2" fill="#00d0ff" opacity=".8"/>'+
+       '<rect x="'+(cx-33)+'" y="'+(y-33)+'" width="14" height="2" fill="#5b7080"/>';
+    s+='<path d="M'+(cx+2)+','+(y-42)+' h32 M'+(cx+2)+','+(y-36)+' h32 M'+(cx+2)+','+(y-30)+' h32" stroke="'+shade('#e29b36',-.3)+'" stroke-width="1.6"/>';
+    s+=kraftBox(cx+30,244,20,16);
+    return s; },
+  palet(cx,y){ let s='';
+    s+=box3d(cx-38,y,26,12,'#37505f');
+    const P0=[cx-25,y-12], P1=[cx-16,y-56], P2=[cx+14,y-36];
+    s+='<line x1="'+P0[0]+'" y1="'+P0[1]+'" x2="'+P1[0]+'" y2="'+P1[1]+'" stroke="#ff8c42" stroke-width="9" stroke-linecap="round"/>';
+    s+='<line x1="'+P1[0]+'" y1="'+P1[1]+'" x2="'+P2[0]+'" y2="'+P2[1]+'" stroke="#ffb84d" stroke-width="7" stroke-linecap="round"/>';
+    s+='<circle cx="'+P0[0]+'" cy="'+P0[1]+'" r="5.5" fill="#16323f"/><circle cx="'+P1[0]+'" cy="'+P1[1]+'" r="4.5" fill="#16323f"/>';
+    s+='<rect x="'+(P2[0]-6)+'" y="'+P2[1]+'" width="12" height="5" rx="1.5" fill="#16323f"/>';
+    s+=kraftBox(P2[0]-8,P2[1]+18,16,12);
+    s+=box3d(cx+14,y,40,6,'#a8814f')+kraftBox(cx+16,y-6,17,14)+box3d(cx+35,y-6,17,14,'#bf935c')+box3d(cx+24,y-20,18,13,'#d8b57e');
+    return s; },
+  wh(cx,y){ let s='';
+    s+=box3d(cx-52,y,5,72,'#6b7f8e')+box3d(cx-6,y,5,72,'#6b7f8e');
+    s+=box3d(cx-54,y-30,56,5,'#7c93a5')+box3d(cx-54,y-58,56,5,'#7c93a5');
+    s+=kraftBox(cx-48,y-35,16,14)+box3d(cx-29,y-35,16,14,'#bf935c')+box3d(cx-44,y-63,18,14,'#d8b57e');
+    s+=kraftBox(cx-48,y,18,16);
+    s+='<rect x="'+(cx+10)+'" y="'+(y-52)+'" width="4" height="52" fill="#4a5f6e"/>'+
+       '<rect x="'+(cx-4)+'" y="'+(y-10)+'" width="15" height="3" fill="#37505f"/>';
+    s+=box3d(cx+14,y,30,18,'#ff8c42');
+    s+=box3d(cx+18,y-18,18,15,'#ffb84d');
+    s+='<rect x="'+(cx+20)+'" y="'+(y-30)+'" width="12" height="9" rx="1.5" fill="rgba(160,215,245,.55)"/>';
+    s+='<circle cx="'+(cx+20)+'" cy="'+(y+3)+'" r="5" fill="#16323f"/><circle cx="'+(cx+20)+'" cy="'+(y+3)+'" r="2" fill="#93a7b6"/>'+
+       '<circle cx="'+(cx+40)+'" cy="'+(y+3)+'" r="5" fill="#16323f"/><circle cx="'+(cx+40)+'" cy="'+(y+3)+'" r="2" fill="#93a7b6"/>';
+    return s; },
+};
+
+function drawPlant(r, b){
+  const svg = $('plant');
+  const n = STATIONS.length, W = 1400;
+  const slot = (W-60)/n;
+  let html = '';
+
+  html += '<defs>'+
+    '<linearGradient id="gradSteel" x1="0" y1="0" x2="1" y2="0">'+
+      '<stop offset="0" stop-color="#e3eaf0"/><stop offset=".5" stop-color="#9fb3c2"/><stop offset="1" stop-color="#cfdae2"/></linearGradient>'+
+    '<linearGradient id="gradBottle" x1="0" y1="0" x2="1" y2="0">'+
+      '<stop offset="0" stop-color="#7fd4ff"/><stop offset="1" stop-color="#00a9f4"/></linearGradient>'+
+    '<linearGradient id="gradBeltF" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0" stop-color="#4a5f6e"/><stop offset="1" stop-color="#2e4250"/></linearGradient>'+
+    '<linearGradient id="gradFloor" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0" stop-color="#e4ebf2"/><stop offset="1" stop-color="#f6f9fc"/></linearGradient>'+
+    '</defs>';
+
+  // piso
+  html += '<rect x="0" y="'+(MACH_Y+DY)+'" width="'+W+'" height="'+(365-MACH_Y-DY)+'" fill="url(#gradFloor)"/>';
+  for(let i=0;i<n;i++){
+    const cx = 30+i*slot+slot/2;
+    html += '<ellipse cx="'+cx+'" cy="'+(MACH_Y+2)+'" rx="52" ry="7" fill="rgba(5,28,44,.07)"/>';
+  }
+
+  // máquinas (detrás de la correa)
+  STATIONS.forEach((s,i)=>{ html += ART[s.id](30+i*slot+slot/2, MACH_Y); });
+
+  // correa transportadora con volumen
+  html += '<path d="M20,'+BELT_Y+' l'+DX+','+DY+' h1360 l'+(-DX)+','+(-DY)+' z" fill="#cdd8e1"/>';
+  html += '<rect x="20" y="'+BELT_Y+'" width="1360" height="'+BELT_H+'" fill="url(#gradBeltF)"/>';
+  for(let x=110; x<1380; x+=180)
+    html += '<path d="M'+x+','+(BELT_Y+3)+' l7,3.5 l-7,3.5" stroke="rgba(255,255,255,.45)" stroke-width="1.5" fill="none"/>';
+  for(let x=60; x<1380; x+=140)
+    html += '<rect x="'+x+'" y="'+(BELT_Y+BELT_H)+'" width="5" height="16" fill="#64798a"/>';
+
+  // botellas animadas
+  html += '<g id="bottles">';
+  for(let i=0;i<16;i++) html += '<g class="bt" transform="translate(-30,'+BOTTLE_Y+')">'+bottleArt()+'</g>';
+  html += '</g>';
+
+  // operadores y etiquetas
+  const baseCrew = b.crewRaw;
+  STATIONS.forEach((s,i)=>{
+    const cx = 30+i*slot+slot/2;
+    const need = Math.ceil(r.crewRaw[i]-1e-9);
+    const base = Math.ceil(baseCrew[i]-1e-9);
+    const show = Math.min(6, Math.max(need, base));
+    for(let k=0;k<show;k++){
+      const col = k%3, row = Math.floor(k/3);
+      const rowN = Math.min(3, (row===Math.floor((show-1)/3)) ? (show-row*3) : 3);
+      const wx = cx+(col-(rowN-1)/2)*22, wy = 262+row*34;
+      html += workerSVG(wx, wy, k>=need);
+    }
+    if(Math.max(need,base)>6)
+      html += '<text class="st-crew" x="'+(cx+42)+'" y="'+300+'" text-anchor="middle">+'+(Math.max(need,base)-6)+'</text>';
+    html += '<text class="st-name" x="'+cx+'" y="340" text-anchor="middle">'+s.name+'</text>';
+    html += '<text class="st-crew" x="'+cx+'" y="355" text-anchor="middle">'+r.crewRaw[i].toFixed(1)+' p/turno</text>';
+  });
+
+  html += '<text x="22" y="26" font-size="12.5" fill="#6b7c8a">Materia prima / envases →</text>';
+  html += '<text x="'+(W-22)+'" y="26" font-size="12.5" fill="#6b7c8a" text-anchor="end">→ Producto terminado</text>';
+
+  svg.innerHTML = html;
+  bottleSpeed = Math.max(15, Math.min(160, r.caseRateEff/18)); // px/s según ritmo efectivo
+}
+
+/* animación de botellas */
+let bottleSpeed = 60, bottlePos = [], lastT = 0;
+for(let i=0;i<16;i++) bottlePos.push(25+i*85);
+function tick(t){
+  const dt = lastT? (t-lastT)/1000 : 0; lastT = t;
+  const g = $('bottles');
+  if(g){
+    const kids = g.children;
+    for(let i=0;i<kids.length;i++){
+      bottlePos[i] += bottleSpeed*dt;
+      if(bottlePos[i] > 1375) bottlePos[i] = 25;
+      kids[i].setAttribute('transform', 'translate('+bottlePos[i]+','+BOTTLE_Y+')');
+    }
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* ---------- curva FTEs vs wrench time ---------- */
+function drawCurve(p, cur){
+  const cv = $('curve'), ctx = cv.getContext('2d');
+  const Wc = cv.width, Hc = cv.height, mL=44, mB=32, mT=14, mR=14;
+  ctx.clearRect(0,0,Wc,Hc);
+
+  const pts = [];
+  let maxY = 0;
+  for(let w=25; w<=65; w++){
+    const r = compute({...p, wt:w/100});
+    pts.push({w, f:r.total});
+    maxY = Math.max(maxY, r.total);
+  }
+  maxY = Math.ceil(maxY*1.15);
+  const X = w => mL+(w-25)/(65-25)*(Wc-mL-mR);
+  const Y = f => Hc-mB-(f/maxY)*(Hc-mT-mB);
+
+  // ejes y grilla
+  ctx.strokeStyle='#dde5ec'; ctx.fillStyle='#6b7c8a'; ctx.font='11px Segoe UI'; ctx.textAlign='center';
+  for(let w=25;w<=65;w+=10){
+    ctx.beginPath(); ctx.moveTo(X(w),mT); ctx.lineTo(X(w),Hc-mB); ctx.stroke();
+    ctx.fillText(w+'%', X(w), Hc-mB+16);
+  }
+  ctx.textAlign='right';
+  for(let f=0; f<=maxY; f+=Math.max(2,Math.ceil(maxY/6/2)*2)){
+    ctx.beginPath(); ctx.moveTo(mL,Y(f)); ctx.lineTo(Wc-mR,Y(f)); ctx.stroke();
+    ctx.fillText(f, mL-6, Y(f)+4);
+  }
+  ctx.textAlign='center';
+  ctx.fillText('Wrench time', (mL+Wc-mR)/2, Hc-4);
+
+  // zonas benchmark
+  ctx.fillStyle='rgba(255,90,90,.06)'; ctx.fillRect(X(25),mT,X(35)-X(25),Hc-mT-mB);
+  ctx.fillStyle='rgba(0,201,167,.08)'; ctx.fillRect(X(55),mT,X(65)-X(55),Hc-mT-mB);
+  ctx.fillStyle='#c05050'; ctx.fillText('típico', (X(25)+X(35))/2, mT+12);
+  ctx.fillStyle='#0a9a80'; ctx.fillText('world-class', (X(55)+X(65))/2, mT+12);
+
+  // curva
+  ctx.strokeStyle='#2251ff'; ctx.lineWidth=2.5; ctx.beginPath();
+  pts.forEach((pt,i)=> i?ctx.lineTo(X(pt.w),Y(pt.f)):ctx.moveTo(X(pt.w),Y(pt.f)));
+  ctx.stroke(); ctx.lineWidth=1;
+
+  // punto actual
+  const cw = p.wt*100;
+  ctx.fillStyle='#051c2c'; ctx.beginPath(); ctx.arc(X(cw),Y(cur.total),6,0,7); ctx.fill();
+  ctx.fillStyle='#051c2c'; ctx.font='bold 12px Segoe UI';
+  ctx.fillText(cur.total+' FTEs', X(cw), Y(cur.total)-12);
+}
+
+/* ---------- presets ---------- */
+function preset(k){
+  const P = {
+    typ:  {wt:30, av:75, pf:80, ql:95,  ab:8, po:0,   co:2, cd:60},
+    good: {wt:45, av:85, pf:88, ql:98,  ab:5, po:50,  co:2, cd:30},
+    wc:   {wt:58, av:92, pf:95, ql:99.5,ab:3, po:100, co:2, cd:12},
+  }[k];
+  Object.entries(P).forEach(([id,v])=>{ $(id).value = v; });
+  render();
+}
+
+IDS.forEach(id => $(id).addEventListener('input', render));
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TruckLoad — Optimizador de Carga de Camiones</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --panel: #181c27;
+  --border: #2a2f45;
+  --accent: #3b82f6;
+  --green: #22c55e;
+  --orange: #f97316;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --input-bg: #1e2438;
+  --hover: #252b3d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; overflow: hidden; }
+
+/* TOOLBAR */
+#toolbar {
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+#toolbar h1 { font-size: 14px; font-weight: 700; color: var(--accent); margin-right: 8px; white-space: nowrap; }
+.tb-btn {
+  display: flex; align-items: center; gap: 5px; padding: 6px 12px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); cursor: pointer; font-size: 12px; transition: all .15s; white-space: nowrap;
+}
+.tb-btn:hover { background: var(--hover); color: var(--text); border-color: var(--accent); }
+.tb-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.tb-btn.primary:hover { background: #2563eb; }
+.tb-btn:disabled { opacity: .4; cursor: not-allowed; }
+#truck-badge {
+  margin-left: auto; display: flex; align-items: center; gap: 10px; padding: 5px 12px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; color: var(--muted);
+}
+#truck-badge strong { color: var(--text); }
+
+/* MAIN LAYOUT */
+#main { display: flex; flex: 1; overflow: hidden; }
+#panel {
+  width: 370px; min-width: 300px; background: var(--panel);
+  border-right: 1px solid var(--border); overflow-y: auto; padding: 14px; flex-shrink: 0;
+}
+.section { margin-bottom: 20px; }
+.section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+.section-title .step { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; background: var(--accent); color: #fff; border-radius: 50%; font-size: 10px; margin-right: 6px; }
+
+/* TRUCK CARDS */
+.truck-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px;
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 7px; cursor: pointer; transition: all .15s;
+}
+.truck-card:hover { border-color: var(--accent); background: var(--hover); }
+.truck-card.active { border-color: var(--accent); background: rgba(59,130,246,.12); box-shadow: 0 0 0 1px var(--accent); }
+.truck-card svg { flex-shrink: 0; }
+.truck-card .tc-info { flex: 1; }
+.truck-card .tc-name { font-weight: 600; font-size: 13px; }
+.truck-card .tc-dims { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.truck-card .tc-check { color: var(--accent); font-size: 16px; opacity: 0; }
+.truck-card.active .tc-check { opacity: 1; }
+
+.dims-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 3px; }
+input[type=number] {
+  width: 100%; padding: 6px 8px; background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 5px; color: var(--text); font-size: 12px; outline: none;
+}
+input[type=number]:focus { border-color: var(--accent); }
+
+/* STATUS */
+#status { font-size: 11px; padding: 8px 10px; border-radius: 6px; margin-bottom: 8px; display: none; white-space: pre-line; line-height: 1.5; }
+#status.ok { display: block; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.35); color: var(--green); }
+#status.warn { display: block; background: rgba(234,179,8,.1); border: 1px solid rgba(234,179,8,.35); color: var(--yellow); }
+#status.err { display: block; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.35); color: var(--red); }
+
+/* BOX TABLE */
+#box-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+#box-table th { text-align: left; color: var(--muted); font-weight: 600; padding: 4px 5px; border-bottom: 1px solid var(--border); }
+#box-table td { padding: 5px; border-bottom: 1px solid rgba(42,47,69,.5); }
+#box-table td:last-child, #box-table th:last-child { text-align: right; }
+.color-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+#box-empty { color: var(--muted); font-size: 12px; text-align: center; padding: 14px 0; border: 1px dashed var(--border); border-radius: 8px; }
+
+/* KPIs */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.kpi {
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+}
+.kpi .kpi-val { font-size: 22px; font-weight: 700; color: var(--accent); }
+.kpi.green .kpi-val { color: var(--green); }
+.kpi .kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+.kpi-bar { height: 5px; background: var(--border); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+.kpi-bar div { height: 100%; background: var(--accent); border-radius: 3px; width: 0%; transition: width .6s ease; }
+.kpi.green .kpi-bar div { background: var(--green); }
+#unplaced-list { margin-top: 8px; }
+.unplaced-item {
+  display: flex; justify-content: space-between; gap: 8px; padding: 6px 8px; font-size: 11px;
+  background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3); border-radius: 6px; margin-bottom: 4px;
+}
+.unplaced-item .ui-id { color: var(--red); font-weight: 600; }
+.unplaced-item .ui-reason { color: var(--muted); text-align: right; }
+#results-empty { color: var(--muted); font-size: 12px; text-align: center; padding: 14px 0; border: 1px dashed var(--border); border-radius: 8px; }
+
+/* VIEWPORT */
+#viewport { flex: 1; position: relative; overflow: hidden; }
+#canvas-wrap { position: absolute; inset: 0; }
+#canvas-wrap canvas { display: block; }
+
+/* CONTROLS BAR */
+#controls {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+  background: rgba(24,28,39,.92); border: 1px solid var(--border); border-radius: 10px;
+  backdrop-filter: blur(6px); flex-wrap: wrap; justify-content: center; max-width: 95%;
+}
+.ctrl-btn {
+  padding: 5px 10px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); cursor: pointer; font-size: 12px; transition: all .15s; white-space: nowrap;
+}
+.ctrl-btn:hover { color: var(--text); border-color: var(--accent); }
+.ctrl-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+#seq-slider { width: 180px; accent-color: var(--accent); }
+#seq-label { font-size: 11px; color: var(--muted); min-width: 84px; text-align: center; }
+#speed-sel {
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 12px; padding: 5px 6px; outline: none;
+}
+.ctrl-sep { width: 1px; height: 20px; background: var(--border); }
+.ctrl-chk { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.ctrl-chk input { accent-color: var(--accent); }
+
+/* TOOLTIP */
+#tooltip {
+  position: absolute; display: none; pointer-events: none; z-index: 10;
+  background: rgba(15,17,23,.95); border: 1px solid var(--accent); border-radius: 8px;
+  padding: 9px 11px; font-size: 11px; line-height: 1.6; max-width: 240px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.5);
+}
+#tooltip .tt-id { font-weight: 700; font-size: 12px; }
+#tooltip .tt-row span { color: var(--muted); }
+
+/* HINT overlay */
+#hint {
+  position: absolute; top: 14px; right: 14px; padding: 7px 12px; font-size: 11px; color: var(--muted);
+  background: rgba(24,28,39,.85); border: 1px solid var(--border); border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>🚛 TruckLoad</h1>
+  <button class="tb-btn" id="btn-template">📥 Plantilla Excel</button>
+  <button class="tb-btn" id="btn-upload">📤 Cargar Excel</button>
+  <button class="tb-btn" id="btn-sample">🎲 Datos de ejemplo</button>
+  <button class="tb-btn primary" id="btn-optimize">⚡ Optimizar carga</button>
+  <div id="truck-badge">
+    <span>Camión: <strong id="badge-name">—</strong></span>
+    <span>Volumen: <strong id="badge-vol">—</strong></span>
+    <span>Peso máx: <strong id="badge-weight">—</strong></span>
+  </div>
+</div>
+
+<div id="main">
+  <div id="panel">
+
+    <div class="section">
+      <div class="section-title"><span class="step">1</span>Selecciona el camión</div>
+      <div id="truck-cards"></div>
+      <div class="dims-grid">
+        <div><label>Largo interior (cm)</label><input type="number" id="dim-l" min="100" step="10"></div>
+        <div><label>Ancho interior (cm)</label><input type="number" id="dim-w" min="100" step="5"></div>
+        <div><label>Alto interior (cm)</label><input type="number" id="dim-h" min="100" step="5"></div>
+        <div><label>Peso máximo (kg)</label><input type="number" id="dim-kg" min="500" step="500"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="step">2</span>Cajas a cargar</div>
+      <div id="status"></div>
+      <div id="box-empty">Sube un Excel con tus cajas o usa<br>🎲 <b>Datos de ejemplo</b> para probar.</div>
+      <table id="box-table" style="display:none">
+        <thead><tr><th>SKU</th><th>Dimensiones (cm)</th><th>Peso</th><th>Cant.</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="step">3</span>Resultados</div>
+      <div id="results-empty">Aún no se ha optimizado la carga.</div>
+      <div id="results" style="display:none">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-val" id="kpi-vol">—</div><div class="kpi-label">Ocupación volumen</div><div class="kpi-bar"><div id="bar-vol"></div></div></div>
+          <div class="kpi green"><div class="kpi-val" id="kpi-weight">—</div><div class="kpi-label">Utilización peso</div><div class="kpi-bar"><div id="bar-weight"></div></div></div>
+          <div class="kpi"><div class="kpi-val" id="kpi-placed">—</div><div class="kpi-label">Cajas colocadas</div></div>
+          <div class="kpi"><div class="kpi-val" id="kpi-kg">—</div><div class="kpi-label">Peso cargado</div></div>
+        </div>
+        <div id="unplaced-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="viewport">
+    <div id="canvas-wrap"></div>
+    <div id="hint">🖱️ Arrastra para rotar · Rueda para zoom · Click en una caja para destacarla</div>
+    <div id="controls">
+      <button class="ctrl-btn" id="btn-restart" title="Reiniciar animación">⏮</button>
+      <button class="ctrl-btn" id="btn-play" title="Reproducir carga">▶</button>
+      <select id="speed-sel"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
+      <input type="range" id="seq-slider" min="0" max="0" value="0" step="1">
+      <span id="seq-label">Caja 0 / 0</span>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn view-btn active" data-view="iso">Isométrica</button>
+      <button class="ctrl-btn view-btn" data-view="top">Superior</button>
+      <button class="ctrl-btn view-btn" data-view="side">Lateral</button>
+      <button class="ctrl-btn view-btn" data-view="back">Trasera</button>
+      <div class="ctrl-sep"></div>
+      <label class="ctrl-chk"><input type="checkbox" id="chk-walls" checked> Paredes</label>
+    </div>
+    <div id="tooltip"></div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none">
+
+<script>
+'use strict';
+
+/* ============================================================
+   ESTADO GLOBAL
+============================================================ */
+const TRUCKS = [
+  { key: 't34',    name: 'Camión ¾',          l: 550,  w: 230, h: 230, kg: 8000  },
+  { key: 'rigido', name: 'Rígido mediano',     l: 730,  w: 245, h: 250, kg: 16000 },
+  { key: 'rampla', name: 'Semirremolque',      l: 1360, w: 245, h: 260, kg: 28000 },
+];
+const PALETTE = ['#3b82f6','#22c55e','#f97316','#eab308','#a855f7','#ec4899','#14b8a6','#f43f5e','#84cc16','#06b6d4','#d946ef','#f59e0b'];
+
+let truck = { ...TRUCKS[0] };      // camión activo (dimensiones editables)
+let skus = [];                     // filas del excel agrupadas
+let boxes = [];                    // cajas individuales expandidas
+let packing = null;                // resultado: { placed:[], unplaced:[] }
+
+/* ============================================================
+   PARSEO DE EXCEL (SheetJS)
+============================================================ */
+function normHeader(s) {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+const HEADER_MAP = {
+  id:     ['id','sku','codigo','cod','item','referencia'],
+  desc:   ['descripcion','desc','nombre','description','producto','detalle'],
+  l:      ['largocm','largo','length','l','profundidad','fondo'],
+  w:      ['anchocm','ancho','width','w'],
+  h:      ['altocm','alto','height','h','altura'],
+  weight: ['pesokg','peso','weight','kg','pesounitario'],
+  qty:    ['cantidad','cant','qty','quantity','unidades','cajas'],
+};
+function findCol(headers, keys) {
+  for (const k of keys) { const i = headers.indexOf(k); if (i !== -1) return i; }
+  return -1;
+}
+
+function parseWorkbook(wb) {
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+  if (!rows.length) return { error: 'El archivo está vacío.' };
+
+  const headers = rows[0].map(normHeader);
+  const col = {};
+  for (const field in HEADER_MAP) col[field] = findCol(headers, HEADER_MAP[field]);
+  const missing = ['l','w','h','weight'].filter(f => col[f] === -1);
+  if (missing.length) {
+    const names = { l: 'Largo_cm', w: 'Ancho_cm', h: 'Alto_cm', weight: 'Peso_kg' };
+    return { error: 'Faltan columnas: ' + missing.map(m => names[m]).join(', ') + '.\nDescarga la plantilla para ver el formato esperado.' };
+  }
+
+  const parsed = [], errors = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (!row || row.every(c => c === null || c === '')) continue;
+    const id = col.id !== -1 && row[col.id] != null ? String(row[col.id]) : 'CAJA-' + r;
+    const desc = col.desc !== -1 && row[col.desc] != null ? String(row[col.desc]) : '';
+    const l = Number(row[col.l]), w = Number(row[col.w]), h = Number(row[col.h]);
+    const weight = Number(row[col.weight]);
+    const qty = col.qty !== -1 && row[col.qty] != null ? Math.round(Number(row[col.qty])) : 1;
+    if (![l, w, h, weight].every(v => isFinite(v) && v > 0) || !isFinite(qty) || qty < 1) {
+      errors.push('Fila ' + (r + 1) + ': valores inválidos (deben ser números > 0).');
+      continue;
+    }
+    parsed.push({ id, desc, l, w, h, weight, qty });
+  }
+  if (!parsed.length) return { error: 'No se encontró ninguna fila válida.\n' + errors.join('\n') };
+  return { skus: parsed, errors };
+}
+
+function loadSkus(list, sourceLabel) {
+  skus = list.map((s, i) => ({ ...s, color: PALETTE[i % PALETTE.length] }));
+  boxes = [];
+  for (const s of skus) {
+    for (let n = 1; n <= s.qty; n++) {
+      boxes.push({ uid: s.id + (s.qty > 1 ? '-' + n : ''), sku: s });
+    }
+  }
+  packing = null;
+  clearPackedScene();
+  renderBoxTable();
+  renderResults();
+
+  const totKg = boxes.reduce((a, b) => a + b.sku.weight, 0);
+  const totVol = boxes.reduce((a, b) => a + b.sku.l * b.sku.w * b.sku.h, 0) / 1e6;
+  let msg = '✅ ' + sourceLabel + ': ' + skus.length + ' SKUs, ' + boxes.length + ' cajas (' + totVol.toFixed(1) + ' m³, ' + fmtKg(totKg) + ').';
+  let cls = 'ok';
+  const maxDim = Math.max(...skus.map(s => Math.max(s.l, s.w, s.h)));
+  if (maxDim < 15) { msg += '\n⚠️ Las dimensiones parecen muy pequeñas: recuerda que deben estar en centímetros.'; cls = 'warn'; }
+  setStatus(msg, cls);
+}
+
+function setStatus(msg, cls) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = cls || '';
+}
+
+/* ---------- Plantilla descargable ---------- */
+function downloadTemplate() {
+  const aoa = [
+    ['ID', 'Descripción', 'Largo_cm', 'Ancho_cm', 'Alto_cm', 'Peso_kg', 'Cantidad'],
+    ['CAJA-A', 'Caja máster producto A', 120, 80, 90, 45, 10],
+    ['CAJA-B', 'Caja estándar producto B', 60, 40, 40, 12, 24],
+    ['PALLET-C', 'Pallet retractilado C', 120, 100, 140, 380, 4],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{ wch: 10 }, { wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 9 }, { wch: 9 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Cajas');
+  XLSX.writeFile(wb, 'plantilla_carga_camion.xlsx');
+}
+
+/* ---------- Datos de ejemplo ---------- */
+function loadSampleData() {
+  loadSkus([
+    { id: 'CAJA-A',   desc: 'Caja máster grande',      l: 120, w: 80,  h: 90,  weight: 45,  qty: 10 },
+    { id: 'CAJA-B',   desc: 'Caja estándar',           l: 60,  w: 40,  h: 40,  weight: 12,  qty: 22 },
+    { id: 'CAJA-C',   desc: 'Caja mediana',            l: 100, w: 60,  h: 50,  weight: 25,  qty: 8  },
+    { id: 'CAJA-D',   desc: 'Caja pequeña',            l: 40,  w: 30,  h: 30,  weight: 8,   qty: 20 },
+    { id: 'PALLET-E', desc: 'Pallet retractilado',     l: 120, w: 100, h: 140, weight: 350, qty: 3  },
+    { id: 'TUBO-F',   desc: 'Caja larga (perfiles)',   l: 300, w: 30,  h: 30,  weight: 40,  qty: 4  },
+    { id: 'MAQ-XL',   desc: 'Maquinaria sobredimensionada', l: 320, w: 260, h: 260, weight: 900, qty: 1 },
+  ], 'Datos de ejemplo');
+}
+
+/* ============================================================
+   ALGORITMO DE PACKING — Extreme Points + First Fit Decreasing
+   (heurística estándar de container loading: ordena por volumen
+   descendente y coloca en el punto extremo más profundo-abajo-
+   izquierda que no colisione, probando las 6 rotaciones)
+============================================================ */
+const GEOM_EPS = 0.5;         // tolerancia en cm
+const SUPPORT_MIN = 0.7;      // % mínimo de la base apoyada
+
+function uniqueRotations(s) {
+  const perms = [
+    [s.l, s.h, s.w], [s.l, s.w, s.h], [s.w, s.h, s.l],
+    [s.w, s.l, s.h], [s.h, s.l, s.w], [s.h, s.w, s.l],
+  ];
+  const seen = new Set(), out = [];
+  for (const [dx, dy, dz] of perms) {
+    const k = dx + '|' + dy + '|' + dz;
+    if (!seen.has(k)) { seen.add(k); out.push({ dx, dy, dz }); }
+  }
+  // Preferir orientaciones bajas (más estables y dejan aire arriba)
+  out.sort((a, b) => a.dy - b.dy || b.dx - a.dx);
+  return out;
+}
+
+function pack(truck, boxes) {
+  const L = truck.l, W = truck.w, H = truck.h, MAXKG = truck.kg;
+  const items = boxes.slice().sort((a, b) =>
+    (b.sku.l * b.sku.w * b.sku.h) - (a.sku.l * a.sku.w * a.sku.h) || b.sku.weight - a.sku.weight);
+
+  const placed = [], unplaced = [];
+  let eps = [{ x: 0, y: 0, z: 0 }];
+  let totalKg = 0;
+
+  const collides = (x, y, z, dx, dy, dz) => {
+    for (const p of placed) {
+      if (x < p.x + p.dx - GEOM_EPS && x + dx > p.x + GEOM_EPS &&
+          y < p.y + p.dy - GEOM_EPS && y + dy > p.y + GEOM_EPS &&
+          z < p.z + p.dz - GEOM_EPS && z + dz > p.z + GEOM_EPS) return true;
+    }
+    return false;
+  };
+
+  const supportRatio = (x, y, z, dx, dz) => {
+    if (y <= GEOM_EPS) return 1;                       // sobre el piso
+    let area = 0;
+    for (const p of placed) {
+      if (Math.abs(p.y + p.dy - y) > GEOM_EPS) continue; // solo cajas cuyo techo coincide
+      const ox = Math.min(x + dx, p.x + p.dx) - Math.max(x, p.x);
+      const oz = Math.min(z + dz, p.z + p.dz) - Math.max(z, p.z);
+      if (ox > 0 && oz > 0) area += ox * oz;
+    }
+    return area / (dx * dz);
+  };
+
+  // proyecta un punto hacia abajo hasta el techo de caja más alto (o el piso)
+  const restY = (px, pz, fromY) => {
+    let y = 0;
+    for (const p of placed) {
+      const top = p.y + p.dy;
+      if (top <= fromY + GEOM_EPS &&
+          px >= p.x - GEOM_EPS && px < p.x + p.dx - GEOM_EPS &&
+          pz >= p.z - GEOM_EPS && pz < p.z + p.dz - GEOM_EPS) y = Math.max(y, top);
+    }
+    return y;
+  };
+
+  for (const box of items) {
+    const s = box.sku;
+    const rots = uniqueRotations(s).filter(r => r.dx <= L && r.dy <= H && r.dz <= W);
+    if (!rots.length) { unplaced.push({ box, reason: 'No cabe en el camión (dimensiones)' }); continue; }
+    if (totalKg + s.weight > MAXKG) { unplaced.push({ box, reason: 'Excede el peso máximo' }); continue; }
+
+    // orden Deepest-Bottom-Left: primero abajo, luego al fondo, luego a la izquierda
+    eps.sort((a, b) => a.y - b.y || a.x - b.x || a.z - b.z);
+
+    let best = null;
+    outer:
+    for (const ep of eps) {
+      for (const r of rots) {
+        if (ep.x + r.dx > L + GEOM_EPS || ep.y + r.dy > H + GEOM_EPS || ep.z + r.dz > W + GEOM_EPS) continue;
+        if (collides(ep.x, ep.y, ep.z, r.dx, r.dy, r.dz)) continue;
+        if (supportRatio(ep.x, ep.y, ep.z, r.dx, r.dz) < SUPPORT_MIN - 1e-9) continue;
+        best = { x: ep.x, y: ep.y, z: ep.z, dx: r.dx, dy: r.dy, dz: r.dz };
+        break outer;
+      }
+    }
+    if (!best) { unplaced.push({ box, reason: 'Sin espacio disponible' }); continue; }
+
+    const pl = { box, ...best, order: placed.length };
+    placed.push(pl);
+    totalKg += s.weight;
+
+    // nuevos puntos extremos en las 3 esquinas proyectadas
+    const px1 = best.x + best.dx, pz1 = best.z + best.dz;
+    eps.push({ x: px1,    y: restY(px1 + 0.1, best.z + 0.1, best.y), z: best.z });
+    eps.push({ x: best.x, y: restY(best.x + 0.1, pz1 + 0.1, best.y), z: pz1 });
+    eps.push({ x: best.x, y: best.y + best.dy, z: best.z });
+
+    // limpiar: quitar puntos dentro de cajas colocadas y duplicados
+    const seen = new Set();
+    eps = eps.filter(ep => {
+      const k = Math.round(ep.x) + '|' + Math.round(ep.y) + '|' + Math.round(ep.z);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      for (const p of placed) {
+        if (ep.x > p.x + GEOM_EPS && ep.x < p.x + p.dx - GEOM_EPS &&
+            ep.y > p.y + GEOM_EPS && ep.y < p.y + p.dy - GEOM_EPS &&
+            ep.z > p.z + GEOM_EPS && ep.z < p.z + p.dz - GEOM_EPS) return false;
+      }
+      return true;
+    });
+  }
+
+  return { placed, unplaced, totalKg };
+}
+
+/* ---------- Validación programática (QA) ---------- */
+function validatePacking(pk, truck) {
+  const issues = [];
+  const P = pk.placed;
+  for (let i = 0; i < P.length; i++) {
+    const a = P[i];
+    if (a.x < -GEOM_EPS || a.y < -GEOM_EPS || a.z < -GEOM_EPS ||
+        a.x + a.dx > truck.l + GEOM_EPS || a.y + a.dy > truck.h + GEOM_EPS || a.z + a.dz > truck.w + GEOM_EPS)
+      issues.push(a.box.uid + ' fuera de los límites del camión');
+    for (let j = i + 1; j < P.length; j++) {
+      const b = P[j];
+      if (a.x < b.x + b.dx - GEOM_EPS && a.x + a.dx > b.x + GEOM_EPS &&
+          a.y < b.y + b.dy - GEOM_EPS && a.y + a.dy > b.y + GEOM_EPS &&
+          a.z < b.z + b.dz - GEOM_EPS && a.z + a.dz > b.z + GEOM_EPS)
+        issues.push('Solape entre ' + a.box.uid + ' y ' + b.box.uid);
+    }
+  }
+  return issues;
+}
+
+/* ============================================================
+   ESCENA 3D (Three.js)
+============================================================ */
+let scene, camera, renderer, controls;
+let truckGroup, boxGroup, wallGroup;
+let placedMeshes = [];             // en orden de carga
+let selectedMesh = null;
+
+// animación de carga
+let seqProgress = 0;               // nº de cajas visibles (float)
+let playing = false;
+let lastT = 0;
+const BOXES_PER_SEC = 2.5;
+
+function initScene() {
+  const wrap = document.getElementById('canvas-wrap');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0f1117);
+  scene.fog = new THREE.Fog(0x0f1117, 4000, 9000);
+
+  camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 1, 20000);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  wrap.appendChild(renderer.domElement);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI / 2 - 0.02;
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.75);
+  dir.position.set(1200, 2200, 1500);
+  scene.add(dir);
+  const fill = new THREE.DirectionalLight(0x8899ff, 0.25);
+  fill.position.set(-1500, 800, -1200);
+  scene.add(fill);
+
+  const grid = new THREE.GridHelper(8000, 40, 0x2a2f45, 0x1c2133);
+  grid.position.y = -1;
+  scene.add(grid);
+
+  boxGroup = new THREE.Group();
+  scene.add(boxGroup);
+
+  buildTruck();
+  setView('iso');
+
+  window.addEventListener('resize', onResize);
+  renderer.domElement.addEventListener('mousemove', onPointerMove);
+  renderer.domElement.addEventListener('click', onPointerClick);
+
+  requestAnimationFrame(animate);
+}
+
+function onResize() {
+  const wrap = document.getElementById('canvas-wrap');
+  camera.aspect = wrap.clientWidth / wrap.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+}
+
+/* ---------- Camión ---------- */
+function buildTruck() {
+  if (truckGroup) scene.remove(truckGroup);
+  truckGroup = new THREE.Group();
+  const L = truck.l, W = truck.w, H = truck.h;
+  const FLOOR_Y = 110;           // altura de la plataforma sobre el suelo
+
+  // La zona de carga vive en coords (0..L, 0..H, 0..W) desplazadas a FLOOR_Y
+  truckGroup.position.y = FLOOR_Y;
+
+  const matChassis = new THREE.MeshLambertMaterial({ color: 0x1c2133 });
+  const matDark = new THREE.MeshLambertMaterial({ color: 0x11141d });
+
+  // piso de la caja de carga
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(L, 8, W), new THREE.MeshLambertMaterial({ color: 0x39415c }));
+  floor.position.set(L / 2, -4, W / 2);
+  truckGroup.add(floor);
+
+  // paredes semitransparentes (grupo aparte para poder ocultarlas)
+  wallGroup = new THREE.Group();
+  const wallMat = new THREE.MeshLambertMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false });
+  const mkWall = (w, h, px, py, pz, ry) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
+    m.position.set(px, py, pz);
+    if (ry) m.rotation.y = ry;
+    return m;
+  };
+  wallGroup.add(mkWall(L, H, L / 2, H / 2, 0, 0));                    // lateral z=0
+  wallGroup.add(mkWall(L, H, L / 2, H / 2, W, 0));                    // lateral z=W
+  wallGroup.add(mkWall(W, H, 0, H / 2, W / 2, Math.PI / 2));          // frontal x=0
+  const roof = new THREE.Mesh(new THREE.PlaneGeometry(L, W), wallMat);
+  roof.rotation.x = Math.PI / 2;
+  roof.position.set(L / 2, H, W / 2);
+  wallGroup.add(roof);
+  truckGroup.add(wallGroup);
+  wallGroup.visible = document.getElementById('chk-walls').checked;
+
+  // aristas de la caja de carga
+  const edges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(L, H, W)),
+    new THREE.LineBasicMaterial({ color: 0x5b7fbf, transparent: true, opacity: 0.7 })
+  );
+  edges.position.set(L / 2, H / 2, W / 2);
+  truckGroup.add(edges);
+
+  // chasis
+  const chassis = new THREE.Mesh(new THREE.BoxGeometry(L + 60, 26, W * 0.8), matChassis);
+  chassis.position.set(L / 2 - 10, -26, W / 2);
+  truckGroup.add(chassis);
+
+  // cabina (decorativa, delante de x=0)
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(170, H * 0.72, W * 0.96), new THREE.MeshLambertMaterial({ color: 0x3b82f6 }));
+  cab.position.set(-125, H * 0.36 - 40, W / 2);
+  truckGroup.add(cab);
+  const windshield = new THREE.Mesh(new THREE.BoxGeometry(12, H * 0.26, W * 0.8), new THREE.MeshLambertMaterial({ color: 0x0f1117 }));
+  windshield.position.set(-205, H * 0.5 - 40, W / 2);
+  truckGroup.add(windshield);
+
+  // ruedas
+  const wheelGeo = new THREE.CylinderGeometry(52, 52, 34, 20);
+  const nAxles = L > 1000 ? 4 : 2;
+  const axleXs = [-125];
+  for (let i = 0; i < nAxles; i++) axleXs.push(L * (0.55 + 0.42 * i / Math.max(nAxles - 1, 1)));
+  for (const ax of axleXs) {
+    for (const az of [-20, W + 20]) {
+      const wheel = new THREE.Mesh(wheelGeo, matDark);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(ax, -58, az);
+      truckGroup.add(wheel);
+    }
+  }
+
+  scene.add(truckGroup);
+  updateBadge();
+}
+
+/* ---------- Cajas ---------- */
+function clearPackedScene() {
+  while (boxGroup.children.length) boxGroup.remove(boxGroup.children[0]);
+  placedMeshes = [];
+  selectedMesh = null;
+  seqProgress = 0;
+  playing = false;
+  updateSeqUI();
+  document.getElementById('btn-play').textContent = '▶';
+}
+
+function buildPackedScene() {
+  clearPackedScene();
+  if (!packing) return;
+  const FLOOR_Y = 110;
+  for (const pl of packing.placed) {
+    const geo = new THREE.BoxGeometry(pl.dx - 1.5, pl.dy - 1.5, pl.dz - 1.5);
+    const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(pl.box.sku.color) });
+    const mesh = new THREE.Mesh(geo, mat);
+    const fx = pl.x + pl.dx / 2, fy = FLOOR_Y + pl.y + pl.dy / 2, fz = pl.z + pl.dz / 2;
+    mesh.position.set(fx, fy, fz);
+    mesh.userData = { pl, finalPos: new THREE.Vector3(fx, fy, fz), startX: truck.l + pl.dx / 2 + 250 };
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x0a0c12, transparent: true, opacity: 0.5 }));
+    mesh.add(edge);
+    boxGroup.add(mesh);
+    placedMeshes.push(mesh);
+  }
+  document.getElementById('seq-slider').max = placedMeshes.length;
+}
+
+/* ---------- Animación de carga ---------- */
+function animate(t) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((t - lastT) / 1000, 0.1);
+  lastT = t;
+
+  if (playing && placedMeshes.length) {
+    const speed = parseFloat(document.getElementById('speed-sel').value);
+    seqProgress = Math.min(seqProgress + dt * BOXES_PER_SEC * speed, placedMeshes.length);
+    if (seqProgress >= placedMeshes.length) { playing = false; document.getElementById('btn-play').textContent = '▶'; }
+    updateSeqUI();
+  }
+  applySeqToMeshes();
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+function applySeqToMeshes() {
+  const n = seqProgress;
+  for (let i = 0; i < placedMeshes.length; i++) {
+    const m = placedMeshes[i];
+    const f = m.userData.finalPos;
+    if (i < Math.floor(n)) {
+      m.visible = true;
+      m.position.copy(f);
+    } else if (i === Math.floor(n) && n > Math.floor(n)) {
+      // caja entrando: se desliza desde la puerta trasera
+      const frac = n - Math.floor(n);
+      const ease = 1 - Math.pow(1 - frac, 3);
+      m.visible = true;
+      m.position.set(m.userData.startX + (f.x - m.userData.startX) * ease, f.y, f.z);
+    } else {
+      m.visible = false;
+    }
+  }
+}
+
+function updateSeqUI() {
+  const n = Math.floor(seqProgress);
+  document.getElementById('seq-slider').value = n;
+  document.getElementById('seq-label').textContent = 'Caja ' + n + ' / ' + placedMeshes.length;
+}
+
+/* ---------- Vistas de cámara ---------- */
+function setView(view) {
+  const L = truck.l, W = truck.w, H = truck.h;
+  const cx = L / 2, cy = 110 + H / 2, cz = W / 2;
+  controls.target.set(cx, cy, cz);
+  const d = Math.max(L, W * 3, H * 3);
+  if (view === 'iso')       camera.position.set(cx + d * 0.85, cy + d * 0.6, cz + d * 1.05);
+  else if (view === 'top')  camera.position.set(cx + 1, cy + d * 1.5, cz);
+  else if (view === 'side') camera.position.set(cx, cy + d * 0.12, cz + d * 1.5);
+  else if (view === 'back') camera.position.set(cx + d * 1.6, cy + d * 0.25, cz);
+  camera.lookAt(cx, cy, cz);
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+}
+
+/* ---------- Tooltip + selección ---------- */
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+function pickMesh(ev) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(placedMeshes.filter(m => m.visible), false);
+  return hits.length ? hits[0].object : null;
+}
+
+function onPointerMove(ev) {
+  const tt = document.getElementById('tooltip');
+  const mesh = pickMesh(ev);
+  if (!mesh) { tt.style.display = 'none'; renderer.domElement.style.cursor = 'grab'; return; }
+  renderer.domElement.style.cursor = 'pointer';
+  const pl = mesh.userData.pl, s = pl.box.sku;
+  tt.innerHTML =
+    '<div class="tt-id" style="color:' + s.color + '">' + pl.box.uid + '</div>' +
+    (s.desc ? '<div>' + s.desc + '</div>' : '') +
+    '<div class="tt-row"><span>Dimensiones:</span> ' + pl.dx + ' × ' + pl.dz + ' × ' + pl.dy + ' cm</div>' +
+    '<div class="tt-row"><span>Peso:</span> ' + s.weight + ' kg</div>' +
+    '<div class="tt-row"><span>Posición (L·A·H):</span> ' + (pl.x / 100).toFixed(2) + ' · ' + (pl.z / 100).toFixed(2) + ' · ' + (pl.y / 100).toFixed(2) + ' m</div>' +
+    '<div class="tt-row"><span>Orden de carga:</span> #' + (pl.order + 1) + '</div>';
+  const vp = document.getElementById('viewport').getBoundingClientRect();
+  tt.style.display = 'block';
+  tt.style.left = Math.min(ev.clientX - vp.left + 16, vp.width - 250) + 'px';
+  tt.style.top = Math.max(ev.clientY - vp.top - 10, 8) + 'px';
+}
+
+function onPointerClick(ev) {
+  const mesh = pickMesh(ev);
+  if (selectedMesh) {
+    // restaurar todas
+    for (const m of placedMeshes) { m.material.opacity = 1; m.material.transparent = false; m.material.emissive.setHex(0x000000); }
+    if (selectedMesh === mesh) { selectedMesh = null; return; }
+    selectedMesh = null;
+  }
+  if (mesh) {
+    selectedMesh = mesh;
+    for (const m of placedMeshes) {
+      if (m === mesh) { m.material.emissive.setHex(0x333333); }
+      else { m.material.transparent = true; m.material.opacity = 0.15; }
+    }
+  }
+}
+
+/* ============================================================
+   UI — panel, tabla, KPIs
+============================================================ */
+function fmtKg(kg) { return kg >= 1000 ? (kg / 1000).toFixed(1) + ' t' : kg + ' kg'; }
+
+function renderTruckCards() {
+  const wrap = document.getElementById('truck-cards');
+  wrap.innerHTML = '';
+  TRUCKS.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'truck-card' + (t.key === truck.key ? ' active' : '');
+    const bodyW = t.key === 't34' ? 40 : t.key === 'rigido' ? 54 : 78;
+    card.innerHTML =
+      '<svg width="110" height="40" viewBox="0 0 110 40">' +
+      '<rect x="' + (100 - bodyW) + '" y="6" width="' + bodyW + '" height="22" rx="2" fill="#2a3350" stroke="#3b82f6" stroke-width="1.2"/>' +
+      '<rect x="' + (100 - bodyW - 16) + '" y="12" width="15" height="16" rx="2" fill="#3b82f6"/>' +
+      '<circle cx="' + (100 - bodyW - 8) + '" cy="31" r="5" fill="#11141d" stroke="#64748b"/>' +
+      '<circle cx="' + (100 - bodyW * 0.25) + '" cy="31" r="5" fill="#11141d" stroke="#64748b"/>' +
+      (bodyW > 60 ? '<circle cx="' + (100 - bodyW * 0.45) + '" cy="31" r="5" fill="#11141d" stroke="#64748b"/>' : '') +
+      '</svg>' +
+      '<div class="tc-info"><div class="tc-name">' + t.name + '</div>' +
+      '<div class="tc-dims">' + (t.l / 100).toFixed(1) + ' × ' + (t.w / 100).toFixed(2) + ' × ' + (t.h / 100).toFixed(2) + ' m · ' + fmtKg(t.kg) + '</div></div>' +
+      '<div class="tc-check">✓</div>';
+    card.onclick = () => selectTruck(t);
+    wrap.appendChild(card);
+  });
+}
+
+function selectTruck(t) {
+  truck = { ...t };
+  syncDimInputs();
+  renderTruckCards();
+  packing = null;
+  buildTruck();
+  clearPackedScene();
+  renderResults();
+  setView('iso');
+}
+
+function syncDimInputs() {
+  document.getElementById('dim-l').value = truck.l;
+  document.getElementById('dim-w').value = truck.w;
+  document.getElementById('dim-h').value = truck.h;
+  document.getElementById('dim-kg').value = truck.kg;
+}
+
+function onDimChange() {
+  const l = +document.getElementById('dim-l').value, w = +document.getElementById('dim-w').value;
+  const h = +document.getElementById('dim-h').value, kg = +document.getElementById('dim-kg').value;
+  if (l > 0 && w > 0 && h > 0 && kg > 0) {
+    truck.l = l; truck.w = w; truck.h = h; truck.kg = kg;
+    packing = null;
+    buildTruck();
+    clearPackedScene();
+    renderResults();
+    setView('iso');
+  }
+}
+
+function updateBadge() {
+  document.getElementById('badge-name').textContent = truck.name;
+  document.getElementById('badge-vol').textContent = (truck.l * truck.w * truck.h / 1e6).toFixed(1) + ' m³';
+  document.getElementById('badge-weight').textContent = fmtKg(truck.kg);
+}
+
+function renderBoxTable() {
+  const table = document.getElementById('box-table');
+  const empty = document.getElementById('box-empty');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  if (!skus.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  table.style.display = 'table';
+  for (const s of skus) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="color-dot" style="background:' + s.color + '"></span>' + s.id + '</td>' +
+      '<td>' + s.l + '×' + s.w + '×' + s.h + '</td>' +
+      '<td>' + s.weight + ' kg</td><td>' + s.qty + '</td>';
+    tbody.appendChild(tr);
+  }
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td style="font-weight:700">Total</td><td></td><td></td><td style="font-weight:700">' + boxes.length + '</td>';
+  tbody.appendChild(tr);
+}
+
+function renderResults() {
+  const empty = document.getElementById('results-empty');
+  const res = document.getElementById('results');
+  if (!packing) { empty.style.display = 'block'; res.style.display = 'none'; return; }
+  empty.style.display = 'none';
+  res.style.display = 'block';
+
+  const truckVol = truck.l * truck.w * truck.h;
+  const usedVol = packing.placed.reduce((a, p) => a + p.dx * p.dy * p.dz, 0);
+  const volPct = usedVol / truckVol * 100;
+  const kgPct = packing.totalKg / truck.kg * 100;
+
+  document.getElementById('kpi-vol').textContent = volPct.toFixed(1) + '%';
+  document.getElementById('bar-vol').style.width = Math.min(volPct, 100) + '%';
+  document.getElementById('kpi-weight').textContent = kgPct.toFixed(1) + '%';
+  document.getElementById('bar-weight').style.width = Math.min(kgPct, 100) + '%';
+  document.getElementById('kpi-placed').textContent = packing.placed.length + ' / ' + (packing.placed.length + packing.unplaced.length);
+  document.getElementById('kpi-kg').textContent = fmtKg(packing.totalKg);
+
+  // no colocadas, agrupadas por SKU + motivo
+  const ul = document.getElementById('unplaced-list');
+  ul.innerHTML = '';
+  if (packing.unplaced.length) {
+    const groups = {};
+    for (const u of packing.unplaced) {
+      const k = u.box.sku.id + '|' + u.reason;
+      groups[k] = groups[k] || { id: u.box.sku.id, reason: u.reason, n: 0 };
+      groups[k].n++;
+    }
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size:11px;color:var(--red);font-weight:700;margin-bottom:5px';
+    title.textContent = '⚠️ ' + packing.unplaced.length + ' caja(s) no colocada(s):';
+    ul.appendChild(title);
+    for (const k in groups) {
+      const g = groups[k];
+      const div = document.createElement('div');
+      div.className = 'unplaced-item';
+      div.innerHTML = '<span class="ui-id">' + g.id + ' ×' + g.n + '</span><span class="ui-reason">' + g.reason + '</span>';
+      ul.appendChild(div);
+    }
+  }
+}
+
+/* ============================================================
+   ACCIONES
+============================================================ */
+function optimize() {
+  if (!boxes.length) { setStatus('⚠️ Primero carga un Excel con cajas o usa los datos de ejemplo.', 'warn'); return; }
+  const t0 = performance.now();
+  packing = pack(truck, boxes);
+  const ms = (performance.now() - t0).toFixed(0);
+
+  const issues = validatePacking(packing, truck);
+  if (issues.length) console.warn('⚠️ Validación de packing con problemas:', issues);
+  else console.log('✅ Packing validado sin solapes ni cajas fuera de límites (' + packing.placed.length + ' cajas, ' + ms + ' ms)');
+
+  buildPackedScene();
+  renderResults();
+
+  // reproducir la animación de carga automáticamente
+  seqProgress = 0;
+  playing = true;
+  document.getElementById('btn-play').textContent = '⏸';
+
+  const volPct = (packing.placed.reduce((a, p) => a + p.dx * p.dy * p.dz, 0) / (truck.l * truck.w * truck.h) * 100).toFixed(1);
+  setStatus('⚡ Optimización lista en ' + ms + ' ms: ' + packing.placed.length + ' de ' + boxes.length + ' cajas colocadas · ' + volPct + '% de ocupación.', packing.unplaced.length ? 'warn' : 'ok');
+}
+
+/* ---------- Event listeners ---------- */
+document.getElementById('btn-template').onclick = downloadTemplate;
+document.getElementById('btn-sample').onclick = loadSampleData;
+document.getElementById('btn-optimize').onclick = optimize;
+document.getElementById('btn-upload').onclick = () => document.getElementById('file-input').click();
+
+document.getElementById('file-input').addEventListener('change', ev => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const out = parseWorkbook(wb);
+      if (out.error) { setStatus('❌ ' + out.error, 'err'); return; }
+      loadSkus(out.skus, file.name);
+      if (out.errors.length) setStatus(document.getElementById('status').textContent + '\n⚠️ ' + out.errors.join('\n'), 'warn');
+    } catch (err) {
+      setStatus('❌ No se pudo leer el archivo: ' + err.message, 'err');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  ev.target.value = '';
+});
+
+['dim-l', 'dim-w', 'dim-h', 'dim-kg'].forEach(id => document.getElementById(id).addEventListener('change', onDimChange));
+
+document.getElementById('btn-play').onclick = () => {
+  if (!placedMeshes.length) return;
+  if (seqProgress >= placedMeshes.length) seqProgress = 0;
+  playing = !playing;
+  document.getElementById('btn-play').textContent = playing ? '⏸' : '▶';
+};
+document.getElementById('btn-restart').onclick = () => { seqProgress = 0; playing = false; document.getElementById('btn-play').textContent = '▶'; updateSeqUI(); };
+document.getElementById('seq-slider').addEventListener('input', ev => {
+  playing = false;
+  document.getElementById('btn-play').textContent = '▶';
+  seqProgress = +ev.target.value;
+  updateSeqUI();
+});
+document.querySelectorAll('.view-btn').forEach(b => b.onclick = () => setView(b.dataset.view));
+document.getElementById('chk-walls').addEventListener('change', ev => { if (wallGroup) wallGroup.visible = ev.target.checked; });
+
+/* ---------- Init ---------- */
+renderTruckCards();
+syncDimInputs();
+initScene();
+</script>
+</body>
+</html>

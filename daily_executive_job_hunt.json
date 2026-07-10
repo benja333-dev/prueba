@@ -1,0 +1,236 @@
+{
+  "name": "Daily Executive Job Hunt - 7AM",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Todos los dias a las 7AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 380]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Hoy es {{ $now.format('EEEE d MMMM yyyy') }}.\n\nTu mision:\n1. Usa la herramienta 'buscar_google_jobs' para encontrar posiciones ejecutivas en Chile\n2. Usa la herramienta 'buscar_linkedin_jobs' para encontrar posiciones en LinkedIn Chile\n3. Procesa todos los resultados JSON que recibas y devuelve UNICAMENTE el codigo HTML completo de un email profesional, sin bloques markdown ni texto extra.\n\nEl email HTML debe:\n- Tener diseno profesional: fondo #f4f6f9, header con gradiente azul oscuro (#1e3a5f a #2d5986), fuente sans-serif\n- Mostrar la fecha de hoy en el header\n- Mostrar el total de oportunidades encontradas en un banner destacado\n- Para cada posicion incluir: titulo en negrita, nombre de empresa, ubicacion, descripcion de 2-3 lineas\n- Cada posicion debe tener un boton verde (#27ae60) 'Ver Oferta Completa' que sea un enlace al job listing\n- Agrupa primero CEO / Director / General Manager, luego VP / Vice President, luego Gerente\n- El HTML debe ser responsivo y verse bien en movil\n- Footer con texto: 'Boletin generado automaticamente por tu asistente de busqueda ejecutiva'\n\nDevuelve UNICAMENTE el codigo HTML sin ningun texto adicional.",
+        "options": {
+          "maxIterations": 10,
+          "returnIntermediateSteps": false,
+          "systemMessage": "Eres un asistente ejecutivo especializado en busqueda de empleo de alto nivel. Siempre llama ambas herramientas de busqueda para maximizar los resultados. Procesa el JSON devuelto y construye emails HTML completos, bien estructurados y visualmente atractivos en espanol. Si una posicion no tiene URL directa, usa la URL de busqueda relevante."
+        }
+      },
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Agente Buscador de Empleos Ejecutivos",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 4096
+        }
+      },
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "name": "GPT-4o Mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [340, 580],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "buscar_google_jobs",
+        "description": "Busca ofertas de trabajo ejecutivas en Google Jobs para Chile. Encuentra posiciones con titulos Director, VP, Vice President, CEO, Gerente General, Gerente. Retorna JSON con lista de empleos incluyendo titulo, empresa, ubicacion, descripcion y enlace.",
+        "method": "GET",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_jobs"
+            },
+            {
+              "name": "q",
+              "value": "Director OR VP OR \"Vice President\" OR CEO OR \"Gerente General\" OR \"Gerente de\" -practicante -internship -junior"
+            },
+            {
+              "name": "location",
+              "value": "Chile"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $env.SERPAPI_KEY }}"
+            },
+            {
+              "name": "num",
+              "value": "20"
+            },
+            {
+              "name": "hl",
+              "value": "es"
+            },
+            {
+              "name": "gl",
+              "value": "cl"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "name": "Buscar Google Jobs",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [460, 580]
+    },
+    {
+      "parameters": {
+        "name": "buscar_linkedin_jobs",
+        "description": "Busca ofertas de trabajo ejecutivas publicadas en LinkedIn para Chile. Encuentra posiciones de Director, VP, CEO, Gerente. Retorna JSON con resultados de LinkedIn incluyendo titulo, empresa y enlace directo a la oferta.",
+        "method": "GET",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "site:linkedin.com/jobs (Director OR VP OR CEO OR \"Gerente General\" OR Gerente) Chile -Internship -Practicante -Junior"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $env.SERPAPI_KEY }}"
+            },
+            {
+              "name": "num",
+              "value": "10"
+            },
+            {
+              "name": "hl",
+              "value": "es"
+            },
+            {
+              "name": "gl",
+              "value": "cl"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "name": "Buscar LinkedIn Jobs",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [600, 580]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $env.MY_EMAIL }}",
+        "subject": "=[EMPLEOS] Oportunidades Ejecutivas del {{ $now.format('d/M/yyyy') }} - {{ $now.format('EEEE') }}",
+        "emailType": "html",
+        "html": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+      "name": "Enviar Email con Oportunidades",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [720, 380],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential",
+          "name": "Gmail OAuth2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Todos los dias a las 7AM": {
+      "main": [
+        [
+          {
+            "node": "Agente Buscador de Empleos Ejecutivos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4o Mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Buscador de Empleos Ejecutivos",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Google Jobs": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Buscador de Empleos Ejecutivos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar LinkedIn Jobs": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Buscador de Empleos Ejecutivos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Buscador de Empleos Ejecutivos": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email con Oportunidades",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "versionId": "1"
+}

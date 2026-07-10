@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercado Retail en Chile — Panorama competitivo, tendencias y nichos</title>
+<style>
+  :root{
+    --navy:#051C2C; --blue:#2251FF; --cyan:#00A9F4; --cyan-light:#AAE6F0;
+    --gray-1:#333333; --gray-2:#666666; --gray-3:#B3B3B3; --gray-4:#E6E6E6; --bg:#F0F0F0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{background:var(--bg);font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;color:var(--gray-1);overflow:hidden;}
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  .slide{width:1280px;height:720px;background:#fff;box-shadow:0 4px 24px rgba(5,28,44,.18);
+    padding:34px 52px 30px 52px;position:absolute;display:none;flex-direction:column;}
+  .slide.active{display:flex;}
+
+  .toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .tracker{display:flex;gap:6px;}
+  .trk{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-3);
+    padding:4px 10px;border:1px solid var(--gray-4);font-weight:600;white-space:nowrap;}
+  .trk.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .sticker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);
+    border:1.5px solid var(--blue);padding:5px 12px;font-weight:700;white-space:nowrap;}
+
+  h1.action-title{font-family:Georgia,"Times New Roman",serif;font-size:26px;line-height:1.28;
+    color:var(--navy);font-weight:700;max-width:1130px;margin-bottom:7px;letter-spacing:-.01em;}
+  .subtitle{font-size:13.5px;color:var(--gray-2);margin-bottom:12px;}
+  .subtitle b{color:var(--gray-1);}
+  .title-rule{height:1px;background:var(--gray-4);margin-bottom:14px;}
+
+  .body{flex:1;display:flex;gap:26px;min-height:0;}
+  .exhibit-main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;}
+  .exhibit-label{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-3);
+    margin-bottom:6px;font-weight:700;}
+  .exhibit-main svg{flex:1;min-height:0;width:100%;}
+
+  .sidebar{flex:0 0 316px;border-left:1px solid var(--gray-4);padding-left:24px;
+    display:flex;flex-direction:column;gap:13px;}
+  .sidebar-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);
+    font-weight:700;padding-bottom:8px;border-bottom:2px solid var(--navy);}
+  .tk{display:flex;flex-direction:column;}
+  .tk .n{font-size:40px;font-weight:700;color:var(--blue);line-height:1.02;font-family:Georgia,serif;
+    letter-spacing:-.02em;margin-bottom:4px;}
+  .tk .n small{font-size:19px;font-weight:700;}
+  .tk .t{font-size:12px;line-height:1.45;color:var(--gray-1);}
+  .tk .t b{color:var(--navy);}
+  .tk.dark .n{color:var(--navy);}
+  .sidebar .sowhat{margin-top:auto;background:var(--navy);color:#fff;padding:10px 13px;font-size:11.5px;line-height:1.45;}
+  .sidebar .sowhat b{color:var(--cyan);display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px;}
+
+  .footer{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--gray-4);
+    padding-top:8px;margin-top:12px;}
+  .source{font-size:9.5px;color:var(--gray-2);line-height:1.5;max-width:1020px;}
+  .source .fn{display:block;}
+  .pageno{font-size:12px;color:var(--gray-2);white-space:nowrap;}
+  .pageno b{color:var(--navy);}
+
+  /* Cover */
+  .cover{background:var(--navy);color:#fff;justify-content:space-between;padding:44px 56px;}
+  .cover .brandbar{display:flex;justify-content:space-between;align-items:center;}
+  .cover .logo{font-family:Georgia,serif;font-size:21px;font-weight:700;}
+  .cover .logo span{font-weight:400;font-style:italic;}
+  .cover .conf{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8CA3B5;}
+  .cover .cover-mid{margin-top:22px;}
+  .cover .cover-rule{width:64px;height:4px;background:var(--cyan);margin-bottom:24px;}
+  .cover h1{font-family:Georgia,serif;font-size:40px;line-height:1.18;font-weight:700;max-width:940px;}
+  .cover h2{font-size:18px;font-weight:300;color:#C9D6DF;margin-top:16px;max-width:840px;line-height:1.5;}
+  .cover .cover-stats{display:flex;gap:52px;margin-top:34px;}
+  .cover .cs .n{font-family:Georgia,serif;font-size:42px;font-weight:700;color:var(--cyan);line-height:1;}
+  .cover .cs .c{font-size:11px;color:#8CA3B5;margin-top:7px;max-width:210px;line-height:1.45;}
+  .cover .cover-foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:13px;color:#8CA3B5;}
+  .cover .cover-foot .draft{border:1px solid #35505F;padding:6px 12px;letter-spacing:.14em;font-size:10.5px;text-transform:uppercase;}
+
+  /* Exec summary */
+  .exec-list{display:flex;flex-direction:column;flex:1;justify-content:space-between;}
+  .exec-item{display:flex;gap:16px;align-items:center;padding:7px 0;border-bottom:1px solid #F2F2F2;}
+  .exec-item:last-child{border-bottom:none;}
+  .exec-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .exec-item .txt{font-size:14.5px;line-height:1.5;color:var(--gray-1);}
+  .exec-item .txt b{color:var(--navy);}
+  .exec-item .big{flex:0 0 200px;margin-left:auto;text-align:right;font-family:Georgia,serif;font-size:38px;
+    font-weight:700;color:var(--blue);line-height:1;}
+  .exec-item .big span{display:block;font-family:Arial;font-size:10.5px;font-weight:400;color:var(--gray-2);margin-top:4px;line-height:1.35;}
+
+  svg text{font-family:Arial,sans-serif;}
+  .axis{stroke:var(--gray-3);stroke-width:1;}
+  .gridline{stroke:var(--gray-4);stroke-width:1;}
+  .tick-label{font-size:12px;fill:var(--gray-2);}
+  .val-label{font-size:12.5px;fill:var(--navy);font-weight:700;}
+  .panel-title{font-size:13.5px;fill:var(--navy);font-weight:700;}
+  .panel-sub{font-size:11px;fill:var(--gray-2);}
+  .anno{font-size:11.5px;fill:var(--gray-2);}
+  .anno-strong{font-size:12px;fill:var(--blue);font-weight:700;}
+  .callout{background:#F5F8FF;border-left:4px solid var(--blue);padding:10px 16px;font-size:13px;color:var(--navy);line-height:1.5;}
+  .callout b{color:var(--blue);}
+
+  .cols3{display:flex;gap:14px;flex:1;min-height:0;}
+  .drv{flex:1;border:1px solid var(--gray-4);display:flex;flex-direction:column;}
+  .drv-head{background:var(--navy);color:#fff;font-size:13px;font-weight:700;padding:9px 13px;}
+  .drv-head span{color:var(--cyan);margin-right:6px;}
+  .drv-body{padding:11px 13px;display:flex;flex-direction:column;gap:9px;flex:1;}
+  .drv-item{font-size:12.5px;line-height:1.45;color:var(--gray-1);padding-left:13px;position:relative;}
+  .drv-item::before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;background:var(--cyan);}
+  .drv-stat{background:#F5F8FF;padding:8px 12px;margin-top:auto;}
+  .drv-stat .n{font-size:20px;font-weight:700;color:var(--blue);font-family:Georgia,serif;}
+  .drv-stat .c{font-size:10.5px;color:var(--gray-2);line-height:1.3;margin-top:2px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px;flex:1;min-height:0;}
+  .imp{border:1px solid var(--gray-4);padding:13px 15px;display:flex;flex-direction:column;}
+  .imp-tag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:5px;}
+  .imp-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.3;}
+  .imp-txt{font-size:12px;color:var(--gray-2);line-height:1.45;}
+  .imp-num{margin-top:auto;padding-top:8px;font-family:Georgia,serif;font-size:26px;font-weight:700;color:var(--blue);line-height:1;}
+  .imp-num span{font-family:Arial;font-size:10.5px;font-weight:400;color:var(--gray-2);display:block;margin-top:3px;line-height:1.35;}
+
+  .rec-table{width:100%;border-collapse:collapse;}
+  .rec-table th{background:var(--navy);color:#fff;font-size:12.5px;text-align:left;padding:8px 12px;font-weight:700;vertical-align:top;width:33.3%;}
+  .rec-table th .roman{color:var(--cyan);display:block;font-size:10px;letter-spacing:.14em;margin-bottom:2px;text-transform:uppercase;}
+  .rec-table td{border:1px solid var(--gray-4);padding:7px 12px;font-size:11.5px;line-height:1.42;color:var(--gray-1);vertical-align:top;}
+  .rec-table td b{color:var(--navy);}
+  .next-steps{display:flex;gap:12px;margin-top:11px;}
+  .step{flex:1;background:#F5F8FF;padding:8px 12px;font-size:11.5px;line-height:1.4;color:var(--navy);border-top:3px solid var(--blue);}
+  .step b{display:block;margin-bottom:2px;}
+
+  #nav{position:fixed;bottom:18px;right:24px;z-index:50;display:flex;gap:8px;align-items:center;}
+  #nav button{width:38px;height:38px;border:none;background:var(--navy);color:#fff;font-size:17px;cursor:pointer;border-radius:3px;}
+  #nav button:hover{background:var(--blue);}
+  #counter{font-size:13px;color:var(--gray-2);padding:0 6px;}
+
+  @media print{body{overflow:visible;background:#fff;}#stage{position:static;display:block;}
+    .slide{display:flex !important;position:relative;box-shadow:none;page-break-after:always;margin:0 auto;transform:none !important;}
+    #nav{display:none;}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- SLIDE 1 — COVER -->
+<section class="slide cover active">
+  <div class="brandbar">
+    <div class="logo">Brunet <span>&amp; Company</span></div>
+    <div class="conf">Confidencial — Preparado para el CEO</div>
+  </div>
+  <div class="cover-mid">
+    <div class="cover-rule"></div>
+    <h1>El mercado retail en Chile: panorama competitivo, tendencias y nichos de crecimiento</h1>
+    <h2>Una lectura ejecutiva del tamaño de mercado, la estructura competitiva, el cambio de canal y dónde están las oportunidades</h2>
+    <div class="cover-stats">
+      <div class="cs"><div class="n">~US$70&nbsp;mm</div><div class="c">ventas del retail formal en Chile (2024, estimado)</div></div>
+      <div class="cs"><div class="n">~80%</div><div class="c">de los supermercados en manos de 3 actores</div></div>
+      <div class="cs"><div class="n">~14%</div><div class="c">penetración del e-commerce sobre el retail</div></div>
+      <div class="cs"><div class="n">3</div><div class="c">grandes ecosistemas: Falabella, Cencosud, Walmart</div></div>
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Julio 2026 &nbsp;·&nbsp; Documento de trabajo</div>
+    <div class="draft">Borrador — v1.0</div>
+  </div>
+</section>
+
+<!-- SLIDE 2 — EXEC SUMMARY -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk on">Resumen</div><div class="trk">Mercado</div><div class="trk">Competencia</div><div class="trk">Tendencias</div><div class="trk">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Resumen ejecutivo</div>
+  </div>
+  <h1 class="action-title">El retail chileno es maduro y concentrado; el valor ya no se gana en metros cuadrados, sino en ecosistema, datos y omnicanalidad</h1>
+  <div class="subtitle">Cinco mensajes centrales para la discusión</div>
+  <div class="title-rule"></div>
+  <div class="exec-list">
+    <div class="exec-item">
+      <div class="exec-num">1</div>
+      <div class="txt"><b>Mercado maduro, crecimiento plano:</b> el retail formal mueve ~US$70 mil millones y crece a un dígito bajo en términos reales; el volumen ya no es la palanca</div>
+      <div class="big">~2%<span>crecimiento real anual del retail, 2019–24</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">2</div>
+      <div class="txt"><b>Alta concentración:</b> tres conglomerados —Falabella, Cencosud y Walmart Chile— dominan supermercados, mejoramiento del hogar y tiendas por departamento</div>
+      <div class="big">~80%<span>de la venta de supermercados en 3 actores</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">3</div>
+      <div class="txt"><b>El canal se digitalizó:</b> el e-commerce saltó de ~5% a ~14% del retail post-pandemia; MercadoLibre lidera el marketplace y presiona a los incumbentes</div>
+      <div class="big">~3x<span>penetración e-commerce vs. 2019</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">4</div>
+      <div class="txt"><b>El consumidor cambió:</b> más sensible al precio, más omnicanal y más digital; crecen marcas propias, formatos de cercanía y servicios financieros del retail</div>
+      <div class="big">+40%<span>uso de canales digitales en la decisión de compra</span></div>
+    </div>
+    <div class="exec-item">
+      <div class="exec-num">5</div>
+      <div class="txt"><b>El nuevo valor está en el ecosistema:</b> retail media, fintech, marketplace y logística —no la tienda física— son los nichos de mayor rentabilidad futura</div>
+      <div class="big">3<span>pilares de la agenda estratégica propuesta</span></div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: reportes de compañías; INE; Cámara de Comercio de Santiago (CCS); estimaciones del equipo — cifras ilustrativas, validar con fuentes primarias</div>
+    <div class="pageno"><b>2</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 3 — MARKET SIZE -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk on">Mercado</div><div class="trk">Competencia</div><div class="trk">Tendencias</div><div class="trk">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">El mercado se recuperó del shock pandémico pero se estabilizó: crecimiento nominal moderado y volumen real casi plano</h1>
+  <div class="subtitle">Ventas del retail formal en Chile, <b>US$ miles de millones</b>, 2019–2025E</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 1 — Tamaño y evolución del mercado</div>
+      <svg viewBox="0 0 810 440" preserveAspectRatio="xMidYMid meet">
+        <line class="gridline" x1="60" y1="70" x2="770" y2="70"/>
+        <line class="gridline" x1="60" y1="160" x2="770" y2="160"/>
+        <line class="gridline" x1="60" y1="250" x2="770" y2="250"/>
+        <text class="tick-label" x="50" y="74" text-anchor="end">80</text>
+        <text class="tick-label" x="50" y="164" text-anchor="end">53</text>
+        <text class="tick-label" x="50" y="254" text-anchor="end">27</text>
+        <text class="tick-label" x="50" y="344" text-anchor="end">0</text>
+        <!-- bars: baseline 340, scale 80 -> 70..340 range (270px for 80) -->
+        <rect x="95"  y="154" width="70" height="186" fill="#2251FF"/>
+        <rect x="200" y="181" width="70" height="159" fill="#2251FF"/>
+        <rect x="305" y="124" width="70" height="216" fill="#2251FF"/>
+        <rect x="410" y="115" width="70" height="225" fill="#2251FF"/>
+        <rect x="515" y="121" width="70" height="219" fill="#2251FF"/>
+        <rect x="620" y="112" width="70" height="228" fill="#00A9F4"/>
+        <text class="val-label" x="130" y="142" text-anchor="middle">55</text>
+        <text class="val-label" x="235" y="169" text-anchor="middle">47</text>
+        <text class="val-label" x="340" y="112" text-anchor="middle">64</text>
+        <text class="val-label" x="445" y="103" text-anchor="middle">67</text>
+        <text class="val-label" x="550" y="109" text-anchor="middle">65</text>
+        <text class="val-label" x="655" y="100" text-anchor="middle">68</text>
+        <line class="axis" x1="60" y1="340" x2="770" y2="340"/>
+        <text class="tick-label" x="130" y="360" text-anchor="middle">2019</text>
+        <text class="tick-label" x="235" y="360" text-anchor="middle">2020</text>
+        <text class="tick-label" x="340" y="360" text-anchor="middle">2021</text>
+        <text class="tick-label" x="445" y="360" text-anchor="middle">2022</text>
+        <text class="tick-label" x="550" y="360" text-anchor="middle">2023</text>
+        <text class="tick-label" x="655" y="360" text-anchor="middle">2025E</text>
+        <text class="anno" x="235" y="392" text-anchor="middle">Shock COVID</text>
+        <text class="anno-strong" x="390" y="392" text-anchor="middle">Rebote de consumo</text>
+        <text class="anno" x="620" y="392" text-anchor="middle">Normalización</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">~US$70<small>mm</small></div><div class="t">Tamaño del retail formal (2025E); <b>uno de los per cápita más altos de la región</b></div></div>
+      <div class="tk"><div class="n">~2%</div><div class="t">Crecimiento <b>real</b> anual 2019–24: el mercado está maduro, la torta casi no crece</div></div>
+      <div class="tk dark"><div class="n">-30%</div><div class="t">Caída del consumo discrecional en 2022–23 por <b>inflación y fin de estímulos</b> (retiros, IFE)</div></div>
+      <div class="sowhat"><b>So what</b>Crecer por volumen ya no alcanza; el CEO debe pelear por participación, margen y nuevas fuentes de ingreso.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source"><span class="fn">1. Retail formal (supermercados, mejoramiento del hogar, tiendas por departamento, farmacias, e-commerce); excluye comercio informal</span>Fuente: INE; CCS; reportes de compañías; estimaciones del equipo</div>
+    <div class="pageno"><b>3</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 4 — COMPETITIVE / MARKET SHARE -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk on">Competencia</div><div class="trk">Tendencias</div><div class="trk">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">El mercado es un oligopolio de tres ecosistemas integrados: Falabella y Cencosud atraviesan casi todas las verticales del retail</h1>
+  <div class="subtitle">Mapa de mercado (Marimekko): <b>ancho</b> = tamaño de la vertical · <b>alto</b> = participación por actor · 2024 estimado</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 2 — Estructura competitiva por vertical</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- Marimekko: y 40(100%)..300(0%) H=260 ; x plot 60..770 -->
+        <text class="tick-label" x="50" y="45" text-anchor="end">100%</text>
+        <text class="tick-label" x="50" y="175" text-anchor="end">50%</text>
+        <text class="tick-label" x="50" y="304" text-anchor="end">0%</text>
+        <!-- COL 1 Supermercados x=60 w=385 : Walmart31 Cencosud28 SMU21 Falabella9 Otros11 -->
+        <rect x="60"  y="40"  width="385" height="80.6" fill="#00A9F4"/>
+        <rect x="60"  y="120.6" width="385" height="72.8" fill="#051C2C"/>
+        <rect x="60"  y="193.4" width="385" height="54.6" fill="#AAE6F0"/>
+        <rect x="60"  y="248"  width="385" height="23.4" fill="#2251FF"/>
+        <rect x="60"  y="271.4" width="385" height="28.6" fill="#E6E6E6"/>
+        <text x="252" y="76" text-anchor="middle" font-size="12.5" fill="#fff" font-weight="700">Walmart · Líder 31%</text>
+        <text x="252" y="161" text-anchor="middle" font-size="12.5" fill="#fff" font-weight="700">Cencosud · Jumbo/S.Isabel 28%</text>
+        <text x="252" y="224" text-anchor="middle" font-size="12" fill="#051C2C" font-weight="700">SMU · Unimarc/Alvi 21%</text>
+        <text x="252" y="264" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">Falabella·Tottus 9%</text>
+        <!-- COL 2 Mej. Hogar x=449 w=127 : Sodimac/Falabella45 Easy/Cencosud25 Construmart12 Otros18 -->
+        <rect x="449" y="40"  width="127" height="117" fill="#2251FF"/>
+        <rect x="449" y="157" width="127" height="65" fill="#051C2C"/>
+        <rect x="449" y="222" width="127" height="31.2" fill="#B3B3B3"/>
+        <rect x="449" y="253.2" width="127" height="46.8" fill="#E6E6E6"/>
+        <text x="512" y="102" text-anchor="middle" font-size="11.5" fill="#fff" font-weight="700">Sodimac 45%</text>
+        <text x="512" y="194" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Easy 25%</text>
+        <!-- COL 3 T. Depto x=580 w=101 : Falabella40 Paris/Cencosud32 Ripley22 Otros6 -->
+        <rect x="580" y="40"  width="101" height="104" fill="#2251FF"/>
+        <rect x="580" y="144" width="101" height="83.2" fill="#051C2C"/>
+        <rect x="580" y="227.2" width="101" height="57.2" fill="#8FA3B0"/>
+        <rect x="580" y="284.4" width="101" height="15.6" fill="#E6E6E6"/>
+        <text x="630" y="96" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Falabella 40%</text>
+        <text x="630" y="190" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">Paris 32%</text>
+        <text x="630" y="261" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">Ripley 22%</text>
+        <!-- COL 4 Farmacias x=685 w=85 : CruzVerde42 Salcobrand30 Ahumada22 Otros6 -->
+        <rect x="685" y="40"  width="85" height="109.2" fill="#666666"/>
+        <rect x="685" y="149.2" width="85" height="78" fill="#999999"/>
+        <rect x="685" y="227.2" width="85" height="57.2" fill="#C4C4C4"/>
+        <rect x="685" y="284.4" width="85" height="15.6" fill="#E6E6E6"/>
+        <text x="727" y="99" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">Cruz V. 42%</text>
+        <text x="727" y="193" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Salco 30%</text>
+        <!-- column headers -->
+        <text x="252" y="30" text-anchor="middle" font-size="12" fill="#051C2C" font-weight="700">Supermercados · ~US$30 mm</text>
+        <text x="512" y="30" text-anchor="middle" font-size="10.5" fill="#051C2C" font-weight="700">Mej. hogar</text>
+        <text x="512" y="18" text-anchor="middle" font-size="9" fill="#666">~US$10 mm</text>
+        <text x="630" y="30" text-anchor="middle" font-size="10.5" fill="#051C2C" font-weight="700">T. depto.</text>
+        <text x="630" y="18" text-anchor="middle" font-size="9" fill="#666">~US$8 mm</text>
+        <text x="727" y="30" text-anchor="middle" font-size="10.5" fill="#051C2C" font-weight="700">Farmacias</text>
+        <text x="727" y="18" text-anchor="middle" font-size="9" fill="#666">~US$7 mm</text>
+        <!-- legend -->
+        <rect x="60"  y="330" width="13" height="13" fill="#2251FF"/><text x="79" y="341" font-size="11" fill="#333">Falabella</text>
+        <rect x="165" y="330" width="13" height="13" fill="#051C2C"/><text x="184" y="341" font-size="11" fill="#333">Cencosud</text>
+        <rect x="275" y="330" width="13" height="13" fill="#00A9F4"/><text x="294" y="341" font-size="11" fill="#333">Walmart</text>
+        <rect x="375" y="330" width="13" height="13" fill="#AAE6F0"/><text x="394" y="341" font-size="11" fill="#333">SMU</text>
+        <rect x="445" y="330" width="13" height="13" fill="#8FA3B0"/><text x="464" y="341" font-size="11" fill="#333">Ripley</text>
+        <rect x="525" y="330" width="13" height="13" fill="#999999"/><text x="544" y="341" font-size="11" fill="#333">Farmacias (independientes)</text>
+        <text x="60" y="372" font-size="11.5" fill="#2251FF" font-weight="700">Falabella y Cencosud compiten en las 4 verticales — integración vertical + banca propia como foso competitivo</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">3</div><div class="t">Ecosistemas integran <b>retail + banca + inmobiliario</b>: Falabella, Cencosud y Walmart Chile</div></div>
+      <div class="tk"><div class="n">~90%</div><div class="t">Concentración en <b>farmacias</b> (Cruz Verde, Salcobrand, Ahumada): el caso más extremo</div></div>
+      <div class="tk dark"><div class="n">CMR·CAT</div><div class="t">Las <b>tarjetas de crédito propias</b> son una barrera de entrada y fuente clave de margen</div></div>
+      <div class="sowhat"><b>So what</b>La escala ya está tomada; ganar exige diferenciación en experiencia, datos y servicios, no guerra de precios frontal.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: reportes anuales de compañías; FNE; prensa sectorial; estimaciones del equipo — participaciones aproximadas</div>
+    <div class="pageno"><b>4</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 5 — E-COMMERCE / CHANNEL SHIFT -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk on">Competencia</div><div class="trk">Tendencias</div><div class="trk">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">La pandemia adelantó una década de digitalización; el e-commerce se triplicó y MercadoLibre disputa el liderazgo a los incumbentes</h1>
+  <div class="subtitle">Mix de canal del retail, <b>% del total</b> (físico vs. e-commerce), Chile, 2015–2025E</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 3 — Mix de canal (área apilada 100%)</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- plot x 90..760, y 45(100%)..325(0%), H=280 -->
+        <!-- offline base -->
+        <rect x="90" y="45" width="670" height="280" fill="#051C2C"/>
+        <!-- online wedge (bottom band) polygon along online% line down to baseline -->
+        <polygon fill="#00A9F4" points="90,316.6 202,313.8 313,311 425,299.8 537,288.6 648,291.4 760,285.8 760,325 90,325"/>
+        <!-- online line stroke -->
+        <polyline fill="none" stroke="#fff" stroke-width="1.5" points="90,316.6 202,313.8 313,311 425,299.8 537,288.6 648,291.4 760,285.8"/>
+        <!-- labels inside bands -->
+        <text x="300" y="160" font-size="18" fill="#fff" font-weight="700">Tienda física</text>
+        <text x="300" y="184" font-size="12" fill="#AAE6F0">~86% del retail (2025E)</text>
+        <text x="600" y="308" font-size="13" fill="#fff" font-weight="700">E-commerce</text>
+        <!-- value callouts for online -->
+        <text class="val-label" x="90"  y="336" text-anchor="middle" fill="#00A9F4">3%</text>
+        <text class="val-label" x="425" y="336" text-anchor="middle" fill="#00A9F4">9%</text>
+        <text class="val-label" x="537" y="336" text-anchor="middle" fill="#00A9F4">13%</text>
+        <text class="val-label" x="760" y="336" text-anchor="middle" fill="#00A9F4">14%</text>
+        <!-- top/axis -->
+        <text class="tick-label" x="82" y="49" text-anchor="end">100%</text>
+        <text class="tick-label" x="82" y="329" text-anchor="end">0%</text>
+        <text class="tick-label" x="90"  y="355" text-anchor="middle">2015</text>
+        <text class="tick-label" x="313" y="355" text-anchor="middle">2019</text>
+        <text class="tick-label" x="425" y="355" text-anchor="middle">2020</text>
+        <text class="tick-label" x="537" y="355" text-anchor="middle">2021</text>
+        <text class="tick-label" x="760" y="355" text-anchor="middle">2025E</text>
+        <!-- pandemic jump annotation -->
+        <line x1="313" y1="311" x2="313" y2="250" stroke="#fff" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="537" y1="288.6" x2="537" y2="250" stroke="#fff" stroke-width="1" stroke-dasharray="3 3"/>
+        <path d="M 313 245 L 313 238 L 537 238 L 537 245" fill="none" stroke="#fff" stroke-width="1.2"/>
+        <text x="425" y="230" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Salto pandémico: +8 p.p. en 2 años</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">~3x</div><div class="t">Penetración online vs. 2019 (5% → ~14%); <b>el canal digital ya es estructural</b></div></div>
+      <div class="tk"><div class="n">#1</div><div class="t"><b>MercadoLibre</b> lidera el marketplace; Falabella.com es el retailer incumbente más avanzado</div></div>
+      <div class="tk dark"><div class="n">~60%</div><div class="t">De las compras hoy son <b>omnicanal</b> (research online, compra en tienda o viceversa)</div></div>
+      <div class="sowhat"><b>So what</b>El campo de batalla es la experiencia omnicanal y el marketplace; quien no tenga plataforma propia compite en desventaja.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: Cámara de Comercio de Santiago (CCS); reportes de compañías; estimaciones del equipo — penetración aproximada</div>
+    <div class="pageno"><b>5</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 6 — TRENDS -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk">Competencia</div><div class="trk on">Tendencias</div><div class="trk">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">Tres fuerzas están redefiniendo el retail chileno: un consumidor de valor, la omnicanalidad y la monetización del ecosistema</h1>
+  <div class="subtitle">Principales tendencias de mercado y su implicancia para el negocio</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="cols3">
+        <div class="drv">
+          <div class="drv-head"><span>A</span>Consumidor de valor</div>
+          <div class="drv-body">
+            <div class="drv-item">Mayor sensibilidad al precio tras la inflación y el fin de los estímulos</div>
+            <div class="drv-item">Auge de <b>marcas propias</b> y formatos de cercanía / mayoristas (Alvi, Mayorista 10)</div>
+            <div class="drv-item">Espacio para <b>hard discount</b>, aún incipiente vs. otros mercados de la región</div>
+            <div class="drv-stat"><div class="n">+2 dígitos</div><div class="c">crecimiento de marcas propias sobre el promedio de categoría</div></div>
+          </div>
+        </div>
+        <div class="drv">
+          <div class="drv-head"><span>B</span>Omnicanalidad</div>
+          <div class="drv-body">
+            <div class="drv-item">La tienda se vuelve punto de <b>fulfillment</b> (click&amp;collect, ship-from-store)</div>
+            <div class="drv-item">Quick commerce y última milla: Rappi, Uber, PedidosYa, Cornershop</div>
+            <div class="drv-item">El dato del cliente unifica canales y habilita personalización</div>
+            <div class="drv-stat"><div class="n">~60%</div><div class="c">de las compras involucran más de un canal</div></div>
+          </div>
+        </div>
+        <div class="drv">
+          <div class="drv-head"><span>C</span>Ecosistema y fintech</div>
+          <div class="drv-body">
+            <div class="drv-item"><b>Retail media</b>: monetizar la audiencia con publicidad (alto margen)</div>
+            <div class="drv-item">Servicios financieros: tarjetas, seguros, billeteras (CMR, banco propio)</div>
+            <div class="drv-item">Programas de <b>lealtad</b> y suscripción como fuente de recurrencia</div>
+            <div class="drv-stat"><div class="n">3–5x</div><div class="c">margen de retail media vs. la venta de producto</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:12px;"><b>Implicancia:</b> el retailer ganador dejará de ser solo un vendedor de productos para operar como una <b>plataforma</b> de comercio, medios, datos y servicios financieros.</div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Los números detrás</div>
+      <div class="tk"><div class="n">+40%</div><div class="t">Peso de lo digital en la <b>decisión de compra</b> (búsqueda, comparación, reseñas)</div></div>
+      <div class="tk"><div class="n">~20%</div><div class="t">De la canasta puede migrar a <b>marca propia</b> en categorías clave</div></div>
+      <div class="tk dark"><div class="n">alto</div><div class="t">El <b>retail media</b> es hoy la fuente de crecimiento de utilidad más rentable del sector</div></div>
+      <div class="sowhat"><b>So what</b>La rentabilidad futura viene de los servicios alrededor de la venta, no del mark-up del producto.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: reportes de compañías; Euromonitor/estudios sectoriales; entrevistas de expertos; análisis del equipo</div>
+    <div class="pageno"><b>6</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 7 — PERFORMANCE BY FORMAT -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk">Competencia</div><div class="trk on">Tendencias</div><div class="trk">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">Dónde compite cada formato: e-commerce crece pero aún no rinde; tiendas por departamento están en el cuadrante de "arreglar o salir"</h1>
+  <div class="subtitle">Matriz crecimiento–rentabilidad por formato · <b>tamaño de la burbuja</b> = ventas · 2019–2024 estimado</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 5 — Pool de utilidad por formato</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- plot x 90..770 (x -6..+14), x0 at 291 ; y 45..330 (0..10%), y0 at 330 -->
+        <!-- quadrant shading -->
+        <rect x="291" y="45" width="479" height="145" fill="#F5F8FF"/>
+        <!-- axes -->
+        <line x1="291" y1="45" x2="291" y2="330" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="90" y1="190" x2="770" y2="190" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <line class="axis" x1="90" y1="330" x2="770" y2="330"/>
+        <line class="axis" x1="90" y1="45" x2="90" y2="330"/>
+        <!-- axis labels -->
+        <text class="tick-label" x="90" y="348" text-anchor="middle">-6%</text>
+        <text class="tick-label" x="291" y="348" text-anchor="middle">0%</text>
+        <text class="tick-label" x="558" y="348" text-anchor="middle">+8%</text>
+        <text class="tick-label" x="760" y="348" text-anchor="middle">+14%</text>
+        <text class="anno" x="430" y="372" text-anchor="middle" font-weight="700">Crecimiento real de ventas (CAGR 2019–24) →</text>
+        <text class="tick-label" x="82" y="330" text-anchor="end">0%</text>
+        <text class="tick-label" x="82" y="192" text-anchor="end">5%</text>
+        <text class="tick-label" x="82" y="52" text-anchor="end">10%</text>
+        <text class="anno" x="30" y="190" text-anchor="middle" font-weight="700" transform="rotate(-90 30 190)">Margen operacional aprox. ↑</text>
+        <!-- quadrant captions -->
+        <text class="anno" x="300" y="62" font-weight="700" fill="#2251FF">Crecer / invertir</text>
+        <text class="anno" x="100" y="62" font-weight="700" fill="#666">Cosechar</text>
+        <text class="anno" x="300" y="322" font-weight="700" fill="#00A9F4">Construir (escala futura)</text>
+        <text class="anno" x="100" y="322" font-weight="700" fill="#666">Arreglar o salir</text>
+        <!-- bubbles: Supermercados x3 m4 r46 navy -->
+        <circle cx="391" cy="218" r="46" fill="#051C2C" opacity="0.88"/>
+        <text x="391" y="215" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Super-</text>
+        <text x="391" y="228" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">mercados</text>
+        <!-- Mej hogar x-1 m8 r30 blue -->
+        <circle cx="257" cy="106" r="30" fill="#2251FF" opacity="0.9"/>
+        <text x="257" y="103" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Mej.</text>
+        <text x="257" y="115" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">hogar</text>
+        <!-- T depto x-4 m3 r28 steel -->
+        <circle cx="157" cy="246" r="28" fill="#8FA3B0" opacity="0.95"/>
+        <text x="157" y="243" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700">T. por</text>
+        <text x="157" y="255" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700">depto.</text>
+        <!-- Farmacias x5 m6 r26 blue-mid -->
+        <circle cx="458" cy="162" r="26" fill="#2251FF" opacity="0.72"/>
+        <text x="458" y="166" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Farmacias</text>
+        <!-- E-commerce x12 m2 r34 cyan -->
+        <circle cx="693" cy="274" r="34" fill="#00A9F4" opacity="0.92"/>
+        <text x="693" y="271" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">E-com-</text>
+        <text x="693" y="283" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">merce</text>
+        <!-- arrow: e-commerce trending up -->
+        <path d="M 693 240 q 20 -25 30 -55" fill="none" stroke="#00A9F4" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#00A9F4"/></marker></defs>
+        <text class="anno" x="735" y="185" fill="#00A9F4" font-weight="700">escala →</text>
+        <text class="anno" x="735" y="200" fill="#00A9F4" font-weight="700">margen</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">+12%</div><div class="t">E-commerce es el formato de <b>mayor crecimiento</b>, aunque desde una base menor</div></div>
+      <div class="tk"><div class="n">-4%</div><div class="t"><b>Tiendas por departamento</b>: el formato más presionado por costo, tráfico y competencia online</div></div>
+      <div class="tk dark"><div class="n">salud</div><div class="t">Farma y bienestar crecen sostenido: <b>envejecimiento + más gasto en salud</b></div></div>
+      <div class="sowhat"><b>So what</b>Reasignar capital desde el formato físico presionado hacia canal digital, salud y servicios.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source"><span class="fn">1. Crecimiento real (deflactado); estimaciones a partir de reportes de compañías y datos sectoriales</span>Fuente: reportes de compañías; INE; análisis del equipo</div>
+    <div class="pageno"><b>7</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 8 — NICHES / OPPORTUNITIES -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk">Competencia</div><div class="trk">Tendencias</div><div class="trk on">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">Priorización de nichos: retail media y fintech son las apuestas ganadoras — alto atractivo y ejecutables con los activos actuales</h1>
+  <div class="subtitle">Matriz de priorización · <b>tamaño de la burbuja</b> = potencial de utilidad · nichos del retail chileno</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 6 — Matriz de priorización de nichos</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- plot x 95..760 (0..10) -> 66.5/u ; y 45..330 (0..10) -> 28.5/u -->
+        <rect x="427" y="45" width="333" height="142" fill="#F5F8FF"/>
+        <line x1="427" y1="45" x2="427" y2="330" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="95" y1="187" x2="760" y2="187" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <line class="axis" x1="95" y1="330" x2="760" y2="330"/>
+        <line class="axis" x1="95" y1="45" x2="95" y2="330"/>
+        <text class="anno" x="427" y="368" text-anchor="middle" font-weight="700">Facilidad de ejecución (activos y capacidades actuales) →</text>
+        <text class="anno" x="34" y="188" text-anchor="middle" font-weight="700" transform="rotate(-90 34 188)">Atractivo / rentabilidad ↑</text>
+        <text class="anno" x="752" y="62" text-anchor="end" font-weight="700" fill="#2251FF">GANAR YA · Prioridad 1</text>
+        <text class="anno" x="200" y="62" text-anchor="middle" font-weight="700" fill="#666">Apostar selectivo</text>
+        <text class="anno" x="600" y="322" text-anchor="middle" font-weight="700" fill="#666">Quick wins</text>
+        <text class="anno" x="200" y="322" text-anchor="middle" font-weight="700" fill="#666">Baja prioridad</text>
+        <!-- bubbles: x=95+val*66.5 ; y=330-val*28.5 -->
+        <!-- Retail media (7,9) r42 blue -->
+        <circle cx="561" cy="74" r="42" fill="#2251FF" opacity="0.9"/>
+        <text x="561" y="71" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Retail</text>
+        <text x="561" y="84" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">media</text>
+        <!-- Fintech (5.5,8) r40 navy -->
+        <circle cx="461" cy="102" r="40" fill="#051C2C" opacity="0.9"/>
+        <text x="461" y="99" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">Fintech /</text>
+        <text x="461" y="112" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">crédito</text>
+        <!-- Marcas propias (8,6) r30 cyan -->
+        <circle cx="627" cy="159" r="30" fill="#00A9F4" opacity="0.92"/>
+        <text x="627" y="156" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700">Marcas</text>
+        <text x="627" y="168" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700">propias</text>
+        <!-- Salud/farma (6,7) r26 blue-mid -->
+        <circle cx="494" cy="130" r="24" fill="#2251FF" opacity="0.62"/>
+        <text x="494" y="133" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">Salud</text>
+        <!-- Q-commerce (4.5,5) r24 steel -->
+        <circle cx="394" cy="187" r="24" fill="#8FA3B0"/>
+        <text x="394" y="184" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="700">Q-com-</text>
+        <text x="394" y="195" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="700">merce</text>
+        <!-- Marketplace 3P (3,7.5) r30 cyan-light -->
+        <circle cx="295" cy="116" r="30" fill="#AAE6F0"/>
+        <text x="295" y="113" text-anchor="middle" font-size="9" fill="#051C2C" font-weight="700">Market-</text>
+        <text x="295" y="125" text-anchor="middle" font-size="9" fill="#051C2C" font-weight="700">place 3P</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">3–5x</div><div class="t">Margen del <b>retail media</b> vs. la venta de producto tradicional</div></div>
+      <div class="tk"><div class="n">datos</div><div class="t">El activo más valioso y subutilizado: <b>la data transaccional</b> del cliente</div></div>
+      <div class="tk dark"><div class="n">salud</div><div class="t">Farma-retail, bienestar y seguros de salud: nicho creciente por demografía</div></div>
+      <div class="sowhat"><b>So what</b>El próximo punto de rentabilidad no es una tienda nueva; es un negocio de medios, datos y servicios financieros.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: benchmarks internacionales (Amazon Ads, Mercado Ado, Walmart Connect); reportes de compañías; análisis del equipo</div>
+    <div class="pageno"><b>8</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 9 — THREATS / DISRUPTION -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk">Competencia</div><div class="trk">Tendencias</div><div class="trk on">Nichos</div><div class="trk">Agenda</div>
+    </div>
+    <div class="sticker">Borrador</div>
+  </div>
+  <h1 class="action-title">El mayor riesgo es doble y simultáneo: las plataformas globales por arriba y el cross-border asiático por abajo del precio</h1>
+  <div class="subtitle">Matriz de riesgo · impacto en el negocio vs. probabilidad · horizonte 2025–2030</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 7 — Matriz de amenazas y disrupción</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- risk heatmap tints, plot x 95..760, y 45..330 ; split at x=427 y=187 -->
+        <rect x="95" y="187" width="332" height="143" fill="#EAF6EC"/>
+        <rect x="427" y="187" width="333" height="143" fill="#FEF6E7"/>
+        <rect x="95" y="45" width="332" height="142" fill="#FEF6E7"/>
+        <rect x="427" y="45" width="333" height="142" fill="#FCEBEA"/>
+        <line x1="427" y1="45" x2="427" y2="330" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="95" y1="187" x2="760" y2="187" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="4 4"/>
+        <line class="axis" x1="95" y1="330" x2="760" y2="330"/>
+        <line class="axis" x1="95" y1="45" x2="95" y2="330"/>
+        <text class="anno" x="427" y="368" text-anchor="middle" font-weight="700">Probabilidad de ocurrencia →</text>
+        <text class="anno" x="34" y="188" text-anchor="middle" font-weight="700" transform="rotate(-90 34 188)">Impacto en el negocio ↑</text>
+        <text class="anno" x="440" y="62" text-anchor="start" font-weight="700" fill="#C0392B">ZONA CRÍTICA</text>
+        <text class="anno" x="105" y="322" font-weight="700" fill="#27853A">Monitorear</text>
+        <!-- bubbles x=95+val*66.5 y=330-val*28.5 -->
+        <!-- MELI/Amazon (8.5,8.5) r40 navy -->
+        <circle cx="660" cy="88" r="40" fill="#051C2C" opacity="0.9"/>
+        <text x="660" y="85" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">MercadoLibre</text>
+        <text x="660" y="98" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">/ Amazon</text>
+        <!-- Temu/Shein (7.5,7) r36 blue -->
+        <circle cx="594" cy="130" r="36" fill="#2251FF" opacity="0.9"/>
+        <text x="594" y="127" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Temu ·</text>
+        <text x="594" y="140" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Shein</text>
+        <!-- Consumidor (6.5,6) r30 cyan -->
+        <circle cx="527" cy="159" r="30" fill="#00A9F4" opacity="0.92"/>
+        <text x="527" y="156" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">Consumidor</text>
+        <text x="527" y="167" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">presionado</text>
+        <!-- Regulación (5.5,5) r26 steel -->
+        <circle cx="461" cy="188" r="26" fill="#8FA3B0"/>
+        <text x="461" y="185" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">Regu-</text>
+        <text x="461" y="196" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">lación</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">3</div><div class="t">Frentes externos simultáneos: <b>plataformas, cross-border y regulación</b></div></div>
+      <div class="tk"><div class="n">precio</div><div class="t">El cross-border asiático redefine el <b>precio de referencia</b> en no-alimentos</div></div>
+      <div class="tk dark"><div class="n">crédito</div><div class="t">El negocio financiero —clave de margen— es el <b>más expuesto</b> a ciclo y regulación</div></div>
+      <div class="sowhat"><b>So what</b>Defender el core no basta: hay que asociarse, diferenciar en servicio local y proteger el negocio financiero.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: prensa sectorial; reportes de compañías; análisis regulatorio; análisis del equipo</div>
+    <div class="pageno"><b>9</b> / 10</div>
+  </div>
+</section>
+
+<!-- SLIDE 10 — RECOMMENDATIONS -->
+<section class="slide">
+  <div class="toprow">
+    <div class="tracker">
+      <div class="trk">Resumen</div><div class="trk">Mercado</div><div class="trk">Competencia</div><div class="trk">Tendencias</div><div class="trk">Nichos</div><div class="trk on">Agenda</div>
+    </div>
+    <div class="sticker">Agenda estratégica</div>
+  </div>
+  <h1 class="action-title">La agenda del CEO: ganar en omnicanalidad, monetizar el ecosistema y elevar la eficiencia para financiar la transformación</h1>
+  <div class="subtitle">Tres pilares, nueve movimientos y una hoja de ruta</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <table class="rec-table">
+        <tr>
+          <th><span class="roman">Pilar I</span>Ganar en omnicanalidad</th>
+          <th><span class="roman">Pilar II</span>Monetizar el ecosistema</th>
+          <th><span class="roman">Pilar III</span>Eficiencia y resiliencia</th>
+        </tr>
+        <tr>
+          <td><b>Experiencia unificada:</b> app, web y tienda con inventario, precio y cliente únicos</td>
+          <td><b>Retail media:</b> construir el negocio de publicidad sobre la audiencia propia</td>
+          <td><b>Costo de servir:</b> optimizar red de tiendas, surtido y supply chain</td>
+        </tr>
+        <tr>
+          <td><b>Fulfillment desde tienda:</b> click&amp;collect, ship-from-store y última milla propia</td>
+          <td><b>Fintech y lealtad:</b> pagos, crédito y programa de fidelización con datos</td>
+          <td><b>Marcas propias:</b> escalar para defender margen y valor al cliente</td>
+        </tr>
+        <tr>
+          <td><b>Marketplace 3P:</b> abrir la plataforma a terceros para ampliar surtido</td>
+          <td><b>Data como activo:</b> gobierno de datos y personalización a escala</td>
+          <td><b>Alianzas selectivas:</b> con plataformas globales donde no se puede ganar solo</td>
+        </tr>
+      </table>
+      <div class="exhibit-label" style="margin-top:12px;">Hoja de ruta — horizontes de ejecución</div>
+      <svg viewBox="0 0 810 150" preserveAspectRatio="xMidYMid meet" style="flex:0 0 auto;height:150px;width:100%;">
+        <!-- phase bands -->
+        <rect x="60"  y="8" width="118" height="118" fill="#F5F8FF"/>
+        <rect x="296" y="8" width="119" height="118" fill="#F0F0F0" opacity="0.5"/>
+        <rect x="533" y="8" width="237" height="118" fill="#F5F8FF"/>
+        <text x="119" y="22" text-anchor="middle" font-size="10" fill="#2251FF" font-weight="700">HORIZONTE 1 · 0–6m</text>
+        <text x="355" y="22" text-anchor="middle" font-size="10" fill="#666" font-weight="700">HORIZONTE 2 · 6–18m</text>
+        <text x="592" y="22" text-anchor="middle" font-size="10" fill="#2251FF" font-weight="700">HORIZONTE 3 · 18–36m</text>
+        <!-- gantt bars: x = 60 + m*19.72 -->
+        <rect x="60"  y="30" width="473" height="18" rx="9" fill="#051C2C"/>
+        <text x="72" y="43" font-size="10.5" fill="#fff" font-weight="700">Omnicanalidad y experiencia unificada</text>
+        <rect x="60"  y="52" width="355" height="18" rx="9" fill="#2251FF"/>
+        <text x="72" y="65" font-size="10.5" fill="#fff" font-weight="700">Retail media (audiencia propia)</text>
+        <rect x="119" y="74" width="236" height="18" rx="9" fill="#8FA3B0"/>
+        <text x="131" y="87" font-size="10.5" fill="#fff" font-weight="700">Racionalizar red física y surtido</text>
+        <rect x="296" y="96" width="474" height="18" rx="9" fill="#00A9F4"/>
+        <text x="308" y="109" font-size="10.5" fill="#fff" font-weight="700">Marketplace 3P · fintech · marcas propias · alianzas</text>
+        <!-- axis -->
+        <line x1="60" y1="126" x2="770" y2="126" stroke="#E6E6E6" stroke-width="1"/>
+        <line x1="178" y1="8" x2="178" y2="126" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="415" y1="8" x2="415" y2="126" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="60"  y="140" text-anchor="middle" font-size="10" fill="#666">Hoy</text>
+        <text x="178" y="140" text-anchor="middle" font-size="10" fill="#666">6m</text>
+        <text x="415" y="140" text-anchor="middle" font-size="10" fill="#666">18m</text>
+        <text x="770" y="140" text-anchor="middle" font-size="10" fill="#666">36m</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Por qué así</div>
+      <div class="tk"><div class="n">margen</div><div class="t">La utilidad futura viene de <b>medios, datos y fintech</b>, no del mark-up del producto</div></div>
+      <div class="tk"><div class="n">escala</div><div class="t">El core está tomado: hay que <b>defenderlo con eficiencia</b> y financiar lo nuevo</div></div>
+      <div class="tk dark"><div class="n">36<small> meses</small></div><div class="t">Horizonte para pasar de diagnóstico a <b>plataforma monetizada</b></div></div>
+      <div class="sowhat"><b>So what</b>El ganador de la próxima década será quien convierta su tráfico y sus datos en un negocio de plataforma.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="source">Fuente: benchmarks internacionales de retail; reportes de compañías; análisis del equipo</div>
+    <div class="pageno"><b>10</b> / 10</div>
+  </div>
+</section>
+
+</div>
+
+<div id="nav">
+  <button id="prev" title="Anterior (←)">‹</button>
+  <span id="counter">1 / 10</span>
+  <button id="next" title="Siguiente (→)">›</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let cur = 0;
+  function fit(){
+    const s = Math.min(window.innerWidth/1320, window.innerHeight/770, 1);
+    slides.forEach(sl => sl.style.transform = `scale(${s})`);
+  }
+  function show(i){
+    cur = Math.max(0, Math.min(slides.length-1, i));
+    slides.forEach((sl,k)=>sl.classList.toggle('active', k===cur));
+    document.getElementById('counter').textContent = `${cur+1} / ${slides.length}`;
+  }
+  document.getElementById('prev').onclick = ()=>show(cur-1);
+  document.getElementById('next').onclick = ()=>show(cur+1);
+  window.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') show(cur+1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp') show(cur-1);
+    if(e.key==='Home') show(0);
+    if(e.key==='End') show(slides.length-1);
+  });
+  window.addEventListener('resize', fit);
+  fit(); show(0);
+</script>
+</body>
+</html>
