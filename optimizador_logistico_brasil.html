@@ -413,6 +413,8 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
   <div class="leg-row"><div class="leg-line" style="background:#3b82f6"></div><span>Fábrica → Bodega</span></div>
   <div class="leg-row"><div class="leg-line" style="background:#22c55e"></div><span>Bodega → Cliente</span></div>
   <div class="leg-row"><div class="leg-line" style="background:#64748b"></div><span>Ruta inactiva</span></div>
+  <div class="leg-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><div style="width:14px;height:14px;border-radius:50%;background:#f97316;flex-shrink:0;"></div><span>CD activo (elegido por el optimizador)</span></div>
+  <div class="leg-row"><div style="width:14px;height:14px;border-radius:50%;background:#4b5563;flex-shrink:0;"></div><span>CD candidato (gris hasta optimizar)</span></div>
 </div>
 
 <script>
@@ -755,6 +757,7 @@ function createWarehouse(lat, lng) {
   w.marker = m;
   openWarehousePopup(w, m);
   updateNodeList();
+  showStatus(`🏪 CD candidato agregado en ${UFS[uf].name} (gris). Corre ⚡ Optimizar para que el modelo decida si lo activa.`);
 }
 
 function openWarehousePopup(w, m) {
