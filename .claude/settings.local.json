@@ -21,7 +21,15 @@
       "Bash(python3 -c \"import pptx; print\\('python-pptx', pptx.__version__\\)\")",
       "Bash(pip3 install *)",
       "Bash(python3 build_deck.py)",
-      "Bash(command -v soffice)"
+      "Bash(command -v soffice)",
+      "WebFetch(domain:www.taxgroup.com.br)",
+      "WebFetch(domain:optilogic.com)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Agregar comparación dual: óptimo logístico \\(sin ICMS\\) vs óptimo fiscal \\(con ICMS\\) con panel y toggle de redes *)",
+      "WebFetch(domain:unisoma.com.br)",
+      "WebFetch(domain:inpo.eng.br)",
+      "Bash(git commit -m 'Formato McKinsey \\(navy/cian, Georgia, síntesis ejecutiva\\) + simulador Reforma Tributaria 2026-2033 *)",
+      "Bash(git commit -m 'Aclarar estados de CD: leyenda activo/candidato + mensaje al agregar bodega *)"
     ]
   }
 }
