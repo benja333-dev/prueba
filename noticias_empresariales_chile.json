@@ -1,5 +1,5 @@
 {
-  "name": "Boletín Diario - Noticias Empresariales Chile + Empleos Senior",
+  "name": "Boletín Diario - Noticias Empresariales Chile + Empleos Senior (Multi-Fuente)",
   "nodes": [
     {
       "parameters": {
@@ -16,7 +16,7 @@
       "name": "Todos los dias a las 7AM",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [0, 400]
+      "position": [-200, 780]
     },
     {
       "parameters": {
@@ -26,23 +26,309 @@
       "name": "Preparar Fechas",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 400]
+      "position": [20, 780]
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "engine", "value": "google" },
+            { "name": "tbm", "value": "nws" },
+            { "name": "tbs", "value": "qdr:d" },
+            { "name": "q", "value": "empresas Chile (resultados OR adquisición OR fusión OR inversión OR IPSA OR mercado OR utilidades OR CMF)" },
+            { "name": "gl", "value": "cl" },
+            { "name": "hl", "value": "es" },
+            { "name": "num", "value": "20" },
+            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "31a00001-0000-4000-8000-000000000001",
+      "name": "SerpAPI Noticias Chile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 80],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "engine", "value": "google" },
+            { "name": "tbm", "value": "nws" },
+            { "name": "tbs", "value": "qdr:d" },
+            { "name": "q", "value": "mercados globales (Wall Street OR Fed OR \"S&P 500\" OR cobre OR commodities OR empresas) economía" },
+            { "name": "hl", "value": "es" },
+            { "name": "num", "value": "20" },
+            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "31a00002-0000-4000-8000-000000000002",
+      "name": "SerpAPI Noticias Internacionales",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 240],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "engine", "value": "google" },
+            { "name": "tbm", "value": "nws" },
+            { "name": "tbs", "value": "qdr:w" },
+            { "name": "q", "value": "Chile (\"nuevo gerente general\" OR \"asume como gerente\" OR \"nombramiento\" OR \"deja el cargo\" OR \"nuevo CEO\" OR \"designó como\" OR \"renuncia gerente\")" },
+            { "name": "gl", "value": "cl" },
+            { "name": "hl", "value": "es" },
+            { "name": "num", "value": "20" },
+            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "31a00003-0000-4000-8000-000000000003",
+      "name": "SerpAPI Movimientos Prensa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 400],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "engine", "value": "google" },
+            { "name": "tbs", "value": "qdr:w" },
+            { "name": "q", "value": "(site:linkedin.com/posts OR site:linkedin.com/pulse) Chile (\"nuevo gerente general\" OR \"asumo como\" OR \"me incorporo a\" OR \"nueva etapa\" OR \"nuevo desafío\" OR \"nuevo rol\")" },
+            { "name": "hl", "value": "es" },
+            { "name": "num", "value": "15" },
+            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "31a00004-0000-4000-8000-000000000004",
+      "name": "SerpAPI Movimientos LinkedIn",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 560],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "engine", "value": "google_jobs" },
+            { "name": "q", "value": "\"Gerente General\" OR Gerente OR Director OR VP OR \"Vice President\" OR CEO OR \"Country Manager\" -practicante -junior -analista -internship" },
+            { "name": "location", "value": "Chile" },
+            { "name": "gl", "value": "cl" },
+            { "name": "hl", "value": "es" },
+            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "31a00005-0000-4000-8000-000000000005",
+      "name": "SerpAPI Google Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 720],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.TAVILY_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"query\": \"noticias empresas Chile mercado IPSA resultados fusiones adquisiciones negocios\",\n  \"topic\": \"news\",\n  \"days\": 1,\n  \"max_results\": 10\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "32b00001-0000-4000-8000-000000000006",
+      "name": "Tavily Noticias Chile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 880],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.TAVILY_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"query\": \"global markets news Wall Street Fed copper commodities major companies\",\n  \"topic\": \"news\",\n  \"days\": 1,\n  \"max_results\": 10\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "32b00002-0000-4000-8000-000000000007",
+      "name": "Tavily Noticias Internacionales",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 1040],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.TAVILY_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"query\": \"Chile nombramiento nuevo gerente general CEO director ejecutivo asume cargo empresa\",\n  \"topic\": \"news\",\n  \"days\": 7,\n  \"search_depth\": \"advanced\",\n  \"max_results\": 10\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "32b00003-0000-4000-8000-000000000008",
+      "name": "Tavily Movimientos Ejecutivos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 1200],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://jsearch.p.rapidapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "query", "value": "gerente general OR director OR vicepresidente OR CEO OR country manager in Chile" },
+            { "name": "country", "value": "cl" },
+            { "name": "date_posted", "value": "week" },
+            { "name": "num_pages", "value": "1" },
+            { "name": "page", "value": "1" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-RapidAPI-Key", "value": "={{ $env.RAPIDAPI_KEY }}" },
+            { "name": "X-RapidAPI-Host", "value": "jsearch.p.rapidapi.com" }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "33c00001-0000-4000-8000-000000000009",
+      "name": "JSearch Empleos Senior",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 1360],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/bebity~linkedin-jobs-scraper/run-sync-get-dataset-items",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "token", "value": "={{ $env.APIFY_TOKEN }}" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"title\": \"Gerente General\",\n  \"location\": \"Chile\",\n  \"rows\": 25\n}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "34d00001-0000-4000-8000-00000000000a",
+      "name": "Apify LinkedIn Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 1520],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "numberInputs": 10
+      },
+      "id": "40e00001-0000-4000-8000-00000000000b",
+      "name": "Esperar Todas las Fuentes",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [660, 780]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Consolida los resultados de todas las fuentes en una sola estructura.\n// Cada fuente puede haber fallado (onError: continue), por eso todo va con try/catch.\nconst fechas = $('Preparar Fechas').first().json;\nconst get = (name) => { try { return $(name).all().map(i => i.json || {}); } catch (e) { return []; } };\nconst trunc = (s, n = 350) => (s || '').toString().replace(/\\s+/g, ' ').trim().slice(0, n);\nconst limpiar = arr => arr.filter(x => x.titulo || x.cargo).filter(x => x.link);\n\n// --- SerpAPI: noticias (news_results) ---\nconst serpNews = (name) => get(name).flatMap(j => j.news_results || []).map(r => ({\n  titulo: r.title, link: r.link,\n  fuente: (r.source && r.source.name) || r.source || 'Google News',\n  fecha: r.date || '', resumen: trunc(r.snippet), via: 'SerpAPI'\n}));\n\n// --- SerpAPI: resultados orgánicos (LinkedIn indexado) ---\nconst serpOrganic = (name) => get(name).flatMap(j => j.organic_results || []).map(r => ({\n  titulo: r.title, link: r.link, fuente: 'LinkedIn (vía Google)',\n  fecha: r.date || '', resumen: trunc(r.snippet), via: 'SerpAPI'\n}));\n\n// --- SerpAPI: Google Jobs ---\nconst serpJobs = get('SerpAPI Google Jobs').flatMap(j => j.jobs_results || []).map(r => ({\n  cargo: r.title, empresa: r.company_name, ubicacion: r.location,\n  descripcion: trunc(r.description, 400),\n  link: (r.apply_options && r.apply_options[0] && r.apply_options[0].link) || r.share_link || '',\n  publicado: (r.detected_extensions && r.detected_extensions.posted_at) || '',\n  via: 'Google Jobs (SerpAPI)'\n}));\n\n// --- Tavily ---\nconst tavily = (name) => get(name).flatMap(j => j.results || []).map(r => ({\n  titulo: r.title, link: r.url, fuente: r.url ? new URL(r.url).hostname.replace('www.', '') : 'Tavily',\n  fecha: r.published_date || '', resumen: trunc(r.content), via: 'Tavily'\n}));\n\n// --- JSearch ---\nconst jsearch = get('JSearch Empleos Senior').flatMap(j => j.data || []).map(r => ({\n  cargo: r.job_title, empresa: r.employer_name,\n  ubicacion: [r.job_city, r.job_country].filter(Boolean).join(', '),\n  descripcion: trunc(r.job_description, 400),\n  link: r.job_apply_link || '',\n  publicado: r.job_posted_at_datetime_utc || '',\n  via: 'JSearch (Google for Jobs)'\n}));\n\n// --- Apify (los items del dataset llegan como items separados con campos variables) ---\nconst apify = get('Apify LinkedIn Jobs').map(r => ({\n  cargo: r.title || r.jobTitle || '', empresa: r.companyName || r.company || '',\n  ubicacion: r.location || '',\n  descripcion: trunc(r.description || r.descriptionText || '', 400),\n  link: r.jobUrl || r.link || r.url || '',\n  publicado: r.postedTime || r.publishedAt || '',\n  via: 'LinkedIn Jobs (Apify)'\n})).filter(x => x.cargo && x.link);\n\nconst datos = {\n  noticias_chile: limpiar([...serpNews('SerpAPI Noticias Chile'), ...tavily('Tavily Noticias Chile')]).slice(0, 20),\n  noticias_internacionales: limpiar([...serpNews('SerpAPI Noticias Internacionales'), ...tavily('Tavily Noticias Internacionales')]).slice(0, 20),\n  movimientos_ejecutivos: limpiar([...serpNews('SerpAPI Movimientos Prensa'), ...serpOrganic('SerpAPI Movimientos LinkedIn'), ...tavily('Tavily Movimientos Ejecutivos')]).slice(0, 20),\n  empleos: [...serpJobs, ...jsearch, ...apify].slice(0, 30)\n};\n\nconst conteo = Object.fromEntries(Object.entries(datos).map(([k, v]) => [k, v.length]));\nreturn [{ json: { ...fechas, datos, conteo } }];"
+      },
+      "id": "50f00001-0000-4000-8000-00000000000c",
+      "name": "Consolidar Fuentes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 780]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Hoy es {{ $json.fechaLegible }} (ayer fue {{ $json.yesterdayISO }}).\n\nTu misión: construir el boletín diario de Benjamín. Debes llamar TODAS estas herramientas (cada una al menos una vez):\n1. noticias_chile\n2. noticias_internacionales\n3. movimientos_ejecutivos_prensa\n4. movimientos_ejecutivos_linkedin\n5. empleos_google_jobs\n6. empleos_linkedin\n7. verificar_link (una vez por cada oferta de empleo que vayas a incluir)\n\nCon los resultados, devuelve ÚNICAMENTE el código HTML completo de un email profesional, sin bloques markdown ni texto extra, con estas 4 secciones en este orden:\n\n=== SECCIÓN 1: 🇨🇱 NOTICIAS DE CHILE — EMPRESAS Y MERCADOS ===\nNoticias de las últimas 24 horas sobre empresas chilenas, mercados, resultados, fusiones y adquisiciones, IPSA, economía. Prioriza fuentes como Diario Financiero (df.cl), Pulso/La Tercera, Emol Economía, El Mercurio Inversiones. Entre 5 y 10 noticias. Cada una: titular en negrita, fuente, resumen de 1-3 líneas, enlace 'Ver noticia'.\n\n=== SECCIÓN 2: 👔 MOVIMIENTOS DE EJECUTIVOS EN CHILE ===\nNombramientos, salidas y cambios de ejecutivos chilenos de la última semana: nuevos gerentes generales, CEOs, directores, VPs que entran o salen. Combina lo que encuentres en prensa (movimientos_ejecutivos_prensa) y en LinkedIn (movimientos_ejecutivos_linkedin). Para cada movimiento indica: nombre de la persona, cargo que asume o deja, empresa de origen y destino si se conoce, fuente y enlace.\n\n=== SECCIÓN 3: 🌎 NOTICIAS INTERNACIONALES DE MERCADOS ===\nNoticias de las últimas 24 horas de mercados globales y grandes empresas: Wall Street, Fed, commodities (destaca el cobre, clave para Chile), tecnología, Latinoamérica. Entre 5 y 8 noticias, mismo formato que la sección 1.\n\n=== SECCIÓN 4: 💼 OPORTUNIDADES LABORALES SENIOR EN CHILE ===\nPERFIL DEL CANDIDATO (calcula el match contra esto):\n- Associate Partner en McKinsey & Company, basado en Chile.\n- Consultoría estratégica de alto nivel: estrategia corporativa, transformación, liderazgo de equipos senior y relación con C-suite.\n- Experiencia profunda en retail, consumo masivo, logística/operaciones y optimización de cadenas de suministro.\n- Busca su siguiente rol ejecutivo en Chile: Gerente General, Gerente Corporativo/de División, Vicepresidente, Director Ejecutivo, CEO o Country Manager.\n\nReglas para esta sección:\n- SOLO posiciones senior (Gerente, Gerente General, VP, Director, CEO, Country Manager). Descarta cargos junior, analistas, jefaturas menores y practicantes.\n- Para CADA oferta que quieras incluir, llama primero a verificar_link con su URL. Si el link devuelve error, no carga, o el contenido indica que la oferta está cerrada / ya no disponible / expirada, DESCÁRTALA. Si el sitio bloquea la verificación (p. ej. LinkedIn pide login) pero la oferta apareció en resultados recientes, inclúyela marcada como '(link no verificable, oferta reciente)'.\n- Para cada oferta incluye: cargo en negrita, empresa, ubicación, descripción de 2-3 líneas con lo más relevante del rol, un badge 'Match: NN%' con una línea justificando el porcentaje según el PERFIL, y un botón verde 'Postular' con el enlace verificado.\n- Ordena las ofertas de mayor a menor % de match. Incluye entre 3 y 8 ofertas.\n\nFORMATO DEL EMAIL HTML:\n- Diseño profesional responsivo: fondo #f4f6f9, header con gradiente azul oscuro (#1e3a5f a #2d5986) mostrando el título 'Boletín Empresarial Chile' y la fecha de hoy, fuente sans-serif.\n- Un banner bajo el header con el resumen: N noticias Chile · N movimientos · N internacionales · N empleos.\n- Separadores claros entre secciones con los títulos y emojis indicados.\n- Botones de enlace: azul (#2d5986) para 'Ver noticia', verde (#27ae60) para 'Postular'.\n- Footer: 'Boletín generado automáticamente por tu asistente de noticias y búsqueda ejecutiva'.\n\nREGLAS GENERALES:\n- Descarta deportes, farándula y política sin ángulo económico.\n- No inventes noticias, movimientos ni ofertas: usa solo lo que devuelvan las herramientas. Si una sección queda sin resultados, escribe en ella 'Sin novedades relevantes hoy'.\n- Devuelve ÚNICAMENTE el HTML, sin ```html ni texto adicional.",
+        "text": "=Hoy es {{ $json.fechaLegible }}. Recibiste datos ya recolectados EN PARALELO desde varias fuentes (SerpAPI, Tavily, JSearch, Apify/LinkedIn). Conteo por categoría: {{ JSON.stringify($json.conteo) }}.\n\nDATOS CONSOLIDADOS (JSON):\n{{ JSON.stringify($json.datos) }}\n\nTu misión: cruzar, depurar y consolidar estos datos, y devolver ÚNICAMENTE el código HTML completo de un email profesional, sin bloques markdown ni texto extra, con estas 4 secciones:\n\n=== SECCIÓN 1: 🇨🇱 NOTICIAS DE CHILE — EMPRESAS Y MERCADOS ===\nUsa `noticias_chile`. Elimina duplicados entre fuentes (misma noticia reportada por SerpAPI y Tavily = UNA sola entrada; que aparezca en varias fuentes es señal de importancia: priorízala). Entre 5 y 10 noticias, ordenadas por relevancia empresarial. Cada una: titular en negrita, fuente, resumen de 1-3 líneas, botón 'Ver noticia' con el link.\n\n=== SECCIÓN 2: 👔 MOVIMIENTOS DE EJECUTIVOS EN CHILE ===\nUsa `movimientos_ejecutivos` (prensa + LinkedIn). Solo cambios reales de personas: quién asume o deja qué cargo, en qué empresa, empresa de origen/destino si se conoce. Descarta resultados que no sean movimientos concretos de ejecutivos. Cita fuente y enlace de cada uno.\n\n=== SECCIÓN 3: 🌎 NOTICIAS INTERNACIONALES DE MERCADOS ===\nUsa `noticias_internacionales`. Mismas reglas de deduplicación. Destaca el cobre y lo relevante para Chile. Entre 5 y 8 noticias.\n\n=== SECCIÓN 4: 💼 OPORTUNIDADES LABORALES SENIOR EN CHILE ===\nUsa `empleos` (unión de Google Jobs, JSearch y LinkedIn/Apify — deduplica el mismo cargo/empresa que venga por varias vías, prefiriendo el link de postulación más directo).\n\nPERFIL DEL CANDIDATO (calcula el match contra esto):\n- Associate Partner en McKinsey & Company, basado en Chile.\n- Consultoría estratégica de alto nivel: estrategia corporativa, transformación, liderazgo de equipos senior y relación con C-suite.\n- Experiencia profunda en retail, consumo masivo, logística/operaciones y optimización de cadenas de suministro.\n- Busca su siguiente rol ejecutivo en Chile: Gerente General, Gerente Corporativo/de División, Vicepresidente, Director Ejecutivo, CEO o Country Manager.\n\nReglas para esta sección:\n- SOLO posiciones senior (Gerente, Gerente General, VP, Director, CEO, Country Manager). Descarta cargos junior, analistas, jefaturas menores y practicantes.\n- Para CADA oferta que quieras incluir, llama primero a la herramienta verificar_link con su URL. Si devuelve error, no carga, o el contenido indica oferta cerrada / expirada / ya no disponible, DESCÁRTALA. Si el sitio bloquea la verificación (p. ej. LinkedIn pide login) pero la oferta es reciente, inclúyela marcada como '(link no verificable, oferta reciente)'.\n- Para cada oferta: cargo en negrita, empresa, ubicación, la fuente de donde vino (via), descripción de 2-3 líneas, badge 'Match: NN%' con una línea justificando el porcentaje según el PERFIL, y botón verde 'Postular' con el link.\n- Ordena de mayor a menor % de match. Incluye entre 3 y 8 ofertas.\n\nFORMATO DEL EMAIL HTML:\n- Diseño profesional responsivo: fondo #f4f6f9, header con gradiente azul oscuro (#1e3a5f a #2d5986) con el título 'Boletín Empresarial Chile' y la fecha, fuente sans-serif.\n- Banner bajo el header: N noticias Chile · N movimientos · N internacionales · N empleos (los números finales tras tu depuración).\n- Botones: azul (#2d5986) 'Ver noticia', verde (#27ae60) 'Postular'.\n- Footer: 'Boletín generado automáticamente — fuentes: SerpAPI, Tavily, JSearch, LinkedIn/Apify'.\n\nREGLAS GENERALES:\n- Descarta deportes, farándula y política sin ángulo económico.\n- No inventes nada: usa exclusivamente los DATOS CONSOLIDADOS. Si una sección queda sin resultados, escribe 'Sin novedades relevantes hoy'.\n- Devuelve ÚNICAMENTE el HTML, sin ```html ni texto adicional.",
         "options": {
-          "systemMessage": "Eres el asistente ejecutivo de Benjamín: analista de noticias de negocios y headhunter personal, especializado en el mercado chileno. Siempre llamas todas las herramientas de búsqueda antes de redactar, procesas los JSON que devuelven y construyes emails HTML completos, precisos y visualmente profesionales en español. Nunca inventas contenido: cada ítem del boletín debe provenir de un resultado real de las herramientas, con su enlace. Verificas los links de las ofertas de empleo con la herramienta verificar_link antes de incluirlas.",
+          "systemMessage": "Eres el asistente ejecutivo de Benjamín: analista de noticias de negocios y headhunter personal, especializado en el mercado chileno. Trabajas sobre datos ya recolectados de múltiples fuentes en paralelo: tu valor está en cruzarlas, deduplicar, priorizar lo que aparece en varias fuentes y descartar el ruido. Nunca inventas contenido: cada ítem del boletín debe provenir de los datos recibidos, con su enlace. Verificas los links de las ofertas de empleo con la herramienta verificar_link antes de incluirlas. Devuelves siempre HTML puro.",
           "maxIterations": 25,
           "returnIntermediateSteps": false
         }
       },
       "id": "30c3d4e5-f6a7-4b89-0123-cdef01234567",
-      "name": "Agente Boletin Empresarial",
+      "name": "Agente Consolidador del Boletin",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
-      "position": [460, 400],
+      "position": [1120, 780],
       "retryOnFail": true,
       "maxTries": 4,
       "waitBetweenTries": 3000
@@ -58,7 +344,7 @@
       "name": "Gemini 2.5 Flash",
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
-      "position": [300, 640],
+      "position": [1040, 1020],
       "retryOnFail": true,
       "maxTries": 4,
       "waitBetweenTries": 3000,
@@ -68,162 +354,6 @@
           "name": "Google Gemini(PaLM) Api account"
         }
       }
-    },
-    {
-      "parameters": {
-        "name": "noticias_chile",
-        "description": "Busca las noticias de las ultimas 24 horas sobre empresas, negocios y mercados en Chile (Diario Financiero, Pulso, Emol Economia, etc). Retorna JSON con titulares, fuente, fecha, resumen y enlace.",
-        "method": "GET",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "engine", "value": "google" },
-            { "name": "tbm", "value": "nws" },
-            { "name": "tbs", "value": "qdr:d" },
-            { "name": "q", "value": "empresas Chile (resultados OR adquisición OR fusión OR inversión OR IPSA OR mercado OR utilidades OR CMF)" },
-            { "name": "gl", "value": "cl" },
-            { "name": "hl", "value": "es" },
-            { "name": "num", "value": "20" },
-            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
-          ]
-        },
-        "options": {}
-      },
-      "id": "50e5f6a7-b8c9-4d01-2345-ef0123456789",
-      "name": "Noticias Chile",
-      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "typeVersion": 1.1,
-      "position": [460, 640]
-    },
-    {
-      "parameters": {
-        "name": "noticias_internacionales",
-        "description": "Busca las noticias de las ultimas 24 horas sobre mercados globales y grandes empresas: Wall Street, Fed, commodities, cobre, tecnologia, Latinoamerica. Retorna JSON con titulares, fuente, resumen y enlace.",
-        "method": "GET",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "engine", "value": "google" },
-            { "name": "tbm", "value": "nws" },
-            { "name": "tbs", "value": "qdr:d" },
-            { "name": "q", "value": "mercados globales (Wall Street OR Fed OR \"S&P 500\" OR cobre OR commodities OR empresas) economía" },
-            { "name": "hl", "value": "es" },
-            { "name": "num", "value": "20" },
-            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
-          ]
-        },
-        "options": {}
-      },
-      "id": "60f6a7b8-c9d0-4e12-3456-f01234567890",
-      "name": "Noticias Internacionales",
-      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "typeVersion": 1.1,
-      "position": [620, 640]
-    },
-    {
-      "parameters": {
-        "name": "movimientos_ejecutivos_prensa",
-        "description": "Busca en prensa chilena de la ultima semana los nombramientos, salidas y cambios de ejecutivos: nuevos gerentes generales, CEOs, directores, VPs que entran o salen de empresas en Chile. Retorna JSON con titulares, fuente y enlace.",
-        "method": "GET",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "engine", "value": "google" },
-            { "name": "tbm", "value": "nws" },
-            { "name": "tbs", "value": "qdr:w" },
-            { "name": "q", "value": "Chile (\"nuevo gerente general\" OR \"asume como gerente\" OR \"nombramiento\" OR \"deja el cargo\" OR \"nuevo CEO\" OR \"designó como\" OR \"renuncia gerente\")" },
-            { "name": "gl", "value": "cl" },
-            { "name": "hl", "value": "es" },
-            { "name": "num", "value": "20" },
-            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
-          ]
-        },
-        "options": {}
-      },
-      "id": "70a7b8c9-d0e1-4f23-4567-012345678901",
-      "name": "Movimientos Ejecutivos Prensa",
-      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "typeVersion": 1.1,
-      "position": [780, 640]
-    },
-    {
-      "parameters": {
-        "name": "movimientos_ejecutivos_linkedin",
-        "description": "Busca en LinkedIn (posts y articulos indexados por Google, ultima semana) anuncios de ejecutivos chilenos que cambian de trabajo: nuevos cargos, incorporaciones, salidas. Es la fuente de redes sociales para movimientos de ejecutivos. Retorna JSON con resultados y enlaces.",
-        "method": "GET",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "engine", "value": "google" },
-            { "name": "tbs", "value": "qdr:w" },
-            { "name": "q", "value": "(site:linkedin.com/posts OR site:linkedin.com/pulse) Chile (\"nuevo gerente general\" OR \"asumo como\" OR \"me incorporo a\" OR \"nueva etapa\" OR \"nuevo desafío\" OR \"nuevo rol\")" },
-            { "name": "hl", "value": "es" },
-            { "name": "num", "value": "15" },
-            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
-          ]
-        },
-        "options": {}
-      },
-      "id": "80b8c9d0-e1f2-4034-5678-123456789012",
-      "name": "Movimientos Ejecutivos LinkedIn",
-      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "typeVersion": 1.1,
-      "position": [940, 640]
-    },
-    {
-      "parameters": {
-        "name": "empleos_google_jobs",
-        "description": "Busca en Google Jobs ofertas de trabajo senior activas en Chile: Gerente General, Gerente, VP, Director, CEO, Country Manager. Google Jobs agrega LinkedIn, Laborum, Trabajando.com y sitios corporativos. Retorna JSON con titulo, empresa, ubicacion, descripcion y enlaces de postulacion.",
-        "method": "GET",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "engine", "value": "google_jobs" },
-            { "name": "q", "value": "\"Gerente General\" OR Gerente OR Director OR VP OR \"Vice President\" OR CEO OR \"Country Manager\" -practicante -junior -analista -internship" },
-            { "name": "location", "value": "Chile" },
-            { "name": "gl", "value": "cl" },
-            { "name": "hl", "value": "es" },
-            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
-          ]
-        },
-        "options": {}
-      },
-      "id": "90c9d0e1-f2a3-4145-6789-234567890123",
-      "name": "Empleos Google Jobs",
-      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "typeVersion": 1.1,
-      "position": [1100, 640]
-    },
-    {
-      "parameters": {
-        "name": "empleos_linkedin",
-        "description": "Busca ofertas de trabajo senior publicadas en LinkedIn Jobs para Chile en la ultima semana: Gerente, Gerente General, Director, VP, CEO. Retorna JSON con resultados incluyendo titulo, empresa y enlace directo a la oferta en LinkedIn.",
-        "method": "GET",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "engine", "value": "google" },
-            { "name": "tbs", "value": "qdr:w" },
-            { "name": "q", "value": "site:linkedin.com/jobs (Gerente OR \"Gerente General\" OR Director OR VP OR CEO OR \"Country Manager\") Chile -Practicante -Junior -Analista" },
-            { "name": "hl", "value": "es" },
-            { "name": "gl", "value": "cl" },
-            { "name": "num", "value": "15" },
-            { "name": "api_key", "value": "={{ $env.SERPAPI_KEY }}" }
-          ]
-        },
-        "options": {}
-      },
-      "id": "a0d0e1f2-a3b4-4256-789a-345678901234",
-      "name": "Empleos LinkedIn",
-      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "typeVersion": 1.1,
-      "position": [1260, 640]
     },
     {
       "parameters": {
@@ -239,7 +369,7 @@
       "name": "Verificar Link",
       "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
       "typeVersion": 1.1,
-      "position": [1420, 640],
+      "position": [1240, 1020],
       "onError": "continueRegularOutput"
     },
     {
@@ -256,7 +386,7 @@
       "name": "Enviar Boletin",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [820, 400],
+      "position": [1440, 780],
       "credentials": {
         "gmailOAuth2": {
           "id": "GIlOgk58EyoAXQJU",
@@ -276,11 +406,104 @@
     "Preparar Fechas": {
       "main": [
         [
-          { "node": "Agente Boletin Empresarial", "type": "main", "index": 0 }
+          { "node": "SerpAPI Noticias Chile", "type": "main", "index": 0 },
+          { "node": "SerpAPI Noticias Internacionales", "type": "main", "index": 0 },
+          { "node": "SerpAPI Movimientos Prensa", "type": "main", "index": 0 },
+          { "node": "SerpAPI Movimientos LinkedIn", "type": "main", "index": 0 },
+          { "node": "SerpAPI Google Jobs", "type": "main", "index": 0 },
+          { "node": "Tavily Noticias Chile", "type": "main", "index": 0 },
+          { "node": "Tavily Noticias Internacionales", "type": "main", "index": 0 },
+          { "node": "Tavily Movimientos Ejecutivos", "type": "main", "index": 0 },
+          { "node": "JSearch Empleos Senior", "type": "main", "index": 0 },
+          { "node": "Apify LinkedIn Jobs", "type": "main", "index": 0 }
         ]
       ]
     },
-    "Agente Boletin Empresarial": {
+    "SerpAPI Noticias Chile": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "SerpAPI Noticias Internacionales": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 1 }
+        ]
+      ]
+    },
+    "SerpAPI Movimientos Prensa": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 2 }
+        ]
+      ]
+    },
+    "SerpAPI Movimientos LinkedIn": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 3 }
+        ]
+      ]
+    },
+    "SerpAPI Google Jobs": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 4 }
+        ]
+      ]
+    },
+    "Tavily Noticias Chile": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 5 }
+        ]
+      ]
+    },
+    "Tavily Noticias Internacionales": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 6 }
+        ]
+      ]
+    },
+    "Tavily Movimientos Ejecutivos": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 7 }
+        ]
+      ]
+    },
+    "JSearch Empleos Senior": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 8 }
+        ]
+      ]
+    },
+    "Apify LinkedIn Jobs": {
+      "main": [
+        [
+          { "node": "Esperar Todas las Fuentes", "type": "main", "index": 9 }
+        ]
+      ]
+    },
+    "Esperar Todas las Fuentes": {
+      "main": [
+        [
+          { "node": "Consolidar Fuentes", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Consolidar Fuentes": {
+      "main": [
+        [
+          { "node": "Agente Consolidador del Boletin", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Agente Consolidador del Boletin": {
       "main": [
         [
           { "node": "Enviar Boletin", "type": "main", "index": 0 }
@@ -290,56 +513,14 @@
     "Gemini 2.5 Flash": {
       "ai_languageModel": [
         [
-          { "node": "Agente Boletin Empresarial", "type": "ai_languageModel", "index": 0 }
-        ]
-      ]
-    },
-    "Noticias Chile": {
-      "ai_tool": [
-        [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
-        ]
-      ]
-    },
-    "Noticias Internacionales": {
-      "ai_tool": [
-        [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
-        ]
-      ]
-    },
-    "Movimientos Ejecutivos Prensa": {
-      "ai_tool": [
-        [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
-        ]
-      ]
-    },
-    "Movimientos Ejecutivos LinkedIn": {
-      "ai_tool": [
-        [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
-        ]
-      ]
-    },
-    "Empleos Google Jobs": {
-      "ai_tool": [
-        [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
-        ]
-      ]
-    },
-    "Empleos LinkedIn": {
-      "ai_tool": [
-        [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
+          { "node": "Agente Consolidador del Boletin", "type": "ai_languageModel", "index": 0 }
         ]
       ]
     },
     "Verificar Link": {
       "ai_tool": [
         [
-          { "node": "Agente Boletin Empresarial", "type": "ai_tool", "index": 0 }
+          { "node": "Agente Consolidador del Boletin", "type": "ai_tool", "index": 0 }
         ]
       ]
     }
@@ -351,5 +532,5 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "versionId": "1"
+  "versionId": "2"
 }
