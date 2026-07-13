@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WarehouseOpt — Simulador 3D de Slotting y Dotación</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+:root {
+  --bg: #081020;
+  --panel: #0e1a30;
+  --panel2: #12203a;
+  --border: #1e3252;
+  --accent: #22d3ee;
+  --accent-dim: #0e7490;
+  --navy: #1e3a8a;
+  --green: #34d399;
+  --orange: #fb923c;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --blue: #60a5fa;
+  --text: #e6edf7;
+  --muted: #7d90b3;
+  --input-bg: #14243f;
+  --hover: #1a2c4c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; overflow: hidden; }
+
+/* ---------- TOOLBAR ---------- */
+#toolbar { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
+#toolbar h1 { font-size: 14px; font-weight: 700; color: var(--accent); margin-right: 10px; white-space: nowrap; }
+#toolbar h1 span { color: var(--muted); font-weight: 400; font-size: 11px; }
+.tb-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; font-size: 12px; transition: all .15s; white-space: nowrap; }
+.tb-btn:hover { background: var(--hover); color: var(--text); border-color: var(--accent); }
+.tb-btn.primary { background: var(--accent-dim); color: #fff; border-color: var(--accent-dim); font-weight: 600; }
+.tb-btn.primary:hover { background: var(--accent); color: #062033; }
+select.tb-btn { appearance: none; -webkit-appearance: none; cursor: pointer; }
+select.tb-btn:hover { color: var(--text); border-color: var(--accent); }
+.tb-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+.seg { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.seg button { padding: 6px 12px; background: var(--input-bg); border: none; color: var(--muted); cursor: pointer; font-size: 12px; }
+.seg button.on { background: var(--accent-dim); color: #fff; font-weight: 600; }
+#badge { margin-left: auto; padding: 5px 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; color: var(--muted); }
+#badge strong { color: var(--text); }
+
+/* ---------- LAYOUT ---------- */
+#main { display: flex; flex: 1; min-height: 0; }
+#sidebar { width: 330px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; padding: 12px; }
+#viewport { flex: 1; position: relative; min-width: 0; display: flex; flex-direction: column; }
+#canvas-wrap { flex: 1; position: relative; min-height: 0; }
+#canvas-wrap canvas { display: block; }
+
+/* ---------- SIDEBAR ---------- */
+.sec { margin-bottom: 14px; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.sec h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin-bottom: 10px; font-weight: 700; }
+#sintesis { font-size: 12.5px; line-height: 1.55; color: var(--text); font-family: Georgia, 'Times New Roman', serif; }
+#sintesis b { color: var(--accent); }
+#sintesis .neg { color: var(--green); font-weight: 700; }
+
+table.kpi { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+table.kpi th { text-align: right; color: var(--muted); font-weight: 600; padding: 4px 6px; border-bottom: 1px solid var(--border); font-size: 10.5px; }
+table.kpi th:first-child { text-align: left; }
+table.kpi td { text-align: right; padding: 4px 6px; border-bottom: 1px solid rgba(30,50,82,.5); color: var(--text); font-variant-numeric: tabular-nums; }
+table.kpi td:first-child { text-align: left; color: var(--muted); }
+table.kpi td.good { color: var(--green); font-weight: 700; }
+
+.ctl { margin-bottom: 10px; }
+.ctl label { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+.ctl label output { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { width: 100%; accent-color: var(--accent); }
+.ctl input[type=number] { width: 100%; padding: 5px 8px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 12px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.hint { font-size: 10.5px; color: var(--muted); line-height: 1.4; margin-top: 6px; }
+
+/* ---------- LEGEND & INFO ---------- */
+#legend { position: absolute; top: 10px; left: 10px; background: rgba(8,16,32,.85); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 11px; backdrop-filter: blur(4px); }
+#legend .li { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; color: var(--muted); }
+#legend .sw { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+#legend .lt { color: var(--text); font-weight: 700; margin-bottom: 6px; font-size: 11px; }
+#skuinfo { position: absolute; display: none; background: rgba(8,16,32,.94); border: 1px solid var(--accent-dim); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; max-width: 240px; pointer-events: none; z-index: 20; }
+#skuinfo b { color: var(--accent); }
+#skuinfo .r { display: flex; justify-content: space-between; gap: 14px; color: var(--muted); margin-top: 3px; }
+#skuinfo .r span:last-child { color: var(--text); font-variant-numeric: tabular-nums; }
+#layout-tag { position: absolute; top: 10px; right: 10px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid var(--border); background: rgba(8,16,32,.85); backdrop-filter: blur(4px); }
+#layout-tag.actual { color: var(--orange); border-color: var(--orange); }
+#layout-tag.optimo { color: var(--green); border-color: var(--green); }
+
+/* ---------- SCENARIO STRIP ---------- */
+#scenarios { flex-shrink: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px 12px; background: var(--panel); border-top: 1px solid var(--border); }
+.sc-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; position: relative; }
+.sc-card.hoy { border-color: var(--orange); }
+.sc-card.best { border-color: var(--green); }
+.sc-card .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px; }
+.sc-card h4 { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; white-space: nowrap; }
+.sc-card .fte { font-size: 21px; font-weight: 800; color: var(--text); line-height: 1; font-variant-numeric: tabular-nums; }
+.sc-card .fte small { font-size: 11px; color: var(--muted); font-weight: 400; }
+.sc-card .cost { font-size: 11px; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.sc-card .delta { font-size: 10.5px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-card .delta.zero { color: var(--muted); font-weight: 400; }
+
+@media (max-width: 900px) {
+  #sidebar { width: 270px; }
+  #scenarios { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>WarehouseOpt <span>· Slotting 3D &amp; Dotación · Chile</span></h1>
+  <button class="tb-btn primary" onclick="document.getElementById('file-in').click()">📂 Cargar consumos (CSV/Excel)</button>
+  <input type="file" id="file-in" accept=".csv,.xlsx,.xls" style="display:none">
+  <button class="tb-btn" id="btn-template">⬇ Plantilla</button>
+  <select class="tb-btn" id="sel-demo" title="Cargar una bodega demo estándar">
+    <option value="chica">🎲 Demo: chica — dark store (3 pasillos)</option>
+    <option value="mediana" selected>🎲 Demo: mediana — CD regional (6 pasillos)</option>
+    <option value="grande">🎲 Demo: grande — CD nacional (10 pasillos)</option>
+  </select>
+  <div class="tb-sep"></div>
+  <div class="seg" id="seg-layout">
+    <button data-v="actual" class="on">📸 Foto de hoy</button>
+    <button data-v="optimo">✨ Layout óptimo</button>
+  </div>
+  <div class="seg" id="seg-view">
+    <button data-v="abc" class="on">Clase ABC</button>
+    <button data-v="heat">Heatmap picks</button>
+  </div>
+  <div id="badge"><strong id="badge-skus">—</strong> SKUs · <strong id="badge-picks">—</strong> líneas/mes · <span id="badge-src">demo</span></div>
+</div>
+
+<div id="main">
+  <div id="sidebar">
+
+    <div class="sec">
+      <h3>Síntesis ejecutiva</h3>
+      <div id="sintesis">—</div>
+    </div>
+
+    <div class="sec">
+      <h3>Foto de hoy vs layout óptimo</h3>
+      <table class="kpi">
+        <thead><tr><th>Indicador</th><th>Hoy</th><th>Óptimo</th></tr></thead>
+        <tbody id="kpi-body"></tbody>
+      </table>
+    </div>
+
+    <div class="sec">
+      <h3>Palancas operacionales</h3>
+      <div class="ctl">
+        <label>Wrench time hoy (tiempo en tarea) <output id="o-wh">50%</output></label>
+        <input type="range" id="s-wh" min="30" max="80" value="50" step="1">
+      </div>
+      <div class="ctl">
+        <label>Wrench time objetivo <output id="o-wo">65%</output></label>
+        <input type="range" id="s-wo" min="30" max="85" value="65" step="1">
+      </div>
+      <div class="ctl">
+        <label>Batch picking (↓ viaje por agrupar pedidos) <output id="o-ba">25%</output></label>
+        <input type="range" id="s-ba" min="0" max="45" value="25" step="1">
+      </div>
+      <div class="hint">Benchmark: bodegas manuales operan con wrench time 40–55%; best-in-class 65–75%. El batch picking reduce la distancia caminada hasta 40%.</div>
+    </div>
+
+    <div class="sec">
+      <h3>Costos y jornada (Chile)</h3>
+      <div class="row2">
+        <div class="ctl">
+          <label>Costo empresa CLP/mes</label>
+          <input type="number" id="n-costo" value="950000" step="50000" min="500000">
+        </div>
+        <div class="ctl">
+          <label>Horas pagadas/mes</label>
+          <input type="number" id="n-horas" value="180" step="5" min="120" max="210">
+        </div>
+      </div>
+      <div class="hint">Operario bodega Chile 2026: sueldo bruto ~CLP 650–700 mil + cargas (~38%) ≈ CLP 950 mil costo empresa. Ley 40 Horas: jornada de 42 h/semana desde abril 2026 (~180 h/mes).</div>
+    </div>
+
+    <div class="sec">
+      <h3>Parámetros de picking</h3>
+      <div class="row2">
+        <div class="ctl">
+          <label>Velocidad caminata m/s</label>
+          <input type="number" id="n-vel" value="0.9" step="0.1" min="0.4" max="1.6">
+        </div>
+        <div class="ctl">
+          <label>Tiempo por pick (s)</label>
+          <input type="number" id="n-pick" value="12" step="1" min="4" max="60">
+        </div>
+      </div>
+      <div class="hint">Penalidad por nivel: piso +4 s (agacharse) · nivel 2 golden zone 0 s · nivel 3 +6 s · nivel 4 +22 s (escalera / alcance).</div>
+    </div>
+
+    <div class="sec">
+      <h3>Estructura de la bodega</h3>
+      <div class="row3">
+        <div class="ctl">
+          <label>Pasillos</label>
+          <input type="number" id="n-pas" value="6" step="1" min="2" max="12">
+        </div>
+        <div class="ctl">
+          <label>Bahías/lado</label>
+          <input type="number" id="n-bah" value="10" step="1" min="4" max="24">
+        </div>
+        <div class="ctl">
+          <label>Niveles</label>
+          <input type="number" id="n-niv" value="4" step="1" min="2" max="6">
+        </div>
+      </div>
+      <div class="hint" id="hint-locs">—</div>
+    </div>
+
+  </div>
+
+  <div id="viewport">
+    <div id="canvas-wrap">
+      <div id="legend"></div>
+      <div id="layout-tag" class="actual">📸 FOTO DE HOY</div>
+      <div id="skuinfo"></div>
+    </div>
+    <div id="scenarios"></div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   WarehouseOpt — Simulador 3D de slotting y dotación (Chile)
+   Motor: ABC velocity slotting + golden zone + modelo de FTEs
+   ================================================================ */
+
+const $ = id => document.getElementById(id);
+const fmt = (n, d = 0) => n.toLocaleString('es-CL', { maximumFractionDigits: d, minimumFractionDigits: d });
+const fmtM = n => '$' + fmt(n / 1e6, 1) + ' M';
+
+/* ---------- parámetros globales ---------- */
+const P = {
+  pasillos: 6, bahias: 10, niveles: 4,
+  aisleW: 3.0, rackD: 1.2, bayW: 1.4, levelH: 1.5,
+  dockGap: 7,
+  speed: 0.9, tPick: 12,
+  wrenchHoy: 0.50, wrenchObj: 0.65, batch: 0.25,
+  horasMes: 180, costoEmpresa: 950000
+};
+function penNivel(l) { return [4, 0, 6, 22, 30, 38][Math.min(l, 5)]; }
+
+let skus = [];          // {sku, desc, familia, picks, unidades}
+let locs = [];          // {a,s,b,l,x,y,z,distRT,cost}
+let locActual = [];     // skuIdx -> locIdx
+let locOptimo = [];
+let layoutMode = 'actual';
+let viewMode = 'abc';
+let dataSrc = 'demo';
+let SC = [];            // escenarios calculados
+
+/* ---------- RNG con semilla (demo reproducible) ---------- */
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- demos: 3 bodegas estándar con curva Pareto ---------- */
+const DEMOS = {
+  chica:   { pasillos: 3,  bahias: 8,  niveles: 3, n: 60,  base: 900,  exp: 4, seed: 11,
+             fams: ['Bebidas', 'Snacks', 'Lácteos', 'Panadería', 'Aseo hogar', 'Congelados'] },
+  mediana: { pasillos: 6,  bahias: 10, niveles: 4, n: 120, base: 2400, exp: 5, seed: 42,
+             fams: ['Bebidas', 'Lácteos', 'Abarrotes', 'Snacks', 'Aseo hogar', 'Cuidado personal', 'Mascotas', 'Ferretería'] },
+  grande:  { pasillos: 10, bahias: 16, niveles: 5, n: 400, base: 4200, exp: 6, seed: 77,
+             fams: ['Electrónica', 'Hogar', 'Vestuario', 'Juguetería', 'Deportes', 'Belleza', 'Abarrotes', 'Mascotas', 'Ferretería', 'Librería'] }
+};
+function genDemo(cfg = DEMOS.mediana) {
+  const rnd = mulberry32(cfg.seed);
+  const fams = cfg.fams;
+  const n = cfg.n, out = [];
+  for (let i = 0; i < n; i++) {
+    const picks = Math.max(2, Math.round(cfg.base * Math.exp(-cfg.exp * i / n) * (0.8 + rnd() * 0.4)));
+    const fam = fams[Math.floor(rnd() * fams.length)];
+    out.push({
+      sku: 'SKU-' + String(1000 + Math.floor(rnd() * 9000)),
+      desc: fam + ' ítem ' + (i + 1),
+      familia: fam,
+      picks,
+      unidades: picks * (2 + Math.floor(rnd() * 10))
+    });
+  }
+  // códigos únicos
+  const seen = new Set();
+  out.forEach((s, i) => { while (seen.has(s.sku)) s.sku = 'SKU-' + (1000 + i) + 'B'; seen.add(s.sku); });
+  return out;
+}
+
+/* ---------- geometría de ubicaciones ---------- */
+function buildLocations() {
+  locs = [];
+  const M = P.aisleW + 2 * P.rackD;              // ancho de módulo pasillo+racks
+  for (let a = 0; a < P.pasillos; a++) {
+    const xA = (a - (P.pasillos - 1) / 2) * M;   // centro del pasillo
+    for (let s = 0; s < 2; s++) {
+      const xR = xA + (s === 0 ? -1 : 1) * (P.aisleW / 2 + P.rackD / 2);
+      for (let b = 0; b < P.bahias; b++) {
+        const z = (b + 0.5) * P.bayW;
+        for (let l = 0; l < P.niveles; l++) {
+          const y = l * P.levelH + P.levelH / 2;
+          const distRT = 2 * (Math.abs(xA) + z + P.dockGap);
+          const cost = distRT / P.speed + penNivel(l);
+          locs.push({ a, s, b, l, x: xR, xA, y, z, distRT, cost });
+        }
+      }
+    }
+  }
+  $('hint-locs').textContent = `${fmt(locs.length)} ubicaciones (${P.pasillos} pasillos × 2 lados × ${P.bahias} bahías × ${P.niveles} niveles). Golden zone = nivel 2.`;
+}
+
+/* ---------- asignaciones ---------- */
+function assign() {
+  // recorta si hay más SKUs que ubicaciones (prioriza mayor rotación)
+  if (skus.length > locs.length) {
+    skus.sort((a, b) => b.picks - a.picks);
+    skus = skus.slice(0, locs.length);
+  }
+  const idxAll = locs.map((_, i) => i);
+
+  // FOTO DE HOY: ubicaciones dispersas por toda la bodega (slotting histórico,
+  // sin correlación con velocidad) — o ubicaciones del archivo si venían
+  const rnd = mulberry32(7);
+  const physOrder = [...idxAll];
+  for (let i = physOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [physOrder[i], physOrder[j]] = [physOrder[j], physOrder[i]];
+  }
+  const byCode = skus.map((_, i) => i).sort((i, j) => skus[i].sku.localeCompare(skus[j].sku));
+  locActual = new Array(skus.length);
+  if (skus.every(s => s._loc != null)) {
+    // ubicaciones explícitas del archivo
+    const used = new Set();
+    skus.forEach((s, i) => {
+      let li = s._loc;
+      if (li == null || li < 0 || li >= locs.length || used.has(li)) li = physOrder.find(x => !used.has(x));
+      locActual[i] = li; used.add(li);
+    });
+  } else {
+    byCode.forEach((skuI, k) => { locActual[skuI] = physOrder[k]; });
+  }
+
+  // ÓPTIMO: SKUs por picks desc → ubicaciones por costo asc (ABC + golden zone)
+  const cheap = [...idxAll].sort((i, j) => locs[i].cost - locs[j].cost);
+  const byPicks = skus.map((_, i) => i).sort((i, j) => skus[j].picks - skus[i].picks);
+  locOptimo = new Array(skus.length);
+  byPicks.forEach((skuI, k) => { locOptimo[skuI] = cheap[k]; });
+
+  // clases ABC (A: 80% picks acumulados, B: 95%, C: resto)
+  const tot = skus.reduce((s, x) => s + x.picks, 0);
+  let cum = 0;
+  byPicks.forEach(i => { cum += skus[i].picks; skus[i].clase = cum <= tot * 0.80 ? 'A' : (cum <= tot * 0.95 ? 'B' : 'C'); });
+  // rank percentil para heatmap
+  byPicks.forEach((i, k) => { skus[i].rankP = 1 - k / Math.max(1, skus.length - 1); });
+}
+
+/* ---------- motor de escenarios ---------- */
+function calc(locOfSku, wrench, batch) {
+  let travelS = 0, handleS = 0, dist = 0, golden = 0, tot = 0;
+  for (let i = 0; i < skus.length; i++) {
+    const loc = locs[locOfSku[i]], pk = skus[i].picks;
+    const d = loc.distRT * (1 - batch);
+    travelS += pk * d / P.speed;
+    handleS += pk * (P.tPick + penNivel(loc.l));
+    dist += pk * d;
+    if (loc.l === 1) golden += pk;
+    tot += pk;
+  }
+  const hours = (travelS + handleS) / 3600;
+  const fte = hours / (P.horasMes * wrench);
+  const personas = Math.ceil(fte - 1e-9);
+  return {
+    hours, fte, personas,
+    costoAnual: personas * P.costoEmpresa * 12,
+    distLinea: dist / tot,
+    segLinea: (travelS + handleS) / tot,
+    lineasHH: tot / (fte * P.horasMes),
+    pctGolden: golden / tot,
+    kmMes: dist / 1000,
+    totalPicks: tot
+  };
+}
+
+function recompute() {
+  assign();
+  SC = [
+    { name: '📸 Hoy', cls: 'hoy', m: calc(locActual, P.wrenchHoy, 0) },
+    { name: '1 · Slotting ABC', cls: '', m: calc(locOptimo, P.wrenchHoy, 0) },
+    { name: '2 · + Wrench time', cls: '', m: calc(locOptimo, P.wrenchObj, 0) },
+    { name: '3 · + Batch picking', cls: 'best', m: calc(locOptimo, P.wrenchObj, P.batch) }
+  ];
+  renderKPIs(); renderScenarios(); renderSintesis(); renderLegend();
+  $('badge-skus').textContent = fmt(skus.length);
+  $('badge-picks').textContent = fmt(SC[0].m.totalPicks);
+  $('badge-src').textContent = dataSrc;
+  rebuildBoxes(); syncWorkers();
+}
+
+/* ---------- render UI ---------- */
+function renderKPIs() {
+  const a = SC[0].m, o = SC[3].m;
+  const rows = [
+    ['Distancia por línea', fmt(a.distLinea, 0) + ' m', fmt(o.distLinea, 0) + ' m'],
+    ['Tiempo por línea', fmt(a.segLinea, 0) + ' s', fmt(o.segLinea, 0) + ' s'],
+    ['Líneas / hora-hombre', fmt(a.lineasHH, 1), fmt(o.lineasHH, 1)],
+    ['% picks en golden zone', fmt(a.pctGolden * 100, 0) + '%', fmt(o.pctGolden * 100, 0) + '%'],
+    ['Caminata total / mes', fmt(a.kmMes, 0) + ' km', fmt(o.kmMes, 0) + ' km'],
+    ['Horas de trabajo / mes', fmt(a.hours, 0) + ' h', fmt(o.hours, 0) + ' h'],
+    ['Dotación (FTE)', fmt(a.fte, 1), fmt(o.fte, 1)],
+    ['Personas', fmt(a.personas), fmt(o.personas)],
+    ['Costo anual', fmtM(a.costoAnual), fmtM(o.costoAnual)]
+  ];
+  $('kpi-body').innerHTML = rows.map(r =>
+    `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="good">${r[2]}</td></tr>`).join('');
+}
+
+function renderScenarios() {
+  const base = SC[0].m;
+  $('scenarios').innerHTML = SC.map((s, i) => {
+    const dP = base.personas - s.m.personas;
+    const dC = base.costoAnual - s.m.costoAnual;
+    const delta = i === 0 ? '<span class="delta zero">base</span>'
+      : `<span class="delta">${dP > 0 ? '−' + dP + ' pers · −' + fmtM(dC) : 'sin ahorro'}</span>`;
+    return `<div class="sc-card ${s.cls}">
+      <div class="hd"><h4>${s.name}</h4>${delta}</div>
+      <div class="fte">${fmt(s.m.personas)} <small>personas (${fmt(s.m.fte, 1)} FTE)</small></div>
+      <div class="cost">${fmtM(s.m.costoAnual)} /año · ${fmt(s.m.lineasHH, 1)} líneas/hh</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSintesis() {
+  const a = SC[0].m, s1 = SC[1].m, s3 = SC[3].m;
+  const dDist = (1 - s1.distLinea / a.distLinea) * 100;
+  const persAhorro = a.personas - s3.personas;
+  const ahorro = a.costoAnual - s3.costoAnual;
+  $('sintesis').innerHTML =
+    `Hoy la bodega necesita <b>${fmt(a.personas)} personas</b> (${fmt(a.fte, 1)} FTE) para ${fmt(a.totalPicks)} líneas/mes, ` +
+    `caminando ${fmt(a.kmMes, 0)} km/mes. Reordenar por velocidad de picks (slotting ABC + golden zone) reduce la distancia ` +
+    `por línea <b>−${fmt(dDist, 0)}%</b> y libera <b>${fmt(a.personas - s1.personas)}</b> persona(s); sumar wrench time ` +
+    `${fmt(P.wrenchObj * 100, 0)}% y batch picking libera el resto. Potencial total: <span class="neg">−${fmt(persAhorro)} personas · ` +
+    `${fmtM(ahorro)}/año</span> (−${fmt(ahorro / Math.max(1, a.costoAnual) * 100, 0)}%).`;
+}
+
+const ABC_COLORS = { A: 0xf87171, B: 0xfbbf24, C: 0x60a5fa };
+function renderLegend() {
+  if (viewMode === 'abc') {
+    $('legend').innerHTML = `<div class="lt">Clase de rotación</div>
+      <div class="li"><span class="sw" style="background:#f87171"></span>A — 80% de los picks</div>
+      <div class="li"><span class="sw" style="background:#fbbf24"></span>B — 15% siguiente</div>
+      <div class="li"><span class="sw" style="background:#60a5fa"></span>C — cola larga (5%)</div>
+      <div class="li" style="margin-top:6px"><span class="sw" style="background:#34d399"></span>Zona recepción/despacho</div>`;
+  } else {
+    $('legend').innerHTML = `<div class="lt">Intensidad de picks</div>
+      <div class="li"><span class="sw" style="background:linear-gradient(90deg,#1e3a8a,#f87171)"></span>frío → caliente</div>
+      <div class="li" style="margin-top:6px"><span class="sw" style="background:#34d399"></span>Zona recepción/despacho</div>`;
+  }
+}
+
+/* ================================================================
+   THREE.JS — escena 3D
+   ================================================================ */
+let scene, camera, renderer, controls, raycaster, clock;
+let rackGroup, boxGroup, workerGroup;
+let boxMeshes = [];   // {mesh, skuIdx}
+let workers = [];
+const wrap = $('canvas-wrap');
+
+function init3D() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x081020);
+  scene.fog = new THREE.Fog(0x081020, 60, 140);
+
+  camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  wrap.appendChild(renderer.domElement);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI / 2.05;
+
+  scene.add(new THREE.HemisphereLight(0xbcd4ff, 0x0a1220, 0.9));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.7);
+  dir.position.set(20, 35, -15);
+  scene.add(dir);
+
+  raycaster = new THREE.Raycaster();
+  clock = new THREE.Clock();
+
+  rackGroup = new THREE.Group(); scene.add(rackGroup);
+  boxGroup = new THREE.Group(); scene.add(boxGroup);
+  workerGroup = new THREE.Group(); scene.add(workerGroup);
+
+  renderer.domElement.addEventListener('pointerdown', onPick);
+  window.addEventListener('resize', onResize);
+  onResize();
+  animate();
+}
+
+function onResize() {
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  if (!w || !h) return;
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+
+function makeLabel(text, size = 3, color = '#7d90b3') {
+  const c = document.createElement('canvas');
+  const g = c.getContext('2d');
+  const font = 'bold 64px Segoe UI, sans-serif';
+  g.font = font;
+  const tw = Math.ceil(g.measureText(text).width) + 40;
+  c.width = tw; c.height = 128;
+  g.font = font; g.fillStyle = color;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, tw / 2, 64);
+  const tex = new THREE.CanvasTexture(c);
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  spr.scale.set(size, size * 128 / tw, 1);
+  return spr;
+}
+
+function disposeGroup(gr) {
+  gr.traverse(o => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) { (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); }
+  });
+  gr.clear();
+}
+
+/* ---------- construcción de la bodega ---------- */
+function rebuildScene() {
+  disposeGroup(rackGroup);
+  const M = P.aisleW + 2 * P.rackD;
+  const totW = P.pasillos * M + 4;
+  const depth = P.bahias * P.bayW;
+  const H = P.niveles * P.levelH;
+
+  // piso
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(totW + 10, depth + P.dockGap + 14),
+    new THREE.MeshLambertMaterial({ color: 0x0c1830 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, -0.01, (depth - P.dockGap) / 2 - 2);
+  rackGroup.add(floor);
+
+  const grid = new THREE.GridHelper(Math.max(totW, depth + P.dockGap) + 12, 30, 0x1e3252, 0x14243f);
+  grid.position.set(0, 0, (depth - P.dockGap) / 2 - 2);
+  rackGroup.add(grid);
+
+  // zona dock (recepción/despacho)
+  const dock = new THREE.Mesh(
+    new THREE.PlaneGeometry(totW * 0.7, 4),
+    new THREE.MeshLambertMaterial({ color: 0x0f3d2e, transparent: true, opacity: 0.85 })
+  );
+  dock.rotation.x = -Math.PI / 2;
+  dock.position.set(0, 0.02, -P.dockGap + 1);
+  rackGroup.add(dock);
+  const lbl = makeLabel('▼ RECEPCIÓN / DESPACHO ▼', 14, '#34d399');
+  lbl.position.set(0, 0.6, -P.dockGap + 1);
+  rackGroup.add(lbl);
+
+  // racks: postes + repisas
+  const postMat = new THREE.MeshLambertMaterial({ color: 0x24466e });
+  const shelfMat = new THREE.MeshLambertMaterial({ color: 0x1a3a5e });
+  const postGeo = new THREE.BoxGeometry(0.08, H, 0.08);
+  for (let a = 0; a < P.pasillos; a++) {
+    const xA = (a - (P.pasillos - 1) / 2) * M;
+    // etiqueta del pasillo
+    const pl = makeLabel('P' + (a + 1), 4, '#22d3ee');
+    pl.position.set(xA, 0.7, -2);
+    rackGroup.add(pl);
+    for (let s = 0; s < 2; s++) {
+      const xR = xA + (s === 0 ? -1 : 1) * (P.aisleW / 2 + P.rackD / 2);
+      for (let b = 0; b <= P.bahias; b++) {
+        for (const dz of [-P.rackD / 2 + 0.06, P.rackD / 2 - 0.06]) {
+          const p = new THREE.Mesh(postGeo, postMat);
+          p.position.set(xR + dz, H / 2, b * P.bayW);
+          p.rotation.y = Math.PI / 2;
+          rackGroup.add(p);
+        }
+      }
+      for (let l = 0; l <= P.niveles; l++) {
+        const sh = new THREE.Mesh(new THREE.BoxGeometry(P.rackD, 0.06, P.bahias * P.bayW), shelfMat);
+        sh.position.set(xR, l * P.levelH, P.bahias * P.bayW / 2);
+        rackGroup.add(sh);
+      }
+    }
+  }
+
+  // cámara al centro
+  const cz = depth / 2;
+  camera.position.set(totW * 0.75, H * 4.2, -P.dockGap - totW * 0.45);
+  controls.target.set(0, 1, cz * 0.55);
+  controls.update();
+}
+
+/* ---------- cajas de SKUs ---------- */
+const heatLo = new THREE.Color(0x1e3a8a), heatHi = new THREE.Color(0xf87171);
+function rebuildBoxes() {
+  disposeGroup(boxGroup);
+  boxMeshes = [];
+  const asg = layoutMode === 'actual' ? locActual : locOptimo;
+  const geo = new THREE.BoxGeometry(P.rackD * 0.8, P.levelH * 0.55, P.bayW * 0.8);
+  for (let i = 0; i < skus.length; i++) {
+    const loc = locs[asg[i]];
+    let color;
+    if (viewMode === 'abc') color = new THREE.Color(ABC_COLORS[skus[i].clase]);
+    else color = heatLo.clone().lerp(heatHi, Math.pow(skus[i].rankP, 1.6));
+    const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color }));
+    m.position.set(loc.x, loc.y, loc.z);
+    boxGroup.add(m);
+    boxMeshes.push({ mesh: m, skuIdx: i });
+  }
+  $('layout-tag').className = layoutMode;
+  $('layout-tag').textContent = layoutMode === 'actual' ? '📸 FOTO DE HOY' : '✨ LAYOUT ÓPTIMO';
+}
+
+/* ---------- trabajadores animados ---------- */
+function makeWorker() {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.9, 10),
+    new THREE.MeshLambertMaterial({ color: 0xfb923c }));   // chaleco reflectante
+  body.position.y = 0.65;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 10),
+    new THREE.MeshLambertMaterial({ color: 0xe8c39e }));
+  head.position.y = 1.28;
+  const hat = new THREE.Mesh(new THREE.SphereGeometry(0.185, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshLambertMaterial({ color: 0xfbbf24 }));   // casco
+  hat.position.y = 1.30;
+  g.add(body, head, hat);
+  return g;
+}
+
+function pickWeightedLoc() {
+  const asg = layoutMode === 'actual' ? locActual : locOptimo;
+  const tot = skus.reduce((s, x) => s + x.picks, 0);
+  let r = Math.random() * tot;
+  for (let i = 0; i < skus.length; i++) { r -= skus[i].picks; if (r <= 0) return locs[asg[i]]; }
+  return locs[asg[0]];
+}
+
+function newRoute() {
+  const loc = pickWeightedLoc();
+  const dockPt = new THREE.Vector3((Math.random() - 0.5) * 6, 0, -P.dockGap + 1);
+  const cross = new THREE.Vector3(loc.xA, 0, -1.6);
+  const inAisle = new THREE.Vector3(loc.xA, 0, loc.z);
+  const path = [dockPt, new THREE.Vector3(dockPt.x, 0, -1.6), cross, inAisle];
+  return { path, seg: 0, t: 0, pause: 0, back: false };
+}
+
+function syncWorkers() {
+  const sc = layoutMode === 'actual' ? SC[0] : SC[3];
+  const want = Math.min(sc ? sc.m.personas : 0, 15);
+  while (workers.length > want) { const w = workers.pop(); disposeGroup(w.mesh); workerGroup.remove(w.mesh); }
+  while (workers.length < want) {
+    const mesh = makeWorker();
+    workerGroup.add(mesh);
+    const w = { mesh, route: newRoute() };
+    w.route.t = Math.random(); w.route.seg = Math.floor(Math.random() * 3);
+    workers.push(w);
+  }
+}
+
+function stepWorker(w, dt) {
+  const r = w.route, speed = 1.5;
+  if (r.pause > 0) { r.pause -= dt; w.mesh.position.y = Math.sin(Date.now() / 120) * 0.04; return; }
+  w.mesh.position.y = 0;
+  const pts = r.back ? [...r.path].reverse() : r.path;
+  if (r.seg >= pts.length - 1) {
+    if (!r.back) { r.back = true; r.seg = 0; r.t = 0; r.pause = 1.0 + Math.random(); }
+    else { w.route = newRoute(); }
+    return;
+  }
+  const a = pts[r.seg], b = pts[r.seg + 1];
+  const len = a.distanceTo(b);
+  r.t += (speed * dt) / Math.max(len, 0.001);
+  if (r.t >= 1) { r.seg++; r.t = 0; return; }
+  const pos = a.clone().lerp(b, r.t);
+  w.mesh.position.x = pos.x; w.mesh.position.z = pos.z;
+  const dir = b.clone().sub(a);
+  if (dir.lengthSq() > 0.0001) w.mesh.rotation.y = Math.atan2(dir.x, dir.z);
+}
+
+/* ---------- interacción: click en caja ---------- */
+const mouse = new THREE.Vector2();
+function onPick(ev) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(boxGroup.children, false);
+  const info = $('skuinfo');
+  if (!hits.length) { info.style.display = 'none'; return; }
+  const bm = boxMeshes.find(b => b.mesh === hits[0].object);
+  if (!bm) { info.style.display = 'none'; return; }
+  const s = skus[bm.skuIdx];
+  const asg = layoutMode === 'actual' ? locActual : locOptimo;
+  const loc = locs[asg[bm.skuIdx]];
+  info.innerHTML = `<b>${s.sku}</b> · clase ${s.clase}<br>${s.desc}
+    <div class="r"><span>Picks/mes</span><span>${fmt(s.picks)}</span></div>
+    <div class="r"><span>Ubicación</span><span>P${loc.a + 1}-${loc.s ? 'D' : 'I'}-B${String(loc.b + 1).padStart(2, '0')}-N${loc.l + 1}</span></div>
+    <div class="r"><span>Viaje ida+vuelta</span><span>${fmt(loc.distRT, 0)} m</span></div>
+    <div class="r"><span>Tiempo línea</span><span>${fmt(loc.distRT / P.speed + P.tPick + penNivel(loc.l), 0)} s</span></div>`;
+  info.style.left = (ev.clientX - rect.left + 14) + 'px';
+  info.style.top = (ev.clientY - rect.top + 14) + 'px';
+  info.style.display = 'block';
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.1);
+  workers.forEach(w => stepWorker(w, dt));
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+/* ================================================================
+   CARGA DE ARCHIVOS (CSV / Excel)
+   ================================================================ */
+$('file-in').addEventListener('change', async ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const buf = await f.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array' });
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+  const norm = k => k.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  const out = [];
+  for (const r of rows) {
+    const m = {}; for (const k in r) m[norm(k)] = r[k];
+    const sku = m.sku || m.codigo || m.cod;
+    const picks = +(m.picks_mes ?? m.picks ?? m.lineas_mes ?? m.lineas ?? 0);
+    if (!sku || !(picks > 0)) continue;
+    const item = {
+      sku: String(sku), desc: String(m.descripcion || m.desc || ''),
+      familia: String(m.familia || m.categoria || '—'),
+      picks: Math.round(picks),
+      unidades: +(m.unidades_mes ?? m.unidades ?? 0) || Math.round(picks * 4)
+    };
+    // ubicación actual opcional (pasillo/lado/bahia/nivel, 1-indexado)
+    const pa = +m.pasillo, ba = +(m.bahia ?? m['bahia']), ni = +m.nivel;
+    const la = norm(String(m.lado || '')).startsWith('d') ? 1 : 0;
+    if (pa >= 1 && ba >= 1 && ni >= 1) {
+      const a = Math.min(pa - 1, P.pasillos - 1), b = Math.min(ba - 1, P.bahias - 1), l = Math.min(ni - 1, P.niveles - 1);
+      item._loc = ((a * 2 + la) * P.bahias + b) * P.niveles + l;
+    }
+    out.push(item);
+  }
+  if (!out.length) { alert('No se encontraron filas válidas. Se requieren columnas: sku y picks_mes (líneas de pedido por mes).'); return; }
+  skus = out; dataSrc = f.name;
+  recompute();
+  ev.target.value = '';
+});
+
+$('btn-template').addEventListener('click', () => {
+  const data = [
+    ['sku', 'descripcion', 'familia', 'picks_mes', 'unidades_mes', 'pasillo', 'lado', 'bahia', 'nivel'],
+    ['SKU-1001', 'Bebida cola 3L x6', 'Bebidas', 1850, 11100, 4, 'izquierdo', 7, 3],
+    ['SKU-2044', 'Detergente 3kg', 'Aseo hogar', 620, 1860, 1, 'derecho', 2, 1],
+    ['SKU-3310', 'Alimento perro 15kg', 'Mascotas', 95, 190, '', '', '', ''],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = data[0].map(() => ({ wch: 16 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'consumos');
+  XLSX.writeFile(wb, 'plantilla_consumos_bodega.xlsx');
+});
+
+function loadDemo(key) {
+  const d = DEMOS[key];
+  P.pasillos = d.pasillos; P.bahias = d.bahias; P.niveles = d.niveles;
+  $('n-pas').value = d.pasillos; $('n-bah').value = d.bahias; $('n-niv').value = d.niveles;
+  buildLocations(); rebuildScene();
+  skus = genDemo(d); dataSrc = 'demo ' + key;
+  recompute();
+}
+$('sel-demo').addEventListener('change', e => loadDemo(e.target.value));
+
+/* ================================================================
+   CONTROLES
+   ================================================================ */
+function bindRange(id, out, key, pct = true) {
+  $(id).addEventListener('input', e => {
+    const v = +e.target.value;
+    $(out).textContent = v + '%';
+    P[key] = v / 100;
+    recompute();
+  });
+}
+bindRange('s-wh', 'o-wh', 'wrenchHoy');
+bindRange('s-wo', 'o-wo', 'wrenchObj');
+bindRange('s-ba', 'o-ba', 'batch');
+
+function bindNum(id, key, rebuild = false) {
+  $(id).addEventListener('change', e => {
+    const v = +e.target.value;
+    if (!isFinite(v)) return;
+    P[key] = v;
+    if (rebuild) { buildLocations(); rebuildScene(); }
+    recompute();
+  });
+}
+bindNum('n-costo', 'costoEmpresa');
+bindNum('n-horas', 'horasMes');
+bindNum('n-vel', 'speed', true);   // velocidad afecta el costo de cada ubicación
+bindNum('n-pick', 'tPick');
+bindNum('n-pas', 'pasillos', true);
+bindNum('n-bah', 'bahias', true);
+bindNum('n-niv', 'niveles', true);
+
+document.querySelectorAll('#seg-layout button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#seg-layout button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  layoutMode = b.dataset.v;
+  rebuildBoxes(); syncWorkers();
+}));
+document.querySelectorAll('#seg-view button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#seg-view button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  viewMode = b.dataset.v;
+  renderLegend(); rebuildBoxes();
+}));
+
+/* ---------- arranque ---------- */
+init3D();
+loadDemo('mediana');
+</script>
+</body>
+</html>
