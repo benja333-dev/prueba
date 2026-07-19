@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Normas de Inventario en Red — Editor Multi-Echelon</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0a1e3c; --panel:#14315c; --panel2:#1b3b6b; --line:#27538f;
+  --txt:#e8eef7; --muted:#9db3d1; --cy:#2fd3e1; --cy2:#7ae8f2; --gold:#e8b84b;
+  --a:#e8574a; --c:#3fb984;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--navy);color:var(--txt);line-height:1.55}
+header{padding:26px 30px;background:linear-gradient(115deg,#12294d,#0a1e3c);border-bottom:2px solid var(--cy)}
+header h1{margin:0;font-size:24px;letter-spacing:.4px}
+header p{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:1000px}
+.wrap{padding:22px 30px;max-width:1560px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px}
+.panel h2{margin:0 0 14px;font-size:14px;letter-spacing:1.2px;text-transform:uppercase;color:var(--cy);
+  font-family:-apple-system,Segoe UI,sans-serif;font-weight:700}
+.panel h2 .tag{font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0;margin-left:10px;font-weight:400}
+h3{font-size:13px;margin:0 0 8px;color:var(--cy2);font-family:-apple-system,Segoe UI,sans-serif;letter-spacing:.4px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-family:-apple-system,Segoe UI,sans-serif}
+input,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;
+  padding:8px 10px;font-size:13px;width:100%;font-family:-apple-system,Segoe UI,sans-serif}
+input[type=range]{padding:0}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.row>div{flex:1;min-width:140px}
+button{background:var(--cy);color:#062033;border:none;border-radius:8px;padding:10px 18px;font-size:13px;
+  font-weight:700;cursor:pointer;font-family:-apple-system,Segoe UI,sans-serif;transition:.15s}
+button:hover{filter:brightness(1.12)}
+button.ghost{background:transparent;color:var(--cy);border:1px solid var(--cy)}
+button.ghost:hover{background:rgba(47,211,225,.12)}
+button.tool{background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:9px 14px}
+button.tool.on{background:var(--cy);color:#062033;border-color:var(--cy)}
+button.danger{background:transparent;color:var(--a);border:1px solid var(--a)}
+button.danger.on{background:var(--a);color:#fff}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--cy);border-radius:8px;padding:14px 16px}
+.kpi .lab{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-family:-apple-system,Segoe UI,sans-serif}
+.kpi .val{font-size:26px;font-weight:700;margin-top:4px}
+.kpi .sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:-apple-system,Segoe UI,sans-serif}
+.chartbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px}
+.cvwrap{position:relative;height:290px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:-apple-system,Segoe UI,sans-serif}
+th{background:var(--panel2);padding:9px 8px;text-align:right;color:var(--cy2);font-size:11px;
+  text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;cursor:pointer;white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+td{padding:7px 8px;text-align:right;border-top:1px solid var(--line)}
+tbody tr:hover{background:rgba(47,211,225,.07)}
+.tblwrap{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;
+  font-family:-apple-system,Segoe UI,sans-serif}
+.pA{background:rgba(232,87,74,.2);color:#f39a91}.pB{background:rgba(232,184,75,.2);color:#f0d08a}
+.pC{background:rgba(63,185,132,.2);color:#8ad9b6}
+.subtle{color:var(--muted);font-size:12px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted);
+  font-family:-apple-system,Segoe UI,sans-serif;margin-top:10px}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.editor{display:grid;grid-template-columns:1fr 260px;gap:16px}
+@media(max-width:1000px){.editor{grid-template-columns:1fr}}
+#netSvg{width:100%;height:600px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  touch-action:none;user-select:none;display:block}
+#netSvg.connect{cursor:crosshair}
+#netSvg.erase{cursor:not-allowed}
+.side{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;font-family:-apple-system,Segoe UI,sans-serif}
+.side h3{margin-top:0}
+.side .fld{margin-bottom:12px}
+.hint{background:rgba(47,211,225,.08);border-left:3px solid var(--cy);padding:9px 12px;border-radius:0 8px 8px 0;
+  font-size:12px;color:var(--muted);font-family:-apple-system,Segoe UI,sans-serif;margin-top:12px}
+.warn{background:rgba(232,87,74,.1);border-left:3px solid var(--a);padding:9px 12px;border-radius:0 8px 8px 0;
+  font-size:12px;color:#f39a91;font-family:-apple-system,Segoe UI,sans-serif;margin-top:12px}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:22px;text-align:center;color:var(--muted);
+  font-family:-apple-system,Segoe UI,sans-serif;font-size:13px;cursor:pointer;transition:.15s}
+.drop:hover{border-color:var(--cy);color:var(--cy)}
+.note{background:rgba(47,211,225,.07);border-left:3px solid var(--cy);padding:10px 14px;border-radius:0 8px 8px 0;
+  font-size:12px;color:var(--muted);margin-top:12px;font-family:-apple-system,Segoe UI,sans-serif}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Normas de Inventario en Red · Editor Multi-Echelon</h1>
+  <p>Dibuja tu red: agrega bodegas primarias y tiendas, arrástralas y únelas tú mismo. La distancia entre una tienda
+  y su bodega determina el lead time de reposición, y por lo tanto su safety stock. Cada cambio en la red recalcula
+  la norma de inventario por SKU y locación.</p>
+</header>
+
+<div class="wrap">
+
+<!-- 1. DATOS -->
+<div class="panel">
+  <h2>1 · Datos de consumo <span class="tag">histórico mensual por SKU</span></h2>
+  <div class="row">
+    <div style="flex:2">
+      <div class="drop" id="drop" onclick="document.getElementById('fileInput').click()">
+        📁 Arrastra o haz clic para cargar tu Excel/CSV de consumos históricos
+      </div>
+      <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls,.csv">
+      <p class="subtle" id="fileMsg" style="margin-top:10px">Sin datos cargados.</p>
+    </div>
+    <div style="flex:1">
+      <div class="note" style="margin-top:0">
+        <b>Formato esperado</b><br>
+        Columnas: <code>SKU</code>, <code>Familia</code>, <code>CostoUnitario</code>, y una columna por mes
+        (<code>2024-01</code>, <code>2024-02</code>, …) con el consumo <b>total de la red</b>.<br>
+        El modelo reparte esa demanda entre las tiendas que dibujes, según el tamaño de cada una.
+      </div>
+    </div>
+  </div>
+  <div class="btnrow">
+    <button class="ghost" onclick="loadDemo()">▶ Cargar catálogo demo (100 SKUs · 6 familias)</button>
+    <button class="ghost" onclick="downloadTemplate()">⬇ Descargar plantilla</button>
+  </div>
+</div>
+
+<!-- 2. EDITOR DE RED -->
+<div class="panel">
+  <h2>2 · Editor de red <span class="tag">dibuja bodegas, tiendas y sus vínculos</span></h2>
+
+  <div class="btnrow" style="margin-top:0;margin-bottom:14px">
+    <button class="tool on" id="mMover"   onclick="setMode('mover')">✥ Mover</button>
+    <button class="tool"    id="mConect"  onclick="setMode('conectar')">⇢ Conectar</button>
+    <button class="tool danger" id="mBorrar" onclick="setMode('borrar')">✕ Eliminar</button>
+    <span style="width:14px"></span>
+    <button class="ghost" onclick="addCD()">+ Bodega primaria</button>
+    <button class="ghost" onclick="addTienda()">+ Tienda</button>
+    <span style="width:14px"></span>
+    <button class="ghost" onclick="autoAsignar()">⇄ Asignar a la bodega más cercana</button>
+    <button class="ghost" onclick="resetRed()">↺ Red inicial</button>
+  </div>
+
+  <div class="row" style="margin-bottom:14px">
+    <div style="max-width:320px">
+      <label>Número de tiendas: <b id="nTiendasLbl">15</b></label>
+      <input type="range" id="nTiendas" min="1" max="40" value="15"
+             oninput="document.getElementById('nTiendasLbl').textContent=this.value"
+             onchange="setTiendaCount(+this.value)">
+    </div>
+    <div style="max-width:300px">
+      <label>Largo norte–sur del territorio (km)</label>
+      <input type="number" id="kmAncho" value="4300" min="100" step="100" onchange="recalcRed()">
+    </div>
+    <div style="flex:2"></div>
+  </div>
+
+  <div class="editor">
+    <svg id="netSvg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="side" id="sidePanel"></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--cy)"></i> Bodega primaria</span>
+    <span><i class="dot" style="background:var(--gold)"></i> Tienda vinculada</span>
+    <span><i class="dot" style="background:var(--a)"></i> Tienda sin bodega asignada</span>
+    <span class="subtle">El tamaño del nodo refleja su volumen. El grosor del vínculo, el flujo despachado.</span>
+  </div>
+  <div id="netWarn"></div>
+</div>
+
+<!-- 3. PARAMETROS -->
+<div class="panel">
+  <h2>3 · Parámetros de política</h2>
+  <div class="row">
+    <div><label>Nivel servicio clase A (%)</label><input type="number" id="servA" value="98" min="50" max="99.9" step="0.5"></div>
+    <div><label>Nivel servicio clase B (%)</label><input type="number" id="servB" value="95" min="50" max="99.9" step="0.5"></div>
+    <div><label>Nivel servicio clase C (%)</label><input type="number" id="servC" value="90" min="50" max="99.9" step="0.5"></div>
+    <div><label>Lead time proveedor → bodega (días)</label><input type="number" id="ltCD" value="45" min="1"></div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <div><label>Lead time base bodega → tienda (días)</label><input type="number" id="ltBase" value="2" min="0" step="0.5"></div>
+    <div><label>Días adicionales por cada 500 km</label><input type="number" id="ltKm" value="1.5" min="0" step="0.5"></div>
+    <div><label>Período revisión bodega (días)</label><input type="number" id="revCD" value="14" min="1"></div>
+    <div><label>Período revisión tienda (días)</label><input type="number" id="revTienda" value="7" min="1"></div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <div><label>Costo capital + almacenaje (%/año)</label><input type="number" id="holdRate" value="22" min="1"></div>
+    <div><label>Costo de emitir pedido (CLP)</label><input type="number" id="ordCost" value="45000" min="0" step="1000"></div>
+    <div><label>Horizonte proyección (meses)</label><input type="number" id="horizon" value="12" min="3" max="24"></div>
+    <div style="flex:2"></div>
+  </div>
+  <div class="btnrow">
+    <button onclick="runAll()">⚙ Calcular normas de inventario</button>
+    <button class="ghost" onclick="exportResults()">⬇ Exportar resultados a Excel</button>
+  </div>
+</div>
+
+<!-- 4. KPIs -->
+<div class="panel hidden" id="kpiPanel">
+  <h2>4 · Síntesis ejecutiva <span class="tag" id="kpiSub"></span></h2>
+  <div class="kpis" id="kpis"></div>
+  <div class="note" id="insight"></div>
+</div>
+
+<!-- 5. GRAFICOS -->
+<div class="panel hidden" id="chartPanel">
+  <h2>5 · Análisis por familia y SKU</h2>
+  <div class="row" style="margin-bottom:16px">
+    <div><label>Familia</label><select id="famSelect" onchange="onFamChange()"></select></div>
+    <div><label>SKU</label><select id="skuSelect" onchange="drawSkuCharts()"></select></div>
+    <div><label>Locación (perfil de inventario)</label><select id="locSelect" onchange="drawSkuCharts()"></select></div>
+  </div>
+  <div class="grid2">
+    <div class="chartbox"><h3>Consumo histórico y proyección — red completa</h3><div class="cvwrap"><canvas id="fcChart"></canvas></div></div>
+    <div class="chartbox"><h3>Perfil de inventario (diente de sierra) — locación seleccionada</h3><div class="cvwrap"><canvas id="sawChart"></canvas></div></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="chartbox"><h3>Norma de inventario por locación — SKU seleccionado</h3><div class="cvwrap"><canvas id="locChart"></canvas></div></div>
+    <div class="chartbox"><h3>Inversión en inventario por familia · Pareto</h3><div class="cvwrap"><canvas id="famChart"></canvas></div></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="chartbox"><h3>Trade-off nivel de servicio vs. inversión</h3><div class="cvwrap"><canvas id="tradeChart"></canvas></div></div>
+    <div class="chartbox"><h3>Safety stock vs. lead time por tienda</h3><div class="cvwrap"><canvas id="ltChart"></canvas></div></div>
+  </div>
+</div>
+
+<!-- 6. TABLA -->
+<div class="panel hidden" id="tablePanel">
+  <h2>6 · Normas de inventario por SKU × locación</h2>
+  <div class="row" style="margin-bottom:12px">
+    <div><label>Filtrar familia</label><select id="tFam" onchange="renderTable()"></select></div>
+    <div><label>Filtrar locación</label><select id="tLoc" onchange="renderTable()"></select></div>
+    <div><label>Filtrar clase ABC</label><select id="tAbc" onchange="renderTable()">
+      <option value="">Todas</option><option>A</option><option>B</option><option>C</option></select></div>
+    <div><label>Buscar SKU</label><input id="tSearch" oninput="renderTable()" placeholder="SKU o nombre"></div>
+  </div>
+  <div class="tblwrap"><table id="resultTable"><thead></thead><tbody></tbody></table></div>
+  <p class="subtle" id="tblHint" style="margin-top:8px"></p>
+</div>
+
+</div>
+
+<script>
+/* ═══════════ utilidades ═══════════ */
+const S=12;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function mean(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+function stdev(a){if(a.length<2)return 0;const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1))}
+function fmt(n,d=0){return (n||0).toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function money(n){const a=Math.abs(n);
+  if(a>=1e9)return '$'+fmt(n/1e9,2)+'B';if(a>=1e6)return '$'+fmt(n/1e6,1)+'M';
+  if(a>=1e3)return '$'+fmt(n/1e3,0)+'K';return '$'+fmt(n,0)}
+function normInv(p){
+  if(p<=0)return -6;if(p>=1)return 6;
+  const a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239];
+  const b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
+  const c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783];
+  const d=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416];
+  const pl=0.02425;let q,r;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}
+  if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}
+  q=p-0.5;r=q*q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)}
+function stdNormPdf(z){return Math.exp(-z*z/2)/Math.sqrt(2*Math.PI)}
+function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);
+  return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x))}
+function stdNormCdf(z){return 0.5*(1+erf(z/Math.SQRT2))}
+function lossFn(z){return stdNormPdf(z)-z*(1-stdNormCdf(z))}
+
+/* ═══════════ estado ═══════════ */
+let CDS=[];       // {id,nom,x,y}
+let TDAS=[];      // {id,nom,x,y,tam,cd}
+let SKUS=[];      // {sku,nombre,familia,famNom,costo,serie[] (demanda total red)}
+let MESES=[];
+let RESULTS=[];
+let CHARTS={};
+let MODE='mover';
+let SEL=null;            // nodo seleccionado {tipo,id}
+let LINKFROM=null;       // tienda origen en modo conectar
+let seqCD=0,seqT=0;
+
+/* ═══════════ catálogo demo ═══════════ */
+const FAMILIAS=[
+  {id:'BEB',nom:'Bebidas',base:900,estac:[1.35,1.30,1.15,.95,.80,.70,.68,.72,.85,1.00,1.15,1.35],cv:.18,pmin:600,pmax:2500,n:20},
+  {id:'LAC',nom:'Lácteos',base:650,estac:[1.05,1.02,1.00,.98,.97,.95,.95,.97,1.00,1.02,1.04,1.05],cv:.12,pmin:900,pmax:3500,n:16},
+  {id:'ABA',nom:'Abarrotes',base:1100,estac:[.95,.92,1.00,1.02,1.05,1.08,1.10,1.06,1.00,.98,.96,1.08],cv:.15,pmin:700,pmax:4000,n:24},
+  {id:'LIM',nom:'Limpieza',base:420,estac:[1.00,.98,1.02,1.00,1.00,1.00,1.00,1.00,1.02,1.00,.98,1.00],cv:.22,pmin:1200,pmax:6000,n:14},
+  {id:'SNK',nom:'Snacks',base:780,estac:[1.20,1.15,1.05,.95,.90,.88,.90,.95,1.00,1.05,1.10,1.27],cv:.28,pmin:400,pmax:1800,n:16},
+  {id:'CUI',nom:'Cuidado personal',base:310,estac:[1.02,1.00,1.00,.98,.98,1.00,1.00,1.00,1.00,1.02,1.05,1.15],cv:.35,pmin:1800,pmax:12000,n:10}
+];
+function loadDemo(){
+  const rnd=mulberry32(20260719);
+  MESES=[];for(let y=2024;y<=2025;y++)for(let m=1;m<=12;m++)MESES.push(y+'-'+String(m).padStart(2,'0'));
+  SKUS=[];let n=0;
+  FAMILIAS.forEach(f=>{
+    for(let i=1;i<=f.n;i++){
+      n++;
+      const pop=Math.pow(rnd(),1.8)*3+0.12;
+      const cv=f.cv*(0.6+rnd()*0.9);
+      const tend=(rnd()-0.42)*0.02;
+      const base=f.base*pop;
+      const serie=MESES.map((_,k)=>{
+        const ruido=1+(rnd()+rnd()+rnd()-1.5)*cv*1.0;
+        return Math.max(0,Math.round(base*f.estac[k%12]*(1+tend*k)*ruido));
+      });
+      SKUS.push({sku:'SKU-'+String(n).padStart(3,'0'),nombre:f.nom+' '+f.id+'-'+String(i).padStart(2,'0'),
+        familia:f.id,famNom:f.nom,costo:Math.round((f.pmin+rnd()*(f.pmax-f.pmin))/10)*10,serie,cv});
+    }
+  });
+  document.getElementById('fileMsg').innerHTML=
+    `✅ Catálogo demo: <b>${SKUS.length} SKUs</b> · ${FAMILIAS.length} familias · ${MESES.length} meses de historia de red.`;
+  resetRed();
+}
+
+/* ═══════════ red: construcción y edición ═══════════ */
+// ciudades ordenadas de norte a sur: el índice es la latitud relativa
+const CIUDADES=['Arica','Iquique','Calama','Antofagasta','Copiapó','Vallenar','La Serena','Ovalle',
+  'Los Andes','Quillota','Valparaíso','Viña del Mar','San Antonio','Parque Arauco','Costanera Center',
+  'La Florida','Maipú','Puente Alto','Melipilla','Rancagua','Santa Cruz','Curicó','Talca','Linares',
+  'Cauquenes','Chillán','Concepción','Chiguayante','Los Ángeles','Angol','Temuco','Villarrica',
+  'Valdivia','Osorno','Puerto Varas','Puerto Montt','Ancud','Castro','Coyhaique','Punta Arenas'];
+const Y0=45, Y1=560;                       // banda vertical útil del lienzo
+const colX=i=>i%2?700:590;                 // dos columnas alternadas para que las etiquetas no se pisen
+const yDeRango=rk=>Y0+rk*(Y1-Y0)/(CIUDADES.length-1);
+
+function resetRed(){
+  CDS=[];TDAS=[];seqCD=0;seqT=0;
+  // las bodegas se alinean a la izquierda, a la latitud del centro de cada macrozona
+  addCD('Bodega Norte', 400, yDeRango(4));
+  addCD('Bodega Centro',400, yDeRango(18));
+  addCD('Bodega Sur',   400, yDeRango(32));
+  document.getElementById('nTiendas').value=15;   // "Red inicial" vuelve al punto de partida, no al valor actual del slider
+  setTiendaCount(15,true);
+}
+function addCD(nom,x,y){
+  seqCD++;
+  CDS.push({id:'CD-'+seqCD,nom:nom||('Bodega '+seqCD),
+    x:x!==undefined?x:120+Math.random()*120, y:y!==undefined?y:80+Math.random()*440});
+  if(x===undefined){recalcRed()}
+}
+function nuevaTienda(rango,idx){
+  seqT++;
+  const nom=CIUDADES[rango];
+  return {id:'T-'+seqT, nom, rango, x:colX(idx), y:yDeRango(rango),
+    tam:+(0.45+((hash(nom)%100)/100)*1.4).toFixed(2), cd:null};
+}
+function addTienda(nom,x,y,tam){
+  // una tienda suelta se ubica en el hueco de latitud más grande que quede libre
+  const usados=TDAS.map(t=>t.rango).sort((a,b)=>a-b);
+  let rk=Math.floor(CIUDADES.length/2),mejor=-1;
+  for(let r=0;r<CIUDADES.length;r++){
+    if(usados.includes(r))continue;
+    const d=Math.min(...usados.map(u=>Math.abs(u-r)),CIUDADES.length);
+    if(d>mejor){mejor=d;rk=r}
+  }
+  const t=nuevaTienda(rk,TDAS.length);
+  if(nom)t.nom=nom;
+  if(x!==undefined)t.x=x;
+  if(y!==undefined)t.y=y;
+  if(tam!==undefined)t.tam=tam;
+  TDAS.push(t);
+  t.cd=cdMasCercana(t);
+  recalcRed();
+  return t;
+}
+function setTiendaCount(n,silent){
+  // se reparten n ciudades de forma pareja de norte a sur, para que la red cubra el país
+  n=Math.max(1,Math.min(CIUDADES.length,n));
+  TDAS=[];
+  for(let i=0;i<n;i++){
+    const rk=n===1?Math.floor(CIUDADES.length/2)
+                  :Math.round(i*(CIUDADES.length-1)/(n-1));
+    const t=nuevaTienda(rk,i);
+    TDAS.push(t);t.cd=cdMasCercana(t);
+  }
+  document.getElementById('nTiendas').value=TDAS.length;
+  document.getElementById('nTiendasLbl').textContent=TDAS.length;
+  if(!silent)recalcRed();else{drawNet();runAll()}
+}
+// El eje vertical representa la latitud y fija la escala; el horizontal es esquemático,
+// así que pesa menos (WX) para que no domine artificialmente la distancia.
+const WX=0.35;
+function dist(a,b){return Math.hypot((a.x-b.x)*WX,a.y-b.y)}
+function distKm(t){
+  const cd=CDS.find(c=>c.id===t.cd);if(!cd)return 0;
+  const kmPorPx=(+document.getElementById('kmAncho').value||4300)/(Y1-Y0);
+  return dist(t,cd)*kmPorPx;
+}
+function cdMasCercana(t){
+  if(!CDS.length)return null;
+  return CDS.reduce((best,c)=>dist(t,c)<dist(t,best)?c:best,CDS[0]).id;
+}
+function autoAsignar(){TDAS.forEach(t=>t.cd=cdMasCercana(t));recalcRed()}
+function borrarNodo(tipo,id){
+  if(tipo==='cd'){CDS=CDS.filter(c=>c.id!==id);TDAS.forEach(t=>{if(t.cd===id)t.cd=null})}
+  else{TDAS=TDAS.filter(t=>t.id!==id)}
+  if(SEL&&SEL.id===id)SEL=null;
+  recalcRed();
+}
+function setMode(m){
+  MODE=m;LINKFROM=null;
+  document.getElementById('mMover').classList.toggle('on',m==='mover');
+  document.getElementById('mConect').classList.toggle('on',m==='conectar');
+  document.getElementById('mBorrar').classList.toggle('on',m==='borrar');
+  const svg=document.getElementById('netSvg');
+  svg.classList.toggle('connect',m==='conectar');
+  svg.classList.toggle('erase',m==='borrar');
+  drawNet();
+}
+function recalcRed(){drawNet();runAll()}
+
+/* demanda de una tienda para un SKU: reparto de la demanda de red por peso relativo */
+function serieTienda(sku,t){
+  const totTam=TDAS.reduce((a,x)=>a+x.tam,0)||1;
+  const share=t.tam/totTam;
+  const r=mulberry32(hash(sku.sku+'|'+t.id));
+  return sku.serie.map(v=>{
+    const ruido=1+(r()+r()+r()-1.5)*0.45; // variabilidad local > variabilidad de red
+    return Math.max(0,v*share*ruido);
+  });
+}
+
+/* ═══════════ dibujo de la red ═══════════ */
+function volTienda(t){
+  if(!SKUS.length)return 0;
+  const totTam=TDAS.reduce((a,x)=>a+x.tam,0)||1;
+  const totRed=SKUS.reduce((a,s)=>a+mean(s.serie.slice(-12)),0);
+  return totRed*t.tam/totTam;
+}
+function drawNet(){
+  const svg=document.getElementById('netSvg');
+  const volT={};TDAS.forEach(t=>volT[t.id]=volTienda(t));
+  const maxV=Math.max(1,...Object.values(volT));
+  const volCD={};CDS.forEach(c=>volCD[c.id]=TDAS.filter(t=>t.cd===c.id).reduce((a,t)=>a+volT[t.id],0));
+  const maxCD=Math.max(1,...Object.values(volCD));
+  let g='';
+  // grilla de fondo
+  g+='<defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">'+
+     '<path d="M50 0 L0 0 0 50" fill="none" stroke="#27538f" stroke-width="0.5" opacity="0.35"/></pattern></defs>'+
+     '<rect width="1000" height="600" fill="url(#grid)"/>';
+  // vínculos
+  TDAS.forEach(t=>{
+    const cd=CDS.find(c=>c.id===t.cd);if(!cd)return;
+    const w=1+3.2*Math.sqrt(volT[t.id]/maxV);
+    const mx=(t.x+cd.x)/2;
+    g+=`<path d="M${cd.x} ${cd.y} C ${mx} ${cd.y}, ${mx} ${t.y}, ${t.x} ${t.y}"
+      fill="none" stroke="#2fd3e1" stroke-width="${w}" opacity="0.45"/>`;
+  });
+  // línea elástica al conectar
+  if(LINKFROM){
+    const t=TDAS.find(x=>x.id===LINKFROM);
+    if(t)g+=`<circle cx="${t.x}" cy="${t.y}" r="20" fill="none" stroke="#e8b84b" stroke-width="2" stroke-dasharray="4 3"/>`;
+  }
+  // bodegas
+  CDS.forEach(c=>{
+    const nT=TDAS.filter(t=>t.cd===c.id).length;
+    const w=Math.max(74,Math.min(104,68+Math.sqrt(volCD[c.id]/maxCD)*36));
+    const selo=SEL&&SEL.tipo==='cd'&&SEL.id===c.id;
+    g+=`<g class="node" data-tipo="cd" data-id="${c.id}" style="cursor:${MODE==='mover'?'grab':'pointer'}">
+      <rect x="${c.x-w}" y="${c.y-21}" width="${w*2}" height="42" rx="10" fill="#2fd3e1"
+        stroke="${selo?'#fff':'#7ae8f2'}" stroke-width="${selo?3:1.5}"/>
+      <text x="${c.x}" y="${c.y-2}" text-anchor="middle" style="fill:#062033;font:700 12px -apple-system,sans-serif">${c.nom}</text>
+      <text x="${c.x}" y="${c.y+13}" text-anchor="middle" style="fill:#04262e;font:600 9.5px -apple-system,sans-serif">${nT} tiendas · ${fmt(volCD[c.id])} u/mes</text>
+    </g>`;
+  });
+  // tiendas
+  TDAS.forEach(t=>{
+    const r=Math.max(7,Math.min(17,6+Math.sqrt(volT[t.id]/maxV)*15));
+    const huerf=!t.cd||!CDS.find(c=>c.id===t.cd);
+    const selo=SEL&&SEL.tipo==='tienda'&&SEL.id===t.id;
+    const col=huerf?'#e8574a':'#e8b84b';
+    g+=`<g class="node" data-tipo="tienda" data-id="${t.id}" style="cursor:${MODE==='mover'?'grab':'pointer'}">
+      <circle cx="${t.x}" cy="${t.y}" r="${r}" fill="${col}" stroke="${selo?'#fff':(huerf?'#f39a91':'#f5d68a')}" stroke-width="${selo?3:1.5}"/>
+      <text x="${t.x+r+7}" y="${t.y+3}" style="fill:#e8eef7;font:500 11px -apple-system,sans-serif">${t.nom}</text>
+      <text x="${t.x+r+7}" y="${t.y+15}" style="fill:#9db3d1;font:400 9px -apple-system,sans-serif">${fmt(volT[t.id])} u/mes${huerf?' · SIN BODEGA':''}</text>
+    </g>`;
+  });
+  svg.innerHTML=g;
+  renderSide();
+  const huer=TDAS.filter(t=>!t.cd||!CDS.find(c=>c.id===t.cd)).length;
+  document.getElementById('netWarn').innerHTML= huer
+    ? `<div class="warn"><b>${huer} tienda${huer>1?'s':''} sin bodega asignada.</b> Quedan fuera del cálculo.
+       Usa el modo <b>Conectar</b> (clic en la tienda, luego en la bodega) o <b>Asignar a la bodega más cercana</b>.</div>`
+    : `<div class="hint"><b>Cómo editar.</b> <b>Mover</b>: arrastra nodos; la distancia tienda↔bodega fija el lead time.
+       <b>Conectar</b>: clic en una tienda y luego en la bodega que la abastece. <b>Eliminar</b>: clic en cualquier nodo.
+       Selecciona un nodo para editar su nombre y tamaño en el panel lateral.</div>`;
+}
+
+/* panel lateral */
+function renderSide(){
+  const el=document.getElementById('sidePanel');
+  if(!SEL){
+    const totTam=TDAS.reduce((a,t)=>a+t.tam,0);
+    el.innerHTML=`<h3>Resumen de red</h3>
+      <div class="subtle" style="font-size:12px;line-height:1.9">
+        Bodegas primarias: <b>${CDS.length}</b><br>
+        Tiendas: <b>${TDAS.length}</b><br>
+        Tiendas por bodega: <b>${CDS.length?fmt(TDAS.filter(t=>t.cd).length/CDS.length,1):'—'}</b><br>
+        Distancia media a bodega: <b>${TDAS.length?fmt(mean(TDAS.filter(t=>t.cd).map(distKm)),0):0} km</b><br>
+        Peso total de tiendas: <b>${fmt(totTam,2)}</b>
+      </div>
+      <div class="hint" style="margin-top:14px">Haz clic en una bodega o tienda para editarla.</div>`;
+    return;
+  }
+  if(SEL.tipo==='cd'){
+    const c=CDS.find(x=>x.id===SEL.id);if(!c){SEL=null;return renderSide()}
+    const hijas=TDAS.filter(t=>t.cd===c.id);
+    el.innerHTML=`<h3>🏭 Bodega primaria</h3>
+      <div class="fld"><label>Nombre</label><input value="${c.nom}" oninput="CDS.find(x=>x.id==='${c.id}').nom=this.value;drawNet()"></div>
+      <div class="subtle" style="font-size:12px;line-height:1.9">
+        Tiendas abastecidas: <b>${hijas.length}</b><br>
+        Distancia media: <b>${hijas.length?fmt(mean(hijas.map(distKm)),0):0} km</b><br>
+        Volumen: <b>${fmt(hijas.reduce((a,t)=>a+volTienda(t),0))} u/mes</b>
+      </div>
+      <div class="btnrow"><button class="danger" onclick="borrarNodo('cd','${c.id}')">Eliminar bodega</button></div>`;
+  }else{
+    const t=TDAS.find(x=>x.id===SEL.id);if(!t){SEL=null;return renderSide()}
+    el.innerHTML=`<h3>🏬 Tienda</h3>
+      <div class="fld"><label>Nombre</label><input value="${t.nom}" oninput="TDAS.find(x=>x.id==='${t.id}').nom=this.value;drawNet()"></div>
+      <div class="fld"><label>Tamaño relativo: <b>${t.tam.toFixed(2)}</b></label>
+        <input type="range" min="0.1" max="3" step="0.05" value="${t.tam}"
+          oninput="TDAS.find(x=>x.id==='${t.id}').tam=+this.value;drawNet()"
+          onchange="recalcRed()"></div>
+      <div class="fld"><label>Bodega que la abastece</label>
+        <select onchange="TDAS.find(x=>x.id==='${t.id}').cd=this.value||null;recalcRed()">
+          <option value="">— sin asignar —</option>
+          ${CDS.map(c=>`<option value="${c.id}" ${t.cd===c.id?'selected':''}>${c.nom}</option>`).join('')}
+        </select></div>
+      <div class="subtle" style="font-size:12px;line-height:1.9">
+        Distancia a bodega: <b>${fmt(distKm(t),0)} km</b><br>
+        Lead time resultante: <b>${fmt(ltTienda(t),1)} días</b><br>
+        Volumen: <b>${fmt(volTienda(t))} u/mes</b>
+      </div>
+      <div class="btnrow"><button class="danger" onclick="borrarNodo('tienda','${t.id}')">Eliminar tienda</button></div>`;
+  }
+}
+function ltTienda(t){
+  return (+document.getElementById('ltBase').value||0)+distKm(t)/500*(+document.getElementById('ltKm').value||0);
+}
+
+/* ═══════════ interacción con el lienzo ═══════════ */
+(function(){
+  const svg=document.getElementById('netSvg');
+  let drag=null;
+  function svgPt(ev){
+    const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    return p.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  svg.addEventListener('pointerdown',ev=>{
+    const g=ev.target.closest('.node');
+    if(!g){SEL=null;LINKFROM=null;drawNet();return}
+    const tipo=g.dataset.tipo,id=g.dataset.id;
+    if(MODE==='borrar'){borrarNodo(tipo,id);return}
+    if(MODE==='conectar'){
+      if(tipo==='tienda'){LINKFROM=id;SEL={tipo,id};drawNet()}
+      else if(LINKFROM){
+        const t=TDAS.find(x=>x.id===LINKFROM);
+        if(t){t.cd=id;LINKFROM=null;SEL=null;recalcRed()}
+      }else{SEL={tipo,id};drawNet()}
+      return;
+    }
+    SEL={tipo,id};
+    const obj=tipo==='cd'?CDS.find(c=>c.id===id):TDAS.find(t=>t.id===id);
+    const p=svgPt(ev);
+    drag={obj,dx:obj.x-p.x,dy:obj.y-p.y,moved:false};
+    // no debe abortar el handler si el puntero ya no está activo
+    try{svg.setPointerCapture(ev.pointerId)}catch(e){}
+    drawNet();
+  });
+  svg.addEventListener('pointermove',ev=>{
+    if(!drag)return;
+    const p=svgPt(ev);
+    drag.obj.x=Math.max(20,Math.min(980,p.x+drag.dx));
+    drag.obj.y=Math.max(20,Math.min(580,p.y+drag.dy));
+    drag.moved=true;
+    drawNet();
+  });
+  svg.addEventListener('pointerup',ev=>{
+    if(drag){const m=drag.moved;drag=null;
+      try{svg.releasePointerCapture(ev.pointerId)}catch(e){}
+      if(m)runAll();}   // sólo recalcula si de verdad se movió
+  });
+})();
+
+/* ═══════════ pronóstico ═══════════ */
+function forecast(hist,periods){
+  const n=hist.length;
+  let seas=new Array(S).fill(1);
+  if(n>=2*S){
+    const ratios=Array.from({length:S},()=>[]);const h=Math.floor(S/2);
+    for(let i=h;i<n-h;i++){let sum=0;for(let k=-h;k<h;k++)sum+=hist[i+k];
+      const ma=sum/S;if(ma>0)ratios[i%S].push(hist[i]/ma)}
+    seas=ratios.map(a=>a.length?mean(a):1);
+    const m=mean(seas)||1;seas=seas.map(v=>v/m);
+  }
+  const des=hist.map((v,i)=>v/(seas[i%S]||1));
+  let l=des[0]||0,b=n>S?((des[S]-des[0])/S):0;
+  const al=0.28,be=0.08,fit=[];
+  for(let i=0;i<n;i++){fit.push(Math.max(0,(l+b)*(seas[i%S]||1)));
+    const pl=l;l=al*des[i]+(1-al)*(l+b);b=be*(l-pl)+(1-be)*b}
+  const fc=[];for(let h2=1;h2<=periods;h2++)fc.push(Math.max(0,(l+b*h2)*(seas[(n+h2-1)%S]||1)));
+  let se=0,c=0;for(let i=S;i<n;i++){se+=(hist[i]-fit[i])**2;c++}
+  return {fc,fit,rmse:c?Math.sqrt(se/c):stdev(hist),seas};
+}
+
+/* ═══════════ motor ═══════════ */
+function runAll(){
+  if(!SKUS.length)return;
+  const t0=performance.now();
+  const P={servA:+servA.value/100,servB:+servB.value/100,servC:+servC.value/100,
+    ltCD:+ltCD.value,revCD:+revCD.value,revT:+revTienda.value,
+    hold:+holdRate.value/100,ord:+ordCost.value,hor:+horizon.value};
+  const tOk=TDAS.filter(t=>t.cd&&CDS.find(c=>c.id===t.cd));
+  RESULTS=[];
+  if(!tOk.length){
+    document.getElementById('kpiSub').textContent='Sin tiendas conectadas — dibuja la red para calcular.';
+    ['kpiPanel','chartPanel','tablePanel'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    return;
+  }
+  // pronóstico por SKU × tienda
+  const fc={},hist={};
+  SKUS.forEach(s=>tOk.forEach(t=>{
+    const h=serieTienda(s,t);hist[s.sku+'|'+t.id]=h;fc[s.sku+'|'+t.id]=forecast(h,P.hor);
+  }));
+  // ABC
+  const val={};SKUS.forEach(s=>{let d=0;
+    tOk.forEach(t=>d+=fc[s.sku+'|'+t.id].fc.reduce((a,b)=>a+b,0)*(12/P.hor));val[s.sku]=d*s.costo});
+  const ord=[...SKUS].sort((a,b)=>val[b.sku]-val[a.sku]);
+  const tot=ord.reduce((a,s)=>a+val[s.sku],0)||1;
+  const abc={};let ac=0;
+  ord.forEach(s=>{ac+=val[s.sku];abc[s.sku]=ac/tot<=.8?'A':ac/tot<=.95?'B':'C'});
+  const zOf=c=>normInv(c==='A'?P.servA:c==='B'?P.servB:P.servC);
+
+  // tiendas
+  SKUS.forEach(s=>{
+    const cl=abc[s.sku],z=zOf(cl);
+    tOk.forEach(t=>{
+      const f=fc[s.sku+'|'+t.id];
+      const dMes=mean(f.fc),dDia=dMes/30,dAn=dMes*12;
+      if(dAn<=0)return;
+      const lt=ltTienda(t);
+      const sigLT=f.rmse*Math.sqrt((lt+P.revT)/30);
+      const ss=Math.max(0,z*sigLT);
+      const eoq=Math.sqrt(2*dAn*P.ord/Math.max(1,P.hold*s.costo));
+      const q=Math.max(eoq,dDia*P.revT);
+      const inv=q/2+ss;
+      RESULTS.push({sku:s.sku,nombre:s.nombre,familia:s.familia,famNom:s.famNom,costo:s.costo,
+        loc:t.id,locNom:t.nom,tipo:'Tienda',cd:t.cd,abc:cl,cv:dMes>0?f.rmse/dMes:0,
+        xyz:(dMes>0?f.rmse/dMes:0)<.25?'X':(dMes>0?f.rmse/dMes:0)<.5?'Y':'Z',
+        lt,km:distKm(t),dMes,dAnual:dAn,rmse:f.rmse,ss,rop:dDia*lt+ss,eoq:q,invProm:inv,
+        diasCob:inv/Math.max(.001,dDia),valorInv:inv*s.costo,
+        fill:Math.max(0,Math.min(1,1-sigLT*lossFn(z)/Math.max(1,q))),z,
+        fc:f.fc,hist:hist[s.sku+'|'+t.id]});
+    });
+  });
+  // bodegas (risk pooling)
+  SKUS.forEach(s=>{
+    const cl=abc[s.sku],z=zOf(cl);
+    CDS.forEach(c=>{
+      const hijas=RESULTS.filter(r=>r.sku===s.sku&&r.tipo==='Tienda'&&r.cd===c.id);
+      if(!hijas.length)return;
+      const dMes=hijas.reduce((a,r)=>a+r.dMes,0),dDia=dMes/30,dAn=dMes*12;
+      const sigAgr=Math.sqrt(hijas.reduce((a,r)=>a+r.rmse**2,0));
+      const sigSum=hijas.reduce((a,r)=>a+r.rmse,0);
+      const sigLT=sigAgr*Math.sqrt((P.ltCD+P.revCD)/30);
+      const ss=Math.max(0,z*sigLT);
+      const eoq=Math.sqrt(2*dAn*P.ord/Math.max(1,P.hold*s.costo));
+      const q=Math.max(eoq,dDia*P.revCD);
+      const inv=q/2+ss;
+      RESULTS.push({sku:s.sku,nombre:s.nombre,familia:s.familia,famNom:s.famNom,costo:s.costo,
+        loc:c.id,locNom:c.nom,tipo:'Bodega',cd:c.id,abc:cl,xyz:'—',cv:dMes>0?sigAgr/dMes:0,
+        lt:P.ltCD,km:0,dMes,dAnual:dAn,rmse:sigAgr,ss,rop:dDia*P.ltCD+ss,eoq:q,invProm:inv,
+        diasCob:inv/Math.max(.001,dDia),valorInv:inv*s.costo,
+        fill:Math.max(0,Math.min(1,1-sigLT*lossFn(z)/Math.max(1,q))),z,
+        pooling:sigSum>0?1-sigAgr/sigSum:0,
+        fc:hijas[0].fc.map((_,i)=>hijas.reduce((a,r)=>a+r.fc[i],0)),
+        hist:hijas[0].hist.map((_,i)=>hijas.reduce((a,r)=>a+r.hist[i],0))});
+    });
+  });
+  document.getElementById('kpiSub').textContent=
+    `${tOk.length} tiendas · ${CDS.length} bodegas · ${RESULTS.length.toLocaleString('es-CL')} normas en ${Math.round(performance.now()-t0)} ms`;
+  ['kpiPanel','chartPanel','tablePanel'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
+  renderKPIs();buildSelectors();drawSkuCharts();renderTable();
+}
+
+/* ═══════════ KPIs ═══════════ */
+function renderKPIs(){
+  const R=RESULTS;
+  const invTot=R.reduce((a,r)=>a+r.valorInv,0);
+  const invCD=R.filter(r=>r.tipo==='Bodega').reduce((a,r)=>a+r.valorInv,0);
+  const ssVal=R.reduce((a,r)=>a+r.ss*r.costo,0);
+  const cogs=R.filter(r=>r.tipo==='Tienda').reduce((a,r)=>a+r.dAnual*r.costo,0);
+  const rot=invTot>0?cogs/invTot:0;
+  const fill=R.reduce((a,r)=>a+r.fill*r.dAnual,0)/Math.max(1,R.reduce((a,r)=>a+r.dAnual,0));
+  const cnt=c=>new Set(R.filter(r=>r.abc===c).map(r=>r.sku)).size;
+  const ltProm=mean(R.filter(r=>r.tipo==='Tienda').map(r=>r.lt));
+  const pool=mean(R.filter(r=>r.tipo==='Bodega').map(r=>r.pooling||0));
+  const k=[
+    ['Inversión total en inventario',money(invTot),`${money(invCD)} en bodegas · ${money(invTot-invCD)} en tiendas`],
+    ['Safety stock (capital)',money(ssVal),`${fmt(ssVal/Math.max(1,invTot)*100,0)}% del inventario`],
+    ['Cobertura promedio',fmt(rot>0?365/rot:0,1)+' días',`Rotación ${fmt(rot,1)}x al año`],
+    ['Fill rate esperado',fmt(fill*100,1)+'%','Ponderado por volumen'],
+    ['Lead time medio a tienda',fmt(ltProm,1)+' días','Según la red que dibujaste'],
+    ['Beneficio risk pooling',fmt(pool*100,0)+'%','Reducción de σ al centralizar']
+  ];
+  document.getElementById('kpis').innerHTML=k.map(([l,v,s])=>
+    `<div class="kpi"><div class="lab">${l}</div><div class="val">${v}</div><div class="sub">${s}</div></div>`).join('');
+  const topF=Object.entries(R.reduce((m,r)=>{m[r.famNom]=(m[r.famNom]||0)+r.valorInv;return m},{}))
+    .sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('insight').innerHTML=
+    `<b>Lectura.</b> Con ${CDS.length} bodega${CDS.length>1?'s':''} y ${TDAS.filter(t=>t.cd).length} tiendas,
+    el lead time medio a tienda es de <b>${fmt(ltProm,1)} días</b> y el capital inmovilizado asciende a
+    <b>${money(invTot)}</b>, de los cuales ${fmt(ssVal/Math.max(1,invTot)*100,0)}% es safety stock.
+    La familia <b>${topF?topF[0]:'—'}</b> concentra ${fmt((topF?topF[1]:0)/Math.max(1,invTot)*100,0)}% de la inversión.
+    Acercar tiendas a su bodega —o agregar una bodega adicional— reduce el lead time y con ello el safety stock,
+    a costa de perder el efecto de agregación: el pooling actual ahorra ${fmt(pool*100,0)}% de la desviación.
+    Ese es el trade-off central del diseño de red.`;
+}
+
+/* ═══════════ selectores ═══════════ */
+function buildSelectors(){
+  const fams=[...new Set(RESULTS.map(r=>r.famNom))].sort();
+  const fs=document.getElementById('famSelect'),pf=fs.value;
+  fs.innerHTML=fams.map(f=>`<option>${f}</option>`).join('');
+  if(fams.includes(pf))fs.value=pf;
+  document.getElementById('tFam').innerHTML='<option value="">Todas</option>'+fams.map(f=>`<option>${f}</option>`).join('');
+  const locs=[...new Map(RESULTS.map(r=>[r.loc,r.locNom])).entries()];
+  document.getElementById('tLoc').innerHTML='<option value="">Todas</option>'+
+    locs.map(([id,n])=>`<option value="${id}">${n}</option>`).join('');
+  onFamChange(true);
+}
+function onFamChange(keep){
+  const fam=document.getElementById('famSelect').value;
+  const skus=[...new Map(RESULTS.filter(r=>r.famNom===fam).map(r=>[r.sku,r.nombre])).entries()];
+  const ss=document.getElementById('skuSelect'),pv=ss.value;
+  ss.innerHTML=skus.map(([id,n])=>`<option value="${id}">${id} — ${n}</option>`).join('');
+  if(keep&&skus.some(s=>s[0]===pv))ss.value=pv;
+  updateLocSelect();
+  if(!keep)drawSkuCharts();
+}
+function updateLocSelect(){
+  const sku=document.getElementById('skuSelect').value;
+  const rows=RESULTS.filter(r=>r.sku===sku);
+  const ls=document.getElementById('locSelect'),pv=ls.value;
+  ls.innerHTML=rows.map(r=>`<option value="${r.loc}">${r.tipo==='Bodega'?'🏭 ':'🏬 '}${r.locNom}</option>`).join('');
+  if(rows.some(r=>r.loc===pv))ls.value=pv;
+}
+
+/* ═══════════ gráficos ═══════════ */
+const CY='#2fd3e1',GOLD='#e8b84b',GREEN='#3fb984',RED='#e8574a';
+function destroy(id){if(CHARTS[id]){CHARTS[id].destroy();delete CHARTS[id]}}
+const baseOpts={responsive:true,maintainAspectRatio:false,animation:false,
+  plugins:{legend:{labels:{color:'#c7d6ea',font:{family:'-apple-system,sans-serif',size:11},boxWidth:12}}},
+  scales:{x:{ticks:{color:'#9db3d1',font:{size:10}},grid:{color:'rgba(39,83,143,.35)'}},
+          y:{ticks:{color:'#9db3d1',font:{size:10}},grid:{color:'rgba(39,83,143,.35)'},beginAtZero:true}}};
+
+function drawSkuCharts(){
+  if(!RESULTS.length)return;
+  updateLocSelect();
+  const sku=document.getElementById('skuSelect').value;
+  const rows=RESULTS.filter(r=>r.sku===sku);
+  if(!rows.length)return;
+  const row=rows.find(r=>r.loc===document.getElementById('locSelect').value)||rows[0];
+
+  destroy('fc');
+  const tds=rows.filter(r=>r.tipo==='Tienda');
+  const nH=tds[0]?tds[0].hist.length:0;
+  const hA=Array.from({length:nH},(_,i)=>tds.reduce((a,r)=>a+r.hist[i],0));
+  const fA=Array.from({length:tds[0]?tds[0].fc.length:0},(_,i)=>tds.reduce((a,r)=>a+r.fc[i],0));
+  CHARTS.fc=new Chart(document.getElementById('fcChart'),{type:'line',
+    data:{labels:[...MESES.slice(0,nH),...fA.map((_,i)=>'P+'+(i+1))],datasets:[
+      {label:'Consumo histórico',data:[...hA,...fA.map(()=>null)],borderColor:CY,
+        backgroundColor:'rgba(47,211,225,.12)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+      {label:'Proyección',data:[...hA.map((_,i)=>i===nH-1?hA[i]:null),...fA],borderColor:GOLD,
+        borderDash:[6,4],tension:.3,pointRadius:0,borderWidth:2}]},
+    options:{...baseOpts,scales:{...baseOpts.scales,
+      x:{...baseOpts.scales.x,ticks:{...baseOpts.scales.x.ticks,maxTicksLimit:12}}}}});
+
+  destroy('saw');
+  const dDia=row.dMes/30,ciclo=row.eoq/Math.max(.001,dDia),lt=row.lt;
+  const dias=Math.max(60,Math.min(400,Math.round(ciclo*3+lt*2)));
+  const pts=[],lbl=[],pend=[];let inv=row.ss+row.eoq;
+  for(let i=0;i<=dias;i++){
+    while(pend.length&&pend[0][0]===i)inv+=pend.shift()[1];
+    pts.push(Math.max(0,inv));lbl.push('d'+i);
+    if(inv+pend.reduce((a,p)=>a+p[1],0)<=row.rop)pend.push([i+Math.round(lt),row.eoq]);
+    inv-=dDia;
+  }
+  CHARTS.saw=new Chart(document.getElementById('sawChart'),{type:'line',
+    data:{labels:lbl,datasets:[
+      {label:'Inventario',data:pts,borderColor:CY,backgroundColor:'rgba(47,211,225,.1)',fill:true,pointRadius:0,borderWidth:2},
+      {label:'Punto de reorden',data:pts.map(()=>row.rop),borderColor:GOLD,borderDash:[5,4],pointRadius:0,borderWidth:1.5},
+      {label:'Safety stock',data:pts.map(()=>row.ss),borderColor:RED,borderDash:[3,3],pointRadius:0,borderWidth:1.5}]},
+    options:{...baseOpts,scales:{...baseOpts.scales,
+      x:{...baseOpts.scales.x,ticks:{...baseOpts.scales.x.ticks,maxTicksLimit:10}}}}});
+
+  destroy('loc');
+  const ord=[...rows].sort((a,b)=>a.tipo===b.tipo?b.invProm-a.invProm:a.tipo==='Bodega'?-1:1);
+  CHARTS.loc=new Chart(document.getElementById('locChart'),{type:'bar',
+    data:{labels:ord.map(r=>r.locNom),datasets:[
+      {label:'Stock de ciclo',data:ord.map(r=>r.eoq/2),backgroundColor:CY,stack:'s'},
+      {label:'Safety stock',data:ord.map(r=>r.ss),backgroundColor:GOLD,stack:'s'}]},
+    options:{...baseOpts,scales:{
+      x:{...baseOpts.scales.x,stacked:true,ticks:{...baseOpts.scales.x.ticks,maxRotation:60,minRotation:45}},
+      y:{...baseOpts.scales.y,stacked:true}}}});
+
+  destroy('fam');
+  const pf=Object.entries(RESULTS.reduce((m,r)=>{m[r.famNom]=(m[r.famNom]||0)+r.valorInv;return m},{}))
+    .sort((a,b)=>b[1]-a[1]);
+  const tt=pf.reduce((a,f)=>a+f[1],0)||1;let ac=0;
+  CHARTS.fam=new Chart(document.getElementById('famChart'),{
+    data:{labels:pf.map(f=>f[0]),datasets:[
+      {type:'bar',label:'Inversión (MM CLP)',data:pf.map(f=>f[1]/1e6),backgroundColor:CY,yAxisID:'y'},
+      {type:'line',label:'% acumulado',data:pf.map(f=>{ac+=f[1];return ac/tt*100}),borderColor:GOLD,
+        pointBackgroundColor:GOLD,borderWidth:2,yAxisID:'y1'}]},
+    options:{...baseOpts,scales:{x:baseOpts.scales.x,y:baseOpts.scales.y,
+      y1:{position:'right',min:0,max:100,ticks:{color:GOLD,font:{size:10},callback:v=>v+'%'},grid:{display:false}}}}});
+
+  destroy('trade');
+  const nv=[85,90,92,95,97,98,99,99.5];
+  CHARTS.trade=new Chart(document.getElementById('tradeChart'),{type:'line',
+    data:{labels:nv.map(n=>n+'%'),datasets:[
+      {label:'Inversión en inventario (MM CLP)',
+       data:nv.map(n=>{const z=normInv(n/100);
+         return RESULTS.reduce((a,r)=>a+(r.eoq/2+Math.max(0,z*r.rmse*Math.sqrt((r.lt+(r.tipo==='Bodega'?+revCD.value:+revTienda.value))/30)))*r.costo,0)/1e6}),
+       borderColor:CY,backgroundColor:'rgba(47,211,225,.15)',fill:true,tension:.35,pointRadius:4,borderWidth:2}]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,beginAtZero:false}}}});
+
+  destroy('lt');
+  const porT=Object.values(RESULTS.filter(r=>r.tipo==='Tienda').reduce((m,r)=>{
+    (m[r.loc]=m[r.loc]||{nom:r.locNom,lt:r.lt,km:r.km,ss:0}).ss+=r.ss*r.costo;return m},{}))
+    .sort((a,b)=>a.lt-b.lt);
+  CHARTS.lt=new Chart(document.getElementById('ltChart'),{type:'scatter',
+    data:{datasets:[{label:'Tienda',data:porT.map(t=>({x:t.lt,y:t.ss/1e6,nom:t.nom,km:t.km})),
+      backgroundColor:GOLD,pointRadius:6}]},
+    options:{...baseOpts,plugins:{...baseOpts.plugins,tooltip:{callbacks:{
+      label:c=>`${c.raw.nom}: LT ${c.raw.x.toFixed(1)} d · ${fmt(c.raw.km,0)} km · ${money(c.raw.y*1e6)}`}}},
+      scales:{x:{...baseOpts.scales.x,title:{display:true,text:'Lead time (días)',color:'#9db3d1',font:{size:10}}},
+              y:{...baseOpts.scales.y,title:{display:true,text:'Safety stock (MM CLP)',color:'#9db3d1',font:{size:10}}}}}});
+}
+
+/* ═══════════ tabla ═══════════ */
+const COLS=[
+  {k:'sku',t:'SKU',f:v=>v},{k:'nombre',t:'Descripción',f:v=>v},
+  {k:'locNom',t:'Locación',f:v=>v},{k:'tipo',t:'Nivel',f:v=>v},
+  {k:'abc',t:'ABC',f:v=>`<span class="pill p${v}">${v}</span>`},{k:'xyz',t:'XYZ',f:v=>v},
+  {k:'km',t:'km a bodega',f:v=>fmt(v,0)},{k:'lt',t:'Lead time (d)',f:v=>fmt(v,1)},
+  {k:'dMes',t:'Demanda/mes',f:v=>fmt(v,0)},{k:'rmse',t:'σ error',f:v=>fmt(v,1)},
+  {k:'ss',t:'Safety stock',f:v=>fmt(v,0)},{k:'rop',t:'Punto reorden',f:v=>fmt(v,0)},
+  {k:'eoq',t:'Lote (EOQ)',f:v=>fmt(v,0)},{k:'invProm',t:'Inv. promedio',f:v=>fmt(v,0)},
+  {k:'diasCob',t:'Días cobertura',f:v=>fmt(v,1)},{k:'valorInv',t:'Valor inv.',f:v=>money(v)},
+  {k:'fill',t:'Fill rate',f:v=>fmt(v*100,1)+'%'}
+];
+let sortK='valorInv',sortD=-1;
+function renderTable(){
+  const fam=tFam.value,loc=tLoc.value,ab=tAbc.value,q=tSearch.value.toLowerCase();
+  let rows=RESULTS.filter(r=>(!fam||r.famNom===fam)&&(!loc||r.loc===loc)&&(!ab||r.abc===ab)&&
+    (!q||r.sku.toLowerCase().includes(q)||r.nombre.toLowerCase().includes(q)));
+  rows.sort((a,b)=>(a[sortK]>b[sortK]?1:a[sortK]<b[sortK]?-1:0)*sortD);
+  const sh=rows.slice(0,600);
+  document.querySelector('#resultTable thead').innerHTML='<tr>'+
+    COLS.map(c=>`<th onclick="sortBy('${c.k}')">${c.t}${sortK===c.k?(sortD>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
+  document.querySelector('#resultTable tbody').innerHTML=sh.map(r=>'<tr>'+
+    COLS.map(c=>`<td>${c.f(r[c.k])}</td>`).join('')+'</tr>').join('');
+  document.getElementById('tblHint').textContent=
+    `Mostrando ${sh.length.toLocaleString('es-CL')} de ${rows.length.toLocaleString('es-CL')} normas.`;
+}
+function sortBy(k){if(sortK===k)sortD*=-1;else{sortK=k;sortD=-1}renderTable()}
+
+/* ═══════════ import / export ═══════════ */
+function downloadTemplate(){
+  const ms=[];for(let i=0;i<24;i++)ms.push((2024+Math.floor(i/12))+'-'+String(i%12+1).padStart(2,'0'));
+  const rows=[['SKU-001','Bebidas',1200],['SKU-002','Snacks',850],['SKU-003','Abarrotes',2400]]
+    .map(([SKU,Familia,CostoUnitario])=>{const r={SKU,Familia,CostoUnitario};
+      ms.forEach(m=>r[m]=Math.round(3000+Math.random()*2000));return r});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows,{header:['SKU','Familia','CostoUnitario',...ms]}),'Consumos');
+  XLSX.writeFile(wb,'plantilla_consumos_red.xlsx');
+}
+function exportResults(){
+  if(!RESULTS.length){alert('Primero dibuja la red y calcula las normas.');return}
+  const data=RESULTS.map(r=>({SKU:r.sku,Descripcion:r.nombre,Familia:r.famNom,Locacion:r.locNom,Nivel:r.tipo,
+    Clase_ABC:r.abc,Clase_XYZ:r.xyz,Km_a_bodega:Math.round(r.km),Lead_time_dias:+r.lt.toFixed(1),
+    Demanda_mes:Math.round(r.dMes),Sigma_error:+r.rmse.toFixed(1),Safety_stock:Math.round(r.ss),
+    Punto_reorden:Math.round(r.rop),Lote_EOQ:Math.round(r.eoq),Inventario_promedio:Math.round(r.invProm),
+    Dias_cobertura:+r.diasCob.toFixed(1),Valor_inventario_CLP:Math.round(r.valorInv),
+    Fill_rate:+(r.fill*100).toFixed(1)}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Normas');
+  XLSX.writeFile(wb,'normas_inventario_red.xlsx');
+}
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+      const raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:0});
+      if(!raw.length)throw new Error('Archivo vacío');
+      const keys=Object.keys(raw[0]);
+      const kS=keys.find(k=>/sku|codigo|código/i.test(k));
+      const kF=keys.find(k=>/familia|categor/i.test(k));
+      const kC=keys.find(k=>/costo|precio/i.test(k));
+      const kM=keys.filter(k=>/^\d{4}[-\/]\d{1,2}$/.test(String(k).trim()));
+      if(!kS||!kM.length)throw new Error('Faltan la columna SKU o las columnas de meses (formato AAAA-MM)');
+      MESES=kM;SKUS=raw.map(r=>{
+        const fam=kF?String(r[kF]).trim():'General';
+        return {sku:String(r[kS]).trim(),nombre:String(r[kS]).trim(),familia:fam,famNom:fam,
+          costo:kC?(+r[kC]||1000):1000,serie:kM.map(m=>Math.max(0,+r[m]||0))};
+      }).filter(s=>s.sku);
+      document.getElementById('fileMsg').innerHTML=
+        `✅ <b>${SKUS.length}</b> SKUs · ${kM.length} meses. Ahora dibuja tu red en el editor.`;
+      runAll();
+    }catch(err){document.getElementById('fileMsg').innerHTML=`⚠️ Error al leer el archivo: ${err.message}`}
+  };
+  rd.readAsArrayBuffer(f);
+});
+const drop=document.getElementById('drop');
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.style.borderColor='#2fd3e1'}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.style.borderColor=''}));
+drop.addEventListener('drop',ev=>{
+  const f=ev.dataTransfer.files[0];if(!f)return;
+  const dt=new DataTransfer();dt.items.add(f);
+  document.getElementById('fileInput').files=dt.files;
+  document.getElementById('fileInput').dispatchEvent(new Event('change'));
+});
+['ltBase','ltKm','kmAncho'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{drawNet();runAll()}));
+loadDemo();
+</script>
+</body>
+</html>
