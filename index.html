@@ -45,6 +45,13 @@
   .go{margin-top:16px; font-size:13px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:6px}
   .go .arr{transition:transform .16s ease}
   .card:hover .go .arr{transform:translateX(4px)}
+  .actions{margin-top:16px; display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px}
+  .act{font-size:13px; font-weight:700; color:var(--accent); text-decoration:none;
+    display:flex; align-items:center; gap:6px}
+  .act .arr{transition:transform .16s ease}
+  .act:hover .arr{transform:translateX(4px)}
+  .act.sec{color:var(--muted)}
+  .act.sec:hover{color:var(--accent)}
   .files{display:flex; flex-wrap:wrap; gap:10px}
   .file{display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
     border-radius:10px; padding:10px 14px; text-decoration:none; color:inherit; font-size:14px; font-weight:600;
@@ -123,12 +130,16 @@
     <h2>💰 Comercial, pricing y mercado</h2>
     <div class="grid">
 
-      <a class="card" href="pricing_dinamico_chile.html">
+      <div class="card">
         <div class="icon">🏷️</div>
         <h3>Pricing Dinámico Competitivo — Chile</h3>
-        <p>Precios capturados en Jumbo, Unimarc y Alvi: escalera competitiva a precio efectivo por litro, brecha góndola vs lo que realmente paga el shopper, recomendación y simulador de elasticidad.</p>
-        <span class="go">Abrir <span class="arr">&rarr;</span></span>
-      </a>
+        <p>Precios capturados en Jumbo, Unimarc y Alvi: escalera competitiva a precio efectivo por litro, brecha góndola vs lo que realmente paga el shopper, recomendación y simulador de elasticidad. Se refresca solo cada día.</p>
+        <div class="actions">
+          <a class="act" href="pricing_dinamico_chile.html">Abrir <span class="arr">&rarr;</span></a>
+          <a class="act sec" target="_blank" rel="noopener"
+             href="https://github.com/benja333-dev/prueba/actions/workflows/actualizar-pricing.yml">&#8635; Actualizar precios</a>
+        </div>
+      </div>
 
       <a class="card" href="retail_chile_ceo.html">
         <div class="icon">👔</div>
