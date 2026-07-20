@@ -1,0 +1,38 @@
+name: Actualizar precios (pricing Chile)
+
+# Dos formas de correrlo:
+#  - Boton "Run workflow" en la pestana Actions de GitHub (workflow_dispatch)
+#  - Automatico cada dia a las 12:00 UTC (~08:00 en Chile)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * *"
+
+# Necesario para que la accion pueda commitear el HTML actualizado
+permissions:
+  contents: write
+
+concurrency:
+  group: actualizar-pricing
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Capturar precios y regenerar el informe
+        run: python3 tools/actualizar_pricing.py
+
+      - name: Publicar si cambiaron los precios
+        run: |
+          if git diff --quiet -- pricing_dinamico_chile.html; then
+            echo "Sin cambios de precio: no se commitea nada."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pricing_dinamico_chile.html
+          git commit -m "Actualizar captura de precios ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+          git push
