@@ -236,6 +236,20 @@ def main():
     if "__END_DATA__" not in html:
         print("ERROR: el HTML no tiene el marcador __END_DATA__", file=sys.stderr)
         return 1
+
+    # Si los precios no se movieron, no reescribir: la marca de tiempo cambia en
+    # cada corrida y generaria un commit diario aunque no haya nada nuevo.
+    previo = re.search(r"const PAYLOAD = (.*?); /\*__END_DATA__\*/", html, re.S)
+    if previo:
+        try:
+            antes = json.loads(previo.group(1))
+            if antes.get("universo") == payload["universo"]:
+                print(f"\nSin cambios de precio desde {antes['meta']['capturado']}: "
+                      f"no se reescribe el informe.")
+                return 0
+        except Exception:
+            pass
+
     nuevo = re.sub(r"const PAYLOAD = .*?/\*__END_DATA__\*/",
                    lambda m: "const PAYLOAD = " + json.dumps(payload, ensure_ascii=False) + "; /*__END_DATA__*/",
                    html, count=1, flags=re.S)
