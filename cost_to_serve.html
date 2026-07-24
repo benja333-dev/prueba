@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost to Serve — Bebidas</title>
+<style>
+:root{
+  --navy:#051c2c; --navy2:#0a2e44; --blue:#2251ff; --cyan:#00a9f4; --teal:#00b8a2;
+  --bg:#f4f6f8; --card:#ffffff; --ink:#051c2c; --muted:#5b6a75; --line:#e1e7ec;
+  --good:#00b8a2; --bad:#e5546c; --warn:#f5a623;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif}
+body{background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:22px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{font-size:21px;font-weight:600}
+header h1 span{color:var(--cyan)}
+header .sub{font-size:12.5px;color:#9fb3c0;margin-top:4px}
+.kpi-strip{display:flex;gap:14px;flex-wrap:wrap}
+.kpi{background:var(--navy2);border-radius:8px;padding:10px 16px;min-width:130px}
+.kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#8fa5b3}
+.kpi .val{font-size:19px;font-weight:700;margin-top:2px}
+.kpi .val.good{color:var(--teal)} .kpi .val.bad{color:#ff7d92}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 32px;display:flex;gap:4px;overflow-x:auto}
+nav button{background:none;border:none;padding:14px 18px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:26px 32px;max-width:1280px;margin:0 auto}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+.card .hint{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.field{margin-bottom:12px}
+.field label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.field label .v{color:var(--blue);font-weight:700}
+.field input[type=range]{width:100%;accent-color:var(--blue)}
+.field input[type=number],.field select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px}
+.field .why{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 10px;background:var(--navy);color:#fff;font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 10px;border-bottom:1px solid var(--line)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:700;background:#eef2f6}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.good{background:#d9f4ef;color:#00806f} .pill.bad{background:#fde3e8;color:#c73050} .pill.warn{background:#fdf0d8;color:#b57900}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:11px 20px;font-size:13.5px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.btn.big{padding:14px 26px;font-size:15px}
+.steps{counter-reset:s}
+.step{border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.step summary{list-style:none;cursor:pointer;padding:14px 18px;display:flex;align-items:center;gap:12px;background:#fff;font-weight:700;font-size:14px}
+.step summary::-webkit-details-marker{display:none}
+.step summary .n{counter-increment:s;background:var(--navy);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12.5px;flex-shrink:0}
+.step summary .n::before{content:counter(s)}
+.step summary .st{margin-left:auto;font-size:12px;color:var(--muted);font-weight:500}
+.step .body{padding:6px 18px 16px;border-top:1px solid var(--line)}
+.chan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.chan{border:1px solid var(--line);border-radius:9px;padding:13px}
+.chan h4{font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.chan .mini label{font-size:11px;color:var(--muted);display:block;margin:7px 0 2px}
+.chan .mini input{width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:5px;font-size:12.5px}
+svg text{font-family:'Helvetica Neue',Arial,sans-serif}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.callout{border-left:4px solid var(--cyan);background:#eef7fd;padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.55;margin-bottom:14px}
+.demo-hero{background:linear-gradient(120deg,var(--navy),#123a56);color:#fff;border-radius:12px;padding:30px;margin-bottom:20px}
+.demo-hero h2{font-size:20px;margin-bottom:8px}
+.demo-hero p{font-size:13.5px;color:#c3d2dc;line-height:1.6;max-width:760px;margin-bottom:16px}
+.comp-card{border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+.comp-card h4{font-size:13.5px;margin-bottom:6px;color:var(--blue)}
+.comp-card p{font-size:12px;color:var(--muted);line-height:1.5}
+.comp-card .ex{font-size:11.5px;margin-top:6px;background:#f4f6f8;border-radius:6px;padding:6px 9px}
+.biblio li{font-size:13px;line-height:1.6;margin-bottom:10px}
+.biblio a{color:var(--blue)}
+h3.sec{font-size:14px;margin:18px 0 10px;border-bottom:2px solid var(--navy);padding-bottom:6px}
+@media(max-width:700px){main,header,nav{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Cost to Serve <span>| Bebidas</span></h1>
+    <div class="sub">Modelo end-to-end de costo de servir por canal — metodología Activity-Based Costing</div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="lbl">CTS promedio / caja</div><div class="val" id="kCts">—</div></div>
+    <div class="kpi"><div class="lbl">CTS % del precio</div><div class="val" id="kPct">—</div></div>
+    <div class="kpi"><div class="lbl">Margen neto / caja</div><div class="val good" id="kMg">—</div></div>
+    <div class="kpi"><div class="lbl">Canal menos rentable</div><div class="val bad" id="kWorst">—</div></div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" data-tab="demo">🎓 Demo & Guía</button>
+  <button data-tab="params">⚙️ Parámetros</button>
+  <button data-tab="results">📊 Resultados</button>
+  <button data-tab="method">📚 Metodología & Bibliografía</button>
+</nav>
+
+<main>
+
+<!-- ================= DEMO ================= -->
+<section class="tab active" id="tab-demo">
+  <div class="demo-hero">
+    <h2>¿Qué es el Cost to Serve y por qué importa?</h2>
+    <p>El <b>Cost to Serve (CTS)</b> es el costo total de llevar una caja de bebida desde que sale de la línea de producción hasta que el cliente la paga: almacenar, mover, vender, entregar, financiar y absorber mermas. La mayoría de las empresas conoce su costo de producción, pero <b>no sabe cuánto le cuesta servir a cada canal o cliente</b> — y ahí se esconden diferencias de 2x a 4x. Un almacén de barrio que pide 3 cajas por visita puede costar 4 veces más servir (por caja) que un supermercado que recibe pallets completos.</p>
+    <button class="btn big" onclick="loadDemo()">▶ Cargar caso demo (embotelladora chilena)</button>
+    <button class="btn big ghost" style="background:transparent;color:#fff;border-color:#fff" onclick="goTab('params')">Empezar con mis datos</button>
+  </div>
+
+  <div class="card">
+    <h2>Los 8 componentes del Cost to Serve</h2>
+    <div class="hint">Cada bloque es una familia de actividades. El modelo asigna su costo a cada canal según el <b>driver</b> que realmente lo genera (cajas, entregas, visitas, días de inventario) — esa es la esencia del Activity-Based Costing.</div>
+    <div class="grid g3">
+      <div class="comp-card"><h4>1 · Producción (COGS)</h4><p>Concentrado/jarabe, agua, CO₂, envase, tapa, etiqueta, energía y mano de obra de planta.</p><div class="ex">Driver: cajas producidas</div></div>
+      <div class="comp-card"><h4>2 · Almacenaje</h4><p>Bodega (arriendo, energía, personal), ocupación por caja y días que el inventario espera antes de venderse.</p><div class="ex">Driver: posiciones-día de pallet</div></div>
+      <div class="comp-card"><h4>3 · Manipulación</h4><p>Recepción, picking, armado de pedidos y carga de camiones. Los pedidos chicos y mixtos cuestan más por caja.</p><div class="ex">Driver: cajas manipuladas / líneas de pedido</div></div>
+      <div class="comp-card"><h4>4 · Transporte primario</h4><p>Planta → centro de distribución. Camiones completos, costo bajo y parejo por caja.</p><div class="ex">Driver: cajas × distancia</div></div>
+      <div class="comp-card"><h4>5 · Distribución secundaria</h4><p>CD → cliente (última milla). El más variable: depende del <b>drop size</b> (cajas por entrega) y paradas por ruta.</p><div class="ex">Driver: entregas y cajas por entrega</div></div>
+      <div class="comp-card"><h4>6 · Costo comercial</h4><p>Vendedores, toma de pedido, telemarketing, atención de cliente. Muchas visitas para pedidos chicos = caro.</p><div class="ex">Driver: visitas / pedidos</div></div>
+      <div class="comp-card"><h4>7 · Costo financiero</h4><p>Capital de trabajo: días de inventario + días de pago del cliente (DSO), al costo de capital de la empresa.</p><div class="ex">Driver: $ inmovilizado × días</div></div>
+      <div class="comp-card"><h4>8 · Mermas y devoluciones</h4><p>Producto vencido, roto, robado o devuelto. Más alto en canales con baja rotación.</p><div class="ex">Driver: % sobre venta del canal</div></div>
+    </div>
+  </div>
+
+  <div class="callout"><b>Cómo usar la plataforma:</b> ① Carga el demo o ve a <b>Parámetros</b> y completa los 4 pasos guiados (cada campo explica qué es y trae un valor típico de la industria). ② Revisa <b>Resultados</b>: waterfall precio→margen, comparación por canal y tabla de rentabilidad. ③ Mueve palancas (drop size, frecuencia, DSO) y mira el impacto en vivo.</div>
+</section>
+
+<!-- ================= PARÁMETROS ================= -->
+<section class="tab" id="tab-params">
+  <div class="callout">Completa los 4 pasos. Todos los valores traen <b>defaults típicos de la industria de bebidas</b> — si no conoces un dato, deja el valor sugerido. Los resultados se recalculan en vivo. <button class="btn ghost" style="padding:6px 14px;font-size:12px" onclick="loadDemo()">Cargar demo</button></div>
+
+  <div class="steps">
+  <details class="step" open>
+    <summary><span class="n"></span> Producto y precio <span class="st">precio, formato, COGS</span></summary>
+    <div class="body grid g3">
+      <div class="field"><label>Precio venta lista por caja (CLP) <span class="v" id="v_price"></span></label>
+        <input type="range" id="p_price" min="4000" max="20000" step="100" value="9500">
+        <div class="why">Precio de lista antes de descuentos. Caja estándar = 24 unidades / ~12 L.</div></div>
+      <div class="field"><label>Litros por caja <span class="v" id="v_lts"></span></label>
+        <input type="range" id="p_lts" min="4" max="24" step="0.5" value="12">
+        <div class="why">Para expresar el CTS también en $/litro (comparable entre formatos).</div></div>
+      <div class="field"><label>Costo de producción por caja (CLP) <span class="v" id="v_cogs"></span></label>
+        <input type="range" id="p_cogs" min="1000" max="12000" step="100" value="4200">
+        <div class="why">COGS de planta: insumos + envase + MO + energía. Típico bebidas: 40–50% del precio.</div></div>
+      <div class="field"><label>Volumen mensual (miles de cajas) <span class="v" id="v_vol"></span></label>
+        <input type="range" id="p_vol" min="10" max="2000" step="10" value="400">
+        <div class="why">Escala del negocio: diluye costos fijos de bodega y flota.</div></div>
+    </div>
+  </details>
+
+  <details class="step" open>
+    <summary><span class="n"></span> Logística: bodega y transporte <span class="st">almacenaje, picking, fletes</span></summary>
+    <div class="body grid g3">
+      <div class="field"><label>Costo bodega por posición pallet/mes (CLP) <span class="v" id="v_wh"></span></label>
+        <input type="range" id="p_wh" min="4000" max="30000" step="500" value="12000">
+        <div class="why">Arriendo + energía + personal fijo ÷ posiciones. Chile: 8.000–15.000 CLP típico.</div></div>
+      <div class="field"><label>Cajas por pallet <span class="v" id="v_cpp"></span></label>
+        <input type="range" id="p_cpp" min="30" max="120" step="5" value="60">
+        <div class="why">Bebidas: 50–70 cajas/pallet según formato.</div></div>
+      <div class="field"><label>Días de inventario (DIO) <span class="v" id="v_dio"></span></label>
+        <input type="range" id="p_dio" min="5" max="90" step="1" value="25">
+        <div class="why">Días promedio que la caja espera en bodega. Impacta almacenaje y costo financiero.</div></div>
+      <div class="field"><label>Costo manipulación por caja (CLP) <span class="v" id="v_hand"></span></label>
+        <input type="range" id="p_hand" min="20" max="600" step="10" value="150">
+        <div class="why">Recepción + picking + carga. Pedidos por pallet completo ~50; picking por unidad ~300+.</div></div>
+      <div class="field"><label>Transporte primario por caja (CLP) <span class="v" id="v_t1"></span></label>
+        <input type="range" id="p_t1" min="0" max="1500" step="10" value="250">
+        <div class="why">Planta → CD en camión completo. Si vendes desde planta, déjalo en 0.</div></div>
+      <div class="field"><label>Costo camión reparto por día (CLP) <span class="v" id="v_truck"></span></label>
+        <input type="range" id="p_truck" min="80000" max="450000" step="5000" value="220000">
+        <div class="why">Chofer + peoneta + combustible + depreciación + mantención. Chile: 180.000–280.000 CLP/día.</div></div>
+      <div class="field"><label>Entregas por camión por día <span class="v" id="v_stops"></span></label>
+        <input type="range" id="p_stops" min="5" max="60" step="1" value="25">
+        <div class="why">Paradas efectivas por ruta. Tradicional: 25–40; supermercados: 5–10.</div></div>
+    </div>
+  </details>
+
+  <details class="step" open>
+    <summary><span class="n"></span> Comercial y financiero <span class="st">venta, capital, mermas</span></summary>
+    <div class="body grid g3">
+      <div class="field"><label>Costo total vendedor/mes (CLP miles) <span class="v" id="v_rep"></span></label>
+        <input type="range" id="p_rep" min="800" max="4000" step="50" value="1600">
+        <div class="why">Sueldo + comisiones + vehículo + tecnología. Chile: 1,4–2,0 MM CLP.</div></div>
+      <div class="field"><label>Visitas por vendedor por día <span class="v" id="v_visits"></span></label>
+        <input type="range" id="p_visits" min="4" max="50" step="1" value="30">
+        <div class="why">Preventa tradicional: 25–40 visitas/día. Cuentas clave: 3–6.</div></div>
+      <div class="field"><label>Costo de capital anual (WACC %) <span class="v" id="v_wacc"></span></label>
+        <input type="range" id="p_wacc" min="5" max="25" step="0.5" value="12">
+        <div class="why">Tasa para valorizar el capital de trabajo inmovilizado (inventario + cuentas por cobrar).</div></div>
+      <div class="field"><label>Merma base (% de venta) <span class="v" id="v_shrink"></span></label>
+        <input type="range" id="p_shrink" min="0" max="6" step="0.1" value="1">
+        <div class="why">Vencimiento + rotura + robo. Bebidas: 0,5–2%. Cada canal suma un ajuste propio.</div></div>
+      <div class="field"><label>Overhead logístico-comercial (% de venta) <span class="v" id="v_oh"></span></label>
+        <input type="range" id="p_oh" min="0" max="10" step="0.5" value="3">
+        <div class="why">Planificación, TI, back-office de supply chain y facturación (order-to-cash).</div></div>
+    </div>
+  </details>
+
+  <details class="step" open>
+    <summary><span class="n"></span> Canales de venta <span class="st">mix, drop size, descuentos, plazo de pago</span></summary>
+    <div class="body">
+      <div class="hint">Aquí vive la diferencia real del CTS: cada canal tiene distinto tamaño de entrega, frecuencia, descuento y plazo de pago. Ajusta el % de mix (se normaliza solo).</div>
+      <div class="chan-grid" id="chanGrid"></div>
+    </div>
+  </details>
+  </div>
+</section>
+
+<!-- ================= RESULTADOS ================= -->
+<section class="tab" id="tab-results">
+  <div class="card">
+    <h2>Waterfall: del precio de lista al margen neto (promedio ponderado, CLP/caja)</h2>
+    <div class="hint">Lectura clásica de CTS: cuánto del precio se lo comen los descuentos y cada eslabón de la cadena hasta llegar al margen real.</div>
+    <svg id="waterfall" width="100%" height="360" viewBox="0 0 1160 360" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Cost to Serve por canal (CLP/caja, sin COGS)</h2>
+      <div class="hint">Barras apiladas por componente — mismo producto, costo de servir muy distinto.</div>
+      <svg id="chanChart" width="100%" height="330" viewBox="0 0 560 330" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="legend" id="chanLegend"></div>
+    </div>
+    <div class="card">
+      <h2>Margen neto por canal (% del precio neto)</h2>
+      <div class="hint">La prueba ácida: ¿qué canales crean y cuáles destruyen valor?</div>
+      <svg id="mgChart" width="100%" height="330" viewBox="0 0 560 330" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>P&L por canal</h2>
+    <div style="overflow-x:auto"><table id="pnlTable"></table></div>
+  </div>
+
+  <div class="card" id="insightsCard">
+    <h2>💡 Diagnóstico automático</h2>
+    <div id="insights" style="font-size:13px;line-height:1.7"></div>
+  </div>
+</section>
+
+<!-- ================= METODOLOGÍA ================= -->
+<section class="tab" id="tab-method">
+  <div class="card">
+    <h2>Metodología: Activity-Based Costing aplicado a la cadena</h2>
+    <div class="hint">El modelo sigue la práctica estándar de consultoría para CTS en consumo masivo.</div>
+    <h3 class="sec">Fórmulas del modelo</h3>
+    <ul style="font-size:13px;line-height:1.9;padding-left:20px">
+      <li><b>Almacenaje</b> = (costo posición/mes ÷ cajas/pallet) × (DIO ÷ 30)</li>
+      <li><b>Distribución secundaria</b> (por canal) = costo camión/día ÷ (entregas/día × drop size del canal)</li>
+      <li><b>Comercial</b> (por canal) = costo vendedor/día ÷ (visitas/día × cajas por pedido del canal)</li>
+      <li><b>Financiero</b> = precio neto × WACC × (DIO + DSO del canal) ÷ 365</li>
+      <li><b>Merma</b> = precio neto × (% base + ajuste del canal)</li>
+      <li><b>Margen neto</b> = precio lista − descuento − COGS − Σ CTS</li>
+    </ul>
+    <h3 class="sec">Best practices de empresas líderes</h3>
+    <ul style="font-size:13px;line-height:1.8;padding-left:20px">
+      <li><b>Coca-Cola / embotelladores (Andina, CCU, Embonor):</b> segmentan clientes por drop size y frecuencia; migran clientes de baja rentabilidad a telemarketing, autoservicio B2B (apps de pedido) o distribuidores terceros en vez de atención directa.</li>
+      <li><b>AB InBev:</b> mide CTS por cliente individual (no promedio de canal) y define "términos de servicio" — pedido mínimo, frecuencia máxima, ventana de entrega — según el margen que cada cliente deja.</li>
+      <li><b>Unilever / P&G:</b> waterfall de precio neto-neto por cliente y menú de condiciones: el descuento se gana con comportamientos que bajan el CTS (pedido por pallet completo, EDI, recepción nocturna, pago anticipado).</li>
+      <li><b>Best-in-class general:</b> el CTS se recalcula mensualmente desde el TMS/WMS/ERP (no un estudio anual), se lleva a la conversación comercial ("pricing for behavior") y se usa un digital twin de la red para simular cambios antes de ejecutarlos.</li>
+    </ul>
+    <h3 class="sec">Benchmarks de referencia (bebidas / CPG)</h3>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Indicador</th><th class="num">Rango típico</th></tr>
+      <tr><td>CTS total (sin COGS) como % de la venta</td><td class="num">8 – 18%</td></tr>
+      <tr><td>Distribución secundaria como % de la venta</td><td class="num">3 – 8%</td></tr>
+      <tr><td>Costo de mantener inventario (anual, % del valor)</td><td class="num">18 – 30% (perecibles hasta 40%)</td></tr>
+      <tr><td>Ratio CTS canal tradicional vs. moderno (por caja)</td><td class="num">2x – 4x</td></tr>
+      <tr><td>Clientes que destruyen margen en un CTS típico</td><td class="num">20 – 30% de la cartera</td></tr>
+    </table></div>
+    <h3 class="sec">Bibliografía</h3>
+    <ul class="biblio" style="padding-left:20px">
+      <li>Kaplan, R. &amp; Cooper, R. — <i>Cost &amp; Effect: Using Integrated Cost Systems to Drive Profitability</i> (Harvard Business School Press). La base del Activity-Based Costing.</li>
+      <li>Kaplan, R. &amp; Narayanan, V. — <i>Measuring and Managing Customer Profitability</i>, Journal of Cost Management. La "curva de la ballena" de rentabilidad por cliente.</li>
+      <li>Braithwaite, A. &amp; Samakh, E. — <i>The Cost-to-Serve Method</i>, International Journal of Logistics Management. Primer framework formal de CTS en supply chain.</li>
+      <li>Guerreiro, Bio &amp; Merschmann — <i>Cost-to-serve measurement and customer profitability analysis</i>, Int. Journal of Logistics Management (caso real en consumo masivo).</li>
+      <li><a href="https://www.logisticsbureau.com/cost-to-serve-a-smarter-way-to-improved-supply-chain-profitability/" target="_blank">Logistics Bureau — The Supply Chain Cost to Serve Model, Explained</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Cost_to_serve" target="_blank">Wikipedia — Cost to Serve (definición y alcance)</a></li>
+      <li><a href="https://sophus.ai/cost-to-serve-solutions-a-complete-framework/" target="_blank">Sophus — Cost-to-Serve Solutions: A Complete Framework</a></li>
+      <li><a href="https://www.auxis.com/improve-profitability-by-understanding-your-cost-to-serve/" target="_blank">Auxis — Improve Profitability by Understanding Your Cost-to-Serve</a></li>
+      <li><a href="https://bedfordconsulting.com/the-value-of-a-dynamic-cost-to-serve-model-for-a-cpg-business/" target="_blank">Bedford Consulting — The Value of a Dynamic Cost-to-Serve Model for CPG</a></li>
+      <li><a href="https://eightx.co/blog/average-inventory-carrying-cost-by-vertical" target="_blank">Eightx — Inventory Carrying Cost Benchmarks by Vertical</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ---------- Canales ----------
+const CHANNELS = [
+  {id:'super', name:'Supermercados', mix:35, drop:120, ordersMonth:8,  disc:18, dso:60, shrink:0.3, visitsFactor:0.15,
+   tip:'Pallets completos, pocas entregas, pero descuentos altos y pagan a 60 días.'},
+  {id:'mayor', name:'Mayoristas', mix:20, drop:200, ordersMonth:4, disc:14, dso:30, shrink:0.2, visitsFactor:0.1,
+   tip:'Drop size gigante, muy barato de servir; margen unitario bajo.'},
+  {id:'trad', name:'Tradicional (almacenes)', mix:30, drop:8, ordersMonth:4, disc:5, dso:0, shrink:1.0, visitsFactor:1,
+   tip:'Pedidos chicos, muchas visitas y paradas: el CTS más alto, pero paga contado y casi sin descuento.'},
+  {id:'horeca', name:'HoReCa (bares/rest.)', mix:10, drop:15, ordersMonth:4, disc:8, dso:30, shrink:1.5, visitsFactor:0.8,
+   tip:'Entregas con ventana horaria, botella retornable, crédito a 30 días.'},
+  {id:'ecom', name:'E-commerce / D2C', mix:5, drop:2, ordersMonth:30, disc:0, dso:0, shrink:2.0, visitsFactor:0,
+   tip:'Sin vendedor, precio lleno, pero picking unitario y última milla carísimos.'}
+];
+const COMPONENTS = [
+  {k:'wh',  n:'Almacenaje', c:'#00a9f4'},
+  {k:'hand',n:'Manipulación', c:'#2251ff'},
+  {k:'t1',  n:'Transp. primario', c:'#8c9ba5'},
+  {k:'t2',  n:'Distribución secundaria', c:'#051c2c'},
+  {k:'com', n:'Comercial', c:'#f5a623'},
+  {k:'fin', n:'Financiero', c:'#aa63e0'},
+  {k:'shr', n:'Mermas', c:'#e5546c'},
+  {k:'oh',  n:'Overhead', c:'#c5ced4'}
+];
+
+const $=id=>document.getElementById(id);
+const fmt=(x,d=0)=>x.toLocaleString('es-CL',{maximumFractionDigits:d,minimumFractionDigits:d});
+const clp=x=>'$'+fmt(x);
+
+// ---------- UI canales ----------
+function buildChanUI(){
+  $('chanGrid').innerHTML = CHANNELS.map((c,i)=>`
+    <div class="chan">
+      <h4>${c.name}</h4>
+      <div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:4px">${c.tip}</div>
+      <div class="mini">
+        <label>% del volumen</label><input type="number" data-i="${i}" data-f="mix" value="${c.mix}" min="0" max="100">
+        <label>Drop size (cajas/entrega)</label><input type="number" data-i="${i}" data-f="drop" value="${c.drop}" min="1">
+        <label>Pedidos por mes</label><input type="number" data-i="${i}" data-f="ordersMonth" value="${c.ordersMonth}" min="1">
+        <label>Descuento comercial %</label><input type="number" data-i="${i}" data-f="disc" value="${c.disc}" min="0" max="60">
+        <label>Plazo de pago DSO (días)</label><input type="number" data-i="${i}" data-f="dso" value="${c.dso}" min="0">
+        <label>Merma adicional %</label><input type="number" data-i="${i}" data-f="shrink" value="${c.shrink}" min="0" step="0.1">
+      </div>
+    </div>`).join('');
+  $('chanGrid').querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      CHANNELS[+inp.dataset.i][inp.dataset.f]=parseFloat(inp.value)||0; calc();
+    });
+  });
+}
+
+// ---------- Modelo ----------
+function params(){
+  return {
+    price:+$('p_price').value, lts:+$('p_lts').value, cogs:+$('p_cogs').value, vol:+$('p_vol').value*1000,
+    wh:+$('p_wh').value, cpp:+$('p_cpp').value, dio:+$('p_dio').value, hand:+$('p_hand').value,
+    t1:+$('p_t1').value, truck:+$('p_truck').value, stops:+$('p_stops').value,
+    rep:+$('p_rep').value*1000, visits:+$('p_visits').value, wacc:+$('p_wacc').value/100,
+    shrink:+$('p_shrink').value/100, oh:+$('p_oh').value/100
+  };
+}
+function calcChannel(c,p,mixTotal){
+  const netPrice = p.price*(1-c.disc/100);
+  const wh   = (p.wh/p.cpp)*(p.dio/30);
+  const hand = p.hand * (c.drop<10?1.8: c.drop<30?1.2: 0.7);   // picking unitario vs pallet
+  const t1   = p.t1;
+  const t2   = p.truck/(p.stops*c.drop) * (c.drop>=100?0.55:1); // grandes: entrega dedicada más eficiente
+  // comercial: costo por visita ÷ cajas por pedido, ponderado por intensidad de atención del canal
+  const costVisit = (p.rep/21)/p.visits;
+  const comercial = c.visitsFactor>0 ? (costVisit*c.visitsFactor)/c.drop : (c.id==='ecom'? netPrice*0.02:0); // e-comm: fee plataforma 2%
+  const fin  = netPrice*p.wacc*(p.dio+c.dso)/365;
+  const shr  = netPrice*(p.shrink + c.shrink/100);
+  const oh   = netPrice*p.oh;
+  const parts={wh,hand,t1,t2,com:comercial,fin,shr,oh};
+  const cts = Object.values(parts).reduce((a,b)=>a+b,0);
+  const margin = netPrice - p.cogs - cts;
+  return {...c, netPrice, disc$:p.price-netPrice, parts, cts, margin, mgPct: margin/netPrice*100, mixN:c.mix/mixTotal};
+}
+let RES=null;
+function calc(){
+  const p=params();
+  const mixTotal = CHANNELS.reduce((a,c)=>a+c.mix,0)||1;
+  const rows = CHANNELS.map(c=>calcChannel(c,p,mixTotal));
+  const w = k => rows.reduce((a,r)=>a+r.mixN*(typeof k==='function'?k(r):r[k]),0);
+  const avg = {
+    netPrice:w('netPrice'), disc:w('disc$'), cts:w('cts'), margin:w('margin'),
+    parts: Object.fromEntries(COMPONENTS.map(cm=>[cm.k, w(r=>r.parts[cm.k])]))
+  };
+  RES={p,rows,avg};
+  render();
+}
+
+// ---------- Render ----------
+function render(){
+  const {p,rows,avg}=RES;
+  $('kCts').textContent = clp(avg.cts);
+  $('kPct').textContent = fmt(avg.cts/avg.netPrice*100,1)+'%';
+  const mgEl=$('kMg'); mgEl.textContent=clp(avg.margin); mgEl.className='val '+(avg.margin>=0?'good':'bad');
+  const worst = rows.reduce((a,b)=>a.mgPct<b.mgPct?a:b);
+  $('kWorst').textContent = worst.name.split(' ')[0]+' '+fmt(worst.mgPct,1)+'%';
+
+  drawWaterfall(p,avg);
+  drawChanChart(rows);
+  drawMgChart(rows);
+  drawTable(p,rows,avg);
+  drawInsights(p,rows,avg);
+}
+
+function drawWaterfall(p,avg){
+  const items=[{n:'Precio lista',v:p.price,type:'start'},
+    {n:'Descuentos',v:-avg.disc,type:'down'},
+    {n:'COGS',v:-p.cogs,type:'down'},
+    ...COMPONENTS.map(c=>({n:c.n,v:-avg.parts[c.k],type:'cts',c:c.c})),
+    {n:'Margen neto',v:avg.margin,type:'end'}];
+  const W=1160,H=360,padB=64,padT=26,n=items.length,bw=Math.min(72,(W-40)/n-14);
+  const max=p.price, sc=v=>v/max*(H-padB-padT);
+  let x=25,cum=0,svg='';
+  items.forEach(it=>{
+    let y0,h;
+    if(it.type==='start'||it.type==='end'){ y0=H-padB-sc(Math.max(it.v,0)); h=sc(Math.abs(it.v)); cum= it.type==='start'? it.v:cum; }
+    else { const newCum=cum+it.v; y0=H-padB-sc(cum); h=sc(Math.abs(it.v)); cum=newCum; }
+    const col = it.type==='start'?'#051c2c': it.type==='end'?(it.v>=0?'#00b8a2':'#e5546c'): it.type==='down'&&it.n==='Descuentos'?'#8c9ba5': it.n==='COGS'?'#5b6a75': it.c;
+    svg+=`<rect x="${x}" y="${y0}" width="${bw}" height="${Math.max(h,1)}" fill="${col}" rx="3"/>`;
+    svg+=`<text x="${x+bw/2}" y="${y0-6}" font-size="11" font-weight="700" text-anchor="middle" fill="#051c2c">${fmt(Math.abs(it.v))}</text>`;
+    const words=it.n.split(' ');
+    words.forEach((wd,i)=>svg+=`<text x="${x+bw/2}" y="${H-padB+16+i*12}" font-size="10" text-anchor="middle" fill="#5b6a75">${wd}</text>`);
+    x+=bw+ (W-50-bw*n)/(n-1);
+  });
+  svg+=`<line x1="15" y1="${H-padB}" x2="${W-15}" y2="${H-padB}" stroke="#e1e7ec"/>`;
+  $('waterfall').innerHTML=svg;
+}
+
+function drawChanChart(rows){
+  const W=560,H=330,padL=10,padB=54,padT=24;
+  const max=Math.max(...rows.map(r=>r.cts))*1.1;
+  const bw=Math.min(70,(W-padL*2)/rows.length-18);
+  let svg='',x=padL+18;
+  rows.forEach(r=>{
+    let y=H-padB;
+    COMPONENTS.forEach(cm=>{
+      const h=r.parts[cm.k]/max*(H-padB-padT);
+      y-=h; svg+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${cm.c}"/>`;
+    });
+    svg+=`<text x="${x+bw/2}" y="${y-7}" font-size="11.5" font-weight="700" text-anchor="middle" fill="#051c2c">${fmt(r.cts)}</text>`;
+    r.name.split(' ').slice(0,2).forEach((wd,i)=>svg+=`<text x="${x+bw/2}" y="${H-padB+16+i*12}" font-size="10" text-anchor="middle" fill="#5b6a75">${wd}</text>`);
+    x+=(W-padL*2-18)/rows.length;
+  });
+  $('chanChart').innerHTML=svg;
+  $('chanLegend').innerHTML=COMPONENTS.map(c=>`<span><i class="dot" style="background:${c.c}"></i>${c.n}</span>`).join('');
+}
+
+function drawMgChart(rows){
+  const W=560,H=330,padL=60,padB=20,rh=(H-padB)/rows.length;
+  const maxAbs=Math.max(5,...rows.map(r=>Math.abs(r.mgPct)))*1.15;
+  const x0=padL+(W-padL-20)/2, sc=v=>v/maxAbs*(W-padL-20)/2;
+  let svg=`<line x1="${x0}" y1="6" x2="${x0}" y2="${H-padB}" stroke="#c5ced4"/>`;
+  rows.forEach((r,i)=>{
+    const y=i*rh+10,h=Math.min(32,rh-16);
+    const w=Math.abs(sc(r.mgPct));
+    svg+=`<rect x="${r.mgPct>=0?x0:x0-w}" y="${y}" width="${Math.max(w,1)}" height="${h}" fill="${r.mgPct>=0?'#00b8a2':'#e5546c'}" rx="3"/>`;
+    svg+=`<text x="${r.mgPct>=0?x0+w+8:x0-w-8}" y="${y+h/2+4}" font-size="12" font-weight="700" text-anchor="${r.mgPct>=0?'start':'end'}" fill="#051c2c">${fmt(r.mgPct,1)}%</text>`;
+    svg+=`<text x="4" y="${y+h/2+4}" font-size="10.5" fill="#5b6a75">${r.name.split(' ')[0]}</text>`;
+  });
+  $('mgChart').innerHTML=svg;
+}
+
+function drawTable(p,rows,avg){
+  const th=`<tr><th>Canal</th><th class="num">Mix %</th><th class="num">Precio neto</th><th class="num">COGS</th>${COMPONENTS.map(c=>`<th class="num">${c.n}</th>`).join('')}<th class="num">CTS total</th><th class="num">CTS %</th><th class="num">Margen/caja</th><th class="num">Margen %</th><th></th></tr>`;
+  const tr=rows.map(r=>`<tr><td><b>${r.name}</b></td><td class="num">${fmt(r.mixN*100,0)}%</td><td class="num">${clp(r.netPrice)}</td><td class="num">${clp(p.cogs)}</td>${COMPONENTS.map(c=>`<td class="num">${fmt(r.parts[c.k])}</td>`).join('')}<td class="num"><b>${clp(r.cts)}</b></td><td class="num">${fmt(r.cts/r.netPrice*100,1)}%</td><td class="num">${clp(r.margin)}</td><td class="num"><b>${fmt(r.mgPct,1)}%</b></td><td>${r.mgPct<0?'<span class="pill bad">Destruye valor</span>':r.mgPct<8?'<span class="pill warn">Ajustado</span>':'<span class="pill good">Rentable</span>'}</td></tr>`).join('');
+  const tot=`<tr class="total"><td>Promedio ponderado</td><td class="num">100%</td><td class="num">${clp(avg.netPrice)}</td><td class="num">${clp(p.cogs)}</td>${COMPONENTS.map(c=>`<td class="num">${fmt(avg.parts[c.k])}</td>`).join('')}<td class="num">${clp(avg.cts)}</td><td class="num">${fmt(avg.cts/avg.netPrice*100,1)}%</td><td class="num">${clp(avg.margin)}</td><td class="num">${fmt(avg.margin/avg.netPrice*100,1)}%</td><td></td></tr>`;
+  $('pnlTable').innerHTML=th+tr+tot;
+}
+
+function drawInsights(p,rows,avg){
+  const out=[];
+  const worst=rows.reduce((a,b)=>a.mgPct<b.mgPct?a:b);
+  const best=rows.reduce((a,b)=>a.mgPct>b.mgPct?a:b);
+  const trad=rows.find(r=>r.id==='trad'), sup=rows.find(r=>r.id==='super');
+  if(trad&&sup) out.push(`El canal <b>tradicional cuesta ${fmt(trad.cts/sup.cts,1)}x</b> servir por caja vs. supermercados (${clp(trad.cts)} vs ${clp(sup.cts)}) — pero su menor descuento ${trad.mgPct>sup.mgPct?'lo deja <b>más rentable</b> igual':'no alcanza a compensarlo'}.`);
+  if(worst.mgPct<0) out.push(`⚠️ <b>${worst.name} destruye valor</b> (${fmt(worst.mgPct,1)}%). Palancas: subir pedido mínimo (drop size), bajar frecuencia de entrega, migrar a telemarketing/app o renegociar descuento.`);
+  else out.push(`Todos los canales son rentables; el más ajustado es <b>${worst.name}</b> (${fmt(worst.mgPct,1)}%).`);
+  const bigC = COMPONENTS.reduce((a,b)=>avg.parts[a.k]>avg.parts[b.k]?a:b);
+  out.push(`El mayor componente del CTS es <b>${bigC.n}</b> (${clp(avg.parts[bigC.k])}/caja, ${fmt(avg.parts[bigC.k]/avg.cts*100,0)}% del CTS). Ahí está la primera palanca de optimización.`);
+  const finPct=avg.parts.fin/avg.cts;
+  if(finPct>0.15) out.push(`El costo financiero pesa ${fmt(finPct*100,0)}% del CTS: reducir DIO (hoy ${p.dio} días) o el DSO de canales con crédito libera capital de trabajo directo.`);
+  out.push(`Benchmark: tu CTS es <b>${fmt(avg.cts/avg.netPrice*100,1)}% de la venta</b> (rango best-in-class CPG: 8–18%). El canal más rentable es <b>${best.name}</b> con ${fmt(best.mgPct,1)}%.`);
+  $('insights').innerHTML=out.map(t=>`<p style="margin-bottom:8px">• ${t}</p>`).join('');
+}
+
+// ---------- Sliders ----------
+const SLIDERS=[['p_price',v=>clp(+v)],['p_lts',v=>v+' L'],['p_cogs',v=>clp(+v)],['p_vol',v=>fmt(v)+'k cajas'],
+ ['p_wh',v=>clp(+v)],['p_cpp',v=>v],['p_dio',v=>v+' días'],['p_hand',v=>clp(+v)],['p_t1',v=>clp(+v)],
+ ['p_truck',v=>clp(+v)],['p_stops',v=>v],['p_rep',v=>clp(v*1000)],['p_visits',v=>v],['p_wacc',v=>v+'%'],
+ ['p_shrink',v=>v+'%'],['p_oh',v=>v+'%']];
+SLIDERS.forEach(([id,f])=>{
+  const el=$(id), lbl=$('v_'+id.slice(2));
+  const upd=()=>{lbl.textContent=f(el.value);};
+  el.addEventListener('input',()=>{upd();calc();}); upd();
+});
+
+// ---------- Tabs & demo ----------
+function goTab(t){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+t));
+}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.tab)));
+
+function loadDemo(){
+  const demo={p_price:9500,p_lts:12,p_cogs:4200,p_vol:400,p_wh:12000,p_cpp:60,p_dio:25,p_hand:150,p_t1:250,
+    p_truck:220000,p_stops:25,p_rep:1600,p_visits:30,p_wacc:12,p_shrink:1,p_oh:3};
+  Object.entries(demo).forEach(([k,v])=>{$(k).value=v;});
+  SLIDERS.forEach(([id,f])=>{$('v_'+id.slice(2)).textContent=f($(id).value);});
+  buildChanUI(); calc(); goTab('results');
+}
+
+buildChanUI(); calc();
+</script>
+</body>
+</html>
