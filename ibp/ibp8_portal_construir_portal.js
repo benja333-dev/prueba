@@ -25,7 +25,7 @@ const D = {
   compras: F(comprasAll), pl: F(plAll), resumen: F(resAll)[0] || {},
   minutas: F(minAll).sort((a, b) => a.paso - b.paso),
   materiales: materiales, parametros: parametros, lineas: lineas, fabricas: fabricas, bom: bomRows,
-  chat_url: 'https://n8n-production-121a.up.railway.app/webhook/783cea29-640c-4393-9442-dcf09ee3f96e/ibp-chat'
+  chat_url: 'https://n8n-production-121a.up.railway.app/webhook/ibp-chat'
 };
 const dataJson = JSON.stringify(D).split('</').join('<\\/');
 const html = `<!DOCTYPE html>
@@ -736,7 +736,12 @@ document.getElementById('tab-mbr').innerHTML =
   '</div>' + optHtml(6) +
   '<div class=panel><h3>Decisiones consolidadas del comite</h3><ul style="font-size:13px;line-height:1.7">' + String(resumen.decisiones || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>';
 
-const CHAT_URL = D.chat_url;
+const CHAT_URLS = (function () {
+  const list = [];
+  try { if (location.pathname.indexOf('ibp-portal') >= 0) list.push(location.origin + location.pathname.split('ibp-portal').join('ibp-chat')); } catch (e) {}
+  if (D.chat_url) list.push(D.chat_url);
+  return list.filter((x, i, a) => x && a.indexOf(x) === i);
+})();
 const SESSION = 'portal-' + D.run + '-' + Math.random().toString(36).slice(2, 10);
 const SUGERENCIAS = [
   'Que SKUs tienen el nivel de inventario mas bajo y por que?',
@@ -822,12 +827,16 @@ async function enviarChat(ev) {
   const pend = addMsg('bot', 'Analizando el ciclo...', false);
   pend.querySelector('.txt').className = 'txt thinking';
   try {
-    const res = await fetch(CHAT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pregunta: pregunta, run_id: D.run, session_id: SESSION })
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const cuerpo = JSON.stringify({ pregunta: pregunta, run_id: D.run, session_id: SESSION });
+    let res = null, ultimoError = null;
+    for (const url of CHAT_URLS) {
+      try {
+        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: cuerpo });
+        if (r.ok) { res = r; break; }
+        ultimoError = new Error('HTTP ' + r.status);
+      } catch (e) { ultimoError = e; }
+    }
+    if (!res) throw (ultimoError || new Error('sin endpoint disponible'));
     const j = await res.json();
     const txt = (j && (j.respuesta || j.answer)) || 'No recibi respuesta del analista.';
     pend.querySelector('.txt').className = 'txt';
