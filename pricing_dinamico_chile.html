@@ -233,6 +233,14 @@
   <div class="foot" id="foot-tabla">—</div>
 </div>
 
+<!-- ============ 5b. INDICE POR CATEGORIA ============ -->
+<div class="card" id="card-categorias">
+  <h2>Índice de precios por categoría</h2>
+  <div class="note" id="note-categorias">—</div>
+  <div style="overflow-x:auto"><table id="tabla-categorias"></table></div>
+  <div class="foot">Mediana del precio por unidad comparable ($/L en líquidos, $/kg en sólidos) de todos los SKUs capturados en cada categoría. Índice 100 = la cadena más barata de esa categoría. La mediana resiste los extremos mucho mejor que el promedio, que un solo formato familiar puede distorsionar.</div>
+</div>
+
 <!-- ============ 6. COBERTURA ============ -->
 <div class="card">
   <h2>Cobertura de la captura y cómo se obtiene</h2>
@@ -546,16 +554,42 @@ sync();
     `Precios de canal online; pueden diferir de sala física.`;
 })();
 
+/* ================= 5b. INDICE POR CATEGORIA ================= */
+(function(){
+  const cats = PAYLOAD.resumen_categorias || [];
+  if(!cats.length){ $("card-categorias").style.display="none"; return; }
+  const nombres=[...new Set(cats.map(c=>c.categoria))].sort();
+  let h="<thead><tr><th>Categoría</th><th>Cadena</th><th>Grupo</th><th class='num'>SKUs</th>"+
+        "<th class='num'>Mediana $/unidad</th><th class='num'>Rango</th><th class='num'>% en promo</th>"+
+        "<th class='num'>Índice</th></tr></thead><tbody>";
+  nombres.forEach(cat=>{
+    cats.filter(c=>c.categoria===cat)
+        .sort((a,b)=>a.indice-b.indice)
+        .forEach((c,i)=>{
+      h+=`<tr><td>${i===0?c.categoria:""}</td><td>${c.retailer}</td><td>${c.grupo||"—"}</td>`+
+         `<td class='num'>${c.n_skus}</td><td class='num'>${CLP(c.mediana_precio_unidad)}</td>`+
+         `<td class='num'>${CLP(c.min_precio_unidad)} – ${CLP(c.max_precio_unidad)}</td>`+
+         `<td class='num'>${c.pct_en_promo}%</td>`+
+         `<td class='num'><b>${c.indice}</b></td></tr>`;
+    });
+  });
+  $("tabla-categorias").innerHTML=h+"</tbody>";
+  const total=META.n_catalogo||cats.reduce((a,c)=>a+c.n_skus,0);
+  $("note-categorias").innerHTML=`<b>${total}</b> SKUs capturados en ${nombres.length} categorías `+
+    `(${listaEs(nombres)}). Amplía la lectura más allá del SKU foco: muestra si una cadena es cara `+
+    `de forma transversal o sólo en la categoría analizada.`;
+})();
+
 /* ================= 6. COBERTURA ================= */
 (function(){
   const cob=[
-    {r:"Jumbo", g:"Cencosud", m:"Automático", d:"Estado embebido en categoría y búsqueda", ok:1,
-     n:"Hipermercado. Set completo con precio, mecánica, $/L, stock y foto."},
-    {r:"Unimarc", g:"SMU", m:"Automático", d:"Datos server-side de páginas de categoría", ok:1,
-     n:"Supermercado de barrio. Marca aparte los precios exclusivos de Club Unimarc."},
-    {r:"Alvi", g:"SMU", m:"Automático", d:"Datos server-side de la búsqueda", ok:1,
+    {r:"Jumbo", g:"Cencosud", m:"Parcial", d:"ItemList schema.org + atributos GTM, paginado", ok:1,
+     n:"Hipermercado. Tras su migración a React Server Components sólo publica precio de venta: sin precio lista ni mecánica promocional."},
+    {r:"Unimarc", g:"SMU", m:"Automático", d:"Datos server-side de categoría y búsqueda, paginados", ok:1,
+     n:"Supermercado de barrio. Fuente más rica: precio lista, mecánica, $/unidad, EAN y precios exclusivos de Club Unimarc."},
+    {r:"Alvi", g:"SMU", m:"Automático", d:"Datos server-side de la búsqueda, paginados", ok:1,
      n:"Formato mayorista. Útil como referencia de precio base sin promoción."},
-    {r:"Santa Isabel", g:"Cencosud", m:"Manual", d:"API interna requiere credencial privada", ok:0,
+    {r:"Santa Isabel", g:"Cencosud", m:"Manual", d:"Renderiza el catálogo en el cliente: su HTML no trae productos", ok:0,
      n:"Menor pérdida analítica: mismo grupo que Jumbo, con pricing correlacionado."},
     {r:"Tottus", g:"Falabella", m:"Manual", d:"El catálogo de supermercado no se sirve server-side", ok:0,
      n:"Su buscador público devuelve el marketplace general, no el surtido de alimentos."},
