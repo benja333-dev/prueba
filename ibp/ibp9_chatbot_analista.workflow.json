@@ -1,0 +1,672 @@
+{
+  "name": "IBP · 9 · Chatbot Analista (Q&A)",
+  "nodes": [
+    {
+      "id": "c56206d9-fac4-4adb-bdf1-877fa3f09174",
+      "name": "Webhook Chat",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ibp-chat",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "783cea29-640c-4393-9442-dcf09ee3f96e"
+    },
+    {
+      "id": "ac0bc7f0-ae4f-4ba1-b154-628e143f1e59",
+      "name": "Leer SKUs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "ODnCATjYdcBBpjoX",
+          "cachedResultName": "IBP_SKU_Master"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "72aac10f-d40b-4cb1-bba0-60c0b535f234",
+      "name": "Leer Demanda Historica",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PUhklrBDyXNehfKs",
+          "cachedResultName": "IBP_Demanda_Historica"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "55e865e1-8a90-4d74-974e-bc2adf3a06d4",
+      "name": "Leer Forecast",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        620,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6QKIRWw04TQf3xdf",
+          "cachedResultName": "IBP_Forecast"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "e95e1700-708b-4bac-8694-f7a45ad1db87",
+      "name": "Leer Plan Produccion",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "BJICXWY5p4sGhopK",
+          "cachedResultName": "IBP_Plan_Produccion"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "b62e50d2-518f-41a8-a4ad-c1d618417978",
+      "name": "Leer Schedule",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HjhL6P7SLoNtD9Bk",
+          "cachedResultName": "IBP_Schedule"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "4d9ec73e-b398-4c7b-b138-d71ccdce4e8b",
+      "name": "Leer Compras",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1220,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "4vpYRReeynJmttV4",
+          "cachedResultName": "IBP_Plan_Compras"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "ad5f3dde-549c-4c49-8f50-733320a29108",
+      "name": "Leer PyL",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1420,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "sTuBcxdDmHmAo3g6",
+          "cachedResultName": "IBP_PL_Financiero"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "8b21b119-1aa6-48f4-b257-230d81fd3f1c",
+      "name": "Leer Resumen Ejecutivo",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1620,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "sdArBbNUEQZ4DYtP",
+          "cachedResultName": "IBP_Resumen_Ejecutivo"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "db487780-9126-4ef3-9a22-dcb22a45ef14",
+      "name": "Leer Minutas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1820,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "y7hwtJjbE3Y07PJ9",
+          "cachedResultName": "IBP_Minutas"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "762a916b-88f3-4f6a-96a9-6fea1c7799f5",
+      "name": "Leer Materiales",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2020,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "5X7W9dLJdgo76WaF",
+          "cachedResultName": "IBP_Materiales"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "a7ecd212-a76b-4e5e-8a04-17c743749298",
+      "name": "Leer Parametros",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2220,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "4aaMPxy84paqdpQt",
+          "cachedResultName": "IBP_Parametros"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "ccc7b001-d582-4db5-9036-fc5a49768d58",
+      "name": "Leer Lineas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2420,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "IRvuLUZBJA6gZbQL",
+          "cachedResultName": "IBP_Lineas"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "01b8139d-fc45-4201-ab90-31f3bb8ffb25",
+      "name": "Leer Fabricas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2620,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "oHmHvbFieo8WQaeP",
+          "cachedResultName": "IBP_Fabricas"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "0f933be6-88db-4cc4-a7de-1ecce50f13ee",
+      "name": "Leer BOM",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2820,
+        400
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "eslBeZxbU6cRBCfF",
+          "cachedResultName": "IBP_BOM"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "83b885d2-7c57-49e4-8046-d67adab52947",
+      "name": "Construir Contexto Analitico",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3020,
+        400
+      ],
+      "parameters": {
+        "jsCode": "function rows(name) { try { return $(name).all().map(i => i.json).filter(r => r && Object.keys(r).length > 1); } catch (e) { return []; } }\nfunction num(v) { const n = Number(v); return isFinite(n) ? n : 0; }\nfunction r1(v) { return Math.round(num(v) * 10) / 10; }\nfunction r0(v) { return Math.round(num(v)); }\nfunction sum(arr, k) { return arr.reduce((a, r) => a + num(r[k]), 0); }\nfunction desv(a) {\n  if (a.length < 2) return 0;\n  const m = a.reduce((x, y) => x + y, 0) / a.length;\n  return Math.sqrt(a.reduce((x, y) => x + (y - m) * (y - m), 0) / (a.length - 1));\n}\nfunction prom(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0; }\n\nconst wh = $('Webhook Chat').first().json || {};\nconst body = wh.body || {};\nconst qs = wh.query || {};\nconst pregunta = String(body.pregunta || body.question || body.chatInput || qs.pregunta || '').slice(0, 3000).trim();\nconst sessionId = String(body.session_id || qs.session_id || 'anon').slice(0, 120);\nconst runPedido = String(body.run_id || qs.run_id || '').trim();\n\nconst skus = rows('Leer SKUs').filter(r => r.sku_id);\nconst hist = rows('Leer Demanda Historica').filter(r => r.sku_id);\nconst fcAll = rows('Leer Forecast').filter(r => r.run_id);\nconst planAll = rows('Leer Plan Produccion').filter(r => r.run_id);\nconst schedAll = rows('Leer Schedule').filter(r => r.run_id);\nconst comprasAll = rows('Leer Compras').filter(r => r.run_id);\nconst plAll = rows('Leer PyL').filter(r => r.run_id);\nconst resAll = rows('Leer Resumen Ejecutivo').filter(r => r.run_id);\nconst minAll = rows('Leer Minutas').filter(r => r.run_id);\nconst materiales = rows('Leer Materiales').filter(r => r.material_id);\nconst parametros = rows('Leer Parametros').filter(r => r.clave);\nconst lineas = rows('Leer Lineas').filter(r => r.linea_id);\nconst fabricas = rows('Leer Fabricas').filter(r => r.fabrica_id);\nconst bom = rows('Leer BOM').filter(r => r.material_id);\n\nconst runsSet = {};\nfcAll.forEach(r => { const c = String(r.createdAt || ''); if (!runsSet[r.run_id] || c > runsSet[r.run_id]) runsSet[r.run_id] = c; });\nconst runs = Object.keys(runsSet).sort((a, b) => String(runsSet[b]).localeCompare(String(runsSet[a])));\nconst run = (runPedido && runs.indexOf(runPedido) >= 0) ? runPedido : (runs[0] || '');\nconst F = arr => arr.filter(x => x.run_id === run);\n\nconst forecast = F(fcAll);\nconst plan = F(planAll);\nconst schedule = F(schedAll);\nconst compras = F(comprasAll);\nconst pl = F(plAll);\nconst resumen = F(resAll)[0] || {};\nconst minutas = F(minAll).sort((a, b) => num(a.paso) - num(b.paso));\n\nconst meses = [...new Set(forecast.map(r => r.mes))].sort();\nconst histMeses = [...new Set(hist.map(r => r.mes))].sort();\nconst NORMA_COBERTURA = 45;\nconst paramMap = {};\nparametros.forEach(p => { paramMap[p.clave] = num(p.valor); });\nconst politicaFill = { A: 98, B: 95, C: 90 };\n\nconst skuMap = {};\nskus.forEach(s => { skuMap[s.sku_id] = s; });\nconst famDe = id => (skuMap[id] || {}).familia || 'SIN-FAMILIA';\n\nconst histPorSku = {};\nhist.forEach(r => { (histPorSku[r.sku_id] = histPorSku[r.sku_id] || []).push(r); });\nconst fcPorSku = {};\nforecast.forEach(r => { (fcPorSku[r.sku_id] = fcPorSku[r.sku_id] || []).push(r); });\nconst planPorSku = {};\nplan.forEach(r => { (planPorSku[r.sku_id] = planPorSku[r.sku_id] || []).push(r); });\n\nconst porSku = [];\nskus.forEach(s => {\n  const h = (histPorSku[s.sku_id] || []).slice().sort((a, b) => String(a.mes).localeCompare(String(b.mes)));\n  const f = (fcPorSku[s.sku_id] || []).slice().sort((a, b) => String(a.mes).localeCompare(String(b.mes)));\n  const p = (planPorSku[s.sku_id] || []).slice().sort((a, b) => String(a.mes).localeCompare(String(b.mes)));\n  const hy = h.map(x => num(x.unidades));\n  const hy12 = hy.slice(-12);\n  const promHist = prom(hy12);\n  const sdHist = desv(hy12);\n  const fcCons = sum(f, 'forecast_consenso');\n  const fcEst = sum(f, 'forecast_estadistico');\n  const promFc = f.length ? fcCons / f.length : 0;\n  const atendida = sum(p, 'demanda_atendida');\n  const quiebre = sum(p, 'quiebre');\n  const demTot = atendida + quiebre;\n  const ss = num(s.stock_seguridad);\n  const invs = p.map(x => num(x.inventario_final));\n  const bajoSS = p.filter(x => num(x.inventario_final) < ss).length;\n  const cobs = p.map(x => {\n    const mfc = f.find(y => y.mes === x.mes);\n    const d = mfc ? num(mfc.forecast_consenso) : promFc;\n    return d > 0 ? (num(x.inventario_final) / d) * 30 : 999;\n  });\n  porSku.push({\n    sku: s.sku_id,\n    nombre: s.nombre,\n    fam: s.familia,\n    cat: s.categoria,\n    abc: s.clase_abc,\n    xyz: s.clase_xyz,\n    precio: num(s.precio_venta),\n    costo: num(s.costo_conversion),\n    ss: ss,\n    inv_ini: num(s.inventario_inicial),\n    cap_mes: num(s.capacidad_linea_mensual),\n    batch_min: num(s.batch_minimo),\n    hist_prom_12m: r0(promHist),\n    hist_cv_pct: promHist > 0 ? r1(sdHist / promHist * 100) : 0,\n    fc_estadistico: r0(fcEst),\n    fc_consenso: r0(fcCons),\n    uplift_ai_pct: fcEst > 0 ? r1((fcCons / fcEst - 1) * 100) : 0,\n    var_fc_vs_hist_pct: promHist > 0 ? r1((promFc / promHist - 1) * 100) : 0,\n    z_fc_vs_hist: sdHist > 0 ? r1((promFc - promHist) / sdHist) : 0,\n    produccion: r0(sum(p, 'produccion')),\n    atendida: r0(atendida),\n    quiebre: r0(quiebre),\n    fill_pct: demTot > 0 ? r1(atendida / demTot * 100) : 100,\n    fill_objetivo: politicaFill[s.clase_abc] || 95,\n    inv_min: invs.length ? r0(Math.min.apply(null, invs)) : 0,\n    inv_final: invs.length ? r0(invs[invs.length - 1]) : 0,\n    cobertura_dias_min: cobs.length ? r1(Math.min.apply(null, cobs)) : 0,\n    meses_bajo_ss: bajoSS,\n    venta_perdida_clp: r0(quiebre * num(s.precio_venta))\n  });\n});\n\nconst totFcCons = sum(forecast, 'forecast_consenso');\nconst totFcEst = sum(forecast, 'forecast_estadistico');\nconst totAtendida = sum(plan, 'demanda_atendida');\nconst totQuiebre = sum(plan, 'quiebre');\nconst totProd = sum(plan, 'produccion');\nconst totIngresos = sum(pl, 'ingresos');\nconst totCogs = sum(pl, 'cogs');\nconst totMargen = sum(pl, 'margen_bruto');\nconst totVentaPerdida = sum(pl, 'venta_perdida');\nconst totCompras = sum(compras, 'costo_total');\nconst totCostoProg = sum(schedule, 'costo_clp');\nconst horasChg = sum(schedule.filter(r => r.tipo === 'CHANGEOVER'), 'horas');\nconst horasProd = sum(schedule.filter(r => r.tipo !== 'CHANGEOVER'), 'horas');\nconst nDecisiones = minutas.reduce((a, m) => { try { return a + JSON.parse(m.decisiones_json || '[]').length; } catch (e) { return a; } }, 0);\n\nconst porMes = meses.map(m => {\n  const f = forecast.filter(r => r.mes === m);\n  const p = plan.filter(r => r.mes === m);\n  const l = pl.filter(r => r.mes === m);\n  const s = schedule.filter(r => r.mes === m);\n  const c = compras.filter(r => r.mes === m);\n  const at = sum(p, 'demanda_atendida');\n  const qb = sum(p, 'quiebre');\n  const inv = sum(p, 'inventario_final');\n  const fcm = sum(f, 'forecast_consenso');\n  const ing = sum(l, 'ingresos');\n  const mg = sum(l, 'margen_bruto');\n  return {\n    mes: m,\n    fc_estadistico: r0(sum(f, 'forecast_estadistico')),\n    fc_consenso: r0(fcm),\n    produccion: r0(sum(p, 'produccion')),\n    atendida: r0(at),\n    quiebre: r0(qb),\n    fill_pct: (at + qb) > 0 ? r1(at / (at + qb) * 100) : 100,\n    inventario_final: r0(inv),\n    cobertura_dias: fcm > 0 ? r1(inv / fcm * 30) : 0,\n    ingresos: r0(ing),\n    cogs: r0(sum(l, 'cogs')),\n    margen_bruto: r0(mg),\n    margen_pct: ing > 0 ? r1(mg / ing * 100) : 0,\n    venta_perdida: r0(sum(l, 'venta_perdida')),\n    horas_produccion: r1(sum(s.filter(x => x.tipo !== 'CHANGEOVER'), 'horas')),\n    horas_changeover: r1(sum(s.filter(x => x.tipo === 'CHANGEOVER'), 'horas')),\n    costo_programa: r0(sum(s, 'costo_clp')),\n    compras_clp: r0(sum(c, 'costo_total'))\n  };\n});\n\nconst famsSet = [...new Set(skus.map(s => s.familia))].filter(Boolean).sort();\nconst porFamilia = famsSet.map(fam => {\n  const sk = porSku.filter(x => x.fam === fam);\n  const p = plan.filter(r => famDe(r.sku_id) === fam);\n  const f = forecast.filter(r => famDe(r.sku_id) === fam);\n  const l = pl.filter(r => r.familia === fam);\n  const at = sum(p, 'demanda_atendida');\n  const qb = sum(p, 'quiebre');\n  const ing = sum(l, 'ingresos');\n  const mg = sum(l, 'margen_bruto');\n  const invProm = meses.length ? sum(p, 'inventario_final') / meses.length : 0;\n  const fcProm = meses.length ? sum(f, 'forecast_consenso') / meses.length : 0;\n  const abc = { A: 0, B: 0, C: 0 };\n  sk.forEach(x => { if (abc[x.abc] != null) abc[x.abc] += 1; });\n  return {\n    familia: fam,\n    n_skus: sk.length,\n    mix_abc: abc,\n    fc_estadistico: r0(sum(f, 'forecast_estadistico')),\n    fc_consenso: r0(sum(f, 'forecast_consenso')),\n    uplift_ai_pct: sum(f, 'forecast_estadistico') > 0 ? r1((sum(f, 'forecast_consenso') / sum(f, 'forecast_estadistico') - 1) * 100) : 0,\n    produccion: r0(sum(p, 'produccion')),\n    atendida: r0(at),\n    quiebre: r0(qb),\n    fill_pct: (at + qb) > 0 ? r1(at / (at + qb) * 100) : 100,\n    inventario_prom: r0(invProm),\n    cobertura_dias_prom: fcProm > 0 ? r1(invProm / fcProm * 30) : 0,\n    ingresos: r0(ing),\n    margen_bruto: r0(mg),\n    margen_pct: ing > 0 ? r1(mg / ing * 100) : 0,\n    venta_perdida: r0(sum(l, 'venta_perdida'))\n  };\n});\n\nconst claseAgg = { A: { at: 0, qb: 0, n: 0 }, B: { at: 0, qb: 0, n: 0 }, C: { at: 0, qb: 0, n: 0 } };\nporSku.forEach(x => { const c = claseAgg[x.abc]; if (c) { c.at += x.atendida; c.qb += x.quiebre; c.n += 1; } });\nconst porClase = Object.keys(claseAgg).map(k => {\n  const c = claseAgg[k];\n  const d = c.at + c.qb;\n  return { clase: k, n_skus: c.n, fill_pct: d > 0 ? r1(c.at / d * 100) : 100, objetivo_pct: politicaFill[k], cumple: d > 0 ? (c.at / d * 100 >= politicaFill[k]) : true };\n});\n\nconst matrizAbcXyz = {};\nskus.forEach(s => { const k = String(s.clase_abc || '?') + String(s.clase_xyz || '?'); matrizAbcXyz[k] = (matrizAbcXyz[k] || 0) + 1; });\n\nconst horasProgLinea = {};\nschedule.forEach(r => {\n  const k = r.linea_id + '|' + r.mes;\n  if (!horasProgLinea[k]) horasProgLinea[k] = { linea_id: r.linea_id, mes: r.mes, horas: 0, chg: 0, costo: 0, turnos: num(r.turnos) };\n  horasProgLinea[k].horas += num(r.horas);\n  horasProgLinea[k].costo += num(r.costo_clp);\n  if (r.tipo === 'CHANGEOVER') horasProgLinea[k].chg += num(r.horas);\n  if (num(r.turnos) > horasProgLinea[k].turnos) horasProgLinea[k].turnos = num(r.turnos);\n});\nconst fabMap = {};\nfabricas.forEach(f => { fabMap[f.fabrica_id] = f; });\nconst linMap = {};\nlineas.forEach(l => { linMap[l.linea_id] = l; });\nconst capacidad = Object.keys(horasProgLinea).map(k => {\n  const x = horasProgLinea[k];\n  const L = linMap[x.linea_id] || {};\n  const Fb = fabMap[L.fabrica_id] || {};\n  const ht = num(L.horas_turno) || 8;\n  const dh = num(Fb.dias_habiles_mes) || 22;\n  const oee = num(L.oee_pct) ? num(L.oee_pct) / 100 : 0.7;\n  const turnos = x.turnos || num(L.turnos_base) || 2;\n  const disp = turnos * ht * dh * oee;\n  return {\n    linea: x.linea_id,\n    nombre: L.nombre || '',\n    fabrica: L.fabrica_id || '',\n    mes: x.mes,\n    turnos: turnos,\n    turnos_max: num(L.turnos_max),\n    oee_pct: num(L.oee_pct) || 70,\n    horas_disponibles: r1(disp),\n    horas_programadas: r1(x.horas),\n    horas_changeover: r1(x.chg),\n    utilizacion_pct: disp > 0 ? r1(x.horas / disp * 100) : 0,\n    costo_clp: r0(x.costo)\n  };\n}).sort((a, b) => (a.mes + a.linea).localeCompare(b.mes + b.linea));\n\nconst prodPorFam = {};\nplan.forEach(p => { const f = famDe(p.sku_id); prodPorFam[f] = (prodPorFam[f] || 0) + num(p.produccion); });\nconst reqMaterial = {};\nbom.forEach(b => {\n  const pf = prodPorFam[b.familia] || 0;\n  reqMaterial[b.material_id] = (reqMaterial[b.material_id] || 0) + pf * num(b.cantidad_por_unidad);\n});\nconst materialesRes = materiales.map(m => {\n  const oc = compras.filter(c => c.material_id === m.material_id);\n  const req = reqMaterial[m.material_id] || 0;\n  const stock = num(m.stock_actual);\n  return {\n    material: m.material_id,\n    nombre: m.nombre,\n    proveedor: m.proveedor,\n    lead_time_dias: num(m.lead_time_dias),\n    moq: num(m.moq),\n    costo_unitario: num(m.costo_unitario),\n    stock_actual: r0(stock),\n    requerimiento_horizonte: r0(req),\n    cobertura_pct_del_req: req > 0 ? r1(stock / req * 100) : 999,\n    deficit: r0(Math.max(0, req - stock)),\n    n_ordenes: oc.length,\n    cantidad_ordenada: r0(sum(oc, 'cantidad')),\n    gasto_clp: r0(sum(oc, 'costo_total')),\n    ordenes_urgentes: oc.filter(c => String(c.alerta || '').indexOf('URGENTE') === 0).length\n  };\n}).sort((a, b) => b.deficit - a.deficit);\n\nconst proveedorAgg = {};\ncompras.forEach(c => {\n  if (!proveedorAgg[c.proveedor]) proveedorAgg[c.proveedor] = { proveedor: c.proveedor, gasto: 0, ordenes: 0, urgentes: 0 };\n  proveedorAgg[c.proveedor].gasto += num(c.costo_total);\n  proveedorAgg[c.proveedor].ordenes += 1;\n  if (String(c.alerta || '').indexOf('URGENTE') === 0) proveedorAgg[c.proveedor].urgentes += 1;\n});\nconst porProveedor = Object.keys(proveedorAgg).map(k => ({\n  proveedor: k, gasto_clp: r0(proveedorAgg[k].gasto), ordenes: proveedorAgg[k].ordenes, urgentes: proveedorAgg[k].urgentes\n})).sort((a, b) => b.gasto_clp - a.gasto_clp);\n\nconst comprasUrgentes = compras.filter(c => String(c.alerta || '').indexOf('URGENTE') === 0)\n  .map(c => ({ material: c.material_id, mes: c.mes, cantidad: r0(c.cantidad), costo_clp: r0(c.costo_total), fecha_orden: c.fecha_orden, proveedor: c.proveedor, alerta: c.alerta }));\n\nconst ajustesAi = {};\nforecast.filter(r => num(r.factor_ai) !== 1).forEach(r => {\n  const fam = famDe(r.sku_id);\n  const k = fam + '|' + r.mes;\n  if (!ajustesAi[k]) ajustesAi[k] = { familia: fam, mes: r.mes, factor: num(r.factor_ai), razon: r.razon_ai, n_skus: 0, base: 0, consenso: 0 };\n  ajustesAi[k].n_skus += 1;\n  ajustesAi[k].base += num(r.forecast_estadistico);\n  ajustesAi[k].consenso += num(r.forecast_consenso);\n});\nconst ajustesLista = Object.keys(ajustesAi).map(k => {\n  const a = ajustesAi[k];\n  return { familia: a.familia, mes: a.mes, factor: a.factor, razon: a.razon, n_skus: a.n_skus, base: r0(a.base), consenso: r0(a.consenso), delta_u: r0(a.consenso - a.base) };\n}).sort((a, b) => (a.familia + a.mes).localeCompare(b.familia + b.mes));\n\nconst reuniones = minutas.map(m => {\n  let dec = [];\n  try { dec = JSON.parse(m.decisiones_json || '[]'); } catch (e) { dec = []; }\n  return {\n    paso: num(m.paso), reunion: m.reunion, agente: m.agente, fecha: m.fecha,\n    logica: String(m.logica || '').split('|').map(x => x.trim()).filter(Boolean),\n    decisiones: dec,\n    conclusiones: String(m.conclusiones || '').split('|').map(x => x.trim()).filter(Boolean),\n    riesgos: String(m.riesgos || '').split('|').map(x => x.trim()).filter(Boolean),\n    handoff: m.handoff\n  };\n});\n\nconst topN = (arr, k, dir, n) => arr.slice().sort((a, b) => dir === 'asc' ? (a[k] - b[k]) : (b[k] - a[k])).slice(0, n)\n  .map(x => ({ sku: x.sku, nombre: x.nombre, fam: x.fam, abc: x.abc, xyz: x.xyz, valor: x[k], cobertura_dias_min: x.cobertura_dias_min, inv_min: x.inv_min, ss: x.ss, quiebre: x.quiebre, fill_pct: x.fill_pct, venta_perdida_clp: x.venta_perdida_clp }));\n\nconst rankings = {\n  inventario_mas_bajo_por_cobertura: topN(porSku, 'cobertura_dias_min', 'asc', 15),\n  mayor_quiebre_unidades: topN(porSku.filter(x => x.quiebre > 0), 'quiebre', 'desc', 15),\n  mayor_venta_perdida_clp: topN(porSku.filter(x => x.venta_perdida_clp > 0), 'venta_perdida_clp', 'desc', 15),\n  peor_fill_rate: topN(porSku.filter(x => x.fill_pct < 100), 'fill_pct', 'asc', 15),\n  bajo_stock_seguridad: porSku.filter(x => x.meses_bajo_ss > 0).sort((a, b) => b.meses_bajo_ss - a.meses_bajo_ss).slice(0, 20)\n    .map(x => ({ sku: x.sku, nombre: x.nombre, fam: x.fam, abc: x.abc, ss: x.ss, inv_min: x.inv_min, meses_bajo_ss: x.meses_bajo_ss, cobertura_dias_min: x.cobertura_dias_min })),\n  outliers_proyeccion_vs_historia: porSku.slice().sort((a, b) => Math.abs(b.z_fc_vs_hist) - Math.abs(a.z_fc_vs_hist)).slice(0, 15)\n    .map(x => ({ sku: x.sku, nombre: x.nombre, fam: x.fam, abc: x.abc, xyz: x.xyz, hist_prom_12m: x.hist_prom_12m, fc_consenso: x.fc_consenso, var_fc_vs_hist_pct: x.var_fc_vs_hist_pct, z_fc_vs_hist: x.z_fc_vs_hist, hist_cv_pct: x.hist_cv_pct })),\n  mas_erraticos_cv: porSku.slice().sort((a, b) => b.hist_cv_pct - a.hist_cv_pct).slice(0, 15)\n    .map(x => ({ sku: x.sku, nombre: x.nombre, fam: x.fam, abc: x.abc, xyz: x.xyz, hist_cv_pct: x.hist_cv_pct, hist_prom_12m: x.hist_prom_12m })),\n  mayor_uplift_ai: porSku.slice().sort((a, b) => b.uplift_ai_pct - a.uplift_ai_pct).slice(0, 10)\n    .map(x => ({ sku: x.sku, fam: x.fam, uplift_ai_pct: x.uplift_ai_pct, fc_estadistico: x.fc_estadistico, fc_consenso: x.fc_consenso })),\n  mayor_recorte_ai: porSku.slice().sort((a, b) => a.uplift_ai_pct - b.uplift_ai_pct).slice(0, 10)\n    .map(x => ({ sku: x.sku, fam: x.fam, uplift_ai_pct: x.uplift_ai_pct, fc_estadistico: x.fc_estadistico, fc_consenso: x.fc_consenso })),\n  sobre_stock: porSku.filter(x => x.cobertura_dias_min > 90).sort((a, b) => b.cobertura_dias_min - a.cobertura_dias_min).slice(0, 15)\n    .map(x => ({ sku: x.sku, nombre: x.nombre, fam: x.fam, abc: x.abc, cobertura_dias_min: x.cobertura_dias_min, inv_final: x.inv_final, ss: x.ss })),\n  mayor_margen: porSku.slice().sort((a, b) => (b.precio - b.costo) * b.atendida - (a.precio - a.costo) * a.atendida).slice(0, 10)\n    .map(x => ({ sku: x.sku, fam: x.fam, abc: x.abc, margen_clp: r0((x.precio - x.costo) * x.atendida), precio: x.precio, costo: x.costo }))\n};\n\nconst digest = {\n  meta: {\n    run_id: run,\n    runs_disponibles: runs.slice(0, 12),\n    fecha_ciclo: resumen.fecha || '',\n    meses_forecast: meses,\n    meses_historia: histMeses.length ? [histMeses[0], histMeses[histMeses.length - 1]] : [],\n    n_meses_historia: histMeses.length,\n    n_skus: skus.length,\n    familias: famsSet,\n    norma_cobertura_dias: NORMA_COBERTURA,\n    politica_fill_por_clase: politicaFill,\n    parametros: paramMap,\n    moneda: 'CLP'\n  },\n  kpis_globales: {\n    forecast_estadistico_u: r0(totFcEst),\n    forecast_consenso_u: r0(totFcCons),\n    uplift_ai_pct: totFcEst > 0 ? r1((totFcCons / totFcEst - 1) * 100) : 0,\n    produccion_u: r0(totProd),\n    demanda_atendida_u: r0(totAtendida),\n    quiebre_u: r0(totQuiebre),\n    fill_rate_pct: (totAtendida + totQuiebre) > 0 ? r1(totAtendida / (totAtendida + totQuiebre) * 100) : 100,\n    fill_rate_pct_reportado: num(resumen.fill_rate_pct),\n    ingresos_clp: r0(totIngresos),\n    cogs_clp: r0(totCogs),\n    margen_bruto_clp: r0(totMargen),\n    margen_pct: totIngresos > 0 ? r1(totMargen / totIngresos * 100) : 0,\n    venta_perdida_clp: r0(totVentaPerdida),\n    gasto_materias_primas_clp: r0(totCompras),\n    costo_programa_plantas_clp: r0(totCostoProg),\n    horas_produccion: r1(horasProd),\n    horas_changeover: r1(horasChg),\n    pct_horas_en_changeover: (horasProd + horasChg) > 0 ? r1(horasChg / (horasProd + horasChg) * 100) : 0,\n    ordenes_compra: compras.length,\n    ordenes_compra_urgentes: comprasUrgentes.length,\n    bloques_programados: schedule.length,\n    decisiones_automaticas: nDecisiones,\n    skus_con_quiebre: porSku.filter(x => x.quiebre > 0).length,\n    skus_bajo_stock_seguridad: porSku.filter(x => x.meses_bajo_ss > 0).length,\n    skus_sobre_stock_90d: porSku.filter(x => x.cobertura_dias_min > 90).length\n  },\n  por_mes: porMes,\n  por_familia: porFamilia,\n  fill_por_clase_abc: porClase,\n  matriz_abc_xyz: matrizAbcXyz,\n  capacidad_por_linea_mes: capacidad,\n  materias_primas: materialesRes,\n  gasto_por_proveedor: porProveedor,\n  ordenes_compra_urgentes: comprasUrgentes,\n  ajustes_ia_demanda: ajustesLista,\n  rankings_criticidad: rankings,\n  detalle_por_sku: porSku,\n  reuniones_del_ciclo: reuniones,\n  resumen_ejecutivo: {\n    texto: resumen.resumen || '',\n    decisiones: String(resumen.decisiones || '').split('|').map(x => x.trim()).filter(Boolean),\n    alertas: String(resumen.alertas || '').split('|').map(x => x.trim()).filter(Boolean),\n    ingresos_totales: num(resumen.ingresos_totales),\n    margen_pct: num(resumen.margen_pct),\n    venta_perdida_total: num(resumen.venta_perdida_total),\n    fill_rate_pct: num(resumen.fill_rate_pct)\n  }\n};\n\nconst sinDatos = !run || (!forecast.length && !plan.length);\n\nreturn [{\n  json: {\n    pregunta: pregunta,\n    session_id: sessionId,\n    run_id: run,\n    runs_disponibles: runs,\n    sin_datos: sinDatos,\n    pregunta_vacia: !pregunta,\n    contexto_json: JSON.stringify(digest),\n    tamano_contexto: JSON.stringify(digest).length\n  }\n}];\n"
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "7d4c964a-e9c0-4bc4-8fbb-a77ede9abf9e",
+      "name": "Analista IBP",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3240,
+        400
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.pregunta || \"El analista no escribio ninguna pregunta. Pide amablemente que formule su consulta e incluye tres ejemplos utiles de preguntas sobre este ciclo S&OP.\" }}",
+        "options": {
+          "systemMessage": "=Eres el Analista IBP, un copiloto experto en Sales & Operations Planning / Integrated Business Planning que responde preguntas de los analistas sobre el ciclo S&OP de una empresa chilena de chocolates (100 SKUs, 6 familias, 2 plantas, horizonte de 6 meses, moneda CLP).\n\nTienes acceso al resultado COMPLETO del ciclo en el bloque DATOS_DEL_CICLO (JSON). Ese JSON es tu unica fuente de verdad.\n\nESTRUCTURA DEL JSON:\n- meta: run_id, meses del horizonte, familias, normas (cobertura objetivo 45 dias) y politica de fill rate por clase ABC (A 98%, B 95%, C 90%).\n- kpis_globales: totales del ciclo (forecast, produccion, quiebre, fill rate, ingresos, margen, venta perdida, compras, costo del programa, changeover).\n- por_mes: la misma foto mes a mes, incluida cobertura_dias e inventario_final.\n- por_familia y fill_por_clase_abc: desempeno por familia y por clase ABC vs objetivo.\n- capacidad_por_linea_mes: horas disponibles vs programadas y utilizacion_pct por linea y mes.\n- materias_primas: stock_actual vs requerimiento_horizonte, deficit, lead time, MOQ y proveedor.\n- ajustes_ia_demanda: cada ajuste familia-mes del motor de demanda con su factor y su razon de negocio.\n- rankings_criticidad: rankings ya calculados. Usalos como primera parada:\n  * inventario_mas_bajo_por_cobertura: SKUs con menor cobertura en dias (el \"nivel mas bajo de inventario\").\n  * bajo_stock_seguridad: SKUs que caen bajo su stock de seguridad y en cuantos meses.\n  * mayor_quiebre_unidades / mayor_venta_perdida_clp / peor_fill_rate: donde esta la criticidad de servicio.\n  * outliers_proyeccion_vs_historia: las proyecciones mas raras, medidas con z_fc_vs_hist (desviaciones estandar entre el forecast y el promedio historico de 12 meses) y var_fc_vs_hist_pct.\n  * mas_erraticos_cv: SKUs con historia mas volatil (coeficiente de variacion).\n  * mayor_uplift_ai / mayor_recorte_ai: donde la IA de demanda movio mas el numero.\n  * sobre_stock: SKUs con mas de 90 dias de cobertura (capital inmovilizado).\n- detalle_por_sku: ficha de los 100 SKUs. Usala para preguntas sobre un SKU puntual o para filtrar y ordenar por cualquier criterio que no este en los rankings.\n- reuniones_del_ciclo: las 6 etapas con su logica, decisiones automaticas, conclusiones, riesgos y handoff.\n- resumen_ejecutivo: sintesis, decisiones y alertas del comite.\n\nGLOSARIO DE CAMPOS CLAVE:\n- cobertura_dias_min: los dias de cobertura del peor mes del SKU. Menos dias = mas critico. Norma 45 dias.\n- fill_pct vs fill_objetivo: cumplimiento de servicio contra la politica de su clase ABC.\n- z_fc_vs_hist: cuantas desviaciones estandar se separa el forecast del promedio historico. Un valor absoluto mayor a 2 es una proyeccion rara que amerita revision.\n- uplift_ai_pct: cuanto movio el motor de IA el forecast estadistico.\n- meses_bajo_ss: en cuantos meses del horizonte el inventario proyectado queda bajo el stock de seguridad.\n\nCOMO RESPONDER:\n1. Responde en espanol de Chile, en tono de analista de negocio: directo, concreto y accionable.\n2. SIEMPRE cita cifras exactas del JSON con su unidad (u para unidades, CLP para pesos, %, dias). Nunca inventes un numero que no este en los datos ni lo estimes a ojo.\n3. Cuando la pregunta pida un ranking o un top, entrega una tabla markdown compacta con las columnas relevantes (SKU, nombre, familia, clase ABC/XYZ y la metrica pedida).\n4. Aritmetica simple (sumas, diferencias, porcentajes) sobre los campos del JSON esta permitida y es deseable; muestra el calculo cuando aclare la respuesta.\n5. No te quedes en el dato: agrega el porque (que etapa del ciclo lo origina, que decision del motor lo explica) y una recomendacion concreta cuando corresponda.\n6. Si la pregunta es ambigua, responde con la interpretacion mas util y di explicitamente que criterio usaste (por ejemplo: interpreto nivel mas bajo como menor cobertura en dias).\n7. Si el dato realmente no esta en el JSON, dilo con claridad y ofrece la metrica mas cercana que si esta. No especules.\n8. Se breve por defecto (maximo unas 250 palabras y una tabla). Solo extiendete si el analista pide profundidad.\n9. Usa markdown (negritas, listas y tablas). Nunca devuelvas JSON crudo ni menciones nombres de nodos o de tablas internas.\n\nEstas contestando sobre el run {{ $json.run_id }}.\n\nDATOS_DEL_CICLO:\n{{ $json.contexto_json }}",
+          "maxIterations": 3,
+          "enableStreaming": false
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "193c2460-7647-4c93-9d81-4c86fd10cdbc",
+      "name": "Gemini Analista",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        3020,
+        640
+      ],
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {
+          "temperature": 0.2,
+          "maxOutputTokens": 4096
+        }
+      }
+    },
+    {
+      "id": "657de3cd-11ed-41f2-9c78-582448d3cda5",
+      "name": "Memoria de Conversacion",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        3240,
+        640
+      ],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $(\"Webhook Chat\").first().json.body?.session_id || \"anon\" }}",
+        "contextWindowLength": 10
+      }
+    },
+    {
+      "id": "f061f312-9e30-460d-8a77-a8d8f59e57ee",
+      "name": "Formatear Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3460,
+        400
+      ],
+      "parameters": {
+        "jsCode": "const ctx = $('Construir Contexto Analitico').first().json || {};\nconst item = $input.first().json || {};\nlet texto = '';\nif (typeof item.output === 'string') texto = item.output;\nelse if (item.output && typeof item.output === 'object') texto = JSON.stringify(item.output);\nelse if (typeof item.text === 'string') texto = item.text;\nelse if (typeof item.response === 'string') texto = item.response;\ntexto = String(texto || '').trim();\nlet ok = true;\nif (item.error || !texto) {\n  ok = false;\n  const detalle = item.error ? String(item.error.message || item.error) : 'respuesta vacia del modelo';\n  texto = 'No pude responder esta consulta (' + detalle + '). Intenta reformular la pregunta o vuelve a enviarla en unos segundos.';\n}\nreturn [{ json: {\n  ok: ok,\n  respuesta: texto,\n  run_id: ctx.run_id || '',\n  session_id: ctx.session_id || 'anon',\n  runs_disponibles: ctx.runs_disponibles || [],\n  tamano_contexto: ctx.tamano_contexto || 0,\n  ts: new Date().toISOString()\n} }];\n"
+      }
+    },
+    {
+      "id": "880a5d98-6f7d-4c65-97f4-b6193d4b56bc",
+      "name": "Responder Chat",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3680,
+        400
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "enableStreaming": false,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "350dd689-c849-4f20-b0b2-6a9894f4dd77",
+      "name": "Sticky Note 3c0fe401",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -50,
+        350
+      ],
+      "parameters": {
+        "content": "## IBP 9 - Chatbot Analista (Q&A del ciclo S&OP)\n\nPOST /webhook/ibp-chat con body JSON { pregunta, run_id opcional, session_id }.\nResponde { ok, respuesta markdown, run_id, session_id, ts }.\n\nLee todas las Data Tables IBP_* y precalcula un digest analitico determinista (KPIs, series por mes, familia y clase ABC, capacidad por linea, materias primas, ajustes de IA, rankings de criticidad, outliers de proyeccion y la ficha de los 100 SKUs). El digest completo va al system prompt, por lo que las cifras las calcula el Code node y no el LLM.\n\nMemoria por session_id (10 turnos). CORS abierto para que el Portal IBP (workflow 8) lo consuma desde el navegador.",
+        "color": 4,
+        "width": 460,
+        "height": 300
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Chat": {
+      "main": [
+        [
+          {
+            "node": "Leer SKUs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer SKUs": {
+      "main": [
+        [
+          {
+            "node": "Leer Demanda Historica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Demanda Historica": {
+      "main": [
+        [
+          {
+            "node": "Leer Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Forecast": {
+      "main": [
+        [
+          {
+            "node": "Leer Plan Produccion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Plan Produccion": {
+      "main": [
+        [
+          {
+            "node": "Leer Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Schedule": {
+      "main": [
+        [
+          {
+            "node": "Leer Compras",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Compras": {
+      "main": [
+        [
+          {
+            "node": "Leer PyL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer PyL": {
+      "main": [
+        [
+          {
+            "node": "Leer Resumen Ejecutivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Resumen Ejecutivo": {
+      "main": [
+        [
+          {
+            "node": "Leer Minutas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Minutas": {
+      "main": [
+        [
+          {
+            "node": "Leer Materiales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Materiales": {
+      "main": [
+        [
+          {
+            "node": "Leer Parametros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Parametros": {
+      "main": [
+        [
+          {
+            "node": "Leer Lineas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Lineas": {
+      "main": [
+        [
+          {
+            "node": "Leer Fabricas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Fabricas": {
+      "main": [
+        [
+          {
+            "node": "Leer BOM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer BOM": {
+      "main": [
+        [
+          {
+            "node": "Construir Contexto Analitico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir Contexto Analitico": {
+      "main": [
+        [
+          {
+            "node": "Analista IBP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analista IBP": {
+      "main": [
+        [
+          {
+            "node": "Formatear Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Analista": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analista IBP",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria de Conversacion": {
+      "ai_memory": [
+        [
+          {
+            "node": "Analista IBP",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Responder Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

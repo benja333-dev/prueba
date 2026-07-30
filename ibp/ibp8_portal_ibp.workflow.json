@@ -1,0 +1,561 @@
+{
+  "name": "IBP · 8 · Portal IBP (Dashboard)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ibp-portal",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "900dd238-01be-4856-a255-8636b218c006",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "52652ccd-3913-4d35-9d73-65468b4f41de"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PUhklrBDyXNehfKs",
+          "cachedResultName": "IBP_Demanda_Historica"
+        },
+        "returnAll": true
+      },
+      "id": "82ee5269-a4d3-4dd5-bab4-184afb5c6395",
+      "name": "Leer Demanda Historica",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "ODnCATjYdcBBpjoX",
+          "cachedResultName": "IBP_SKU_Master"
+        },
+        "returnAll": true
+      },
+      "id": "0f3b8e4e-09b8-41a9-bfcf-a444ae7e5ed3",
+      "name": "Leer SKUs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6QKIRWw04TQf3xdf",
+          "cachedResultName": "IBP_Forecast"
+        },
+        "returnAll": true
+      },
+      "id": "1e778bae-cae3-4b88-afc0-87688c66ac3d",
+      "name": "Leer Forecast",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "BJICXWY5p4sGhopK",
+          "cachedResultName": "IBP_Plan_Produccion"
+        },
+        "returnAll": true
+      },
+      "id": "fa55addc-9db2-49a0-b02c-5191c9249572",
+      "name": "Leer Plan Produccion",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HjhL6P7SLoNtD9Bk",
+          "cachedResultName": "IBP_Schedule"
+        },
+        "returnAll": true
+      },
+      "id": "791d9058-c309-4392-9d56-86a2c8752cdd",
+      "name": "Leer Schedule",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "4vpYRReeynJmttV4",
+          "cachedResultName": "IBP_Plan_Compras"
+        },
+        "returnAll": true
+      },
+      "id": "38c80568-3d19-4882-9423-0145cb422580",
+      "name": "Leer Compras",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "sTuBcxdDmHmAo3g6",
+          "cachedResultName": "IBP_PL_Financiero"
+        },
+        "returnAll": true
+      },
+      "id": "d24049af-ef40-4d1c-a5bc-fc73b389e937",
+      "name": "Leer PyL",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "sdArBbNUEQZ4DYtP",
+          "cachedResultName": "IBP_Resumen_Ejecutivo"
+        },
+        "returnAll": true
+      },
+      "id": "0c50dbf6-b05d-4375-b8f7-4af66eeae6d8",
+      "name": "Leer Resumen Ejecutivo",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1632,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "y7hwtJjbE3Y07PJ9",
+          "cachedResultName": "IBP_Minutas"
+        },
+        "returnAll": true
+      },
+      "id": "83b487ba-429f-476a-876c-75303dd6af78",
+      "name": "Leer Minutas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1824,
+        400
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "function rows(name) { try { return $(name).all().map(i => i.json).filter(r => r && Object.keys(r).length > 1); } catch (e) { return []; } }\nconst q = ($('Webhook').first().json.query) || {};\nconst hist = rows('Leer Demanda Historica').filter(r => r.sku_id);\nconst skus = rows('Leer SKUs').filter(r => r.sku_id);\nconst fcAll = rows('Leer Forecast').filter(r => r.run_id);\nconst planAll = rows('Leer Plan Produccion').filter(r => r.run_id);\nconst schedAll = rows('Leer Schedule').filter(r => r.run_id);\nconst comprasAll = rows('Leer Compras').filter(r => r.run_id);\nconst plAll = rows('Leer PyL').filter(r => r.run_id);\nconst resAll = rows('Leer Resumen Ejecutivo').filter(r => r.run_id);\nconst minAll = rows('Leer Minutas').filter(r => r.run_id);\nconst materiales = rows('Leer Materiales').filter(r => r.material_id);\nconst parametros = rows('Leer Parametros').filter(r => r.clave);\nconst lineas = rows('Leer Lineas').filter(r => r.linea_id);\nconst fabricas = rows('Leer Fabricas').filter(r => r.fabrica_id);\nconst bomRows = rows('Leer BOM').filter(r => r.material_id);\nconst runsSet = {};\nfcAll.forEach(r => { const c = String(r.createdAt || ''); if (!runsSet[r.run_id] || c > runsSet[r.run_id]) runsSet[r.run_id] = c; });\nconst runs = Object.keys(runsSet).sort((a, b) => String(runsSet[b]).localeCompare(String(runsSet[a])));\nconst run = (q.run_id && runs.indexOf(q.run_id) >= 0) ? q.run_id : (runs[0] || '');\nconst F = arr => arr.filter(x => x.run_id === run);\nconst D = {\n  run: run, runs: runs, skus: skus, hist: hist,\n  forecast: F(fcAll), plan: F(planAll), schedule: F(schedAll),\n  compras: F(comprasAll), pl: F(plAll), resumen: F(resAll)[0] || {},\n  minutas: F(minAll).sort((a, b) => a.paso - b.paso),\n  materiales: materiales, parametros: parametros, lineas: lineas, fabricas: fabricas, bom: bomRows,\n  chat_url: 'https://n8n-production-121a.up.railway.app/webhook/783cea29-640c-4393-9442-dcf09ee3f96e/ibp-chat'\n};\nconst dataJson = JSON.stringify(D).split('</').join('<\\\\/');\nconst html = `<!DOCTYPE html>\n<html lang='es'>\n<head>\n<meta charset='utf-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1'>\n<title>Portal IBP · ${run}</title>\n<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'></script>\n<style>\n* { box-sizing: border-box; }\nbody { font-family: Helvetica, Arial, sans-serif; margin: 0; background: #f2f4f7; color: #1a1f24; }\nheader { background: #051C2C; color: #fff; padding: 18px 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }\nheader h1 { font-size: 19px; margin: 0; font-weight: 700; letter-spacing: 0.2px; }\nheader h1 span { color: #00A9F4; }\nheader .meta { font-size: 12px; opacity: 0.8; }\nheader select { margin-left: auto; padding: 7px 10px; border-radius: 3px; border: 0; font-size: 13px; background: #fff; color: #051C2C; }\nnav { display: flex; gap: 2px; background: #fff; padding: 6px 20px 0; border-bottom: 1px solid #dfe3e8; overflow-x: auto; }\nnav button { border: 0; background: transparent; padding: 11px 15px; font-size: 13px; cursor: pointer; border-bottom: 3px solid transparent; color: #5b6770; white-space: nowrap; font-family: inherit; }\nnav button.act { color: #051C2C; font-weight: 700; border-bottom-color: #2251FF; }\nmain { padding: 22px 28px 80px; max-width: 1140px; margin: auto; }\nsection { display: none; }\nsection.act { display: block; }\n.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 12px; margin: 0 0 18px; }\n.card { background: #fff; border-radius: 4px; padding: 14px 16px; border: 1px solid #e3e7ec; border-top: 3px solid #2251FF; }\n.card.warn { border-top-color: #E8A33D; }\n.card.bad { border-top-color: #C00000; }\n.card.good { border-top-color: #12805C; }\n.card .l { font-size: 11.5px; color: #5b6770; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }\n.card .v { font-size: 22px; font-weight: 700; color: #051C2C; }\n.card .s { font-size: 11px; color: #5b6770; margin-top: 3px; }\n.panel { background: #fff; border-radius: 4px; padding: 18px 20px; border: 1px solid #e3e7ec; margin: 0 0 18px; }\n.panel h3 { margin: 0 0 12px; font-size: 14px; color: #051C2C; border-left: 4px solid #2251FF; padding-left: 8px; }\n.panel h3 small { font-weight: 400; color: #5b6770; font-size: 11.5px; letter-spacing: 0; text-transform: none; }\n.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 18px; margin: 0 0 18px; }\n.grid2 .panel { margin: 0; }\n.chartbox { position: relative; height: 320px; }\n.chartbox.sm { height: 250px; }\ntable { border-collapse: collapse; width: 100%; font-size: 12.5px; }\nth { text-align: left; color: #5b6770; font-weight: 700; padding: 7px 8px; border-bottom: 2px solid #051C2C; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.3px; }\ntd { padding: 6px 8px; border-bottom: 1px solid #eef1f4; }\ntd.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }\n.tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 11px; background: #E6F3FB; color: #051C2C; margin: 2px 3px 2px 0; }\n.urgente { color: #C00000; font-weight: 700; }\n.sem { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }\n.s-ok { background: #12805C; }\n.s-warn { background: #E8A33D; }\n.s-bad { background: #C00000; }\n.pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10.5px; font-weight: 700; }\n.pill.ok { background: #DFF3EC; color: #0B5D44; }\n.pill.warn { background: #FBEEDA; color: #7A5314; }\n.pill.bad { background: #FBE3E3; color: #8A1111; }\n.minuta { background: #fff; border: 1px solid #e3e7ec; border-left: 4px solid #051C2C; border-radius: 4px; padding: 16px 18px; margin: 0 0 18px; }\n.minuta h3 { margin: 0 0 2px; font-size: 15px; color: #051C2C; }\n.minuta .fecha { font-size: 11px; color: #5b6770; margin-bottom: 8px; }\n.minuta h4 { margin: 14px 0 5px; font-size: 11px; color: #2251FF; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; }\n.minuta ul { margin: 4px 0; padding-left: 18px; font-size: 13px; line-height: 1.55; }\n.minuta li { margin: 3px 0; }\n.handoff { background: #E9EDF2; border-left: 3px solid #00A9F4; padding: 10px 12px; font-size: 13px; font-style: italic; margin-top: 8px; }\n.gline { display: grid; grid-template-columns: 200px 1fr 46px; gap: 8px; align-items: center; margin: 0 0 4px; }\n.gline .lbl { font-size: 11.5px; color: #5b6770; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n.gbar { display: flex; height: 22px; border-radius: 2px; overflow: hidden; background: #EDF0F3; border: 1px solid #e3e7ec; }\n.gbar div { color: #fff; font-size: 9.5px; line-height: 22px; text-align: center; overflow: hidden; white-space: nowrap; border-right: 1px solid #fff; }\n.gmes { font-size: 13px; font-weight: 700; color: #051C2C; margin: 14px 0 6px; }\n.gutil { font-size: 11.5px; font-weight: 700; text-align: right; }\n.leg { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11.5px; color: #5b6770; margin: 0 0 10px; }\n.leg span { display: flex; align-items: center; gap: 5px; }\n.leg i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }\n.filtros { display: flex; gap: 10px; align-items: center; margin: 0 0 12px; font-size: 13px; flex-wrap: wrap; }\n.filtros select { padding: 7px 10px; border-radius: 3px; border: 1px solid #c9d1d9; font-size: 13px; background: #fff; font-family: inherit; }\n.razon { font-size: 12px; color: #5b6770; }\n.timeline { position: relative; padding-left: 24px; }\n.timeline .paso { position: relative; padding: 0 0 18px 12px; border-left: 2px solid #c9d1d9; }\n.timeline .paso:before { content: ''; position: absolute; left: -7px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #2251FF; }\n.timeline .paso b { font-size: 13.5px; color: #051C2C; }\n.timeline .paso p { margin: 4px 0 0; font-size: 12.5px; color: #40474e; }\n.matriz { display: grid; grid-template-columns: 60px repeat(3, 1fr); gap: 4px; max-width: 420px; font-size: 12px; }\n.matriz .h { font-weight: 700; color: #5b6770; text-align: center; padding: 6px; font-size: 11px; }\n.matriz .c { text-align: center; padding: 12px 6px; border-radius: 3px; font-weight: 700; font-size: 15px; color: #051C2C; }\n.bars { font-size: 12px; }\n.bars .row { display: grid; grid-template-columns: 150px 1fr 90px; gap: 10px; align-items: center; margin: 0 0 6px; }\n.bars .track { background: #EDF0F3; border-radius: 3px; height: 16px; overflow: hidden; }\n.bars .fill { height: 100%; background: #2251FF; }\n.bars .fill.warn { background: #E8A33D; }\n.bars .fill.bad { background: #C00000; }\n#chatbtn { position: fixed; right: 22px; bottom: 22px; z-index: 60; background: #2251FF; color: #fff; border: 0; border-radius: 26px; padding: 13px 20px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(5,28,44,0.28); font-family: inherit; }\n#chatbtn:hover { background: #143ecc; }\n#chatpanel { position: fixed; right: 0; top: 0; bottom: 0; width: 460px; max-width: 100vw; background: #fff; z-index: 70; display: none; flex-direction: column; box-shadow: -8px 0 30px rgba(5,28,44,0.22); }\n#chatpanel.open { display: flex; }\n#chathead { background: #051C2C; color: #fff; padding: 14px 18px; display: flex; align-items: center; gap: 10px; }\n#chathead b { font-size: 14px; }\n#chathead .sub { font-size: 11px; opacity: 0.75; }\n#chathead button { margin-left: auto; background: transparent; border: 0; color: #fff; font-size: 22px; cursor: pointer; line-height: 1; }\n#chatlog { flex: 1; overflow-y: auto; padding: 16px; background: #f7f8fa; }\n.msg { margin: 0 0 14px; font-size: 13px; line-height: 1.6; }\n.msg .who { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #5b6770; font-weight: 700; margin-bottom: 4px; }\n.msg .txt { background: #fff; border: 1px solid #e3e7ec; border-radius: 6px; padding: 10px 12px; overflow-x: auto; }\n.msg.me .txt { background: #E7EDFF; border-color: #ccd9ff; }\n.msg .txt table { font-size: 11.5px; margin: 8px 0; }\n.msg .txt th { font-size: 10.5px; border-bottom-width: 1px; }\n.msg .txt td { padding: 4px 6px; }\n.msg .txt p { margin: 6px 0; }\n.msg .txt ul, .msg .txt ol { margin: 6px 0; padding-left: 20px; }\n.msg .txt code { background: #EDF0F3; padding: 1px 4px; border-radius: 3px; font-size: 12px; }\n#chatsug { padding: 10px 16px 0; background: #f7f8fa; display: flex; flex-wrap: wrap; gap: 6px; }\n#chatsug button { background: #fff; border: 1px solid #c9d1d9; border-radius: 14px; padding: 5px 11px; font-size: 11.5px; cursor: pointer; color: #2251FF; font-family: inherit; text-align: left; }\n#chatsug button:hover { background: #E7EDFF; }\n#chatform { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #e3e7ec; background: #fff; }\n#chatinput { flex: 1; border: 1px solid #c9d1d9; border-radius: 4px; padding: 10px; font-size: 13px; font-family: inherit; resize: none; height: 62px; }\n#chatsend { background: #2251FF; color: #fff; border: 0; border-radius: 4px; padding: 0 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }\n#chatsend:disabled { background: #99A3AD; cursor: default; }\n.thinking { color: #5b6770; font-style: italic; font-size: 12.5px; }\n@media (max-width: 620px) { #chatpanel { width: 100vw; } main { padding: 18px 14px 80px; } }\n</style>\n</head>\n<body>\n<header>\n  <h1>Portal S&OP / <span>IBP</span> &middot; Red de Chocolates</h1>\n  <span class='meta'>Run <b>${run}</b> &middot; 100 SKUs &middot; 6 familias &middot; 2 plantas &middot; motores de optimizacion autonomos</span>\n  <select id='runsel' onchange='location.search=\"?run_id=\"+this.value'></select>\n</header>\n<nav id='tabs'></nav>\n<main id='main'></main>\n<button id='chatbtn' onclick='toggleChat(true)'>Preguntar al analista IA</button>\n<div id='chatpanel'>\n  <div id='chathead'><div><b>Analista IBP</b><div class='sub'>Q&amp;A sobre el run ${run}</div></div><button onclick='toggleChat(false)' title='Cerrar'>&times;</button></div>\n  <div id='chatlog'></div>\n  <div id='chatsug'></div>\n  <form id='chatform' onsubmit='return enviarChat(event)'>\n    <textarea id='chatinput' placeholder='Ej: que SKUs tienen el inventario mas bajo y por que?'></textarea>\n    <button id='chatsend' type='submit'>Enviar</button>\n  </form>\n</div>\n<script>\nconst D = ${dataJson};\nconst CLP = v => 'CLP ' + Math.round(Number(v) || 0).toLocaleString('es-CL');\nconst MM = v => { const n = Number(v) || 0; return Math.abs(n) >= 1e6 ? 'CLP ' + (Math.round(n / 1e5) / 10).toLocaleString('es-CL') + ' MM' : CLP(n); };\nconst NUM = v => Math.round(Number(v) || 0).toLocaleString('es-CL');\nconst N1 = v => (Math.round((Number(v) || 0) * 10) / 10).toLocaleString('es-CL');\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst nz = v => { const n = Number(v); return isFinite(n) ? n : 0; };\nconst FAMCOLOR = { 'BAR-LECHE': '#2251FF', 'BAR-OSCURO': '#051C2C', 'BAR-BLANCO': '#AAE6F0', 'FRUTOS': '#00A9F4', 'BOMBONES': '#6B5AED', 'ESTACIONAL': '#99A3AD' };\nconst FAMS = Object.keys(FAMCOLOR);\nconst NORMA_COB = 45;\nconst POLFILL = { A: 98, B: 95, C: 90 };\nconst TABS = [['r360', 'Resumen 360'], ['res', 'Resumen ejecutivo'], ['dem', '1 · Demanda'], ['sup', '2 · Supply'], ['sch', '3 · Scheduling'], ['pro', '4 · Procurement'], ['fin', '5 · Finanzas'], ['mbr', '6 · Conciliacion']];\nconst skuMap = {};\nD.skus.forEach(s => { skuMap[s.sku_id] = s; });\nconst famDe = id => (skuMap[id] || {}).familia || 'SIN-FAMILIA';\nconst sel = document.getElementById('runsel');\nD.runs.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; if (r === D.run) o.selected = true; sel.appendChild(o); });\nconst nav = document.getElementById('tabs');\nconst main = document.getElementById('main');\nTABS.forEach(t => {\n  const b = document.createElement('button'); b.textContent = t[1]; b.id = 'tb-' + t[0];\n  b.onclick = () => show(t[0]); nav.appendChild(b);\n  const s = document.createElement('section'); s.id = 'tab-' + t[0]; main.appendChild(s);\n});\nfunction show(id) {\n  TABS.forEach(t => {\n    document.getElementById('tb-' + t[0]).className = t[0] === id ? 'act' : '';\n    document.getElementById('tab-' + t[0]).className = t[0] === id ? 'act' : '';\n  });\n  setTimeout(() => { try { Object.values(Chart.instances || {}).forEach(c => { c.resize(); c.update(); }); } catch (e) {} }, 60);\n}\nfunction card(l, v, s, cls) { return '<div class=\"card' + (cls ? ' ' + cls : '') + '\"><div class=l>' + l + '</div><div class=v>' + v + '</div>' + (s ? '<div class=s>' + s + '</div>' : '') + '</div>'; }\nfunction optHtml(paso) {\n  const m = D.minutas.find(x => Number(x.paso) === paso);\n  if (!m) return '<div class=minuta><h3>Registro de optimizacion no disponible</h3><p style=\"font-size:13px\">Este run no tiene registro para el paso ' + paso + '.</p></div>';\n  let dec = [];\n  try { dec = JSON.parse(m.decisiones_json || '[]'); } catch (e) { dec = []; }\n  let h = '<div class=minuta><h3>' + esc(m.reunion) + '</h3><div class=fecha>' + esc(m.fecha) + ' &middot; motor autonomo &middot; paso ' + m.paso + ' del ciclo</div>';\n  h += '<h4>Logica de optimizacion aplicada</h4><ul>' + String(m.logica || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul>';\n  h += '<h4>Decisiones automaticas del motor</h4>';\n  if (dec.length) {\n    h += '<table><tr><th>Decision</th><th>Justificacion</th><th>Impacto estimado</th></tr>';\n    dec.forEach(a => { h += '<tr><td><b>' + esc(a.decision) + '</b></td><td>' + esc(a.justificacion || a.responsable || '') + '</td><td>' + esc(a.impacto || a.plazo || '') + '</td></tr>'; });\n    h += '</table>';\n  } else { h += '<p style=\"font-size:13px\">Sin decisiones registradas.</p>'; }\n  if (m.conclusiones) h += '<h4>Conclusiones de optimizacion</h4><ul>' + String(m.conclusiones).split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul>';\n  if (m.riesgos) h += '<h4>Riesgos y limitaciones</h4><ul>' + String(m.riesgos).split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul>';\n  h += '<h4>Traspaso a la siguiente etapa</h4><div class=handoff>' + esc(m.handoff) + '</div></div>';\n  return h;\n}\nconst meses = [...new Set(D.forecast.map(r => r.mes))].sort();\nconst histMeses = [...new Set(D.hist.map(r => r.mes))].sort();\nfunction sumBy(arr, mesKey, valKey, filtro) {\n  return mesKey.map(m => arr.filter(r => r.mes === m && (!filtro || filtro(r))).reduce((a, r) => a + nz(r[valKey]), 0));\n}\nfunction tot(arr, k) { return arr.reduce((a, r) => a + nz(r[k]), 0); }\nfunction sd(a) { if (a.length < 2) return 0; const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) * (y - m), 0) / (a.length - 1)); }\nfunction avg(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0; }\n\nconst resumen = D.resumen || {};\nconst totFc = tot(D.forecast, 'forecast_consenso');\nconst totFcEst = tot(D.forecast, 'forecast_estadistico');\nconst totProd = tot(D.plan, 'produccion');\nconst totAtendida = tot(D.plan, 'demanda_atendida');\nconst totQuiebre = tot(D.plan, 'quiebre');\nconst totCompras = tot(D.compras, 'costo_total');\nconst totCostoProg = tot(D.schedule, 'costo_clp');\nconst horasChg = tot(D.schedule.filter(r => r.tipo === 'CHANGEOVER'), 'horas');\nconst horasProdT = tot(D.schedule.filter(r => r.tipo !== 'CHANGEOVER'), 'horas');\nconst nDecisiones = D.minutas.reduce((a, m) => { try { return a + JSON.parse(m.decisiones_json || '[]').length; } catch (e) { return a; } }, 0);\nconst clase = { A: { d: 0, a: 0 }, B: { d: 0, a: 0 }, C: { d: 0, a: 0 } };\nD.plan.forEach(p => {\n  const s = skuMap[p.sku_id] || {};\n  const c = clase[s.clase_abc || 'B'];\n  if (c) { c.d += nz(p.demanda_atendida) + nz(p.quiebre); c.a += nz(p.demanda_atendida); }\n});\nconst fillClase = {};\nfor (const c in clase) fillClase[c] = clase[c].d > 0 ? Math.round(clase[c].a / clase[c].d * 1000) / 10 : 100;\n\nconst histPorSku = {}; D.hist.forEach(r => { (histPorSku[r.sku_id] = histPorSku[r.sku_id] || []).push(r); });\nconst fcPorSku = {}; D.forecast.forEach(r => { (fcPorSku[r.sku_id] = fcPorSku[r.sku_id] || []).push(r); });\nconst planPorSku = {}; D.plan.forEach(r => { (planPorSku[r.sku_id] = planPorSku[r.sku_id] || []).push(r); });\nconst SK = D.skus.map(s => {\n  const h = (histPorSku[s.sku_id] || []).slice().sort((a, b) => String(a.mes).localeCompare(String(b.mes)));\n  const f = (fcPorSku[s.sku_id] || []).slice().sort((a, b) => String(a.mes).localeCompare(String(b.mes)));\n  const p = (planPorSku[s.sku_id] || []).slice().sort((a, b) => String(a.mes).localeCompare(String(b.mes)));\n  const hy = h.map(x => nz(x.unidades)).slice(-12);\n  const pHist = avg(hy), sHist = sd(hy);\n  const fcC = tot(f, 'forecast_consenso'), fcE = tot(f, 'forecast_estadistico');\n  const pFc = f.length ? fcC / f.length : 0;\n  const at = tot(p, 'demanda_atendida'), qb = tot(p, 'quiebre');\n  const ss = nz(s.stock_seguridad);\n  const invs = p.map(x => nz(x.inventario_final));\n  const cobs = p.map(x => { const m = f.find(y => y.mes === x.mes); const d = m ? nz(m.forecast_consenso) : pFc; return d > 0 ? nz(x.inventario_final) / d * 30 : 999; });\n  return {\n    sku: s.sku_id, nombre: s.nombre, fam: s.familia, abc: s.clase_abc, xyz: s.clase_xyz,\n    precio: nz(s.precio_venta), costo: nz(s.costo_conversion), ss: ss,\n    histProm: pHist, cv: pHist > 0 ? sHist / pHist * 100 : 0,\n    fcE: fcE, fcC: fcC, upl: fcE > 0 ? (fcC / fcE - 1) * 100 : 0,\n    varHist: pHist > 0 ? (pFc / pHist - 1) * 100 : 0,\n    z: sHist > 0 ? (pFc - pHist) / sHist : 0,\n    prod: tot(p, 'produccion'), at: at, qb: qb,\n    fill: (at + qb) > 0 ? at / (at + qb) * 100 : 100,\n    obj: POLFILL[s.clase_abc] || 95,\n    invMin: invs.length ? Math.min.apply(null, invs) : 0,\n    invFin: invs.length ? invs[invs.length - 1] : 0,\n    cobMin: cobs.length ? Math.min.apply(null, cobs) : 0,\n    bajoSS: p.filter(x => nz(x.inventario_final) < ss).length,\n    vp: qb * nz(s.precio_venta)\n  };\n});\nconst MES = meses.map(m => {\n  const f = D.forecast.filter(r => r.mes === m), p = D.plan.filter(r => r.mes === m);\n  const l = D.pl.filter(r => r.mes === m), s = D.schedule.filter(r => r.mes === m);\n  const at = tot(p, 'demanda_atendida'), qb = tot(p, 'quiebre'), inv = tot(p, 'inventario_final');\n  const fcm = tot(f, 'forecast_consenso'), ing = tot(l, 'ingresos'), mg = tot(l, 'margen_bruto');\n  return { mes: m, fcE: tot(f, 'forecast_estadistico'), fcC: fcm, prod: tot(p, 'produccion'), at: at, qb: qb,\n    fill: (at + qb) > 0 ? at / (at + qb) * 100 : 100, inv: inv, cob: fcm > 0 ? inv / fcm * 30 : 0,\n    ing: ing, mg: mg, mgPct: ing > 0 ? mg / ing * 100 : 0, vp: tot(l, 'venta_perdida'),\n    hProd: tot(s.filter(x => x.tipo !== 'CHANGEOVER'), 'horas'), hChg: tot(s.filter(x => x.tipo === 'CHANGEOVER'), 'horas'),\n    costo: tot(s, 'costo_clp'), compras: tot(D.compras.filter(r => r.mes === m), 'costo_total') };\n});\nconst FAMAGG = FAMS.map(fam => {\n  const sk = SK.filter(x => x.fam === fam);\n  const p = D.plan.filter(r => famDe(r.sku_id) === fam), f = D.forecast.filter(r => famDe(r.sku_id) === fam);\n  const l = D.pl.filter(r => r.familia === fam);\n  const at = tot(p, 'demanda_atendida'), qb = tot(p, 'quiebre'), ing = tot(l, 'ingresos'), mg = tot(l, 'margen_bruto');\n  const invProm = meses.length ? tot(p, 'inventario_final') / meses.length : 0;\n  const fcProm = meses.length ? tot(f, 'forecast_consenso') / meses.length : 0;\n  return { fam: fam, n: sk.length, fcC: tot(f, 'forecast_consenso'), prod: tot(p, 'produccion'), at: at, qb: qb,\n    fill: (at + qb) > 0 ? at / (at + qb) * 100 : 100, inv: invProm, cob: fcProm > 0 ? invProm / fcProm * 30 : 0,\n    ing: ing, mg: mg, mgPct: ing > 0 ? mg / ing * 100 : 0, vp: tot(l, 'venta_perdida') };\n}).filter(x => x.n > 0);\nconst linMap = {}; D.lineas.forEach(l => { linMap[l.linea_id] = l; });\nconst fabMap = {}; D.fabricas.forEach(f => { fabMap[f.fabrica_id] = f; });\nconst capAgg = {};\nD.schedule.forEach(r => {\n  const k = r.linea_id;\n  if (!capAgg[k]) capAgg[k] = { linea: k, horas: 0, chg: 0, costo: 0, turnos: 0, meses: {} };\n  capAgg[k].horas += nz(r.horas); capAgg[k].costo += nz(r.costo_clp);\n  if (r.tipo === 'CHANGEOVER') capAgg[k].chg += nz(r.horas);\n  if (nz(r.turnos) > capAgg[k].turnos) capAgg[k].turnos = nz(r.turnos);\n  capAgg[k].meses[r.mes] = 1;\n});\nconst CAP = Object.keys(capAgg).map(k => {\n  const x = capAgg[k], L = linMap[k] || {}, Fb = fabMap[L.fabrica_id] || {};\n  const ht = nz(L.horas_turno) || 8, dh = nz(Fb.dias_habiles_mes) || 22;\n  const oee = nz(L.oee_pct) ? nz(L.oee_pct) / 100 : 0.7;\n  const nm = Object.keys(x.meses).length || 1;\n  const turnos = x.turnos || nz(L.turnos_base) || 2;\n  const disp = turnos * ht * dh * oee * nm;\n  return { linea: k, nombre: L.nombre || '', fabrica: L.fabrica_id || '', turnos: turnos, oee: nz(L.oee_pct) || 70,\n    disp: disp, prog: x.horas, chg: x.chg, util: disp > 0 ? x.horas / disp * 100 : 0, costo: x.costo };\n}).sort((a, b) => b.util - a.util);\nconst prodFam = {}; D.plan.forEach(p => { const f = famDe(p.sku_id); prodFam[f] = (prodFam[f] || 0) + nz(p.produccion); });\nconst reqMat = {}; D.bom.forEach(b => { reqMat[b.material_id] = (reqMat[b.material_id] || 0) + (prodFam[b.familia] || 0) * nz(b.cantidad_por_unidad); });\nconst MAT = D.materiales.map(m => {\n  const oc = D.compras.filter(c => c.material_id === m.material_id);\n  const req = reqMat[m.material_id] || 0, stock = nz(m.stock_actual);\n  return { mat: m.material_id, nombre: m.nombre, prov: m.proveedor, lt: nz(m.lead_time_dias), moq: nz(m.moq),\n    cu: nz(m.costo_unitario), stock: stock, req: req, cob: req > 0 ? stock / req * 100 : 999,\n    def: Math.max(0, req - stock), oc: oc.length, gasto: tot(oc, 'costo_total'),\n    urg: oc.filter(c => String(c.alerta || '').indexOf('URGENTE') === 0).length };\n}).sort((a, b) => b.def - a.def);\nconst urgentes = D.compras.filter(c => String(c.alerta || '').indexOf('URGENTE') === 0);\nconst totIng = tot(D.pl, 'ingresos'), totMg = tot(D.pl, 'margen_bruto'), totVP = tot(D.pl, 'venta_perdida');\nconst fillGlobal = (totAtendida + totQuiebre) > 0 ? totAtendida / (totAtendida + totQuiebre) * 100 : 100;\nconst invPromGlobal = meses.length ? tot(D.plan, 'inventario_final') / meses.length : 0;\nconst cobPromGlobal = meses.length && totFc > 0 ? invPromGlobal / (totFc / meses.length) * 30 : 0;\nconst bajoSSn = SK.filter(x => x.bajoSS > 0).length;\nconst sobreStock = SK.filter(x => x.cobMin > 90);\nconst conQuiebre = SK.filter(x => x.qb > 0);\n\nfunction semClass(v, warn, bad, inv) {\n  if (inv) return v <= bad ? 's-bad' : (v <= warn ? 's-warn' : 's-ok');\n  return v >= bad ? 's-bad' : (v >= warn ? 's-warn' : 's-ok');\n}\nfunction pill(txt, cls) { return '<span class=\"pill ' + cls + '\">' + txt + '</span>'; }\nfunction tabla(cols, filas) {\n  let h = '<table><tr>' + cols.map(c => '<th' + (c[1] ? ' class=num' : '') + '>' + c[0] + '</th>').join('') + '</tr>';\n  h += filas.map(f => '<tr>' + f.map((v, i) => '<td' + (cols[i] && cols[i][1] ? ' class=num' : '') + '>' + v + '</td>').join('') + '</tr>').join('');\n  return h + '</table>';\n}\n\ndocument.getElementById('tab-r360').innerHTML =\n  '<div class=cards>' +\n  card('Forecast consenso', NUM(totFc) + ' u', meses.length + ' meses · uplift IA ' + (totFcEst > 0 ? N1((totFc / totFcEst - 1) * 100) : 0) + '%') +\n  card('Produccion planificada', NUM(totProd) + ' u', 'incluye pre-build') +\n  card('Fill rate', N1(fillGlobal) + '%', 'A ' + fillClase.A + '% · B ' + fillClase.B + '% · C ' + fillClase.C + '%', fillGlobal >= 97 ? 'good' : (fillGlobal >= 94 ? 'warn' : 'bad')) +\n  card('Quiebre', NUM(totQuiebre) + ' u', conQuiebre.length + ' SKUs afectados', totQuiebre > 0 ? 'bad' : 'good') +\n  card('Ingresos', MM(totIng), meses.length + ' meses') +\n  card('Margen bruto', MM(totMg), (totIng > 0 ? N1(totMg / totIng * 100) : 0) + '% vs objetivo 45%', (totIng > 0 && totMg / totIng * 100 >= 45) ? 'good' : 'warn') +\n  card('Venta perdida', MM(totVP), 'oportunidad no capturada', totVP > 0 ? 'bad' : 'good') +\n  card('Inventario promedio', NUM(invPromGlobal) + ' u', 'cobertura ' + N1(cobPromGlobal) + ' dias (norma ' + NORMA_COB + ')', cobPromGlobal < 30 ? 'bad' : (cobPromGlobal < NORMA_COB ? 'warn' : 'good')) +\n  card('SKUs bajo stock seg.', bajoSSn, 'de ' + SK.length + ' SKUs del portafolio', bajoSSn > 0 ? 'warn' : 'good') +\n  card('Sobre-stock (>90d)', sobreStock.length + ' SKUs', 'capital inmovilizado', sobreStock.length > 0 ? 'warn' : 'good') +\n  card('Gasto materias primas', MM(totCompras), D.compras.length + ' ordenes · ' + urgentes.length + ' urgentes', urgentes.length > 0 ? 'warn' : '') +\n  card('Costo del programa', MM(totCostoProg), N1(horasChg) + ' h en changeover (' + ((horasProdT + horasChg) > 0 ? N1(horasChg / (horasProdT + horasChg) * 100) : 0) + '%)') +\n  card('Utilizacion plantas', (CAP.length ? N1(avg(CAP.map(c => c.util))) : 0) + '%', CAP.length + ' lineas programadas') +\n  card('Decisiones automaticas', nDecisiones, 'en ' + D.minutas.length + ' etapas del ciclo') +\n  '</div>' +\n\n  '<div class=panel><h3>Sintesis del ciclo <small>generada por el motor de conciliacion ejecutiva</small></h3>' +\n  '<p style=\"font-size:13.5px;line-height:1.6\">' + esc(resumen.resumen) + '</p></div>' +\n\n  '<div class=panel><h3>Demanda historica vs forecast del ciclo <small>total compania</small></h3>' +\n  '<div class=chartbox><canvas id=r360dem></canvas></div></div>' +\n\n  '<div class=grid2>' +\n  '<div class=panel><h3>Niveles de inventario y cobertura <small>vs norma de ' + NORMA_COB + ' dias</small></h3>' +\n  '<div class=\"chartbox sm\"><canvas id=r360inv></canvas></div></div>' +\n  '<div class=panel><h3>Servicio: demanda atendida vs quiebre</h3>' +\n  '<div class=\"chartbox sm\"><canvas id=r360fill></canvas></div></div>' +\n  '</div>' +\n\n  '<div class=grid2>' +\n  '<div class=panel><h3>Inventario proyectado por familia <small>unidades</small></h3>' +\n  '<div class=\"chartbox sm\"><canvas id=r360invfam></canvas></div></div>' +\n  '<div class=panel><h3>Forecast consenso por familia <small>unidades por mes</small></h3>' +\n  '<div class=\"chartbox sm\"><canvas id=r360fcfam></canvas></div></div>' +\n  '</div>' +\n\n  '<div class=grid2>' +\n  '<div class=panel><h3>P&amp;L proyectado por mes</h3><div class=\"chartbox sm\"><canvas id=r360pl></canvas></div></div>' +\n  '<div class=panel><h3>Gasto de materias primas por proveedor</h3><div class=\"chartbox sm\"><canvas id=r360prov></canvas></div></div>' +\n  '</div>' +\n\n  '<div class=panel><h3>Utilizacion de capacidad por linea <small>horas programadas sobre horas disponibles del horizonte</small></h3><div class=bars>' +\n  CAP.map(c => '<div class=row><div class=razon><b>' + c.linea + '</b> · ' + esc(c.nombre) + '</div>' +\n    '<div class=track><div class=\"fill' + (c.util > 95 ? ' bad' : (c.util > 85 ? ' warn' : '')) + '\" style=\"width:' + Math.min(100, c.util) + '%\"></div></div>' +\n    '<div class=razon style=\"text-align:right\">' + N1(c.util) + '% · ' + c.turnos + 'T</div></div>').join('') +\n  '</div><p class=razon style=\"margin-top:8px\">Horas disponibles = turnos x horas/turno x dias habiles x OEE. Sobre 95% la linea no tiene holgura para absorber variabilidad.</p></div>' +\n\n  '<div class=panel><h3>Semaforo por familia <small>el ciclo completo en una tabla</small></h3>' +\n  tabla([['Familia', 0], ['SKUs', 1], ['Forecast u', 1], ['Produccion u', 1], ['Quiebre u', 1], ['Fill %', 1], ['Inv. prom u', 1], ['Cobertura d', 1], ['Ingresos', 1], ['Margen %', 1], ['Venta perdida', 1]],\n    FAMAGG.map(f => [\n      '<span class=\"sem ' + (f.fill >= 97 ? 's-ok' : (f.fill >= 94 ? 's-warn' : 's-bad')) + '\"></span><b>' + f.fam + '</b>',\n      f.n, NUM(f.fcC), NUM(f.prod), NUM(f.qb), N1(f.fill), NUM(f.inv),\n      '<span class=\"' + (f.cob < 30 ? 'urgente' : '') + '\">' + N1(f.cob) + '</span>',\n      MM(f.ing), N1(f.mgPct), MM(f.vp)\n    ])) +\n  '<p class=razon style=\"margin-top:8px\">Semaforo sobre fill rate: verde &ge;97%, ambar 94-97%, rojo &lt;94%. Cobertura en rojo bajo 30 dias.</p></div>' +\n\n  '<div class=panel><h3>Foto mes a mes <small>todas las etapas consolidadas</small></h3>' +\n  tabla([['Mes', 0], ['Forecast u', 1], ['Produccion u', 1], ['Atendida u', 1], ['Quiebre u', 1], ['Fill %', 1], ['Inventario u', 1], ['Cobertura d', 1], ['Horas prod', 1], ['Changeover h', 1], ['Ingresos', 1], ['Margen %', 1], ['Compras MP', 1]],\n    MES.map(m => [\n      '<b>' + m.mes + '</b>', NUM(m.fcC), NUM(m.prod), NUM(m.at),\n      (m.qb > 0 ? '<span class=urgente>' + NUM(m.qb) + '</span>' : '0'),\n      N1(m.fill), NUM(m.inv),\n      '<span class=\"' + (m.cob < 30 ? 'urgente' : '') + '\">' + N1(m.cob) + '</span>',\n      N1(m.hProd), N1(m.hChg), MM(m.ing), N1(m.mgPct), MM(m.compras)\n    ])) + '</div>' +\n\n  '<div class=panel><h3>SKUs mas criticos por nivel de inventario <small>menor cobertura en dias en el peor mes del horizonte</small></h3>' +\n  tabla([['SKU', 0], ['Nombre', 0], ['Familia', 0], ['ABC/XYZ', 0], ['Cobertura min d', 1], ['Inv. min u', 1], ['Stock seg. u', 1], ['Meses bajo SS', 1], ['Quiebre u', 1], ['Fill %', 1]],\n    SK.slice().sort((a, b) => a.cobMin - b.cobMin).slice(0, 15).map(x => [\n      '<b>' + x.sku + '</b>', esc(x.nombre), x.fam, x.abc + x.xyz,\n      '<span class=\"sem ' + (x.cobMin < 15 ? 's-bad' : (x.cobMin < 30 ? 's-warn' : 's-ok')) + '\"></span>' + N1(x.cobMin),\n      NUM(x.invMin), NUM(x.ss),\n      (x.bajoSS > 0 ? '<span class=urgente>' + x.bajoSS + '</span>' : '0'),\n      NUM(x.qb), N1(x.fill) + ' ' + (x.fill >= x.obj ? pill('meta', 'ok') : pill('bajo meta ' + x.obj + '%', 'bad'))\n    ])) + '</div>' +\n\n  '<div class=panel><h3>Donde se pierde la venta <small>SKUs con mayor venta perdida por quiebre</small></h3>' +\n  (conQuiebre.length ? tabla([['SKU', 0], ['Nombre', 0], ['Familia', 0], ['ABC', 0], ['Quiebre u', 1], ['Venta perdida', 1], ['Fill %', 1], ['Meta %', 1]],\n    conQuiebre.slice().sort((a, b) => b.vp - a.vp).slice(0, 15).map(x => [\n      '<b>' + x.sku + '</b>', esc(x.nombre), x.fam, x.abc, NUM(x.qb),\n      '<b>' + MM(x.vp) + '</b>', N1(x.fill), x.obj\n    ])) : '<p style=\"font-size:13px\">Sin quiebres en este run: la capacidad cubre la demanda consensuada.</p>') + '</div>' +\n\n  '<div class=panel><h3>Proyecciones mas atipicas <small>outliers: cuantas desviaciones estandar se separa el forecast del promedio historico de 12 meses</small></h3>' +\n  tabla([['SKU', 0], ['Nombre', 0], ['Familia', 0], ['ABC/XYZ', 0], ['Hist. prom u', 1], ['Forecast prom u', 1], ['Variacion %', 1], ['z-score', 1], ['CV hist %', 1]],\n    SK.slice().sort((a, b) => Math.abs(b.z) - Math.abs(a.z)).slice(0, 15).map(x => [\n      '<b>' + x.sku + '</b>', esc(x.nombre), x.fam, x.abc + x.xyz, NUM(x.histProm),\n      NUM(meses.length ? x.fcC / meses.length : 0),\n      '<span class=\"' + (Math.abs(x.varHist) > 25 ? 'urgente' : '') + '\">' + (x.varHist > 0 ? '+' : '') + N1(x.varHist) + '</span>',\n      '<span class=\"sem ' + (Math.abs(x.z) > 2 ? 's-bad' : (Math.abs(x.z) > 1 ? 's-warn' : 's-ok')) + '\"></span>' + N1(x.z),\n      N1(x.cv)\n    ])) +\n  '<p class=razon style=\"margin-top:8px\">|z| &gt; 2 marca una proyeccion que se aleja mucho de la historia del SKU y amerita revision del planner. CV alto indica demanda erratica (clase Z).</p></div>' +\n\n  '<div class=panel><h3>Materias primas en riesgo <small>stock actual contra el requerimiento del horizonte (explosion de BOM)</small></h3>' +\n  tabla([['Material', 0], ['Nombre', 0], ['Proveedor', 0], ['Lead time d', 1], ['Stock u', 1], ['Requerimiento u', 1], ['Cobertura %', 1], ['Deficit u', 1], ['Ordenes', 1], ['Gasto', 1]],\n    MAT.slice(0, 12).map(m => [\n      '<b>' + m.mat + '</b>', esc(m.nombre), esc(m.prov), m.lt, NUM(m.stock), NUM(m.req),\n      '<span class=\"sem ' + (m.cob < 50 ? 's-bad' : (m.cob < 100 ? 's-warn' : 's-ok')) + '\"></span>' + (m.cob > 998 ? '-' : N1(m.cob)),\n      (m.def > 0 ? '<span class=urgente>' + NUM(m.def) + '</span>' : '0'),\n      m.oc + (m.urg > 0 ? ' <span class=urgente>(' + m.urg + ' urg)</span>' : ''), MM(m.gasto)\n    ])) +\n  '<p class=razon style=\"margin-top:8px\">El deficit se cubre con las ordenes del plan de compras. Una orden urgente significa que el lead time ya no alcanza para la fecha de requerimiento.</p></div>' +\n\n  '<div class=grid2>' +\n  '<div class=panel><h3>Cumplimiento de la politica de servicio</h3>' +\n  tabla([['Clase', 0], ['SKUs', 1], ['Fill real %', 1], ['Objetivo %', 1], ['Estado', 0]],\n    ['A', 'B', 'C'].map(c => {\n      const n = SK.filter(x => x.abc === c).length;\n      return [c, n, N1(fillClase[c]), POLFILL[c], fillClase[c] >= POLFILL[c] ? pill('cumple', 'ok') : pill('brecha ' + N1(POLFILL[c] - fillClase[c]) + ' pp', 'bad')];\n    })) + '</div>' +\n  '<div class=panel><h3>Segmentacion ABC / XYZ</h3><div id=r360matriz></div></div>' +\n  '</div>' +\n\n  '<div class=grid2>' +\n  '<div class=panel><h3>Decisiones para el comite</h3><ul style=\"font-size:13px;line-height:1.6\">' +\n  String(resumen.decisiones || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>' +\n  '<div class=panel><h3>Alertas del ciclo</h3><ul style=\"font-size:13px;line-height:1.6\">' +\n  String(resumen.alertas || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>' +\n  '</div>' +\n\n  '<div class=panel><h3>Ajustes del motor de IA sobre la demanda <small>el porque del forecast</small></h3>' +\n  (function () {\n    const aj = {};\n    D.forecast.filter(r => nz(r.factor_ai) !== 1).forEach(r => {\n      const fam = famDe(r.sku_id), k = fam + '|' + r.mes;\n      if (!aj[k]) aj[k] = { fam: fam, mes: r.mes, factor: nz(r.factor_ai), razon: r.razon_ai, n: 0, base: 0, cons: 0 };\n      aj[k].n += 1; aj[k].base += nz(r.forecast_estadistico); aj[k].cons += nz(r.forecast_consenso);\n    });\n    const L = Object.keys(aj).map(k => aj[k]).sort((a, b) => (a.fam + a.mes).localeCompare(b.fam + b.mes));\n    if (!L.length) return '<p style=\"font-size:13px\">Este run no registra ajustes de IA: el consenso es igual al forecast estadistico.</p>';\n    return tabla([['Familia', 0], ['Mes', 0], ['SKUs', 1], ['Base u', 1], ['Factor', 1], ['Consenso u', 1], ['Delta u', 1], ['Razon del motor', 0]],\n      L.map(a => [a.fam, a.mes, a.n, NUM(a.base), a.factor, '<b>' + NUM(a.cons) + '</b>',\n        (a.cons - a.base > 0 ? '+' : '') + NUM(a.cons - a.base), '<span class=razon>' + esc(a.razon) + '</span>']));\n  })() + '</div>' +\n\n  '<div class=panel><h3>Flujo del ciclo: traspasos entre motores</h3><div class=timeline>' +\n  D.minutas.map(m => '<div class=paso><b>' + m.paso + ' &middot; ' + esc(m.reunion) + '</b><p>' + esc(m.handoff) + '</p></div>').join('') +\n  '</div></div>';\n\nconst abcxyz = {};\nD.skus.forEach(s => { const k = (s.clase_abc || '?') + (s.clase_xyz || '?'); abcxyz[k] = (abcxyz[k] || 0) + 1; });\nlet matriz = '<div class=matriz><div class=h></div><div class=h>X (estable)</div><div class=h>Y (variable)</div><div class=h>Z (erratico)</div>';\n['A', 'B', 'C'].forEach(a => {\n  matriz += '<div class=h style=\"align-self:center\">' + a + '</div>';\n  ['X', 'Y', 'Z'].forEach(x => {\n    const n = abcxyz[a + x] || 0;\n    const bg = n > 0 ? (a === 'A' ? '#D6E4FF' : (a === 'B' ? '#E6F3FB' : '#EDF0F3')) : '#f7f8fa';\n    matriz += '<div class=c style=\"background:' + bg + '\">' + n + '</div>';\n  });\n});\nmatriz += '</div>';\ndocument.getElementById('r360matriz').innerHTML = matriz + '<p class=razon style=\"margin-top:10px\">ABC por valor de venta &middot; XYZ por variabilidad (CV). Politica de servicio diferenciada: A 98%, B 95%, C 90%.</p>';\n\nconst OPTL = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } };\nnew Chart(document.getElementById('r360dem'), {\n  type: 'line',\n  data: { labels: histMeses.concat(meses), datasets: [\n    { label: 'Demanda historica', data: sumBy(D.hist, histMeses, 'unidades').concat(meses.map(() => null)), borderColor: '#051C2C', pointRadius: 2, borderWidth: 2, tension: 0.25 },\n    { label: 'Forecast estadistico', data: histMeses.map(() => null).concat(sumBy(D.forecast, meses, 'forecast_estadistico')), borderColor: '#99A3AD', borderDash: [3, 3], pointRadius: 2, borderWidth: 2, tension: 0.25 },\n    { label: 'Forecast consenso', data: histMeses.map(() => null).concat(sumBy(D.forecast, meses, 'forecast_consenso')), borderColor: '#2251FF', borderDash: [6, 4], pointRadius: 3, borderWidth: 2.5, tension: 0.25 },\n    { label: 'Produccion planificada', data: histMeses.map(() => null).concat(sumBy(D.plan, meses, 'produccion')), borderColor: '#12805C', pointRadius: 2, borderWidth: 2, tension: 0.25 }\n  ] },\n  options: OPTL\n});\nnew Chart(document.getElementById('r360inv'), {\n  data: { labels: meses, datasets: [\n    { type: 'bar', label: 'Inventario final (u)', data: MES.map(m => Math.round(m.inv)), backgroundColor: '#2251FF', yAxisID: 'y' },\n    { type: 'line', label: 'Cobertura (dias)', data: MES.map(m => Math.round(m.cob * 10) / 10), borderColor: '#C00000', borderWidth: 2.5, pointRadius: 3, tension: 0.25, yAxisID: 'y1' },\n    { type: 'line', label: 'Norma 45 dias', data: meses.map(() => NORMA_COB), borderColor: '#E8A33D', borderDash: [5, 4], borderWidth: 2, pointRadius: 0, yAxisID: 'y1' }\n  ] },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },\n    scales: { y: { beginAtZero: true, position: 'left', title: { display: true, text: 'unidades' } },\n      y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'dias' } } } }\n});\nnew Chart(document.getElementById('r360fill'), {\n  data: { labels: meses, datasets: [\n    { type: 'bar', label: 'Demanda atendida', data: MES.map(m => Math.round(m.at)), backgroundColor: '#2251FF', stack: 's', yAxisID: 'y' },\n    { type: 'bar', label: 'Quiebre', data: MES.map(m => Math.round(m.qb)), backgroundColor: '#C00000', stack: 's', yAxisID: 'y' },\n    { type: 'line', label: 'Fill rate %', data: MES.map(m => Math.round(m.fill * 10) / 10), borderColor: '#12805C', borderWidth: 2.5, pointRadius: 3, tension: 0.25, yAxisID: 'y1' }\n  ] },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },\n    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true }, y1: { position: 'right', min: 80, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: '%' } } } }\n});\nnew Chart(document.getElementById('r360invfam'), {\n  type: 'line',\n  data: { labels: meses, datasets: FAMS.map(f => ({ label: f, data: sumBy(D.plan, meses, 'inventario_final', r => famDe(r.sku_id) === f), borderColor: FAMCOLOR[f], borderWidth: 2, pointRadius: 2, tension: 0.25 })) },\n  options: OPTL\n});\nnew Chart(document.getElementById('r360fcfam'), {\n  type: 'bar',\n  data: { labels: meses, datasets: FAMS.map(f => ({ label: f, data: sumBy(D.forecast, meses, 'forecast_consenso', r => famDe(r.sku_id) === f), backgroundColor: FAMCOLOR[f], stack: 'f' })) },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }\n});\nnew Chart(document.getElementById('r360pl'), {\n  data: { labels: meses, datasets: [\n    { type: 'bar', label: 'Ingresos', data: MES.map(m => Math.round(m.ing)), backgroundColor: '#051C2C', yAxisID: 'y' },\n    { type: 'bar', label: 'Margen bruto', data: MES.map(m => Math.round(m.mg)), backgroundColor: '#2251FF', yAxisID: 'y' },\n    { type: 'bar', label: 'Venta perdida', data: MES.map(m => Math.round(m.vp)), backgroundColor: '#C00000', yAxisID: 'y' },\n    { type: 'line', label: 'Margen %', data: MES.map(m => Math.round(m.mgPct * 10) / 10), borderColor: '#E8A33D', borderWidth: 2.5, pointRadius: 3, tension: 0.25, yAxisID: 'y1' }\n  ] },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },\n    scales: { y: { beginAtZero: true }, y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: '%' } } } }\n});\nconst provAgg = {};\nD.compras.forEach(c => { provAgg[c.proveedor] = (provAgg[c.proveedor] || 0) + nz(c.costo_total); });\nnew Chart(document.getElementById('r360prov'), {\n  type: 'doughnut',\n  data: { labels: Object.keys(provAgg), datasets: [{ data: Object.values(provAgg), backgroundColor: ['#051C2C', '#2251FF', '#00A9F4', '#6B5AED', '#99A3AD', '#AAE6F0', '#5b6770', '#12805C'] }] },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }\n});\n\ndocument.getElementById('tab-res').innerHTML =\n  '<div class=cards>' +\n  card('Fill rate', (resumen.fill_rate_pct || 0) + '%', 'A ' + fillClase.A + '% · B ' + fillClase.B + '% · C ' + fillClase.C + '%') +\n  card('Ingresos proyectados', CLP(resumen.ingresos_totales), meses.length + ' meses · 100 SKUs') +\n  card('Margen bruto', (resumen.margen_pct || 0) + '%', 'objetivo 45%') +\n  card('Venta perdida', CLP(resumen.venta_perdida_total), 'por quiebres') +\n  card('Decisiones automaticas', nDecisiones, 'en ' + D.minutas.length + ' etapas del ciclo') +\n  '</div>' +\n  '<div class=panel><h3>Sintesis del ciclo</h3><p style=\"font-size:13.5px;line-height:1.6\">' + esc(resumen.resumen) + '</p></div>' +\n  '<div class=panel><h3>Decisiones para el comite</h3><ul style=\"font-size:13px;line-height:1.6\">' + String(resumen.decisiones || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>' +\n  '<div class=panel><h3>Alertas</h3><ul style=\"font-size:13px;line-height:1.6\">' + String(resumen.alertas || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>' +\n  '<div class=panel><h3>Flujo del ciclo: traspasos entre motores</h3><div class=timeline>' +\n  D.minutas.map(m => '<div class=paso><b>' + m.paso + ' &middot; ' + esc(m.reunion) + '</b><p>' + esc(m.handoff) + '</p></div>').join('') +\n  '</div></div>';\n\nconst ajustesFam = {};\nD.forecast.filter(r => Number(r.factor_ai) !== 1).forEach(r => {\n  const fam = famDe(r.sku_id);\n  const k = fam + '|' + r.mes;\n  if (!ajustesFam[k]) ajustesFam[k] = { familia: fam, mes: r.mes, factor: r.factor_ai, razon: r.razon_ai, skus: 0, base: 0, consenso: 0 };\n  ajustesFam[k].skus += 1;\n  ajustesFam[k].base += Number(r.forecast_estadistico);\n  ajustesFam[k].consenso += Number(r.forecast_consenso);\n});\ndocument.getElementById('tab-dem').innerHTML =\n  '<div class=cards>' +\n  card('Forecast consenso', NUM(totFc) + ' u', meses.length + ' meses · 100 SKUs') +\n  card('Ajustes IA (familia-mes)', Object.keys(ajustesFam).length, 'desagregados a SKU') +\n  card('Historia', histMeses.length + ' meses', 'regresion + estacionalidad por SKU') +\n  '</div>' +\n  '<div class=panel><h3>Demanda historica vs forecast</h3>' +\n  '<div class=filtros><label>Ver:</label><select id=demsel onchange=\"drawDem(this.value)\">' +\n  '<option value=TOTAL>Total compania</option>' +\n  FAMS.map(f => '<option value=\"FAM:' + f + '\">Familia: ' + f + '</option>').join('') +\n  FAMS.map(f => '<optgroup label=\"SKUs ' + f + '\">' + D.skus.filter(s => s.familia === f).map(s => '<option value=\"SKU:' + s.sku_id + '\">' + s.sku_id + ' · ' + esc(s.nombre) + ' (' + s.clase_abc + s.clase_xyz + ')</option>').join('') + '</optgroup>').join('') +\n  '</select></div><div class=chartbox><canvas id=demchart></canvas></div></div>' +\n  '<div class=panel><h3>El porque del forecast: ajustes del motor IA por familia</h3>' +\n  '<table><tr><th>Familia</th><th>Mes</th><th>Base estadistica</th><th>Factor</th><th>Consenso</th><th>Razon del motor</th></tr>' +\n  Object.values(ajustesFam).sort((a, b) => (a.familia + a.mes).localeCompare(b.familia + b.mes)).map(r => '<tr><td><b>' + r.familia + '</b> <span class=razon>(' + r.skus + ' SKUs)</span></td><td>' + r.mes + '</td><td>' + NUM(r.base) + '</td><td>' + r.factor + '</td><td><b>' + NUM(r.consenso) + '</b></td><td class=razon>' + esc(r.razon) + '</td></tr>').join('') +\n  '</table></div>' +\n  '<div class=panel><h3>Segmentacion ABC / XYZ del portafolio (n SKUs)</h3>' + matriz + '<p class=razon style=\"margin-top:10px\">ABC por valor de venta (80/95% acumulado) &middot; XYZ por variabilidad (CV). La politica de servicio es diferenciada: A 98%, B 95%, C 90%.</p></div>' +\n  optHtml(1);\nlet demChart = null;\nfunction drawDem(f) {\n  const filtro = f === 'TOTAL' ? null : (f.indexOf('FAM:') === 0 ? (r => famDe(r.sku_id) === f.slice(4)) : (r => r.sku_id === f.slice(4)));\n  const hy = sumBy(D.hist, histMeses, 'unidades', filtro);\n  const fe = sumBy(D.forecast, meses, 'forecast_estadistico', filtro);\n  const fy = sumBy(D.forecast, meses, 'forecast_consenso', filtro);\n  const labels = histMeses.concat(meses);\n  const pad = histMeses.map(() => null);\n  if (demChart) demChart.destroy();\n  demChart = new Chart(document.getElementById('demchart'), {\n    type: 'line',\n    data: { labels: labels, datasets: [\n      { label: 'Demanda historica', data: hy.concat(meses.map(() => null)), borderColor: '#051C2C', backgroundColor: '#051C2C', pointRadius: 2, borderWidth: 2, tension: 0.25 },\n      { label: 'Forecast estadistico', data: pad.concat(fe), borderColor: '#99A3AD', borderDash: [3, 3], pointRadius: 2, borderWidth: 2, tension: 0.25 },\n      { label: 'Forecast consenso', data: pad.concat(fy), borderColor: '#2251FF', borderDash: [6, 4], pointRadius: 3, borderWidth: 2.5, tension: 0.25 }\n    ] },\n    options: OPTL\n  });\n}\n\ndocument.getElementById('tab-sup').innerHTML =\n  '<div class=cards>' +\n  card('Produccion total', NUM(totProd) + ' u', 'incluye pre-build') +\n  card('Quiebre', NUM(totQuiebre) + ' u', CLP(resumen.venta_perdida_total) + ' perdidos') +\n  card('Fill clase A', fillClase.A + '%', 'politica 98%') +\n  card('Fill clase B / C', fillClase.B + '% / ' + fillClase.C + '%', 'politica 95% / 90%') +\n  '</div>' +\n  '<div class=panel><h3>Demanda atendida vs quiebre por mes</h3><div class=chartbox><canvas id=supchart></canvas></div></div>' +\n  '<div class=panel><h3>Inventario proyectado por familia (unidades)</h3><div class=\"chartbox sm\"><canvas id=invchart></canvas></div><p class=razon>Politica: SS = z(clase) x sigma 24m; el motor hace pre-build hacia los meses deficitarios y alerta cobertura sobre la norma de 45 dias.</p></div>' +\n  optHtml(2);\nnew Chart(document.getElementById('supchart'), {\n  type: 'bar',\n  data: { labels: meses, datasets: [\n    { label: 'Demanda atendida', data: sumBy(D.plan, meses, 'demanda_atendida'), backgroundColor: '#2251FF', stack: 's' },\n    { label: 'Quiebre', data: sumBy(D.plan, meses, 'quiebre'), backgroundColor: '#C00000', stack: 's' }\n  ] },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }\n});\nnew Chart(document.getElementById('invchart'), {\n  type: 'line',\n  data: { labels: meses, datasets: FAMS.map(f => ({ label: f, data: sumBy(D.plan, meses, 'inventario_final', r => famDe(r.sku_id) === f), borderColor: FAMCOLOR[f], borderWidth: 2, pointRadius: 2, tension: 0.25 })) },\n  options: OPTL\n});\n\nconst NOMLIN = { 'LIN-S1': 'Moldeo 1 alta velocidad', 'LIN-S2': 'Moldeo 2 flexible', 'LIN-S3': 'Bombones premium', 'LIN-C1': 'Moldeo 3', 'LIN-C2': 'Mixta flexible' };\nconst schedMeses = [...new Set(D.schedule.map(r => r.mes))].sort();\nlet g = '<div class=cards>';\nconst costoSched = tot(D.schedule, 'costo_clp');\ng += card('Bloques programados', D.schedule.length, 'campanas por familia') + card('Horas de changeover', Math.round(horasChg * 10) / 10 + ' h', 'product wheel') + card('Costo del programa', CLP(costoSched), 'maquina + gente + cambios') + '</div>';\ng += '<div class=panel><h3>Gantt por linea (campanas de familia)</h3><div class=leg>' + FAMS.map(k => '<span><i style=\"background:' + FAMCOLOR[k] + '\"></i>' + k + '</span>').join('') + '<span><i style=\"background:#B3B3B3\"></i>Changeover</span><span><i style=\"background:#EDF0F3;border:1px solid #dfe3e8\"></i>Libre</span></div>';\nfor (const mes of schedMeses) {\n  g += '<div class=gmes>' + mes + '</div>';\n  const lids = [...new Set(D.schedule.filter(r => r.mes === mes).map(r => r.linea_id))].sort();\n  for (const lid of lids) {\n    const bl = D.schedule.filter(r => r.mes === mes && r.linea_id === lid).sort((a, b) => a.secuencia - b.secuencia);\n    const horasTot = bl.reduce((a, b2) => a + Number(b2.horas), 0);\n    const turnos = bl[0].turnos;\n    g += '<div class=gline><div class=lbl>' + lid + ' · ' + (NOMLIN[lid] || (linMap[lid] || {}).nombre || '') + ' · ' + turnos + 'T</div><div class=gbar>';\n    for (const b2 of bl) {\n      const w = Math.max(1, Number(b2.horas) / (horasTot || 1) * 100 * Math.min(1, Math.max(...bl.map(x => Number(x.dia_fin))) / 22));\n      const chg = b2.tipo === 'CHANGEOVER';\n      const fam = b2.familia || b2.sku_id || '';\n      const dark = !chg && fam === 'BAR-BLANCO';\n      const tt = chg ? ('Changeover ' + fam + ' · ' + b2.horas + ' h') : (fam + ' · ' + NUM(b2.unidades) + ' u · ' + b2.horas + ' h · dias ' + b2.dia_inicio + '-' + b2.dia_fin);\n      g += '<div title=\"' + tt + '\" style=\"width:' + w + '%;background:' + (chg ? '#B3B3B3' : (FAMCOLOR[fam] || '#7f7f7f')) + (dark ? ';color:#051C2C' : '') + '\">' + (!chg && w > 12 ? fam.replace('BAR-', '') : '') + '</div>';\n    }\n    const dias = Math.max(...bl.map(x => Number(x.dia_fin)));\n    g += '</div><div class=gutil>' + Math.round(Math.min(100, dias / 22 * 100)) + '%</div></div>';\n  }\n}\ng += '</div>' +\n  '<div class=panel><h3>Utilizacion de capacidad por linea <small>horizonte completo</small></h3>' +\n  tabla([['Linea', 0], ['Nombre', 0], ['Planta', 0], ['Turnos', 1], ['OEE %', 1], ['Horas disp.', 1], ['Horas prog.', 1], ['Changeover h', 1], ['Utilizacion %', 1], ['Costo', 1]],\n    CAP.map(c => ['<b>' + c.linea + '</b>', esc(c.nombre), c.fabrica, c.turnos, c.oee, N1(c.disp), N1(c.prog), N1(c.chg),\n      '<span class=\"sem ' + (c.util > 95 ? 's-bad' : (c.util > 85 ? 's-warn' : 's-ok')) + '\"></span>' + N1(c.util), MM(c.costo)])) + '</div>' +\n  optHtml(3);\ndocument.getElementById('tab-sch').innerHTML = g;\n\nconst provs = {};\nD.compras.forEach(c => { provs[c.proveedor] = (provs[c.proveedor] || 0) + Number(c.costo_total || 0); });\ndocument.getElementById('tab-pro').innerHTML =\n  '<div class=cards>' +\n  card('Ordenes de compra', D.compras.length, 'lotes MOQ / EOQ') +\n  card('Gasto total MP', CLP(totCompras), '') +\n  card('Ordenes urgentes', urgentes.length, 'lead time vencido', urgentes.length > 0 ? 'bad' : 'good') +\n  '</div>' +\n  '<div class=panel><h3>Gasto por proveedor</h3><div class=\"chartbox sm\"><canvas id=prochart></canvas></div></div>' +\n  '<div class=panel><h3>Materias primas: stock vs requerimiento del horizonte</h3>' +\n  tabla([['Material', 0], ['Nombre', 0], ['Proveedor', 0], ['Lead time d', 1], ['MOQ', 1], ['Stock u', 1], ['Requerimiento u', 1], ['Deficit u', 1], ['Ordenes', 1]],\n    MAT.map(m => ['<b>' + m.mat + '</b>', esc(m.nombre), esc(m.prov), m.lt, NUM(m.moq), NUM(m.stock), NUM(m.req),\n      (m.def > 0 ? '<span class=urgente>' + NUM(m.def) + '</span>' : '0'), m.oc])) + '</div>' +\n  '<div class=panel><h3>Plan de compras sugerido (MRP + EOQ)</h3><table><tr><th>Material</th><th>Mes req.</th><th>Cantidad</th><th>Costo</th><th>Ordenar el</th><th>Proveedor</th><th>Alerta</th></tr>' +\n  D.compras.slice().sort((a, b) => (a.mes + a.material_id).localeCompare(b.mes + b.material_id)).map(c => '<tr><td>' + c.material_id + '</td><td>' + c.mes + '</td><td>' + NUM(c.cantidad) + '</td><td>' + CLP(c.costo_total) + '</td><td>' + c.fecha_orden + '</td><td>' + esc(c.proveedor) + '</td><td class=' + (String(c.alerta || '').indexOf('URGENTE') === 0 ? 'urgente' : 'razon') + '>' + esc(c.alerta || '') + '</td></tr>').join('') +\n  '</table></div>' + optHtml(4);\nnew Chart(document.getElementById('prochart'), {\n  type: 'doughnut',\n  data: { labels: Object.keys(provs), datasets: [{ data: Object.values(provs), backgroundColor: ['#051C2C', '#2251FF', '#00A9F4', '#6B5AED', '#99A3AD', '#AAE6F0', '#5b6770'] }] },\n  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }\n});\n\nconst ingMes = sumBy(D.pl, meses, 'ingresos');\nconst margenMes = sumBy(D.pl, meses, 'margen_bruto');\nconst vpMes = sumBy(D.pl, meses, 'venta_perdida');\ndocument.getElementById('tab-fin').innerHTML =\n  '<div class=cards>' +\n  card('Ingresos', CLP(totIng), meses.length + ' meses') +\n  card('Margen bruto', CLP(totMg), totIng ? N1(totMg / totIng * 100) + '% vs objetivo 45%' : '') +\n  card('Venta perdida', CLP(totVP), 'oportunidad no capturada') +\n  '</div>' +\n  '<div class=panel><h3>P&L proyectado por mes</h3><div class=chartbox><canvas id=finchart></canvas></div></div>' +\n  '<div class=panel><h3>Margen por familia</h3><table><tr><th>Familia</th><th>Ingresos</th><th>Margen bruto</th><th>Margen %</th><th>Venta perdida</th></tr>' +\n  FAMS.map(f => {\n    const rowsF = D.pl.filter(r => r.familia === f);\n    if (!rowsF.length) return '';\n    const ing = tot(rowsF, 'ingresos'), mg = tot(rowsF, 'margen_bruto'), vp = tot(rowsF, 'venta_perdida');\n    return '<tr><td><span style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:' + FAMCOLOR[f] + ';margin-right:6px\"></span><b>' + f + '</b></td><td>' + CLP(ing) + '</td><td>' + CLP(mg) + '</td><td>' + (ing ? N1(mg / ing * 100) : 0) + '%</td><td>' + CLP(vp) + '</td></tr>';\n  }).join('') + '</table></div>' + optHtml(5);\nnew Chart(document.getElementById('finchart'), {\n  type: 'bar',\n  data: { labels: meses, datasets: [\n    { label: 'Ingresos', data: ingMes, backgroundColor: '#051C2C' },\n    { label: 'Margen bruto', data: margenMes, backgroundColor: '#2251FF' },\n    { label: 'Venta perdida', data: vpMes, backgroundColor: '#C00000' }\n  ] },\n  options: OPTL\n});\n\ndocument.getElementById('tab-mbr').innerHTML =\n  '<div class=cards>' +\n  card('Estado del plan', 'Conciliado', 'ver decisiones del ciclo') +\n  card('Ingresos', CLP(resumen.ingresos_totales), 'margen ' + (resumen.margen_pct || 0) + '%') +\n  card('Fill rate', (resumen.fill_rate_pct || 0) + '%', 'A ' + fillClase.A + '% · B ' + fillClase.B + '% · C ' + fillClase.C + '%') +\n  '</div>' + optHtml(6) +\n  '<div class=panel><h3>Decisiones consolidadas del comite</h3><ul style=\"font-size:13px;line-height:1.7\">' + String(resumen.decisiones || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>';\n\nconst CHAT_URL = D.chat_url;\nconst SESSION = 'portal-' + D.run + '-' + Math.random().toString(36).slice(2, 10);\nconst SUGERENCIAS = [\n  'Que SKUs tienen el nivel de inventario mas bajo y por que?',\n  'Cuales son las proyecciones mas raras u outliers de este ciclo?',\n  'Donde esta la mayor criticidad de servicio y cuanto cuesta?',\n  'Que materias primas estan en riesgo de quiebre?',\n  'Resumeme el ciclo en 5 bullets para el comite',\n  'Que linea de produccion esta mas apretada de capacidad?'\n];\nlet chatBusy = false;\nfunction toggleChat(open) {\n  const p = document.getElementById('chatpanel');\n  p.className = open ? 'open' : '';\n  if (open) document.getElementById('chatinput').focus();\n}\nfunction mdToHtml(md) {\n  let s = esc(md);\n  const lines = s.split('\\\\n');\n  let out = [], tbl = [], inList = false, inOl = false;\n  const flushTbl = () => {\n    if (!tbl.length) return;\n    const parse = r => r.replace(/^\\\\s*\\\\|/, '').replace(/\\\\|\\\\s*$/, '').split('|').map(c => c.trim());\n    const head = parse(tbl[0]);\n    const body = tbl.slice(1).filter(r => !/^\\\\s*\\\\|?[\\\\s:|-]+\\\\|?\\\\s*$/.test(r)).map(parse);\n    let t = '<table><tr>' + head.map(h => '<th>' + h + '</th>').join('') + '</tr>';\n    t += body.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('');\n    out.push(t + '</table>');\n    tbl = [];\n  };\n  const closeLists = () => { if (inList) { out.push('</ul>'); inList = false; } if (inOl) { out.push('</ol>'); inOl = false; } };\n  lines.forEach(ln => {\n    if (/^\\\\s*\\\\|.*\\\\|\\\\s*$/.test(ln)) { closeLists(); tbl.push(ln); return; }\n    flushTbl();\n    if (/^\\\\s*[-*]\\\\s+/.test(ln)) {\n      if (inOl) { out.push('</ol>'); inOl = false; }\n      if (!inList) { out.push('<ul>'); inList = true; }\n      out.push('<li>' + ln.replace(/^\\\\s*[-*]\\\\s+/, '') + '</li>'); return;\n    }\n    if (/^\\\\s*\\\\d+[.)]\\\\s+/.test(ln)) {\n      if (inList) { out.push('</ul>'); inList = false; }\n      if (!inOl) { out.push('<ol>'); inOl = true; }\n      out.push('<li>' + ln.replace(/^\\\\s*\\\\d+[.)]\\\\s+/, '') + '</li>'); return;\n    }\n    closeLists();\n    if (/^\\\\s*#{1,6}\\\\s+/.test(ln)) { out.push('<p><b>' + ln.replace(/^\\\\s*#{1,6}\\\\s+/, '') + '</b></p>'); return; }\n    if (!ln.trim()) return;\n    out.push('<p>' + ln + '</p>');\n  });\n  flushTbl(); closeLists();\n  return out.join('')\n    .replace(/\\\\*\\\\*([^*]+)\\\\*\\\\*/g, '<b>$1</b>')\n    .replace(/\\`([^\\`]+)\\`/g, '<code>$1</code>');\n}\nfunction addMsg(who, txt, isMd) {\n  const log = document.getElementById('chatlog');\n  const d = document.createElement('div');\n  d.className = 'msg' + (who === 'me' ? ' me' : '');\n  d.innerHTML = '<div class=who>' + (who === 'me' ? 'Tu' : 'Analista IBP') + '</div><div class=txt>' + (isMd ? mdToHtml(txt) : esc(txt)) + '</div>';\n  log.appendChild(d);\n  log.scrollTop = log.scrollHeight;\n  return d;\n}\nfunction renderSug() {\n  const c = document.getElementById('chatsug');\n  c.innerHTML = '';\n  SUGERENCIAS.forEach(s => {\n    const b = document.createElement('button');\n    b.textContent = s;\n    b.onclick = () => { document.getElementById('chatinput').value = s; enviarChat(null); };\n    c.appendChild(b);\n  });\n}\nasync function enviarChat(ev) {\n  if (ev) ev.preventDefault();\n  if (chatBusy) return false;\n  const inp = document.getElementById('chatinput');\n  const pregunta = inp.value.trim();\n  if (!pregunta) return false;\n  inp.value = '';\n  addMsg('me', pregunta, false);\n  chatBusy = true;\n  document.getElementById('chatsend').disabled = true;\n  const pend = addMsg('bot', 'Analizando el ciclo...', false);\n  pend.querySelector('.txt').className = 'txt thinking';\n  try {\n    const res = await fetch(CHAT_URL, {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ pregunta: pregunta, run_id: D.run, session_id: SESSION })\n    });\n    if (!res.ok) throw new Error('HTTP ' + res.status);\n    const j = await res.json();\n    const txt = (j && (j.respuesta || j.answer)) || 'No recibi respuesta del analista.';\n    pend.querySelector('.txt').className = 'txt';\n    pend.querySelector('.txt').innerHTML = mdToHtml(txt);\n  } catch (e) {\n    pend.querySelector('.txt').className = 'txt';\n    pend.querySelector('.txt').innerHTML = esc('No pude contactar al analista IA (' + e.message + '). Verifica que el workflow \"IBP 9 - Chatbot Analista\" este publicado en n8n.');\n  }\n  chatBusy = false;\n  document.getElementById('chatsend').disabled = false;\n  document.getElementById('chatlog').scrollTop = document.getElementById('chatlog').scrollHeight;\n  return false;\n}\ndocument.getElementById('chatinput').addEventListener('keydown', e => {\n  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarChat(null); }\n});\nrenderSug();\naddMsg('bot', 'Hola. Soy el analista IBP de este ciclo (**run ' + D.run + '**). Tengo cargado el resultado completo: forecast, plan de supply, inventarios, scheduling, compras y finanzas de los ' + SK.length + ' SKUs.\\\\n\\\\nPreguntame lo que necesites, por ejemplo por criticidad, niveles de inventario, outliers de proyeccion o el estado de un SKU puntual.', true);\n\nshow('r360');\ndrawDem('TOTAL');\n</script>\n</body>\n</html>`;\nreturn [{ json: { html: html } }];\n"
+      },
+      "id": "1d6319ce-a1dd-42f5-abb3-eda5b6786281",
+      "name": "Construir Portal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2976,
+        400
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e560d30f-a79a-4ee1-ba75-a2446b6e7dcf",
+      "name": "Responder HTML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3168,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Portal IBP (dashboard HTML)\n\nGET /webhook/ibp-portal?run_id=RUN-...\n\nLee todas las Data Tables IBP_* y responde una pagina HTML con tabs por reunion del ciclo: Resumen, Demanda (historia vs forecast con filtro por SKU/categoria y el porque de cada ajuste), Supply, Scheduling (Gantt), Procurement, Finanzas y Reunion Ejecutiva. Cada tab incluye la minuta simulada con acuerdos y handoff. Sin run_id muestra el ultimo run.",
+        "height": 200,
+        "width": 2520,
+        "color": 2
+      },
+      "id": "110716b4-832c-40c9-9c97-1bcae62c1060",
+      "name": "Sticky Note 8b02cd4d",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        560
+      ]
+    },
+    {
+      "id": "ac520ca4-8448-4a58-b5a7-29a736dcf164",
+      "name": "Leer Materiales",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        400
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "IBP_Materiales",
+          "mode": "id",
+          "value": "5X7W9dLJdgo76WaF"
+        },
+        "operation": "get",
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "0a7f46ad-5ce5-4bc0-b0e2-2cebd54d04eb",
+      "name": "Leer Parametros",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2208,
+        400
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "IBP_Parametros",
+          "mode": "id",
+          "value": "4aaMPxy84paqdpQt"
+        },
+        "operation": "get",
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "dfb4412f-b27a-45a2-a474-baa8328467d2",
+      "name": "Leer Lineas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        400
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "IBP_Lineas",
+          "mode": "id",
+          "value": "IRvuLUZBJA6gZbQL"
+        },
+        "operation": "get",
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "8dba0310-c003-494f-9212-3ec86b0568e3",
+      "name": "Leer Fabricas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2592,
+        400
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "IBP_Fabricas",
+          "mode": "id",
+          "value": "oHmHvbFieo8WQaeP"
+        },
+        "operation": "get",
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "17452600-2275-4715-91fd-75006608eb13",
+      "name": "Leer BOM",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2784,
+        400
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "IBP_BOM",
+          "mode": "id",
+          "value": "eslBeZxbU6cRBCfF"
+        },
+        "operation": "get",
+        "returnAll": true
+      },
+      "executeOnce": true
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Leer Demanda Historica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Demanda Historica": {
+      "main": [
+        [
+          {
+            "node": "Leer SKUs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer SKUs": {
+      "main": [
+        [
+          {
+            "node": "Leer Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Forecast": {
+      "main": [
+        [
+          {
+            "node": "Leer Plan Produccion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Plan Produccion": {
+      "main": [
+        [
+          {
+            "node": "Leer Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Schedule": {
+      "main": [
+        [
+          {
+            "node": "Leer Compras",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Compras": {
+      "main": [
+        [
+          {
+            "node": "Leer PyL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer PyL": {
+      "main": [
+        [
+          {
+            "node": "Leer Resumen Ejecutivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Resumen Ejecutivo": {
+      "main": [
+        [
+          {
+            "node": "Leer Minutas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir Portal": {
+      "main": [
+        [
+          {
+            "node": "Responder HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Minutas": {
+      "main": [
+        [
+          {
+            "node": "Leer Materiales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Materiales": {
+      "main": [
+        [
+          {
+            "node": "Leer Parametros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Parametros": {
+      "main": [
+        [
+          {
+            "node": "Leer Lineas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Lineas": {
+      "main": [
+        [
+          {
+            "node": "Leer Fabricas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Fabricas": {
+      "main": [
+        [
+          {
+            "node": "Leer BOM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer BOM": {
+      "main": [
+        [
+          {
+            "node": "Construir Portal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
+  }
+}
