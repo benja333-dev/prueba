@@ -313,26 +313,31 @@ def mediana(xs):
 
 def resumen_por_categoria(catalogo):
     """Indice de precios por retailer x categoria: la vista que hace util tener
-    mas productos (un SKU no dice si una cadena es cara, la mediana si)."""
+    mas productos (un SKU no dice si una cadena es cara, la mediana si).
+
+    Se agrupa tambien por unidad: una categoria como Lacteos mezcla leche en
+    litros con quesos en kilos, y una mediana que sume $/L con $/kg no
+    significa nada.
+    """
     grupos = {}
     for x in catalogo:
-        if not x.get("precio_por_unidad"):
+        if not x.get("precio_por_unidad") or not x.get("unidad"):
             continue
-        grupos.setdefault((x["categoria"], x["retailer"]), []).append(x)
+        grupos.setdefault((x["categoria"], x["unidad"], x["retailer"]), []).append(x)
     filas = []
-    for (cat, ret), xs in sorted(grupos.items()):
+    for (cat, uni, ret), xs in sorted(grupos.items()):
         ppu = [x["precio_por_unidad"] for x in xs]
         con_promo = [x for x in xs if x.get("mecanica")]
         filas.append({
-            "categoria": cat, "retailer": ret, "grupo": GRUPOS.get(ret),
+            "categoria": cat, "unidad": uni, "retailer": ret, "grupo": GRUPOS.get(ret),
             "n_skus": len(xs),
             "mediana_precio_unidad": mediana(ppu),
             "min_precio_unidad": min(ppu), "max_precio_unidad": max(ppu),
             "pct_en_promo": round(100 * len(con_promo) / len(xs)),
         })
-    # Indice 100 = cadena mas barata de esa categoria.
-    for cat in {f["categoria"] for f in filas}:
-        pares = [f for f in filas if f["categoria"] == cat]
+    # Indice 100 = cadena mas barata de esa categoria, dentro de la misma unidad.
+    for clave in {(f["categoria"], f["unidad"]) for f in filas}:
+        pares = [f for f in filas if (f["categoria"], f["unidad"]) == clave]
         base = min(f["mediana_precio_unidad"] for f in pares)
         for f in pares:
             f["indice"] = round(100 * f["mediana_precio_unidad"] / base) if base else None

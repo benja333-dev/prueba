@@ -559,18 +559,23 @@ sync();
   const cats = PAYLOAD.resumen_categorias || [];
   if(!cats.length){ $("card-categorias").style.display="none"; return; }
   const nombres=[...new Set(cats.map(c=>c.categoria))].sort();
-  let h="<thead><tr><th>Categoría</th><th>Cadena</th><th>Grupo</th><th class='num'>SKUs</th>"+
-        "<th class='num'>Mediana $/unidad</th><th class='num'>Rango</th><th class='num'>% en promo</th>"+
+  let h="<thead><tr><th>Categoría</th><th>Unidad</th><th>Cadena</th><th>Grupo</th><th class='num'>SKUs</th>"+
+        "<th class='num'>Mediana</th><th class='num'>Rango</th><th class='num'>% en promo</th>"+
         "<th class='num'>Índice</th></tr></thead><tbody>";
   nombres.forEach(cat=>{
-    cats.filter(c=>c.categoria===cat)
-        .sort((a,b)=>a.indice-b.indice)
-        .forEach((c,i)=>{
-      h+=`<tr><td>${i===0?c.categoria:""}</td><td>${c.retailer}</td><td>${c.grupo||"—"}</td>`+
-         `<td class='num'>${c.n_skus}</td><td class='num'>${CLP(c.mediana_precio_unidad)}</td>`+
-         `<td class='num'>${CLP(c.min_precio_unidad)} – ${CLP(c.max_precio_unidad)}</td>`+
-         `<td class='num'>${c.pct_en_promo}%</td>`+
-         `<td class='num'><b>${c.indice}</b></td></tr>`;
+    const delCat=cats.filter(c=>c.categoria===cat);
+    // El índice sólo compara dentro de una misma unidad: se agrupa igual que el dato.
+    [...new Set(delCat.map(c=>c.unidad||"un"))].sort().forEach(uni=>{
+      delCat.filter(c=>(c.unidad||"un")===uni)
+            .sort((a,b)=>a.indice-b.indice)
+            .forEach((c,i)=>{
+        h+=`<tr><td>${i===0?c.categoria:""}</td><td>${i===0?"$/"+uni:""}</td>`+
+           `<td>${c.retailer}</td><td>${c.grupo||"—"}</td>`+
+           `<td class='num'>${c.n_skus}</td><td class='num'>${CLP(c.mediana_precio_unidad)}</td>`+
+           `<td class='num'>${CLP(c.min_precio_unidad)} – ${CLP(c.max_precio_unidad)}</td>`+
+           `<td class='num'>${c.pct_en_promo}%</td>`+
+           `<td class='num'><b>${c.indice}</b></td></tr>`;
+      });
     });
   });
   $("tabla-categorias").innerHTML=h+"</tbody>";

@@ -19,10 +19,27 @@
   };
 
   /* ---------- Estadistica de la muestra capturada ---------- */
-  var base = DATOS.filter(function (d) { return d.u; });        // comparables por unidad
+  /* Google Shopping mezcla supermercados con productores y ventas al por mayor
+     ("72 kg, 12 entregas"), que no son el set competitivo relevante y arrastran
+     la referencia de precio. Si hay suficientes cadenas, se resume solo con ellas. */
+  var CADENAS = /lider|jumbo|santa\s*isabel|santaisabel|unimarc|tottus|alvi|acuenta|mayorista|erbi|montserrat/i;
+  var deCadena = DATOS.filter(function (d) { return CADENAS.test(d.r || ""); });
+  var muestra = deCadena.length >= 5 ? deCadena : DATOS;
+  var soloCadenas = muestra === deCadena && deCadena.length < DATOS.length;
+
+  /* Un mismo termino trae liquidos y solidos ("aceite de palta" junto a "palta
+     hass"). Mezclar $/L con $/kg en una mediana no significa nada, asi que se
+     resume sobre la unidad dominante y se descarta el resto. */
+  var conUnidad = muestra.filter(function (d) { return d.u && d.m; });
+  var frecuencia = {};
+  conUnidad.forEach(function (d) { frecuencia[d.m] = (frecuencia[d.m] || 0) + 1; });
+  var uniDominante = Object.keys(frecuencia).sort(function (a, b) { return frecuencia[b] - frecuencia[a]; })[0];
+  var base = conUnidad.filter(function (d) { return d.m === uniDominante; });
   var usaUnidad = base.length >= 3;
+  var nOtraUnidad = usaUnidad ? conUnidad.length - base.length : 0;
+
   var cruda = (usaUnidad ? base.map(function (d) { return d.u; })
-                         : DATOS.map(function (d) { return d.p; })).filter(function (x) { return x > 0; });
+                         : muestra.map(function (d) { return d.p; })).filter(function (x) { return x > 0; });
   cruda.sort(function (a, b) { return a - b; });
 
   function mediana(s) {
@@ -55,7 +72,7 @@
     ? Math.sqrt(serie.reduce(function (a, b) { return a + Math.pow(b - media, 2); }, 0) / (serie.length - 1))
     : null;
   var cv = (sd && media) ? sd / media : null;
-  var unidad = usaUnidad ? ("/" + (base[0].m || "un")) : "";
+  var unidad = usaUnidad ? ("/" + uniDominante) : "";
 
   /* ---------- Regresion log-log: ln Q = a + e*ln P ---------- */
   function regresion(pares) {
@@ -121,7 +138,9 @@
        '<div><div class="l">Dispersion (CV)</div><div class="v">' + PCT(cv) + '</div></div>' +
        '</div>';
   h += '<div class="foot" style="margin:-6px 0 20px">Sobre ' + serie.length + ' observaciones de "' + TERMINO + '"' +
-       (nFuera ? ', tras descartar ' + nFuera + ' atipicas por rango intercuartil (sobres de semillas, insumos y ' +
+       (soloCadenas ? ', acotadas a cadenas de supermercado' : '') +
+       (nOtraUnidad ? ', dejando fuera ' + nOtraUnidad + ' medidas en otra unidad' : '') +
+       (nFuera ? ', tras descartar ' + nFuera + ' atipicas por rango intercuartil (mayoristas, insumos y ' +
                  'medidas mal leidas en el nombre distorsionan el precio por unidad)' : '') + '. ' +
        'La dispersion es una senal indirecta: cuando los precios de un mismo producto convergen entre cadenas, ' +
        'suele indicar una categoria transparente y sensible al precio; cuando se abren, hay mas espacio para cobrar distinto. ' +
