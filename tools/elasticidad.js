@@ -21,15 +21,34 @@
   /* ---------- Estadistica de la muestra capturada ---------- */
   var base = DATOS.filter(function (d) { return d.u; });        // comparables por unidad
   var usaUnidad = base.length >= 3;
-  var serie = (usaUnidad ? base.map(function (d) { return d.u; })
+  var cruda = (usaUnidad ? base.map(function (d) { return d.u; })
                          : DATOS.map(function (d) { return d.p; })).filter(function (x) { return x > 0; });
-  serie.sort(function (a, b) { return a - b; });
+  cruda.sort(function (a, b) { return a - b; });
 
   function mediana(s) {
     if (!s.length) return null;
     var n = s.length;
     return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
   }
+
+  /* Un barrido siempre trae ruido: sobres de semillas, insumos agricolas y
+     nombres cuya medida se lee mal ("0,5 g") disparan el precio por unidad.
+     Se acotan por rango intercuartil antes de resumir, porque la referencia
+     de precio alimenta el break-even y un maximo absurdo lo invalida. */
+  function sinAtipicos(s) {
+    if (s.length < 8) return { datos: s, fuera: 0 };
+    var q = function (p) {
+      var i = (s.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i);
+      return s[lo] + (s[hi] - s[lo]) * (i - lo);
+    };
+    var q1 = q(0.25), q3 = q(0.75), iqr = q3 - q1;
+    var min = q1 - 1.5 * iqr, max = q3 + 1.5 * iqr;
+    var d = s.filter(function (x) { return x >= min && x <= max; });
+    return { datos: d.length >= 3 ? d : s, fuera: d.length >= 3 ? s.length - d.length : 0 };
+  }
+  var limpio = sinAtipicos(cruda);
+  var serie = limpio.datos;
+  var nFuera = limpio.fuera;
   var med = mediana(serie);
   var media = serie.length ? serie.reduce(function (a, b) { return a + b; }, 0) / serie.length : null;
   var sd = serie.length > 1
@@ -101,7 +120,9 @@
        '<div><div class="l">Maximo</div><div class="v">' + CLP(serie[serie.length - 1]) + unidad + '</div></div>' +
        '<div><div class="l">Dispersion (CV)</div><div class="v">' + PCT(cv) + '</div></div>' +
        '</div>';
-  h += '<div class="foot" style="margin:-6px 0 20px">Sobre ' + serie.length + ' observaciones de "' + TERMINO + '". ' +
+  h += '<div class="foot" style="margin:-6px 0 20px">Sobre ' + serie.length + ' observaciones de "' + TERMINO + '"' +
+       (nFuera ? ', tras descartar ' + nFuera + ' atipicas por rango intercuartil (sobres de semillas, insumos y ' +
+                 'medidas mal leidas en el nombre distorsionan el precio por unidad)' : '') + '. ' +
        'La dispersion es una senal indirecta: cuando los precios de un mismo producto convergen entre cadenas, ' +
        'suele indicar una categoria transparente y sensible al precio; cuando se abren, hay mas espacio para cobrar distinto. ' +
        'Es un indicio de contexto competitivo, no una elasticidad.</div>';
