@@ -7,8 +7,8 @@ de la Red de Chocolates (100 SKUs, 6 familias, 2 plantas, horizonte 6 meses, CLP
 
 | Workflow | ID | Endpoint |
 | --- | --- | --- |
-| `IBP · 8 · Portal IBP (Dashboard)` | `ap4DTqlLG2OyfOxn` | `GET /webhook/52652ccd-3913-4d35-9d73-65468b4f41de/ibp-portal?run_id=…` |
-| `IBP · 9 · Chatbot Analista (Q&A)` | `ofG62y7g1ygIX4G2` | `POST /webhook/783cea29-640c-4393-9442-dcf09ee3f96e/ibp-chat` |
+| `IBP · 8 · Portal IBP (Dashboard)` | `ap4DTqlLG2OyfOxn` | `GET /webhook/ibp-portal?run_id=…` |
+| `IBP · 9 · Chatbot Analista (Q&A)` | `ofG62y7g1ygIX4G2` | `POST /webhook/ibp-chat` |
 
 Host: `https://n8n-production-121a.up.railway.app`. Sin `run_id` el portal muestra el último run.
 
@@ -37,6 +37,12 @@ Consolida las 6 reuniones del ciclo en una sola vista: 14 KPIs, 7 gráficos y 8 
 Botón flotante → panel lateral con sugerencias, memoria de conversación y render de markdown
 (tablas, listas, negritas). El navegador hace `POST` al workflow 9 con
 `{ pregunta, run_id, session_id }` y recibe `{ ok, respuesta, run_id, session_id, ts }`.
+
+La URL del chat **no va fija**: el cliente la deriva de su propia dirección (reemplaza
+`ibp-portal` por `ibp-chat`), lo que garantiza mismo origen y mismo prefijo, y cae a una URL
+absoluta de respaldo si eso no aplica. Ojo: el nodo Webhook de n8n usa `isFullPath`, así que la
+ruta real **no lleva el UUID del nodo** aunque la API lo reporte así — usarla da 404 sin
+cabeceras CORS, que el navegador muestra como `Failed to fetch`.
 
 **Las cifras las calcula el Code node, no el LLM.** El workflow 9 lee las 14 Data Tables
 `IBP_*` y precalcula un digest determinista (~105 KB) con KPIs, series por mes/familia/clase
