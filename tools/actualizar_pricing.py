@@ -48,25 +48,31 @@ HDRS_FULL = ["-A", UA,
 MAX_PAGINAS = 6          # tope duro por fuente; la paginacion corta antes si se agota
 PARALELO = 6             # descargas simultaneas
 
-# Cada fuente rinde ~40-50 SKUs por pagina. Las categorias de Unimarc estan
-# verificadas contra el sitio; las de Jumbo y Alvi usan busqueda porque sus
-# slugs de categoria no son estables.
+# Cada fuente rinde ~40-50 SKUs por pagina. Todas las rutas estan verificadas
+# contra el sitio: adivinar slugs devuelve 404 silencioso (carniceria y
+# snacks-y-confites en Unimarc, carniceria en Jumbo, no existen con ese nombre).
+#
+# Unimarc solo sirve productos en /category/...: su buscador devuelve un shell
+# sin datos, por eso las fuentes por termino de busqueda salian en 0.
+# Jumbo y Alvi si responden por busqueda.
 FUENTES = [
     # (retailer, parser, perfil, categoria, plantilla_url)
     ("Unimarc", "smu", "full", "Bebidas",
      "https://www.unimarc.cl/category/bebidas-y-licores/bebidas/bebidas-regulares?page={p}"),
     ("Unimarc", "smu", "full", "Bebidas",
      "https://www.unimarc.cl/category/bebidas-y-licores/bebidas/bebidas-light-y-zero?page={p}"),
+    ("Unimarc", "smu", "full", "Frescos",
+     "https://www.unimarc.cl/category/frutas-y-verduras?page={p}"),
+    ("Unimarc", "smu", "full", "Panaderia",
+     "https://www.unimarc.cl/category/panaderia-y-pasteleria?page={p}"),
     ("Unimarc", "smu", "full", "Lacteos",
      "https://www.unimarc.cl/category/lacteos-huevos-y-refrigerados?page={p}"),
     ("Unimarc", "smu", "full", "Despensa",
      "https://www.unimarc.cl/category/despensa?page={p}"),
-    ("Unimarc", "smu", "full", "Bebidas",
-     "https://www.unimarc.cl/search?q=bebida&page={p}"),
-    ("Unimarc", "smu", "full", "Snacks",
-     "https://www.unimarc.cl/search?q=snack&page={p}"),
+    ("Unimarc", "smu", "full", "Congelados",
+     "https://www.unimarc.cl/category/congelados?page={p}"),
     ("Unimarc", "smu", "full", "Limpieza",
-     "https://www.unimarc.cl/search?q=detergente&page={p}"),
+     "https://www.unimarc.cl/category/limpieza?page={p}"),
 
     ("Alvi", "smu", "full", "Bebidas", "https://www.alvi.cl/search?q=bebida&page={p}"),
     ("Alvi", "smu", "full", "Bebidas", "https://www.alvi.cl/search?q=coca%20cola&page={p}"),
@@ -76,8 +82,8 @@ FUENTES = [
 
     ("Jumbo", "cenco", "simple", "Bebidas",
      "https://www.jumbo.cl/licores-bebidas-y-aguas/bebidas-gaseosas?page={p}"),
-    ("Jumbo", "cenco", "simple", "Bebidas",
-     "https://www.jumbo.cl/busqueda?ft=coca%20cola&page={p}"),
+    ("Jumbo", "cenco", "simple", "Frescos",
+     "https://www.jumbo.cl/frutas-y-verduras?page={p}"),
     ("Jumbo", "cenco", "simple", "Bebidas",
      "https://www.jumbo.cl/busqueda?ft=bebida&page={p}"),
     ("Jumbo", "cenco", "simple", "Lacteos",
