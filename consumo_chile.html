@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El consumo en Chile — Deep research</title>
+<style>
+  :root{
+    --navy:#051C2C; --blue:#2251FF; --cyan:#00A9F4; --cyan-light:#AAE6F0; --steel:#8FA3B0;
+    --gray-1:#333; --gray-2:#666; --gray-3:#B3B3B3; --gray-4:#E6E6E6; --bg:#F0F0F0;
+    --green:#27853A; --red:#C0392B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{background:var(--bg);font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;color:var(--gray-1);overflow:hidden;}
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  .slide{width:1280px;height:720px;background:#fff;box-shadow:0 4px 24px rgba(5,28,44,.18);
+    padding:30px 50px 26px 50px;position:absolute;display:none;flex-direction:column;}
+  .slide.active{display:flex;}
+
+  .toprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .tracker{display:flex;gap:6px;}
+  .trk{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-3);
+    padding:4px 9px;border:1px solid var(--gray-4);font-weight:600;white-space:nowrap;}
+  .trk.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .sticker{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);
+    border:1.5px solid var(--blue);padding:5px 11px;font-weight:700;white-space:nowrap;}
+
+  /* Title block fixed height — titles never move between slides */
+  h1.action-title{font-family:Georgia,"Times New Roman",serif;font-size:24px;line-height:1.28;
+    color:var(--navy);font-weight:700;max-width:1150px;letter-spacing:-.01em;
+    height:62px;margin:0;overflow:hidden;}
+  .subtitle{font-size:13px;color:var(--gray-2);height:17px;margin-top:4px;overflow:hidden;}
+  .subtitle b{color:var(--gray-1);}
+  .title-rule{height:1px;background:var(--gray-4);margin-top:11px;margin-bottom:14px;}
+
+  /* 12-col grid: exhibit 8 / sidebar 4 */
+  .body{flex:1;display:flex;gap:24px;min-height:0;}
+  .exhibit-main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;}
+  .exhibit-label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gray-3);
+    margin-bottom:5px;font-weight:700;}
+  .exhibit-main svg{flex:1;min-height:0;width:100%;}
+
+  .sidebar{flex:0 0 356px;border-left:1px solid var(--gray-4);padding-left:26px;
+    display:flex;flex-direction:column;gap:12px;}
+  .sidebar-label{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);
+    font-weight:700;padding-bottom:7px;border-bottom:2px solid var(--navy);}
+  .tk{display:flex;flex-direction:column;}
+  .tk .n{font-size:36px;font-weight:700;color:var(--blue);line-height:1.02;font-family:Georgia,serif;
+    letter-spacing:-.02em;margin-bottom:3px;}
+  .tk .n small{font-size:17px;font-weight:700;}
+  .tk .t{font-size:11.5px;line-height:1.42;color:var(--gray-1);}
+  .tk .t b{color:var(--navy);}
+  .tk.dark .n{color:var(--navy);}
+  .sidebar .sowhat{margin-top:auto;background:var(--navy);color:#fff;padding:10px 12px;font-size:11px;line-height:1.42;}
+  .sidebar .sowhat b{color:var(--cyan);display:block;font-size:10px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:4px;}
+
+  .footer{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--gray-4);
+    padding-top:7px;margin-top:10px;}
+  .source{font-size:9px;color:var(--gray-2);line-height:1.5;max-width:1050px;}
+  .source .fn{display:block;}
+  .pageno{font-size:11.5px;color:var(--gray-2);white-space:nowrap;}
+  .pageno b{color:var(--navy);}
+
+  .cover{background:var(--navy);color:#fff;justify-content:space-between;padding:44px 56px;}
+  .cover .brandbar{display:flex;justify-content:space-between;align-items:center;}
+  .cover .logo{font-family:Georgia,serif;font-size:21px;font-weight:700;}
+  .cover .logo span{font-weight:400;font-style:italic;}
+  .cover .conf{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8CA3B5;}
+  .cover .cover-mid{margin-top:16px;}
+  .cover .cover-rule{width:64px;height:4px;background:var(--cyan);margin-bottom:22px;}
+  .cover h1{font-family:Georgia,serif;font-size:38px;line-height:1.16;font-weight:700;max-width:960px;}
+  .cover h2{font-size:17px;font-weight:300;color:#C9D6DF;margin-top:15px;max-width:880px;line-height:1.5;}
+  .cover .cover-stats{display:flex;gap:44px;margin-top:30px;flex-wrap:wrap;}
+  .cover .cs .n{font-family:Georgia,serif;font-size:38px;font-weight:700;color:var(--cyan);line-height:1;}
+  .cover .cs .c{font-size:11px;color:#8CA3B5;margin-top:6px;max-width:210px;line-height:1.4;}
+  .cover .cover-foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:12.5px;color:#8CA3B5;}
+  .cover .cover-foot .draft{border:1px solid #35505F;padding:6px 12px;letter-spacing:.14em;font-size:10px;text-transform:uppercase;}
+
+  .exec-list{display:flex;flex-direction:column;flex:1;justify-content:space-between;}
+  .exec-item{display:flex;gap:14px;align-items:center;padding:6px 0;border-bottom:1px solid #F2F2F2;}
+  .exec-item:last-child{border-bottom:none;}
+  .exec-num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .exec-item .txt{font-size:13.5px;line-height:1.45;color:var(--gray-1);}
+  .exec-item .txt b{color:var(--navy);}
+  .exec-item .big{flex:0 0 195px;margin-left:auto;text-align:right;font-family:Georgia,serif;font-size:32px;
+    font-weight:700;color:var(--blue);line-height:1;}
+  .exec-item .big span{display:block;font-family:Arial;font-size:10px;font-weight:400;color:var(--gray-2);margin-top:3px;line-height:1.3;}
+
+  svg text{font-family:Arial,sans-serif;}
+  .axis{stroke:var(--gray-3);stroke-width:1;}
+  .gridline{stroke:#EEEEEE;stroke-width:1;}
+  .tick-label{font-size:12px;fill:var(--gray-2);}
+  .val-label{font-size:12px;fill:var(--navy);font-weight:700;}
+  .panel-title{font-size:13px;fill:var(--navy);font-weight:700;}
+  .anno{font-size:11px;fill:var(--gray-2);}
+  .anno-strong{font-size:11.5px;fill:var(--blue);font-weight:700;}
+  .callout{background:#F5F8FF;border-left:4px solid var(--blue);padding:9px 15px;font-size:12.5px;color:var(--navy);line-height:1.45;}
+  .callout b{color:var(--blue);}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:0;}
+  .imp{border:1px solid var(--gray-4);padding:12px 14px;display:flex;flex-direction:column;}
+  .imp-tag{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:5px;}
+  .imp-title{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.28;}
+  .imp-txt{font-size:11.5px;color:var(--gray-2);line-height:1.42;}
+  .imp-num{margin-top:auto;padding-top:7px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--blue);line-height:1;}
+  .imp-num span{font-family:Arial;font-size:10px;font-weight:400;color:var(--gray-2);display:block;margin-top:2px;line-height:1.3;}
+
+  /* stat tile grid */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;align-content:center;}
+  .stat{border:1px solid var(--gray-4);padding:20px 22px;}
+  .stat .n{font-family:Georgia,serif;font-size:46px;font-weight:700;color:var(--blue);line-height:1;}
+  .stat .n small{font-size:22px;}
+  .stat .h{font-size:13.5px;font-weight:700;color:var(--navy);margin-top:8px;}
+  .stat .c{font-size:11.5px;color:var(--gray-2);margin-top:4px;line-height:1.45;}
+  .stat.dark .n{color:var(--navy);}
+
+  .rec-table{width:100%;border-collapse:collapse;}
+  .rec-table th{background:var(--navy);color:#fff;font-size:12px;text-align:left;padding:7px 11px;font-weight:700;vertical-align:top;width:33.3%;}
+  .rec-table th .roman{color:var(--cyan);display:block;font-size:9.5px;letter-spacing:.13em;margin-bottom:2px;text-transform:uppercase;}
+  .rec-table td{border:1px solid var(--gray-4);padding:6px 11px;font-size:11px;line-height:1.4;color:var(--gray-1);vertical-align:top;}
+  .rec-table td b{color:var(--navy);}
+
+  #nav{position:fixed;bottom:16px;right:22px;z-index:50;display:flex;gap:8px;align-items:center;}
+  #nav button{width:36px;height:36px;border:none;background:var(--navy);color:#fff;font-size:16px;cursor:pointer;border-radius:3px;}
+  #nav button:hover{background:var(--blue);}
+  #counter{font-size:12.5px;color:var(--gray-2);padding:0 6px;}
+
+  @media print{body{overflow:visible;background:#fff;}#stage{position:static;display:block;}
+    .slide{display:flex !important;position:relative;box-shadow:none;page-break-after:always;margin:0 auto;transform:none !important;}
+    #nav{display:none;}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ===== 1 COVER ===== -->
+<section class="slide cover active">
+  <div class="brandbar">
+    <div class="logo">Brunet <span>&amp; Company</span></div>
+    <div class="conf">Confidencial — Deep research</div>
+  </div>
+  <div class="cover-mid">
+    <div class="cover-rule"></div>
+    <h1>El consumo en Chile: radiografía y tendencias</h1>
+    <h2>Ciclo macro, salud financiera de los hogares, nueva conducta de compra, canal digital y las implicancias para quien vende en Chile</h2>
+    <div class="cover-stats">
+      <div class="cs"><div class="n">+2,3%</div><div class="c">crecimiento de la economía en 2025 — consumo aún rezagado</div></div>
+      <div class="cs"><div class="n">11,9%</div><div class="c">carga financiera de los hogares (mín. en años)</div></div>
+      <div class="cs"><div class="n">US$10&nbsp;mm</div><div class="c">e-commerce 2025, récord histórico (+9% real)</div></div>
+      <div class="cs"><div class="n">64%</div><div class="c">de los chilenos valida las marcas propias</div></div>
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Julio 2026 &nbsp;·&nbsp; Documento de trabajo &nbsp;·&nbsp; 14 páginas</div>
+    <div class="draft">Borrador — v1.0</div>
+  </div>
+</section>
+
+<!-- ===== 2 EXEC SUMMARY ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk on">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Resumen ejecutivo</div></div>
+  <h1 class="action-title">El consumidor chileno salió del ajuste con el bolsillo más sano, pero compra distinto: más veces, más barato y más digital</h1>
+  <div class="subtitle">Seis mensajes centrales del research</div>
+  <div class="title-rule"></div>
+  <div class="exec-list">
+    <div class="exec-item"><div class="exec-num">1</div>
+      <div class="txt"><b>Macro sin viento de cola:</b> la economía crece ~2,3% y el consumo privado va detrás; recién en 2025 recupera el nivel de 2022</div>
+      <div class="big">~2,3%<span>crecimiento PIB 2025</span></div></div>
+    <div class="exec-item"><div class="exec-num">2</div>
+      <div class="txt"><b>Hogares desapalancados:</b> la deuda mediana cayó 16,9% en un año y la carga financiera bajó a 11,9% del ingreso — hay espacio para consumir</div>
+      <div class="big">-16,9%<span>deuda mediana a jun-2025 (CMF)</span></div></div>
+    <div class="exec-item"><div class="exec-num">3</div>
+      <div class="txt"><b>Confianza en recuperación:</b> el IPEC tocó su mejor nivel en ~7 años, aunque sigue bajo el umbral optimista</div>
+      <div class="big">~49<span>IPEC 2025 (50 = neutral)</span></div></div>
+    <div class="exec-item"><div class="exec-num">4</div>
+      <div class="txt"><b>Nueva conducta:</b> más transacciones (+7,5%) con ticket menor; el consumidor compra más seguido y gasta menos por visita</div>
+      <div class="big">+7,5%<span>transacciones por comercio 2025</span></div></div>
+    <div class="exec-item"><div class="exec-num">5</div>
+      <div class="txt"><b>Consumidor de valor y omnicanal:</b> 64% valida marcas propias y visita en promedio 8,2 canales distintos</div>
+      <div class="big">8,2<span>canales visitados en promedio</span></div></div>
+    <div class="exec-item"><div class="exec-num">6</div>
+      <div class="txt"><b>Digital en récord:</b> e-commerce ~US$10 mil millones (+9% real) y cross-border asiático creciendo 17%</div>
+      <div class="big">US$10<small>mm</small><span>ventas online 2025 (CCS)</span></div></div>
+  </div>
+  <div class="footer"><div class="source">Fuente: Banco Central de Chile; CMF Informe de Endeudamiento 2025; CCS; Kantar; NielsenIQ; GfK — ver fuentes por lámina</div><div class="pageno"><b>2</b> / 14</div></div>
+</section>
+
+<!-- ===== 3 MACRO ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk on">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">La economía crece moderado y parejo (~2,3%), pero el motor no es el consumo: minería y servicios tiran del carro</h1>
+  <div class="subtitle">Crecimiento del PIB real y del consumo privado, <b>% anual</b>, 2021–2025</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 1 — PIB vs. consumo privado (small multiples)</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- PANEL A PIB -->
+        <text class="panel-title" x="50" y="26">PIB real</text>
+        <text class="anno" x="50" y="43">% anual</text>
+        <line class="gridline" x1="50" y1="90" x2="382" y2="90"/>
+        <line class="gridline" x1="50" y1="190" x2="382" y2="190"/>
+        <text class="tick-label" x="42" y="94" text-anchor="end" font-size="10">12</text>
+        <text class="tick-label" x="42" y="194" text-anchor="end" font-size="10">6</text>
+        <text class="tick-label" x="42" y="294" text-anchor="end" font-size="10">0</text>
+        <!-- baseline 290, 16.7px/% -->
+        <rect x="58"  y="95"  width="46" height="195" fill="#2251FF"/>
+        <rect x="124" y="255" width="46" height="35"  fill="#2251FF"/>
+        <rect x="190" y="287" width="46" height="3"   fill="#2251FF"/>
+        <rect x="256" y="252" width="46" height="38"  fill="#2251FF"/>
+        <rect x="322" y="252" width="46" height="38"  fill="#AAE6F0"/>
+        <text class="val-label" x="81"  y="87"  text-anchor="middle" font-size="11">11,7</text>
+        <text class="val-label" x="147" y="247" text-anchor="middle" font-size="11">2,1</text>
+        <text class="val-label" x="213" y="279" text-anchor="middle" font-size="11">0,2</text>
+        <text class="val-label" x="279" y="244" text-anchor="middle" font-size="11">2,3</text>
+        <text class="val-label" x="345" y="244" text-anchor="middle" font-size="11">2,3</text>
+        <line class="axis" x1="50" y1="290" x2="382" y2="290"/>
+        <text class="tick-label" x="81"  y="308" text-anchor="middle" font-size="10">2021</text>
+        <text class="tick-label" x="147" y="308" text-anchor="middle" font-size="10">2022</text>
+        <text class="tick-label" x="213" y="308" text-anchor="middle" font-size="10">2023</text>
+        <text class="tick-label" x="279" y="308" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="345" y="308" text-anchor="middle" font-size="10">2025</text>
+        <!-- PANEL B consumo privado -->
+        <text class="panel-title" x="440" y="26">Consumo privado</text>
+        <text class="anno" x="440" y="43">% anual (real)</text>
+        <line class="gridline" x1="440" y1="90" x2="772" y2="90"/>
+        <line class="gridline" x1="440" y1="190" x2="772" y2="190"/>
+        <text class="tick-label" x="432" y="244" text-anchor="end" font-size="10">0</text>
+        <!-- baseline zero at 240, 8.5px/% ; negatives below -->
+        <rect x="448" y="63"  width="46" height="177" fill="#051C2C"/>
+        <rect x="514" y="215" width="46" height="25"  fill="#051C2C"/>
+        <rect x="580" y="240" width="46" height="44"  fill="#C0392B"/>
+        <rect x="646" y="231" width="46" height="9"   fill="#051C2C"/>
+        <rect x="712" y="223" width="46" height="17"  fill="#8FA3B0"/>
+        <text class="val-label" x="471" y="56"  text-anchor="middle" font-size="11">20,8</text>
+        <text class="val-label" x="537" y="207" text-anchor="middle" font-size="11">2,9</text>
+        <text class="val-label" x="603" y="299" text-anchor="middle" font-size="11" fill="#C0392B">-5,2</text>
+        <text class="val-label" x="669" y="223" text-anchor="middle" font-size="11">1,0</text>
+        <text class="val-label" x="735" y="215" text-anchor="middle" font-size="11">~2,0</text>
+        <line class="axis" x1="440" y1="240" x2="772" y2="240"/>
+        <text class="tick-label" x="471" y="325" text-anchor="middle" font-size="10">2021</text>
+        <text class="tick-label" x="537" y="325" text-anchor="middle" font-size="10">2022</text>
+        <text class="tick-label" x="603" y="325" text-anchor="middle" font-size="10">2023</text>
+        <text class="tick-label" x="669" y="325" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="735" y="325" text-anchor="middle" font-size="10">2025E</text>
+        <text class="anno" x="603" y="356" text-anchor="middle">El ajuste post-estímulos golpeó al consumo, no al PIB</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">2,3%</div><div class="t">Crecimiento 2025, impulsado por <b>minería y servicios</b>; proyección 2026: 1,5–2,5%</div></div>
+      <div class="tk"><div class="n">-5,2%</div><div class="t">La caída del consumo privado en 2023: el <b>ajuste más duro</b> desde la crisis asiática (ex-COVID)</div></div>
+      <div class="tk dark"><div class="n">+6,6%</div><div class="t">Actividad comercial de cierre de 2025 (a/a): el comercio <b>reacelera</b> al final del período</div></div>
+      <div class="sowhat"><b>So what</b>El crecimiento del consumo será orgánico y lento: sin estímulos, gana quien capture la recuperación temprana.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: Banco Central de Chile (Cuentas Nacionales, IMACEC dic-2025); Hacienda; estimaciones del equipo</div><div class="pageno"><b>3</b> / 14</div></div>
+</section>
+
+<!-- ===== 4 INDEXED CONSUMPTION ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk on">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">Seis años para avanzar 12 puntos: el consumo aún no recupera el peak de 2022 y recién en 2025 retoma una senda de crecimiento</h1>
+  <div class="subtitle">Consumo privado real <b>indexado (2019 = 100)</b>, 2019–2025E</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 2 — Curva de nivel del consumo (índice base 100)</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- y: 90..120 -> 330..60 (9px/unit) -->
+        <line class="gridline" x1="80" y1="105" x2="770" y2="105"/>
+        <line class="gridline" x1="80" y1="195" x2="770" y2="195"/>
+        <text class="tick-label" x="72" y="109" text-anchor="end" font-size="10">115</text>
+        <text class="tick-label" x="72" y="199" text-anchor="end" font-size="10">105</text>
+        <text class="tick-label" x="72" y="244" text-anchor="end" font-size="10">100</text>
+        <!-- base 100 hairline -->
+        <line x1="80" y1="240" x2="770" y2="240" stroke="#B3B3B3" stroke-width="1.25"/>
+        <text class="anno" x="768" y="232" text-anchor="end">base: 2019 = 100</text>
+        <!-- line pts: x 90,200,310,420,530,640,750 ; v 100,92.6,111.8,115,109,110.1,112.3 -->
+        <polyline fill="none" stroke="#2251FF" stroke-width="3"
+          points="90,240 200,307 310,134 420,105 530,159 640,149 750,129"/>
+        <circle cx="90"  cy="240" r="4" fill="#2251FF"/>
+        <circle cx="420" cy="105" r="5" fill="#051C2C"/>
+        <circle cx="530" cy="159" r="4" fill="#2251FF"/>
+        <circle cx="750" cy="129" r="5" fill="#051C2C"/>
+        <text class="val-label" x="90"  y="228" text-anchor="middle">100</text>
+        <text class="val-label" x="420" y="93"  text-anchor="middle">115 · peak</text>
+        <text class="val-label" x="530" y="180" text-anchor="middle">109</text>
+        <text class="val-label" x="750" y="117" text-anchor="middle">~112</text>
+        <line class="axis" x1="80" y1="330" x2="770" y2="330"/>
+        <text class="tick-label" x="90"  y="350" text-anchor="middle">2019</text>
+        <text class="tick-label" x="200" y="350" text-anchor="middle">2020</text>
+        <text class="tick-label" x="310" y="350" text-anchor="middle">2021</text>
+        <text class="tick-label" x="420" y="350" text-anchor="middle">2022</text>
+        <text class="tick-label" x="530" y="350" text-anchor="middle">2023</text>
+        <text class="tick-label" x="640" y="350" text-anchor="middle">2024</text>
+        <text class="tick-label" x="750" y="350" text-anchor="middle">2025E</text>
+        <!-- annotations -->
+        <text class="anno" x="200" y="380" text-anchor="middle">COVID</text>
+        <text class="anno-strong" x="345" y="380" text-anchor="middle">Retiros + IFE</text>
+        <text class="anno" x="530" y="380" text-anchor="middle">Ajuste</text>
+        <text class="anno" x="695" y="380" text-anchor="middle">Recuperación gradual</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">+12</div><div class="t">Puntos de consumo real acumulados en 6 años: <b>~1,9% anual</b>, la mitad del ritmo pre-2019</div></div>
+      <div class="tk"><div class="n">2022</div><div class="t">El peak artificial (retiros + IFE) aún <b>no se recupera</b>; se alcanzaría hacia 2026–27</div></div>
+      <div class="tk dark"><div class="n">-6</div><div class="t">Puntos perdidos en el ajuste 2022→23: el "hangover" del sobre-estímulo</div></div>
+      <div class="sowhat"><b>So what</b>Comparar contra 2021–22 engaña: la base sana de planificación es la tendencia 2019 + ~2% anual.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source"><span class="fn">Nota: índice construido sobre variaciones reales del consumo privado (BCCh); 2025 estimado</span>Fuente: Banco Central de Chile; estimaciones del equipo</div><div class="pageno"><b>4</b> / 14</div></div>
+</section>
+
+<!-- ===== 5 CONFIDENCE (line + threshold) ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk on">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">La confianza del consumidor tocó su mejor nivel en ~7 años, pero sigue bajo el umbral optimista: ánimo de compra cauteloso</h1>
+  <div class="subtitle">Índice de Percepción de la Economía (IPEC), <b>promedio anual aprox.</b> (50 = neutral), 2019–2025</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 3 — Confianza del consumidor (línea con umbral)</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- pessimism zone shading below 50 -->
+        <rect x="80" y="90" width="690" height="240" fill="#FAFAFA"/>
+        <line x1="80" y1="90" x2="770" y2="90" stroke="#B3B3B3" stroke-width="1.25"/>
+        <text class="anno" x="768" y="80" text-anchor="end">umbral: 50 = neutral</text>
+        <text class="anno" x="90" y="110" fill="#B3B3B3" font-weight="700">ZONA PESIMISTA</text>
+        <!-- y: v20..55 -> 330..50 (8px/unit) -->
+        <text class="tick-label" x="72" y="94" text-anchor="end" font-size="10">50</text>
+        <text class="tick-label" x="72" y="254" text-anchor="end" font-size="10">30</text>
+        <!-- pts x 90..750 ; v 37,30,42,28,34,41,49 -->
+        <polyline fill="none" stroke="#2251FF" stroke-width="3"
+          points="90,194 200,250 310,154 420,266 530,218 640,162 750,98"/>
+        <circle cx="90"  cy="194" r="4" fill="#2251FF"/>
+        <circle cx="420" cy="266" r="5" fill="#C0392B"/>
+        <circle cx="750" cy="98"  r="5" fill="#051C2C"/>
+        <text class="val-label" x="90"  y="182" text-anchor="middle">37</text>
+        <text class="val-label" x="420" y="288" text-anchor="middle" fill="#C0392B">28 · mínimo</text>
+        <text class="val-label" x="750" y="86"  text-anchor="middle">~49</text>
+        <line class="axis" x1="80" y1="330" x2="770" y2="330"/>
+        <text class="tick-label" x="90"  y="350" text-anchor="middle">2019</text>
+        <text class="tick-label" x="200" y="350" text-anchor="middle">2020</text>
+        <text class="tick-label" x="310" y="350" text-anchor="middle">2021</text>
+        <text class="tick-label" x="420" y="350" text-anchor="middle">2022</text>
+        <text class="tick-label" x="530" y="350" text-anchor="middle">2023</text>
+        <text class="tick-label" x="640" y="350" text-anchor="middle">2024</text>
+        <text class="tick-label" x="750" y="350" text-anchor="middle">2025</text>
+        <text class="anno-strong" x="640" y="380" text-anchor="middle">2024–25: recuperación sostenida hacia el umbral</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">~49</div><div class="t">IPEC 2025: el <b>mejor registro en ~7 años</b>, al borde del optimismo</div></div>
+      <div class="tk"><div class="n">2022</div><div class="t">El mínimo (inflación 12,8% + incertidumbre) explica el <b>consumo defensivo</b> que persiste</div></div>
+      <div class="tk dark"><div class="n">62%</div><div class="t">De los chilenos inicia el año con "<b>esperanza</b>" — pero 55% también con "ansiedad"</div></div>
+      <div class="sowhat"><b>So what</b>El ánimo mejora antes que el gasto: es el momento de invertir en marca, antes de que la disposición a pagar se recupere del todo.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source"><span class="fn">Nota: promedios anuales aproximados del índice mensual</span>Fuente: GfK Adimark / IPEC; Trading Economics; ANDA; análisis del equipo</div><div class="pageno"><b>5</b> / 14</div></div>
+</section>
+
+<!-- ===== 6 HOUSEHOLD DEBT (slope chart) ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk on">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">CMF 2025</div></div>
+  <h1 class="action-title">El hogar chileno se desapalancó: menos deuda, menos carga financiera y menos sobreendeudados — el balance está para gastar</h1>
+  <div class="subtitle">Indicadores de endeudamiento de personas, <b>2024 → junio 2025</b> (slope chart, CMF)</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 4 — Salud financiera de los hogares (slope)</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- 3 slope panels -->
+        <!-- P1 carga financiera 13.6 -> 11.9 -->
+        <text class="panel-title" x="150" y="30" text-anchor="middle">Carga financiera</text>
+        <text class="anno" x="150" y="47" text-anchor="middle">% del ingreso</text>
+        <line x1="100" y1="70" x2="100" y2="300" stroke="#E6E6E6"/>
+        <line x1="260" y1="70" x2="260" y2="300" stroke="#E6E6E6"/>
+        <line x1="100" y1="201" x2="260" y2="248" stroke="#2251FF" stroke-width="3"/>
+        <circle cx="100" cy="201" r="6" fill="#B3B3B3"/><circle cx="260" cy="248" r="7" fill="#2251FF"/>
+        <text class="val-label" x="88" y="205" text-anchor="end">13,6%</text>
+        <text class="val-label" x="272" y="252">11,9%</text>
+        <text class="anno" x="180" y="215" text-anchor="middle" fill="#27853A" font-weight="700">▼ -1,7 p.p.</text>
+        <text class="tick-label" x="100" y="322" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="260" y="322" text-anchor="middle" font-size="10">jun-25</text>
+        <!-- P2 sobreendeudados 16.5 -> 14.1 -->
+        <text class="panel-title" x="410" y="30" text-anchor="middle">Sobreendeudados</text>
+        <text class="anno" x="410" y="47" text-anchor="middle">% que destina &gt;50% del sueldo a deuda</text>
+        <line x1="360" y1="70" x2="360" y2="300" stroke="#E6E6E6"/>
+        <line x1="520" y1="70" x2="520" y2="300" stroke="#E6E6E6"/>
+        <line x1="360" y1="121" x2="520" y2="187" stroke="#2251FF" stroke-width="3"/>
+        <circle cx="360" cy="121" r="6" fill="#B3B3B3"/><circle cx="520" cy="187" r="7" fill="#2251FF"/>
+        <text class="val-label" x="348" y="125" text-anchor="end">16,5%</text>
+        <text class="val-label" x="532" y="191">14,1%</text>
+        <text class="anno" x="440" y="140" text-anchor="middle" fill="#27853A" font-weight="700">▼ -2,4 p.p.</text>
+        <text class="tick-label" x="360" y="322" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="520" y="322" text-anchor="middle" font-size="10">jun-25</text>
+        <!-- P3 deuda mediana 2.02 -> 1.68 -->
+        <text class="panel-title" x="670" y="30" text-anchor="middle">Deuda mediana</text>
+        <text class="anno" x="670" y="47" text-anchor="middle">$ millones</text>
+        <line x1="620" y1="70" x2="620" y2="300" stroke="#E6E6E6"/>
+        <line x1="780" y1="70" x2="780" y2="300" stroke="#E6E6E6"/>
+        <line x1="620" y1="137" x2="780" y2="244" stroke="#2251FF" stroke-width="3"/>
+        <circle cx="620" cy="137" r="6" fill="#B3B3B3"/><circle cx="780" cy="244" r="7" fill="#2251FF"/>
+        <text class="val-label" x="608" y="141" text-anchor="end">$2,02M</text>
+        <text class="val-label" x="726" y="262">$1,68M</text>
+        <text class="anno" x="700" y="170" text-anchor="middle" fill="#27853A" font-weight="700">▼ -16,9%</text>
+        <text class="tick-label" x="620" y="322" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="780" y="322" text-anchor="middle" font-size="10">jun-25</text>
+        <text class="anno" x="405" y="370" text-anchor="middle">Morosos bancarios: 411 mil → 369 mil (6,1% del total) · Morosos totales: 4,01M (2023) → 3,86M (2025)</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">11,9%</div><div class="t">Carga financiera: <b>mínimo de la serie</b> — 1 de cada 8 pesos del ingreso va a deuda</div></div>
+      <div class="tk"><div class="n">-16,9%</div><div class="t">Caída de la deuda mediana en un año: hogares <b>desapalancados</b> tras el ajuste</div></div>
+      <div class="tk dark"><div class="n">3,86M</div><div class="t">Morosos totales, <b>bajando</b> — pero aún ~1 de cada 4 adultos</div></div>
+      <div class="sowhat"><b>So what</b>Hay capacidad de endeudamiento disponible: bien gestionado, el crédito de consumo puede volver a ser motor de venta.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: CMF, Informe Anual de Endeudamiento 2025 (12ª versión, jun-2025; 6,1M deudores, 47 instituciones); Emol; La Tercera</div><div class="pageno"><b>6</b> / 14</div></div>
+</section>
+
+<!-- ===== 7 NEW BEHAVIOR (stat tiles) ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk on">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">El chileno cambió el patrón de compra: va más veces, gasta menos por visita y planifica más cada peso</h1>
+  <div class="subtitle">Conducta transaccional del consumo, <b>2025 vs. 2024</b></div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 5 — La nueva mecánica de compra</div>
+      <div class="stat-grid">
+        <div class="stat"><div class="n">+7,5%</div><div class="h">Más transacciones por comercio</div><div class="c">El consumidor va más veces al punto de venta — la frecuencia reemplaza al carro grande</div></div>
+        <div class="stat dark"><div class="n">-3,7%</div><div class="h">Ticket promedio menor (S1-2025)</div><div class="c">Compra fraccionada y comparación de precios; el ticket recién repunta +1,8% en el S2</div></div>
+        <div class="stat dark"><div class="n">$80<small> mil</small></div><div class="h">Ticket online promedio</div><div class="c">Sube apenas +2,8% a/a ($77 → $80 mil): el gasto digital también es medido</div></div>
+        <div class="stat"><div class="n">+6,6%</div><div class="h">Comercio reacelera al cierre</div><div class="c">Actividad comercial dic-2025 a/a — vestuario, comestibles y plataformas online lideran</div></div>
+      </div>
+      <div class="callout" style="margin-top:12px;"><b>Lectura:</b> no es un consumidor deprimido — es un consumidor <b>optimizador</b>: alta frecuencia, ticket controlado y cero lealtad automática al canal.</div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">freq</div><div class="t">La <b>frecuencia</b> es el nuevo volumen: más visitas con menos plata cada una</div></div>
+      <div class="tk"><div class="n">mix</div><div class="t">El formato ganador acompaña esa mecánica: <b>cercanía, mayorista y online</b> de reposición</div></div>
+      <div class="tk dark"><div class="n">S2-25</div><div class="t">El ticket dejó de caer al cierre de 2025: <b>punto de inflexión</b> del ciclo</div></div>
+      <div class="sowhat"><b>So what</b>Pricing y promociones deben diseñarse para el viaje frecuente de ticket bajo — no para la compra mensual grande.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: Transbank/G5 Noticias; DF "Qué y cómo compran los chilenos 2025"; CCS; INE</div><div class="pageno"><b>7</b> / 14</div></div>
+</section>
+
+<!-- ===== 8 VALUE CONSUMER ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk on">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">Un consumidor estratégico: valida las marcas propias, diversifica canales y combina ahorro con premium selectivo</h1>
+  <div class="subtitle">Actitudes y repertorio de canales del shopper chileno, 2024–2025</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 6 — El shopper optimizador</div>
+      <div class="stat-grid">
+        <div class="stat"><div class="n">64%</div><div class="h">Valida las marcas propias</div><div class="c">Las considera una buena alternativa a las marcas comerciales (NielsenIQ); 63% dice que dan buen valor por el dinero</div></div>
+        <div class="stat"><div class="n">8,2</div><div class="h">Canales visitados en promedio</div><div class="c">Subió de 7,5 (2023) a 8,2 (2024): el repertorio se amplía, la lealtad al canal cae (Kantar)</div></div>
+        <div class="stat dark"><div class="n">22%</div><div class="h">Compra en 7+ canales</div><div class="c">Un quinto del país es "multi-shopper" extremo: caza el mejor precio formato por formato</div></div>
+        <div class="stat dark"><div class="n">2 vías</div><div class="h">Ahorro + premium selectivo</div><div class="c">Crecen a la vez lo económico (marcas propias, mayoristas) y el premium puntual: el medio se vacía (Kantar)</div></div>
+      </div>
+      <div class="callout" style="margin-top:12px;"><b>Implicancia de portafolio:</b> la arquitectura de marca debe cubrir <b>los dos extremos</b> — value creíble y premium con propósito — porque el consumidor ya no vive en el promedio.</div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">valor</div><div class="t">La marca propia dejó de ser "segunda opción": es <b>elección racional</b> masiva</div></div>
+      <div class="tk"><div class="n">repertorio</div><div class="t">8+ canales por shopper: la batalla es <b>por ocasión de compra</b>, no por cliente</div></div>
+      <div class="tk dark"><div class="n">barbell</div><div class="t">Consumo "<b>barbell</b>": extremos crecen, el punto medio pierde</div></div>
+      <div class="sowhat"><b>So what</b>Quien no tenga propuesta value fuerte cede volumen; quien no tenga premium selectivo cede margen.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: NielsenIQ; Kantar Worldpanel (Consumer Insights Chile 2025); GfK; Chócale</div><div class="pageno"><b>8</b> / 14</div></div>
+</section>
+
+<!-- ===== 9 E-COMMERCE ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk on">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">El e-commerce volvió a niveles récord: ~US$10 mil millones en 2025, creciendo 9% real tras dos años de resaca post-pandemia</h1>
+  <div class="subtitle">Ventas del comercio electrónico en Chile, <b>US$ miles de millones</b>, 2019–2026E</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 7 — Ciclo del e-commerce</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- baseline 330, 27px per unit ; bars w62 step 90 from x85 -->
+        <line class="gridline" x1="70" y1="60" x2="770" y2="60"/>
+        <line class="gridline" x1="70" y1="195" x2="770" y2="195"/>
+        <text class="tick-label" x="62" y="64" text-anchor="end" font-size="10">10</text>
+        <text class="tick-label" x="62" y="199" text-anchor="end" font-size="10">5</text>
+        <text class="tick-label" x="62" y="334" text-anchor="end" font-size="10">0</text>
+        <rect x="85"  y="165" width="62" height="165" fill="#2251FF" opacity="0.55"/>
+        <rect x="175" y="101" width="62" height="229" fill="#2251FF" opacity="0.55"/>
+        <rect x="265" y="79"  width="62" height="251" fill="#2251FF" opacity="0.55"/>
+        <rect x="355" y="106" width="62" height="224" fill="#2251FF" opacity="0.55"/>
+        <rect x="445" y="114" width="62" height="216" fill="#2251FF" opacity="0.55"/>
+        <rect x="535" y="84"  width="62" height="246" fill="#2251FF"/>
+        <rect x="625" y="60"  width="62" height="270" fill="#00A9F4"/>
+        <rect x="715" y="44"  width="62" height="286" fill="#AAE6F0"/>
+        <text class="val-label" x="116" y="157" text-anchor="middle" font-size="11">6,1</text>
+        <text class="val-label" x="296" y="71"  text-anchor="middle" font-size="11">9,3</text>
+        <text class="val-label" x="476" y="106" text-anchor="middle" font-size="11">8,0</text>
+        <text class="val-label" x="656" y="52"  text-anchor="middle" font-size="11">10,0</text>
+        <text class="val-label" x="746" y="36"  text-anchor="middle" font-size="11">10,6</text>
+        <line class="axis" x1="70" y1="330" x2="770" y2="330"/>
+        <text class="tick-label" x="116" y="350" text-anchor="middle" font-size="10">2019</text>
+        <text class="tick-label" x="206" y="350" text-anchor="middle" font-size="10">2020</text>
+        <text class="tick-label" x="296" y="350" text-anchor="middle" font-size="10">2021</text>
+        <text class="tick-label" x="386" y="350" text-anchor="middle" font-size="10">2022</text>
+        <text class="tick-label" x="476" y="350" text-anchor="middle" font-size="10">2023</text>
+        <text class="tick-label" x="566" y="350" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="656" y="350" text-anchor="middle" font-size="10">2025</text>
+        <text class="tick-label" x="746" y="350" text-anchor="middle" font-size="10">2026E</text>
+        <text class="anno-strong" x="656" y="378" text-anchor="middle">2025: récord histórico (+9% real)</text>
+        <text class="anno" x="300" y="378" text-anchor="middle">boom pandemia → resaca 2022–23</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">US$10<small>mm</small></div><div class="t">Récord 2025 (+9% real); S1 ya crecía 10,6% a/a (US$4.725M)</div></div>
+      <div class="tk"><div class="n">~17 mil</div><div class="t"><b>Pure players</b> venden ya US$1,6 mm (17% del online): la cola larga se profesionalizó</div></div>
+      <div class="tk dark"><div class="n">46%</div><div class="t">De la venta online es <b>electrónica/tecnología</b>; alimentos ya es 2º con 18%</div></div>
+      <div class="sowhat"><b>So what</b>El canal digital volvió a crecer estructuralmente: quien recortó inversión online en la resaca 2022–23 partió atrás.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source"><span class="fn">Nota: serie 2019–2024 aproximada a partir de reportes CCS; 2025 y 2026E oficiales CCS</span>Fuente: Cámara de Comercio de Santiago (CCS); La Tercera; PCMI</div><div class="pageno"><b>9</b> / 14</div></div>
+</section>
+
+<!-- ===== 10 CROSS BORDER ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk on">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">El peso asiático: el cross-border crece 17% y Temu pasó de cero a un cuarto del comercio transfronterizo global en tres años</h1>
+  <div class="subtitle">Dinámica del comercio cross-border relevante para Chile, 2022–2025</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 8 — La curva de Temu (growth curve)</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- Temu share of global cross-border: 2022 <1, 2023 ~8, 2024 ~17, 2025 24 -->
+        <line class="gridline" x1="80" y1="80" x2="560" y2="80"/>
+        <line class="gridline" x1="80" y1="192" x2="560" y2="192"/>
+        <text class="tick-label" x="72" y="84" text-anchor="end" font-size="10">25%</text>
+        <text class="tick-label" x="72" y="196" text-anchor="end" font-size="10">12%</text>
+        <text class="tick-label" x="72" y="309" text-anchor="end" font-size="10">0%</text>
+        <!-- y = 305 - v*9 ; x 110,250,390,530 -->
+        <polyline fill="none" stroke="#2251FF" stroke-width="3.5"
+          points="110,296 250,233 390,152 530,89"/>
+        <circle cx="110" cy="296" r="4" fill="#2251FF"/>
+        <circle cx="530" cy="89"  r="6" fill="#051C2C"/>
+        <text class="val-label" x="110" y="284" text-anchor="middle">&lt;1%</text>
+        <text class="val-label" x="530" y="75"  text-anchor="middle">24%</text>
+        <line class="axis" x1="80" y1="305" x2="560" y2="305"/>
+        <text class="tick-label" x="110" y="325" text-anchor="middle" font-size="10">2022</text>
+        <text class="tick-label" x="250" y="325" text-anchor="middle" font-size="10">2023</text>
+        <text class="tick-label" x="390" y="325" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="530" y="325" text-anchor="middle" font-size="10">2025</text>
+        <text class="anno" x="80" y="360">Participación de Temu en el e-commerce cross-border global — ya alcanza a Amazon</text>
+        <!-- side facts -->
+        <rect x="600" y="70" width="170" height="100" fill="#F5F8FF"/>
+        <text x="616" y="98"  font-size="26" fill="#2251FF" font-weight="700" font-family="Georgia,serif">+17%</text>
+        <text x="616" y="118" font-size="11" fill="#333">crecimiento del mercado</text>
+        <text x="616" y="132" font-size="11" fill="#333">cross-border 2025</text>
+        <rect x="600" y="190" width="170" height="115" fill="#F5F8FF"/>
+        <text x="616" y="220" font-size="15" fill="#051C2C" font-weight="700">MELI responde:</text>
+        <text x="616" y="240" font-size="11" fill="#333">abre centro logístico</text>
+        <text x="616" y="254" font-size="11" fill="#333">en China (2026) para</text>
+        <text x="616" y="268" font-size="11" fill="#333">competir con Temu/Shein</text>
+        <text x="616" y="282" font-size="11" fill="#333">en su propio juego</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">24%</div><div class="t">Temu en el cross-border global (desde &lt;1% en 2022): la <b>curva más agresiva</b> del retail mundial</div></div>
+      <div class="tk"><div class="n">precio</div><div class="t">Chile, entre los países que más aportan al cross-border de MELI: el <b>precio de referencia</b> en no-alimentos ya lo fija Asia</div></div>
+      <div class="tk dark"><div class="n">⚖</div><div class="t">Regulación en revisión (impuestos a paquetes) — puede <b>moderar pero no revertir</b> la tendencia</div></div>
+      <div class="sowhat"><b>So what</b>Competir en precio contra Asia es inviable: la defensa es velocidad de entrega, servicio, garantía y valor local.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: Digital Commerce 360; SCMP; CCS; prensa sectorial (MELI/Temu/Shein)</div><div class="pageno"><b>10</b> / 14</div></div>
+</section>
+
+<!-- ===== 11 ONLINE CATEGORY MIX (treemap) ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk on">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">Qué se compra online: la electrónica domina, pero alimentos ya es la segunda categoría — el e-commerce entró a la canasta básica</h1>
+  <div class="subtitle">Composición de la venta online por categoría (<b>treemap</b>), % del total, 2025</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 9 — Mix de categorías del e-commerce</div>
+      <svg viewBox="0 0 810 390" preserveAspectRatio="xMidYMid meet">
+        <!-- total 700x330 at x60 y30 ; elec 46% width 322 full height -->
+        <rect x="60" y="30" width="322" height="330" fill="#051C2C"/>
+        <text x="221" y="180" text-anchor="middle" font-size="18" fill="#fff" font-weight="700">Electrónica y</text>
+        <text x="221" y="202" text-anchor="middle" font-size="18" fill="#fff" font-weight="700">tecnología</text>
+        <text x="221" y="228" text-anchor="middle" font-size="13" fill="#AAE6F0">~US$4,6 mm · 46%</text>
+        <!-- right column x386 w374 ; alimentos 18/54*330=110 -->
+        <rect x="386" y="30" width="374" height="110" fill="#2251FF"/>
+        <text x="573" y="76" text-anchor="middle" font-size="15" fill="#fff" font-weight="700">Alimentos y bebidas</text>
+        <text x="573" y="96" text-anchor="middle" font-size="12" fill="#AAE6F0">~US$1,8 mm · 18% — nueva 2ª categoría</text>
+        <!-- vestuario 13/54*330 = 79 -->
+        <rect x="386" y="144" width="374" height="79" fill="#00A9F4"/>
+        <text x="573" y="178" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">Vestuario y calzado</text>
+        <text x="573" y="196" text-anchor="middle" font-size="11.5" fill="#fff">~US$1,3 mm · 13% — cede el 2º lugar</text>
+        <!-- otros 23/54*330 = 141 -->
+        <rect x="386" y="227" width="374" height="133" fill="#8FA3B0"/>
+        <text x="573" y="285" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">Otras categorías</text>
+        <text x="573" y="303" text-anchor="middle" font-size="11.5" fill="#fff">hogar, belleza, salud, deporte · ~23%</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">46%</div><div class="t">La electrónica concentra <b>casi la mitad</b> del online: categoría de comparación y precio</div></div>
+      <div class="tk"><div class="n">2º</div><div class="t"><b>Alimentos y bebidas</b> desplazó a vestuario: el online ya es canal de reposición semanal</div></div>
+      <div class="tk dark"><div class="n">recurrencia</div><div class="t">Cuando la canasta básica entra al canal, el e-commerce gana <b>frecuencia y lealtad</b>, no solo ticket</div></div>
+      <div class="sowhat"><b>So what</b>La próxima ola online es de alta frecuencia (comida, farma, hogar): logística de reposición &gt; catálogo infinito.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: CCS (composición de ventas online 2025); análisis del equipo</div><div class="pageno"><b>11</b> / 14</div></div>
+</section>
+
+<!-- ===== 12 DEMOGRAPHY ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk on">Conducta</div><div class="trk">Digital</div><div class="trk">Implicancias</div>
+  </div><div class="sticker">Estructural</div></div>
+  <h1 class="action-title">El consumidor del futuro ya nació (o no): menos niños y más adultos mayores redibujan la canasta de la próxima década</h1>
+  <div class="subtitle">Nacimientos anuales (<b>miles</b>) y población 65+ (<b>% del total</b>), Chile</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="exhibit-label">Exhibit 10 — Demografía del consumo</div>
+      <svg viewBox="0 0 810 400" preserveAspectRatio="xMidYMid meet">
+        <!-- Panel A nacimientos line 1990..2023 -->
+        <text class="panel-title" x="60" y="26">Nacimientos anuales</text>
+        <text class="anno" x="60" y="43">miles de nacidos vivos</text>
+        <line class="gridline" x1="60" y1="90" x2="380" y2="90"/>
+        <line class="gridline" x1="60" y1="190" x2="380" y2="190"/>
+        <text class="tick-label" x="52" y="94" text-anchor="end" font-size="10">300</text>
+        <text class="tick-label" x="52" y="194" text-anchor="end" font-size="10">225</text>
+        <text class="tick-label" x="52" y="294" text-anchor="end" font-size="10">150</text>
+        <!-- y=290-(v-150)*(200/150)=290-1.333(v-150) ; pts 1990 307→81; 2000 261→142; 2010 251→155; 2015 245→163; 2020 194→231; 2023 174→258 -->
+        <polyline fill="none" stroke="#2251FF" stroke-width="3"
+          points="80,81 140,142 200,155 260,163 320,231 370,258"/>
+        <circle cx="80" cy="81" r="4" fill="#2251FF"/><circle cx="370" cy="258" r="5" fill="#051C2C"/>
+        <text class="val-label" x="92" y="76">307</text>
+        <text class="val-label" x="370" y="280" text-anchor="middle">174</text>
+        <line class="axis" x1="60" y1="290" x2="380" y2="290"/>
+        <text class="tick-label" x="80" y="310" text-anchor="middle" font-size="10">1990</text>
+        <text class="tick-label" x="200" y="310" text-anchor="middle" font-size="10">2010</text>
+        <text class="tick-label" x="370" y="310" text-anchor="middle" font-size="10">2023</text>
+        <text class="anno-strong" x="220" y="350" text-anchor="middle">-31% de nacimientos en 13 años</text>
+        <!-- Panel B 65+ columns -->
+        <text class="panel-title" x="480" y="26">Población de 65+ años</text>
+        <text class="anno" x="480" y="43">% del total</text>
+        <!-- baseline 290, 25%=225 -> 9px/% -->
+        <rect x="490" y="164" width="70" height="126" fill="#AAE6F0"/>
+        <rect x="600" y="119" width="70" height="171" fill="#00A9F4"/>
+        <rect x="710" y="65"  width="70" height="225" fill="#2251FF"/>
+        <text class="val-label" x="525" y="156" text-anchor="middle">14%</text>
+        <text class="val-label" x="635" y="111" text-anchor="middle">19%</text>
+        <text class="val-label" x="745" y="57"  text-anchor="middle">25%</text>
+        <line class="axis" x1="480" y1="290" x2="790" y2="290"/>
+        <text class="tick-label" x="525" y="310" text-anchor="middle" font-size="10">2024</text>
+        <text class="tick-label" x="635" y="310" text-anchor="middle" font-size="10">2035</text>
+        <text class="tick-label" x="745" y="310" text-anchor="middle" font-size="10">2050</text>
+        <text class="anno" x="635" y="350" text-anchor="middle">1 de cada 4 chilenos será 65+ al 2050</text>
+      </svg>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">-31%</div><div class="t">Nacimientos 2010–23: las categorías infantiles <b>ya tienen su demanda definida</b> (a la baja)</div></div>
+      <div class="tk"><div class="n">25%</div><div class="t">65+ al 2050: <b>salud, bienestar y conveniencia</b> serán las categorías estructuralmente ganadoras</div></div>
+      <div class="tk dark"><div class="n">hogares</div><div class="t">Más pequeños y unipersonales: <b>porciones, cercanía y delivery</b> por sobre el formato familiar</div></div>
+      <div class="sowhat"><b>So what</b>El mix de categorías del 2035 se decide hoy: reasignar innovación y m² desde lo infantil-familiar hacia silver economy.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: INE (Estadísticas Vitales); ONU World Population Prospects 2024; análisis del equipo</div><div class="pageno"><b>12</b> / 14</div></div>
+</section>
+
+<!-- ===== 13 IMPLICATIONS ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk on">Implicancias</div>
+  </div><div class="sticker">Borrador</div></div>
+  <h1 class="action-title">Cuatro implicancias para quien vende en Chile: frecuencia, barbell de precio, reposición digital y silver economy</h1>
+  <div class="subtitle">Qué cambia en la estrategia comercial, 2025–2030</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <div class="grid2">
+        <div class="imp"><div class="imp-tag">Revenue model</div><div class="imp-title">Diseñar para la frecuencia</div>
+          <div class="imp-txt">Surtido, pricing y promociones para el viaje corto y frecuente; el KPI pasa de ticket promedio a visitas × conversión</div>
+          <div class="imp-num">+7,5%<span>transacciones; ticket a la baja</span></div></div>
+        <div class="imp"><div class="imp-tag">Portafolio</div><div class="imp-title">Arquitectura barbell</div>
+          <div class="imp-txt">Value creíble (marca propia/precio) + premium selectivo con propósito; el punto medio del portafolio pierde rol</div>
+          <div class="imp-num">64%<span>valida marcas propias</span></div></div>
+        <div class="imp"><div class="imp-tag">Canal</div><div class="imp-title">Ganar la reposición online</div>
+          <div class="imp-txt">Alimentos ya es 2ª categoría online: suscripción, recompra en 1 clic y logística de proximidad definen la lealtad digital</div>
+          <div class="imp-num">18%<span>del online es alimentos y bebidas</span></div></div>
+        <div class="imp"><div class="imp-tag">Demanda estructural</div><div class="imp-title">Apostar a silver economy</div>
+          <div class="imp-txt">Salud, bienestar, conveniencia y servicios para 65+: la única demanda con crecimiento demográfico garantizado</div>
+          <div class="imp-num">25%<span>de la población será 65+ al 2050</span></div></div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Principales conclusiones</div>
+      <div class="tk"><div class="n">timing</div><div class="t">Hogares desapalancados + confianza al alza = <b>ventana 2026</b> para capturar la recuperación</div></div>
+      <div class="tk"><div class="n">crédito</div><div class="t">Carga financiera en mínimos: el <b>crédito de consumo</b> puede volver a habilitar ticket</div></div>
+      <div class="tk dark"><div class="n">Asia</div><div class="t">El precio de referencia en no-alimentos lo fija el cross-border: <b>no competir ahí</b>, diferenciarse en servicio</div></div>
+      <div class="sowhat"><b>So what</b>La demanda vuelve, pero a otra tienda: frecuente, digital, de valor y más vieja. Ajustar la oferta antes que la competencia.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: síntesis del research (BCCh, CMF, CCS, Kantar, NielsenIQ, INE/ONU); análisis del equipo</div><div class="pageno"><b>13</b> / 14</div></div>
+</section>
+
+<!-- ===== 14 AGENDA ===== -->
+<section class="slide">
+  <div class="toprow"><div class="tracker">
+    <div class="trk">Resumen</div><div class="trk">Macro</div><div class="trk">Hogares</div><div class="trk">Conducta</div><div class="trk">Digital</div><div class="trk on">Implicancias</div>
+  </div><div class="sticker">Agenda</div></div>
+  <h1 class="action-title">La agenda: capturar la recuperación 2026 con precio inteligente, reposición digital y una oferta que envejece con el país</h1>
+  <div class="subtitle">Tres frentes de acción y sus movimientos</div>
+  <div class="title-rule"></div>
+  <div class="body">
+    <div class="exhibit-main">
+      <table class="rec-table">
+        <tr><th><span class="roman">Frente I</span>Ganar el viaje frecuente</th><th><span class="roman">Frente II</span>Precio y portafolio barbell</th><th><span class="roman">Frente III</span>Demanda estructural</th></tr>
+        <tr><td><b>Formato y surtido</b> para compra corta: cercanía, express, packs pequeños</td><td><b>Marca propia</b> con calidad verificable: capturar el 64% que ya la valida</td><td><b>Silver economy:</b> salud, bienestar y servicios 65+ como categoría prioritaria</td></tr>
+        <tr><td><b>Lealtad por ocasión:</b> personalización y recompensas por frecuencia, no por monto</td><td><b>Premium selectivo:</b> pocos héroes con propósito y margen, no un catálogo medio</td><td><b>Reposición online:</b> suscripción y 1-clic en alimentos, farma y hogar</td></tr>
+        <tr><td><b>Pricing quirúrgico:</b> KVIs agresivos en el viaje frecuente, margen en el resto</td><td><b>Crédito responsable:</b> reactivar el ticket con la carga financiera en mínimos</td><td><b>Defensa vs. Asia:</b> velocidad, garantía y servicio local — nunca guerra de precio</td></tr>
+      </table>
+      <div class="callout" style="margin-top:14px;"><b>El punto de partida:</b> hogares desapalancados (carga 11,9%), confianza en máximos de 7 años y e-commerce en récord — <b>la ventana de recuperación se abre en 2026</b> y la capturará quien ya haya ajustado formato, precio y canal.</div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-label">Por qué ahora</div>
+      <div class="tk"><div class="n">2026</div><div class="t">Ventana de recuperación: <b>consumo y confianza</b> convergen al alza por primera vez desde 2021</div></div>
+      <div class="tk"><div class="n">1º</div><div class="t">El que mueve primero fija la <b>percepción de valor</b> del nuevo ciclo</div></div>
+      <div class="tk dark"><div class="n">90<small> días</small></div><div class="t">Para bajar esto a categoría/formato: <b>diagnóstico de elasticidades y misiones de compra</b></div></div>
+      <div class="sowhat"><b>So what</b>El consumidor ya cambió; el ganador del próximo ciclo será quien cambie su oferta más rápido que el resto.</div>
+    </div>
+  </div>
+  <div class="footer"><div class="source">Fuente: síntesis del research; análisis del equipo</div><div class="pageno"><b>14</b> / 14</div></div>
+</section>
+
+</div>
+
+<div id="nav">
+  <button id="prev" title="Anterior (←)">‹</button>
+  <span id="counter">1 / 14</span>
+  <button id="next" title="Siguiente (→)">›</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let cur = 0;
+  function fit(){const s=Math.min(window.innerWidth/1320,window.innerHeight/770,1);slides.forEach(sl=>sl.style.transform=`scale(${s})`);}
+  function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((sl,k)=>sl.classList.toggle('active',k===cur));document.getElementById('counter').textContent=`${cur+1} / ${slides.length}`;}
+  document.getElementById('prev').onclick=()=>show(cur-1);
+  document.getElementById('next').onclick=()=>show(cur+1);
+  window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')show(cur+1);if(e.key==='ArrowLeft'||e.key==='PageUp')show(cur-1);if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1);});
+  window.addEventListener('resize',fit);
+  fit();show(0);
+</script>
+</body>
+</html>
