@@ -5,7 +5,9 @@
    (politica de mismo origen). n8n devuelve JSON con CORS abierto.
 */
 (function () {
-  var API = 'https://n8n-production-121a.up.railway.app/webhook/154932db-1906-4f83-a825-2922d4cea38c/buscador-pricing';
+  /* Ruta corta. n8n publica tambien una forma con el UUID del nodo, pero esa
+     devuelve 500: la unica que responde en produccion es /webhook/<path>. */
+  var API = 'https://n8n-production-121a.up.railway.app/webhook/buscador-pricing';
 
   var CLP = function (n) {
     return (n == null || isNaN(n)) ? '—' : '$' + Math.round(n).toLocaleString('es-CL');
