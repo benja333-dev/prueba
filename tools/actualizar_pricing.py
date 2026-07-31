@@ -46,6 +46,7 @@ HDRS_FULL = ["-A", UA,
              "-H", "Upgrade-Insecure-Requests: 1"]
 
 MAX_PAGINAS = 6          # tope duro por fuente; la paginacion corta antes si se agota
+MIN_SKUS_INDICE = 5      # grupos mas chicos que esto no describen a la cadena
 PARALELO = 6             # descargas simultaneas
 
 # Cada fuente rinde ~40-50 SKUs por pagina. Todas las rutas estan verificadas
@@ -332,6 +333,10 @@ def resumen_por_categoria(catalogo):
         grupos.setdefault((x["categoria"], x["unidad"], x["retailer"]), []).append(x)
     filas = []
     for (cat, uni, ret), xs in sorted(grupos.items()):
+        # Una mediana sobre 1 o 2 SKUs no describe a la cadena: la deja anclada
+        # a un producto suelto y aparece como "indice 100" sin significarlo.
+        if len(xs) < MIN_SKUS_INDICE:
+            continue
         ppu = [x["precio_por_unidad"] for x in xs]
         con_promo = [x for x in xs if x.get("mecanica")]
         filas.append({
@@ -423,9 +428,9 @@ def main():
               f"(${f['precio_por_litro']}/L) {f.get('mecanica') or 'sin promo'}")
     print("\n  Indice por categoria (100 = mas barato):")
     for c in categorias:
-        print(f"    {c['categoria']:9} {c['retailer']:9} {c['n_skus']:4} SKUs  "
-              f"mediana ${c['mediana_precio_unidad']}/{'L o kg'}  indice {c['indice']}  "
-              f"{c['pct_en_promo']}% en promo")
+        print(f"    {c['categoria']:11} {c['unidad']:2} {c['retailer']:9} {c['n_skus']:4} SKUs  "
+              f"mediana ${c['mediana_precio_unidad']:>7}/{c['unidad']:2}  indice {c['indice']:>3}  "
+              f"{c['pct_en_promo']:>3}% en promo")
     if fallos:
         print("\nAVISO: fuentes sin datos:\n  " + "\n  ".join(fallos), file=sys.stderr)
 
