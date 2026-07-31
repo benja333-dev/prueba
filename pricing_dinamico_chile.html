@@ -95,6 +95,49 @@
   ol.bib li{margin-bottom:7px;} ol.bib b{color:var(--navy);}
   .foot{font-size:10.5px;color:var(--gray-2);border-top:1px solid var(--gray-4);padding-top:9px;margin-top:6px;}
 
+  /* --- Pestañas y controles del buscador --- */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-4);margin:0 0 22px;flex-wrap:wrap;}
+  .tab{padding:11px 20px;cursor:pointer;font-size:12.5px;color:var(--gray-2);border-bottom:2px solid transparent;
+       margin-bottom:-1px;white-space:nowrap;letter-spacing:.02em;}
+  .tab:hover{color:var(--navy);}
+  .tab.on{color:var(--navy);border-bottom-color:var(--navy);font-weight:600;}
+  .panel{display:none;} .panel.on{display:block;}
+  .buscador{display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap;}
+  .buscador input{flex:1;min-width:240px;padding:11px 13px;border:1px solid var(--gray-4);border-radius:6px;
+                  font-size:14px;font-family:inherit;background:#fff;}
+  .buscador button{padding:11px 22px;border:0;border-radius:6px;background:var(--navy);color:#fff;
+                   font-size:13px;cursor:pointer;font-family:inherit;}
+  .buscador button:disabled{opacity:.5;cursor:progress;}
+  .ejemplos{font-size:11px;color:var(--gray-2);}
+  .ejemplos a{color:var(--blue,#1F5FA9);cursor:pointer;margin-right:10px;text-decoration:none;}
+  .ejemplos a:hover{text-decoration:underline;}
+  select{width:100%;max-width:640px;padding:10px 12px;border:1px solid var(--gray-4);border-radius:6px;
+         font-size:13.5px;font-family:inherit;background:#fff;margin-bottom:12px;}
+  .campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0;}
+  .campos label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-2);
+                display:block;margin-bottom:4px;}
+  .campos input{width:100%;padding:9px 11px;border:1px solid var(--gray-4);border-radius:5px;
+                font-size:13.5px;font-family:inherit;background:#fff;}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
+  .kpi>div{background:#fff;border:1px solid var(--gray-4);border-radius:7px;padding:13px;}
+  .kpi .v{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--navy);}
+  .kpi .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-2);margin-bottom:3px;}
+  textarea{width:100%;min-height:110px;padding:10px;border:1px solid var(--gray-4);border-radius:6px;
+           font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;}
+  .aviso{background:#fdf6e3;border-left:3px solid #E8A020;padding:11px 13px;font-size:11.5px;
+         border-radius:0 5px 5px 0;margin-bottom:14px;line-height:1.6;}
+  .bien{background:#eef7ee;border-left:3px solid #27853A;padding:11px 13px;font-size:11.5px;
+        border-radius:0 5px 5px 0;margin-bottom:14px;line-height:1.6;}
+  .chip-link{display:inline-block;border:1px solid var(--gray-4);border-radius:5px;padding:7px 13px;
+             margin:0 7px 7px 0;font-size:11.5px;text-decoration:none;color:var(--navy);background:#fff;}
+  .chip-link:hover{border-color:var(--navy);}
+  code{background:var(--gray-5,#f0f0ee);padding:1px 5px;border-radius:3px;font-size:11px;
+       font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .spinner{display:inline-block;width:11px;height:11px;border:2px solid var(--gray-4);
+           border-top-color:var(--navy);border-radius:50%;animation:giro .7s linear infinite;
+           vertical-align:-1px;margin-right:6px;}
+  @keyframes giro{to{transform:rotate(360deg);}}
+
   /* Fotos de producto: prueba visual de que se compara el mismo item entre cadenas */
   .thumb{width:34px;height:34px;object-fit:contain;background:#fff;border:1px solid var(--gray-4);
     display:block;}
@@ -137,6 +180,57 @@
     </div>
   </div>
 </header>
+
+<div class="tabs" id="tabs">
+  <div class="tab on" data-p="buscador">Buscador de SKU</div>
+  <div class="tab" data-p="elast">Elasticidad</div>
+  <div class="tab" data-p="mover">Movimiento de precio</div>
+  <div class="tab" data-p="informe">Informe SKU foco</div>
+</div>
+
+<!-- ============ A. BUSCADOR ============ -->
+<div class="panel on" id="p-buscador">
+  <div class="card">
+    <h2>Barrer precios de un producto</h2>
+    <div class="note">Escribe un producto y se capturan precios en vivo. Jumbo, Unimarc y Alvi se leen directo del sitio; Lider, Tottus, Santa Isabel y Acuenta entran vía Google Shopping porque bloquean el acceso directo.</div>
+    <div class="buscador">
+      <input type="text" id="q" placeholder="Ej: lechuga, palta hass, coca cola zero, leche entera">
+      <button type="button" id="btn-buscar">Barrer precios</button>
+    </div>
+    <div class="ejemplos" id="ejemplos"></div>
+    <div id="estado-busqueda" class="foot"></div>
+  </div>
+
+  <div class="card" id="card-variantes" style="display:none">
+    <h2>Elige el SKU a analizar</h2>
+    <div class="note">Se agruparon las ofertas por producto. Elige una variante para comparar cadena a cadena.</div>
+    <select id="sel-variante"></select>
+    <div id="resumen-variante"></div>
+  </div>
+
+  <div class="card" id="card-comparativa" style="display:none">
+    <h2>Comparativa por cadena</h2>
+    <div class="note" id="note-comparativa">—</div>
+    <div style="overflow-x:auto"><table id="tabla-comparativa"></table></div>
+    <div class="foot" id="foot-comparativa"></div>
+  </div>
+
+  <div class="card" id="card-manual" style="display:none">
+    <h2>Cadenas que bloquean el acceso automático</h2>
+    <div class="note">Lider protege su catálogo con PerimeterX, una sala de espera de Queue-it y Akamai. Google Shopping cubre parte, pero para el precio exacto de góndola abre la ficha tú y captura con el marcador.</div>
+    <div id="links-manual"></div>
+    <div class="foot" id="foot-bookmarklet"></div>
+  </div>
+</div>
+
+<!-- ============ B. ELASTICIDAD ============ -->
+<div class="panel" id="p-elast"><div id="elast-contenido"></div></div>
+
+<!-- ============ C. MOVIMIENTO DE PRECIO ============ -->
+<div class="panel" id="p-mover"><div id="mover-contenido"></div></div>
+
+<!-- ============ D. INFORME ============ -->
+<div class="panel" id="p-informe">
 
 <!-- ============ 1. SÍNTESIS ============ -->
 <div class="card">
@@ -264,6 +358,7 @@
 </div>
 
 <div class="foot" id="foot-global">—</div>
+</div><!-- /p-informe -->
 </div>
 
 <script>
@@ -612,6 +707,34 @@ sync();
 $("foot-global").innerHTML = `Herramienta de pricing dinámico competitivo · SKU foco ${META.sku_foco} · ` +
   `captura ${META.capturado} · generado automáticamente desde n8n. ` +
   `Los precios son observaciones públicas de catálogos online; la elasticidad es un supuesto calibrable y no una medición.`;
+</script>
+
+<script src="tools/pricing_modelo.js"></script>
+<script src="tools/buscador.js"></script>
+<script>
+/* ================= Pestañas ================= */
+(function(){
+  var pintado = {};
+  function activar(p){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.p===p); });
+    document.querySelectorAll(".panel").forEach(function(x){ x.classList.toggle("on", x.id==="p-"+p); });
+    // Elasticidad y movimiento dependen del barrido: se repintan al entrar.
+    var d = window.__DATOS_PRICING;
+    if(p==="elast")  PricingModelo.renderElasticidad($("elast-contenido"), d?d.ofertas:null, d?d.termino:"");
+    if(p==="mover")  PricingModelo.renderMovimiento($("mover-contenido"), d?d.ofertas:null, d?d.termino:"");
+    pintado[p]=true;
+  }
+  document.getElementById("tabs").addEventListener("click", function(ev){
+    var t = ev.target.closest(".tab");
+    if(t) activar(t.dataset.p);
+  });
+  // Si el barrido termina mientras estás en otra pestaña, se repinta al volver.
+  document.addEventListener("pricing:datos", function(){
+    var on = document.querySelector(".tab.on");
+    if(on && (on.dataset.p==="elast"||on.dataset.p==="mover")) activar(on.dataset.p);
+  });
+  Buscador.iniciar();
+})();
 </script>
 </body>
 </html>
