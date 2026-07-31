@@ -205,12 +205,35 @@
         pintarManual(q);
         btn.disabled = false;
       })
-      .catch(function (e) {
-        $('estado-busqueda').innerHTML = '<div class="aviso"><b>No se pudo completar el barrido.</b> ' +
-          esc(e.message) + '. El barrido corre en n8n: si el servicio está caído o el workflow desactivado, ' +
-          'esta pestaña no puede funcionar. Las cadenas bloqueadas siguen disponibles abajo para revisión manual.</div>';
-        pintarManual(q);
-        btn.disabled = false;
+      .catch(function (e) { diagnosticar(e, q); btn.disabled = false; });
+  }
+
+  /* "Failed to fetch" no distingue entre CORS, bloqueo del navegador y caida
+     del servicio. Una sonda en modo no-cors si los separa: si esa pasa, la
+     red llega al servidor y el problema es de cabeceras; si tambien falla,
+     la peticion no sale del navegador (extension, DNS, red corporativa). */
+  function diagnosticar(err, q) {
+    var url = API + '?q=' + encodeURIComponent(q);
+    $('estado-busqueda').innerHTML = '<div class="aviso"><span class="spinner"></span>' +
+      'El barrido falló (<code>' + esc(err.message) + '</code>). Averiguando la causa…</div>';
+    pintarManual(q);
+
+    fetch(API + '?q=ping', { method: 'GET', mode: 'no-cors' })
+      .then(function () {
+        $('estado-busqueda').innerHTML = '<div class="aviso">' +
+          '<b>El servidor responde, pero el navegador descartó la respuesta.</b> ' +
+          'Es un problema de CORS entre <code>' + esc(location.origin) + '</code> y el servicio. ' +
+          'Abre <a href="' + esc(url) + '" target="_blank" rel="noopener">este enlace</a>: si ves el JSON, ' +
+          'copia el error exacto de la consola del navegador (F12 → Console) y se corrige la cabecera.</div>';
+      })
+      .catch(function () {
+        $('estado-busqueda').innerHTML = '<div class="aviso">' +
+          '<b>La petición no llega al servicio.</b> No es CORS: el navegador ni siquiera completa la conexión. ' +
+          'Las tres causas habituales, en orden de frecuencia: una extensión de bloqueo de anuncios o rastreo ' +
+          'que corta dominios <code>railway.app</code>, una red corporativa o VPN que los filtra, o el servicio caído.<br><br>' +
+          'Compruébalo en un segundo: abre <a href="' + esc(url) + '" target="_blank" rel="noopener">este enlace directo</a>. ' +
+          'Si <b>ves JSON</b>, es una extensión bloqueando la llamada desde esta página: desactívala para este sitio. ' +
+          'Si <b>no carga</b>, tu red no alcanza el servicio y hay que publicarlo en otro dominio.</div>';
       });
   }
 
