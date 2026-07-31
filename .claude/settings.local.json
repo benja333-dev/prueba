@@ -29,7 +29,11 @@
       "WebFetch(domain:unisoma.com.br)",
       "WebFetch(domain:inpo.eng.br)",
       "Bash(git commit -m 'Formato McKinsey \\(navy/cian, Georgia, síntesis ejecutiva\\) + simulador Reforma Tributaria 2026-2033 *)",
-      "Bash(git commit -m 'Aclarar estados de CD: leyenda activo/candidato + mensaje al agregar bodega *)"
+      "Bash(git commit -m 'Aclarar estados de CD: leyenda activo/candidato + mensaje al agregar bodega *)",
+      "mcp__1bb5ef27-b79d-4888-861c-598834b9443a__get_workflow_details",
+      "mcp__1bb5ef27-b79d-4888-861c-598834b9443a__list_credentials",
+      "mcp__1bb5ef27-b79d-4888-861c-598834b9443a__update_workflow",
+      "mcp__1bb5ef27-b79d-4888-861c-598834b9443a__execute_workflow"
     ]
   }
 }

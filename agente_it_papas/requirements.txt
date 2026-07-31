@@ -1,0 +1,10 @@
+py-tgcalls==2.3.3
+pyrogram==2.0.106
+tgcrypto==1.2.5
+aiohttp>=3.9.3
+# 14.0 es donde el cliente asyncio pasó a llamarse additional_headers
+websockets>=14.0,<18
+msgpack>=1.0.8
+numpy>=1.26
+webrtcvad-wheels>=2.0.14
+requests>=2.31
