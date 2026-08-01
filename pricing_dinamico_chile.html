@@ -150,6 +150,24 @@
   .src{background:#F7F9FA;border-left:3px solid var(--steel);padding:11px 14px;font-size:11px;
     line-height:1.55;color:var(--gray-2);margin-top:14px;}
   .src b{color:var(--navy);}
+
+  /* ── Pestaña de sensibilidad ── */
+  .cita{font-family:Georgia,serif;font-size:19px;color:var(--navy);line-height:1.4;
+        border-left:3px solid var(--blue);padding:9px 0 9px 16px;margin:12px 0;}
+  .escala{margin:14px 0 4px;border-top:1px solid var(--gray-4);}
+  .es-fila{display:grid;grid-template-columns:92px minmax(0,1fr);gap:16px;padding:9px 0;
+           border-bottom:1px solid var(--gray-4);font-size:12.5px;line-height:1.55;}
+  .es-n{font-family:Georgia,serif;font-weight:700;color:var(--blue);font-size:15px;}
+  .cam{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:26px;margin-top:10px;}
+  @media(max-width:820px){.cam{grid-template-columns:1fr;gap:4px;}.es-fila{grid-template-columns:76px minmax(0,1fr);gap:12px;}}
+  .cam-b{background:var(--gray-5);padding:14px 18px;border-radius:6px;align-self:start;}
+  .cam-l{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-3);
+         font-weight:700;margin:13px 0 4px;}
+  .cam>div>.cam-l:first-child,.cam-b>.cam-l:first-child{margin-top:0;}
+  .cam .prosa{font-size:12.5px;line-height:1.65;}
+  .calculo{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#f6f7f8;
+           padding:14px 16px;border-radius:6px;line-height:2;margin:12px 0;}
+  .calculo b{color:var(--navy);font-size:14px;}
   .paso{display:inline-block;background:var(--navy);color:#fff;width:19px;height:19px;border-radius:50%;
         font-size:11px;line-height:19px;text-align:center;font-family:Arial,sans-serif;font-weight:700;
         margin-right:7px;vertical-align:2px;}
@@ -168,6 +186,7 @@
 
 <div class="tabs" id="tabs">
   <div class="tab on" data-p="decidir">Decidir el precio</div>
+  <div class="tab" data-p="sensib">Sensibilidad, explicada</div>
   <div class="tab" data-p="metodo">Cómo se calcula</div>
 </div>
 
@@ -271,6 +290,267 @@
       <div id="links-manual"></div>
       <div class="foot" id="foot-bookmarklet"></div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SENSIBILIDAD, EXPLICADA ═══════════════ -->
+<div class="panel" id="p-sensib">
+
+  <div class="card">
+    <h2>Para qué sirve esta pestaña</h2>
+    <p class="prosa">Aquí no se toca nada: todos los valores se ajustan en <b>Decidir el precio</b>. Esto es la
+    explicación completa, escrita para alguien que nunca trabajó en pricing, de <b>de dónde sale el único número
+    que decide todo</b> en esta herramienta y por qué puedes creerle (y cuándo no).</p>
+  </div>
+
+  <div class="card">
+    <h2>1 · Qué es la sensibilidad al precio</h2>
+    <p class="prosa">Es la respuesta a una sola pregunta:</p>
+    <div class="cita">Si subo el precio 10%, ¿cuánto dejo de vender?</div>
+    <p class="prosa">Si al subir 10% dejas de vender 10%, tu sensibilidad es <b>1</b>. Si dejas de vender 28%, es
+    <b>2,8</b>. Se escribe con signo negativo (−2,8) sólo porque el volumen se mueve al revés que el precio; el signo
+    no aporta nada más y puedes ignorarlo. Su nombre técnico es <b>elasticidad precio de la demanda</b> y se anota
+    con la letra griega ε. Es lo mismo.</p>
+    <div class="escala">
+      <div class="es-fila"><div class="es-n">0 a −1</div><div class="es-t"><b>Poco sensible.</b> Subes el precio y casi nadie se va. Sal, levadura, un remedio: no hay con qué reemplazarlo y pesa poco en la cuenta.</div></div>
+      <div class="es-fila"><div class="es-n">−1 a −2</div><div class="es-t"><b>Sensible.</b> Lo normal en alimentos con marca. Subir 10% cuesta entre 10% y 20% del volumen.</div></div>
+      <div class="es-fila"><div class="es-n">−2 a −4</div><div class="es-t"><b>Muy sensible.</b> Bebidas, detergentes, arroz, pastas. Hay muchas marcas equivalentes al lado en la góndola y el shopper compara.</div></div>
+      <div class="es-fila"><div class="es-n">bajo −4</div><div class="es-t"><b>Brutal.</b> Producto indiferenciado con competencia a la vista. Casi siempre significa que el número está mal estimado.</div></div>
+    </div>
+    <div class="foot">Ojo con una confusión muy común: la sensibilidad <b>de tu producto en tu supermercado</b> es
+    mucho más alta que la de la categoría completa. Que el precio de la leche suba en todo Chile no hace que la gente
+    deje de tomar leche; que suba <b>sólo en tu local</b>, sí hace que la compren en el de al frente. Esta herramienta
+    estima lo segundo, que es lo que importa para decidir tu precio.</div>
+  </div>
+
+  <div class="card">
+    <h2>2 · La cuenta que de verdad decide</h2>
+    <p class="prosa">Subir el precio siempre tiene dos efectos opuestos: <b>ganas más en cada unidad</b> y
+    <b>vendes menos unidades</b>. La pregunta no es si perderás ventas — siempre las pierdes — sino
+    <b>cuántas puedes perder antes de que deje de convenirte</b>. Ese es el punto de equilibrio.</p>
+    <p class="prosa">Y depende de tu margen, no de tu intuición. Un ejemplo con números redondos:</p>
+    <table><thead><tr><th>Si tu margen hoy es…</th><th class="num">Al subir 10%, aguantas perder hasta…</th><th>Traducido</th></tr></thead><tbody>
+      <tr><td>15% (producto de bajo margen)</td><td class="num">40% del volumen</td><td>Tienes mucho aire: aunque se te vaya media clientela, ganas más</td></tr>
+      <tr><td>30% (típico en supermercado)</td><td class="num">25% del volumen</td><td>Aire razonable</td></tr>
+      <tr><td>50% (margen alto)</td><td class="num">17% del volumen</td><td>Poco aire: perder un sexto de las ventas ya te empata</td></tr>
+    </tbody></table>
+    <div class="foot"><b>Cuanto más alto es tu margen, menos volumen puedes darte el lujo de perder.</b> Es
+    contraintuitivo y es la regla que más se equivoca la gente. La razón: si ganas mucho en cada unidad, cada unidad
+    que dejas de vender te duele mucho. La fórmula es <code>aguante = subida ÷ (subida + margen)</code> y viene de
+    Nagle &amp; Holden. Con eso solo ya puedes decidir sin saber nada de elasticidad: si crees que perderás
+    <i>menos</i> que el aguante, sube.</div>
+  </div>
+
+  <div class="card">
+    <h2>3 · Por qué no se puede simplemente medir</h2>
+    <p class="prosa">Para <b>medir</b> la sensibilidad hace falta ver qué pasó con tus ventas cuando cambiaste el
+    precio: muchas semanas, muchos precios distintos, y limpiando el ruido de las fiestas, el clima y las promociones
+    de la competencia. Con eso se corre una regresión y sale un número defendible.</p>
+    <p class="prosa">Esa información <b>no existe en ninguna fuente pública</b>. Los supermercados publican precios;
+    ninguno publica unidades vendidas. Así que cualquier herramienta que mire sólo precios de la competencia y te
+    muestre una elasticidad "calculada" te está vendiendo humo.</p>
+    <div class="aviso"><b>Lo que sí se puede hacer</b>, y es lo que hace la industria, es <b>inferirla por varios
+    caminos independientes y ver si coinciden</b>. Eso es triangular. No da un número exacto; da un rango con el que
+    se puede decidir, que es lo que necesitas.</div>
+  </div>
+
+  <div class="card">
+    <h2>4 · Qué significa triangular</h2>
+    <p class="prosa">Imagina que estás perdido en un cerro sin GPS. No puedes medir tu posición, pero ves tres cosas
+    conocidas: una antena, un lago y un pueblo. Cada una por separado sólo te dice <i>"estás en algún lugar de esta
+    dirección"</i> — inútil sola. Las tres cruzadas te ubican en un área pequeña. Y si las tres apuntan a lugares muy
+    distintos, eso también es información valiosa: significa que algo está mal y no debes confiarte.</p>
+    <p class="prosa">Esta herramienta hace lo mismo con <b>cuatro caminos</b> que no comparten supuestos entre sí.
+    Dos vienen de teoría, dos de conducta observada de las cadenas. Cada uno responde a una pregunta distinta:</p>
+    <table><thead><tr><th>Camino</th><th>La pregunta que responde</th><th class="num">Cuánto pesa</th></tr></thead><tbody>
+      <tr><td><b>1 · Prior de categoría</b></td><td>¿Qué le pasa <i>en general</i> a un producto como éste, según cientos de estudios publicados?</td><td class="num">1,0</td></tr>
+      <tr><td><b>2 · Dispersión de precios</b></td><td>¿Los precios entre cadenas están apretados o dispersos?</td><td class="num">0,6</td></tr>
+      <tr><td><b>3 · Promoción revelada</b></td><td>¿Qué elasticidad están asumiendo las cadenas cuando deciden hacer un descuento?</td><td class="num">1,2</td></tr>
+      <tr><td><b>4 · Equilibrio de mercado</b></td><td>¿Qué elasticidad está implícita en el margen que el mercado sostiene?</td><td class="num">1,4</td></tr>
+    </tbody></table>
+    <div class="foot">Los pesos no son arbitrarios: <b>pesa más el camino que se apoya en plata real puesta sobre la
+    mesa</b> por alguien que conoce la categoría, y pesa menos el que se apoya en una regla general o en una
+    heurística. Los caminos 3 y 4 leen decisiones que las cadenas ya tomaron con su propio dinero; el 1 es un promedio
+    de otros mercados y el 2 es una señal indirecta.</div>
+  </div>
+
+  <div class="card">
+    <h2>Camino 1 · Prior de categoría</h2>
+    <div class="cam">
+      <div>
+        <div class="cam-l">La idea</div>
+        <p class="prosa">Antes de mirar tu producto, pregúntate qué se sabe de los productos parecidos. Alguien ya
+        midió esto miles de veces en otros mercados.</p>
+        <div class="cam-l">Cómo funciona</div>
+        <p class="prosa">Hay un meta-análisis (Bijmolt, van Heerde &amp; Pieters, 2005) que juntó <b>1.851
+        elasticidades publicadas</b> en estudios reales, con ventas reales, y sacó promedios por tipo de producto: el
+        promedio general es −2,6, y sube en categorías con muchas marcas sustituibles y mucha promoción. La
+        herramienta clasifica lo que buscaste por su nombre y le asigna ese promedio.</p>
+        <div class="cam-l">Un ejemplo</div>
+        <p class="prosa">Buscas "coca cola zero". Cae en gaseosas: categoría con marcas altamente sustituibles y muy
+        promocionada. El prior es <b>−2,6</b>.</p>
+      </div>
+      <div class="cam-b">
+        <div class="cam-l">Su punto débil</div>
+        <p class="prosa">Es un promedio de <i>otros</i> mercados y <i>otros</i> años. No sabe nada de tu local, tu
+        clientela ni tu competencia de la esquina.</p>
+        <div class="cam-l">Cuándo falla</div>
+        <p class="prosa">Cuando el producto no se parece a su categoría: un formato familiar de 3 L se comporta
+        distinto a una lata suelta aunque sean la misma marca.</p>
+        <div class="cam-l">Por qué pesa 1,0</div>
+        <p class="prosa">Es sólido como punto de partida y es el único camino que siempre está disponible, pero no
+        mira tu caso.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Camino 2 · Dispersión de precios</h2>
+    <div class="cam">
+      <div>
+        <div class="cam-l">La idea</div>
+        <p class="prosa">Mira cuánto se parecen los precios de las cadenas entre sí. <b>Si todas cobran casi lo mismo,
+        es porque ninguna se atreve a despegarse</b> — y no se atreven porque el shopper compara y se cambia. Precios
+        apretados delatan un cliente sensible.</p>
+        <div class="cam-l">Cómo funciona</div>
+        <p class="prosa">Se calcula cuánto se desvían los precios respecto de su promedio (el coeficiente de
+        variación). Casi 0% de dispersión sugiere una sensibilidad cercana a −3,2; una dispersión de 30% o más
+        sugiere −0,7.</p>
+        <div class="cam-l">Un ejemplo</div>
+        <p class="prosa">Cuatro cadenas venden el mismo producto a $1.890, $1.990, $2.150 y $2.190. Se mueven en una
+        franja de 8% y la dispersión sale en torno a 7%: precios muy pegados, señal de shopper que compara. Da
+        alrededor de <b>−2,6</b>.</p>
+      </div>
+      <div class="cam-b">
+        <div class="cam-l">Su punto débil</div>
+        <p class="prosa">Es el más flojo de los cuatro. Los precios pueden estar pegados por razones que no tienen
+        nada que ver con el shopper: costo mayorista común, un precio sugerido del proveedor, o simplemente que todos
+        se copian.</p>
+        <div class="cam-l">Cuándo falla</div>
+        <p class="prosa">Con menos de 3 cadenas no se calcula: no hay dispersión que medir. En ese caso el camino
+        queda fuera y los otros tres se reparten su peso.</p>
+        <div class="cam-l">Por qué pesa 0,6</div>
+        <p class="prosa">Porque es una heurística calibrada, no una estimación. Pesa la mitad que los caminos duros
+        justamente para que no arrastre el resultado.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Camino 3 · Promoción revelada</h2>
+    <div class="cam">
+      <div>
+        <div class="cam-l">La idea</div>
+        <p class="prosa">Nadie corre una promoción para perder plata. <b>Cuando una cadena decide descontar 25%, está
+        apostando a que venderá lo suficientemente más como para compensar</b>. Esa apuesta revela qué sensibilidad
+        cree que tiene el producto. Y quien la hace conoce la categoría mejor que cualquier promedio publicado.</p>
+        <div class="cam-l">Cómo funciona</div>
+        <p class="prosa">Se da vuelta la cuenta del punto 2. Si un descuento de profundidad <b>d</b> se paga con un
+        margen de retail <b>m</b>, la sensibilidad tiene que ser al menos <code>1 ÷ (d + m)</code>. Si las cadenas
+        corren ese descuento igual, ése es <b>el piso que ellas mismas asumen</b>.</p>
+        <div class="cam-l">Un ejemplo</div>
+        <p class="prosa">Una cadena baja de $2.290 a $1.990: un descuento de 13%. Con un margen de retail de 28%, esa
+        promoción sólo se paga si la sensibilidad es al menos <b>1 ÷ (0,13 + 0,28) = 2,4</b>. La corren de todos modos,
+        así que creen que es <b>−2,4</b> o peor.</p>
+      </div>
+      <div class="cam-b">
+        <div class="cam-l">Su punto débil</div>
+        <p class="prosa">Depende del margen de retail supuesto (28% por defecto), que no es observable. Y no toda
+        promoción busca utilidad: algunas se corren para generar tráfico o porque el proveedor las financia.</p>
+        <div class="cam-l">Cuándo falla</div>
+        <p class="prosa">Si en la captura ninguna cadena muestra descuento, no hay conducta que leer y el camino
+        queda fuera. Cuidado además con Jumbo: dejó de publicar su mecánica promocional, así que puede haber
+        descuentos que no vemos.</p>
+        <div class="cam-l">Por qué pesa 1,2</div>
+        <p class="prosa">Porque es conducta real con dinero real, no teoría. Pero entrega un <b>piso</b>, no un punto:
+        la sensibilidad podría ser peor todavía.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Camino 4 · Equilibrio de mercado</h2>
+    <div class="cam">
+      <div>
+        <div class="cam-l">La idea</div>
+        <p class="prosa">El más potente de los cuatro. <b>El margen que un mercado competitivo logra sostener en el
+        tiempo ya contiene la respuesta.</b> Si todas las cadenas pudieran cobrar más sin perder clientes, ya lo
+        habrían hecho. Que se hayan estacionado en cierto margen dice exactamente cuán sensible creen que es el
+        cliente.</p>
+        <div class="cam-l">Cómo funciona</div>
+        <p class="prosa">En un mercado donde cada cadena fija su precio mirando a las otras, el margen de equilibrio
+        cumple <code>margen = 1 ÷ sensibilidad</code>. Dado vuelta: <code>sensibilidad = 1 ÷ margen</code>.</p>
+        <div class="cam-l">Un ejemplo</div>
+        <p class="prosa">El precio mediano del mercado es $2.070 y el costo supuesto es el 70% de eso. El margen es
+        30%, así que la sensibilidad implícita es <b>1 ÷ 0,30 = 3,3</b>. El mercado se está comportando como si el
+        cliente fuera muy sensible.</p>
+      </div>
+      <div class="cam-b">
+        <div class="cam-l">Su punto débil</div>
+        <p class="prosa">Todo depende del costo supuesto, que es el dato que tú controlas. Si el costo está mal, este
+        camino miente. <b>Es el número que más conviene que corrijas</b> en la primera pestaña.</p>
+        <div class="cam-l">Por qué importa tanto</div>
+        <p class="prosa">Es el que <b>ancla el modelo al mercado real</b>. Sin él, la herramienta llegaba a recomendar
+        un precio por encima del de todas las cadenas. Leído al revés, ese síntoma tiene una explicación exacta: si el
+        cálculo propone cobrar más que todos, no es que haya plata sobre la mesa, es que la sensibilidad supuesta era
+        demasiado baja frente a la que el mercado está revelando.</p>
+        <div class="cam-l">Por qué pesa 1,4</div>
+        <p class="prosa">Es el único que usa el precio observado y el costo juntos, y el que corrige el error más caro.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5 · Cómo se combinan los cuatro</h2>
+    <p class="prosa">Promedio ponderado: cada camino aporta su número multiplicado por su peso, se suma todo y se
+    divide por la suma de los pesos. Los caminos que no pudieron calcularse (peso 0) simplemente no entran, y los
+    demás se reparten su influencia.</p>
+    <div class="calculo">
+      (−2,60 × 1,0) + (−2,57 × 0,6) + (−2,43 × 1,2) + (−3,33 × 1,4) &nbsp;=&nbsp; −11,74<br>
+      1,0 + 0,6 + 1,2 + 1,4 &nbsp;=&nbsp; 4,2<br>
+      <b>−11,74 ÷ 4,2 &nbsp;=&nbsp; −2,79</b>
+    </div>
+    <p class="prosa">Y lo importante no es sólo el promedio: es <b>cuánto se parecen entre sí</b>. En el ejemplo los
+    cuatro caen entre −2,4 y −3,3, un rango estrecho. Cuatro métodos que no comparten supuestos llegando al mismo
+    vecindario es la mejor evidencia disponible de que el número sirve.</p>
+    <div class="foot">Si en cambio uno diera −0,8 y otro −4,5, el promedio seguiría existiendo pero <b>no
+    significaría nada</b>. Por eso la herramienta te avisa cuando discrepan y te dice que lo trates como rango.</div>
+  </div>
+
+  <div class="card">
+    <h2>6 · Tu producto, camino por camino</h2>
+    <div class="note">Los cuatro caminos aplicados al producto que tengas cargado en la primera pestaña, sobre la
+    misma recta. El tamaño de cada punto es su peso.</div>
+    <div id="sens-vacio" class="aviso">Aún no has buscado ningún producto. Ve a <b>Decidir el precio</b>, busca uno
+    y vuelve aquí: verás sus cuatro caminos con sus números reales.</div>
+    <div id="sens-vivo" style="display:none">
+      <svg id="svg-triang" viewBox="0 0 780 210"></svg>
+      <div id="sens-tabla"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>7 · Cuándo NO creerle a este número</h2>
+    <table><thead><tr><th>Señal de alerta</th><th>Qué significa</th><th>Qué hacer</th></tr></thead><tbody>
+      <tr><td>Los cuatro caminos discrepan mucho</td><td>No hay convergencia: los métodos no se están apoyando entre sí</td><td>Tómalo como rango. Decide con el aguante del punto 2, que no depende de la elasticidad</td></tr>
+      <tr><td>Menos de 3 cadenas en el set</td><td>Dos caminos se apagan y el resultado se apoya casi sólo en el prior</td><td>Carga a mano los precios de Lider, Santa Isabel y Tottus en la primera pestaña</td></tr>
+      <tr><td>El precio recomendado queda sobre todas las cadenas</td><td>Casi siempre el costo está subestimado</td><td>Corrige el costo por unidad: es el supuesto más sensible de todos</td></tr>
+      <tr><td>Ninguna cadena muestra promoción</td><td>El camino 3 no aplica, y puede ser que las promociones existan pero no se publiquen</td><td>Revisa la mecánica en la tabla de detalle antes de concluir que no hay promociones</td></tr>
+      <tr><td>La variante mezcla formatos o combos</td><td>Estás comparando cosas distintas y la dispersión sale inflada</td><td>Elige otra variante del desplegable: están ordenadas por en cuántos supermercados aparecen</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>8 · Qué haría falta para medirla de verdad</h2>
+    <p class="prosa">Hay exactamente tres formas de pasar de inferir a medir, en orden de esfuerzo:</p>
+    <table><thead><tr><th>Vía</th><th>Qué necesitas</th><th>Qué obtienes</th></tr></thead><tbody>
+      <tr><td><b>Tu propio histórico</b></td><td>Unidades vendidas por semana y precio de esas semanas, idealmente con varios cambios de precio</td><td>El número de verdad, con intervalo de confianza. Con 40+ semanas ya es defendible</td></tr>
+      <tr><td><b>Experimento de precios</b></td><td>Cobrar distinto en locales comparables durante unas semanas</td><td>Lo más limpio que existe: es lo que hace Eversight. Aísla el efecto del precio de todo lo demás</td></tr>
+      <tr><td><b>Panel de mercado</b></td><td>Suscripción a Nielsen o Kantar</td><td>Elasticidad de categoría y de marca, pero no la de tu local específico</td></tr>
+    </tbody></table>
+    <div class="foot">Mientras tanto, hay algo que <b>sí se está midiendo solo</b>: la captura diaria corre todos los
+    días y queda versionada, así que se está acumulando un histórico de cómo reacciona cada cadena cuando otra mueve
+    el precio. Eso no requiere tus ventas y con suficientes semanas se vuelve medible.</div>
   </div>
 </div>
 
@@ -504,6 +784,10 @@ $("foot-global").innerHTML = `Captura ${META.capturado}, generada automáticamen
     if(!t) return;
     document.querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("on", x===t); });
     document.querySelectorAll(".panel").forEach(function(x){ x.classList.toggle("on", x.id==="p-"+t.dataset.p); });
+    // El grafico de triangulacion vive en un panel oculto: un SVG dibujado
+    // mientras su contenedor esta en display:none no reserva alto. Se repinta al
+    // mostrarlo.
+    if(t.dataset.p==="sensib") Decidir.pintarTriangulacion();
   });
   Buscador.iniciar();
   Decidir.enlazar();

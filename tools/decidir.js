@@ -44,6 +44,13 @@
     return url.replace(/\/arquivos\/ids\/(\d+)(-\d+-\d+)?\//, '/arquivos/ids/$1-' + px + '-' + px + '/');
   };
 
+  /* Elasticidad en convencion chilena: signo menos tipografico y coma decimal.
+     "-2.79" se lee como texto de consola; "−2,79" se lee como una cifra. */
+  var EPS = function (n, d) {
+    return (n == null || !isFinite(n)) ? '—'
+      : (n < 0 ? '−' : '') + Math.abs(n).toFixed(d == null ? 2 : d).replace('.', ',');
+  };
+
   var COL = { yo: '#2251FF', opt: '#27853A', mal: '#C0392B', gris: '#8FA3B0', linea: '#051C2C', suave: '#D8DEE2' };
 
   var st = {
@@ -370,8 +377,8 @@
     var caminos = (t.caminos || []).map(function (c) {
       var vale = c.e != null && c.peso > 0;
       return '<tr' + (vale ? '' : ' style="color:#999"') + '><td>' + esc(c.id) + '</td>' +
-        '<td class="num">' + (vale ? c.e.toFixed(2) : 'sin datos') + '</td>' +
-        '<td class="num">' + (vale ? c.peso.toFixed(1) : '—') + '</td>' +
+        '<td class="num">' + (vale ? EPS(c.e) : 'sin datos') + '</td>' +
+        '<td class="num">' + (vale ? c.peso.toFixed(1).replace('.', ',') : '—') + '</td>' +
         '<td>' + (c.detalle || c.base || '') + '</td></tr>';
     }).join('');
     $('d-supuestos').innerHTML =
@@ -380,12 +387,133 @@
         '<th class="num">Pesa</th><th>Sobre qué</th></tr></thead>' +
       '<tbody>' + caminos +
       '<tr class="foco"><td><b>Conclusión (promedio ponderado)</b></td><td class="num"><b>' +
-        st.epsilon.toFixed(2) + '</b></td><td class="num">—</td><td><b>' +
-        (t.convergen ? 'Los ' + t.n + ' caminos convergen' : 'Los caminos discrepan (de ' + t.min.toFixed(2) + ' a ' + t.max.toFixed(2) + '): tómalo como rango, no como punto') +
+        EPS(st.epsilon) + '</b></td><td class="num">—</td><td><b>' +
+        (t.convergen ? 'Los ' + t.n + ' caminos convergen' : 'Los caminos discrepan (de ' + EPS(t.max) + ' a ' + EPS(t.min) + '): tómalo como rango, no como punto') +
         '</b></td></tr></tbody></table></div>' +
-      '<div class="foot">Se lee así: con una sensibilidad de <b>' + st.epsilon.toFixed(2) + '</b>, subir el precio 10% ' +
+      '<div class="foot">Se lee así: con una sensibilidad de <b>' + EPS(st.epsilon) + '</b>, subir el precio 10% ' +
       'hace caer las unidades alrededor de <b>' + (Math.abs(st.epsilon) * 10).toFixed(0) + '%</b>. ' +
       'El fundamento de cada camino está en la pestaña <b>Cómo se calcula</b>.</div>';
+  }
+
+  /* ═════════════ Triangulación dibujada, para la pestaña explicativa ═════════════
+     Los cuatro caminos sobre la misma recta. Lo que hay que ver de un vistazo no
+     es el promedio sino si los puntos caen juntos: cuatro metodos que no
+     comparten supuestos coincidiendo es la evidencia, no el numero en si. */
+  var ZONAS = [
+    [-1, 0, '#EAF8FE', 'poco sensible'],
+    [-2, -1, '#DCEEF6', 'sensible'],
+    [-4, -2, '#C6E4F0', 'muy sensible'],
+    [-99, -4, '#AAE6F0', 'brutal']
+  ];
+
+  function pintarTriangulacion() {
+    var t = st.tri;
+    var vivo = $('sens-vivo'), vacio = $('sens-vacio');
+    if (!vivo) return;                       // la pestaña puede no existir
+    if (!t || t.e == null) {
+      vivo.style.display = 'none';
+      if (vacio) vacio.style.display = '';
+      return;
+    }
+    vivo.style.display = ''; if (vacio) vacio.style.display = 'none';
+
+    var validos = (t.caminos || []).filter(function (c) { return c.e != null && c.peso > 0; });
+    var es = validos.map(function (c) { return c.e; }).concat([t.e]);
+    var lo = Math.min.apply(null, es) - 0.7, hi = Math.min(0, Math.max.apply(null, es) + 0.7);
+    if (hi - lo < 1.5) { lo -= 0.5; hi = Math.min(0, hi + 0.5); }
+
+    var W = 780, H = 210, L = 14, R = 14;
+    var x = function (e) { return L + ((e - lo) / (hi - lo)) * (W - L - R); };
+    var yD = 100, zT = 118, zB = 146;
+    var s = '';
+
+    // Franjas de interpretacion: dan significado al eje sin leer la tabla.
+    ZONAS.forEach(function (z) {
+      var a = Math.max(z[0], lo), b = Math.min(z[1], hi);
+      if (b <= a) return;
+      s += '<rect x="' + x(a).toFixed(1) + '" y="' + zT + '" width="' + (x(b) - x(a)).toFixed(1) +
+        '" height="' + (zB - zT) + '" fill="' + z[2] + '"/>';
+      if (x(b) - x(a) > 62) {
+        s += '<text class="ax" x="' + ((x(a) + x(b)) / 2).toFixed(1) + '" y="' + (zT + 18) +
+          '" text-anchor="middle" style="fill:#00618c;font-weight:700;font-size:9.5px">' + z[3] + '</text>';
+      }
+    });
+
+    // Franja entre el camino mas y menos elastico: el ancho ES la incertidumbre.
+    var eMin = Math.min.apply(null, validos.map(function (c) { return c.e; }));
+    var eMax = Math.max.apply(null, validos.map(function (c) { return c.e; }));
+    s += '<rect x="' + x(eMin).toFixed(1) + '" y="' + (yD - 9) + '" width="' + Math.max(2, x(eMax) - x(eMin)).toFixed(1) +
+      '" height="18" fill="#D8DEE2" opacity=".55"/>';
+    s += '<line x1="' + L + '" y1="' + yD + '" x2="' + (W - R) + '" y2="' + yD + '" stroke="#B3B3B3" stroke-width="1"/>';
+
+    // Un punto por camino; el radio es el peso.
+    var usados = [];
+    validos.slice().sort(function (a, b) { return a.e - b.e; }).forEach(function (c) {
+      var px = x(c.e), nivel = 0;
+      while (usados.some(function (u) { return u.nivel === nivel && Math.abs(u.px - px) < 118; })) nivel++;
+      usados.push({ px: px, nivel: nivel });
+      var ty = yD - 22 - nivel * 17;
+      var anc = px < L + 60 ? 'start' : (px > W - R - 60 ? 'end' : 'middle');
+      var dx = anc === 'start' ? -3 : (anc === 'end' ? 3 : 0);
+      s += '<line x1="' + px.toFixed(1) + '" y1="' + (ty + 4) + '" x2="' + px.toFixed(1) + '" y2="' + (yD - 8) +
+        '" stroke="#B3B3B3" stroke-width="1" stroke-dasharray="2,2"/>';
+      s += '<text class="lbl" x="' + (px + dx).toFixed(1) + '" y="' + ty + '" text-anchor="' + anc + '">' +
+        esc(c.id) + ' <tspan style="font-weight:700;fill:#051C2C">' + EPS(c.e) + '</tspan></text>';
+      s += '<circle cx="' + px.toFixed(1) + '" cy="' + yD + '" r="' + (4 + c.peso * 3).toFixed(1) +
+        '" fill="' + COL.yo + '" opacity=".82"/>';
+    });
+
+    // Conclusion ponderada.
+    s += '<line x1="' + x(t.e).toFixed(1) + '" y1="26" x2="' + x(t.e).toFixed(1) + '" y2="' + zB +
+      '" stroke="' + COL.linea + '" stroke-width="2"/>' +
+      '<text class="val" x="' + x(t.e).toFixed(1) + '" y="18" text-anchor="middle" style="font-size:12px">' +
+      'conclusión ' + EPS(t.e) + '</text>';
+
+    var paso = (hi - lo) > 4 ? 1 : 0.5;
+    for (var v = Math.ceil(lo / paso) * paso; v <= hi + 1e-9; v += paso) {
+      s += '<text class="ax" x="' + x(v).toFixed(1) + '" y="' + (zB + 16) + '" text-anchor="middle">' +
+        EPS(Math.round(v * 10) / 10, 1) + '</text>';
+    }
+    s += '<text class="axlab" x="' + L + '" y="' + (zB + 34) + '">← más sensible</text>' +
+      '<text class="axlab" x="' + (W - R) + '" y="' + (zB + 34) + '" text-anchor="end">menos sensible →</text>';
+
+    var g = $('svg-triang');
+    g.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    g.innerHTML = s;
+
+    /* La aritmetica escrita, no sólo el resultado: es el "por este camino me dio
+       esto, por este otro esto, por eso concluyo aquello". */
+    var sumaNum = validos.reduce(function (a, c) { return a + c.e * c.peso; }, 0);
+    var sumaPeso = validos.reduce(function (a, c) { return a + c.peso; }, 0);
+    var filas = (t.caminos || []).map(function (c) {
+      var vale = c.e != null && c.peso > 0;
+      return '<tr' + (vale ? '' : ' style="color:#999"') + '><td><b>' + esc(c.id) + '</b></td>' +
+        '<td class="num">' + (vale ? EPS(c.e) : 'no aplica') + '</td>' +
+        '<td class="num">' + (vale ? c.peso.toFixed(1).replace('.', ',') : '—') + '</td>' +
+        '<td class="num">' + (vale ? EPS(c.e * c.peso) : '—') + '</td>' +
+        '<td>' + (c.base || '') + ' ' + (c.detalle || '') + '</td></tr>';
+    }).join('');
+
+    $('sens-tabla').innerHTML =
+      '<div style="overflow-x:auto"><table style="margin-top:16px">' +
+      '<thead><tr><th>Camino</th><th class="num">Da</th><th class="num">× peso</th><th class="num">Aporta</th>' +
+      '<th>Sobre qué lo dice</th></tr></thead><tbody>' + filas +
+      '<tr class="foco"><td><b>Suma</b></td><td class="num">—</td><td class="num"><b>' + sumaPeso.toFixed(1).replace('.', ',') + '</b></td>' +
+      '<td class="num"><b>' + EPS(sumaNum) + '</b></td>' +
+      '<td><b>' + EPS(sumaNum) + ' ÷ ' + sumaPeso.toFixed(1).replace('.', ',') + ' = ' + EPS(t.e) + '</b></td></tr>' +
+      '</tbody></table></div>' +
+      '<div class="' + (t.convergen ? 'bien' : 'aviso') + '" style="margin-top:14px">' +
+      (t.convergen
+        ? '<b>Los ' + t.n + ' caminos convergen.</b> Todos caen entre ' + EPS(eMax) + ' y ' + EPS(eMin) +
+          ', un rango de ' + EPS(Math.abs(eMax - eMin)) + '. Métodos que no comparten supuestos llegando al mismo ' +
+          'vecindario: puedes usar ' + EPS(t.e) + ' para decidir.'
+        : '<b>Los caminos discrepan.</b> Van de ' + EPS(eMax) + ' a ' + EPS(eMin) +
+          '. El promedio existe pero no es confiable como punto: úsalo como rango, y decide con el aguante de ' +
+          'margen del punto 2, que no depende de la elasticidad.') + '</div>' +
+      '<div class="foot">Traducido: si subes el precio <b>10%</b>, las unidades caen alrededor de <b>' +
+      (Math.abs(t.e) * 10).toFixed(0) + '%</b>' +
+      (validos.length > 1 ? ', y según el camino que mires, entre <b>' + (Math.abs(eMax) * 10).toFixed(0) +
+        '%</b> y <b>' + (Math.abs(eMin) * 10).toFixed(0) + '%</b>' : '') + '.</div>';
   }
 
   /* ═════════════ Repintado completo ═════════════ */
@@ -453,6 +581,7 @@
 
     st.listo = true;
     pintarSupuestos();
+    pintarTriangulacion();
     repintar();
   }
 
@@ -482,5 +611,6 @@
     });
   }
 
-  window.Decidir = { enlazar: enlazar, activar: activar, _st: st, _modelo: modelo };
+  window.Decidir = { enlazar: enlazar, activar: activar, _st: st, _modelo: modelo,
+                     pintarTriangulacion: pintarTriangulacion };
 })();

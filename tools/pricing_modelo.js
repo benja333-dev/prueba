@@ -36,7 +36,13 @@
     return (n == null || isNaN(n) || !isFinite(n)) ? '—' : '$' + Math.round(n).toLocaleString('es-CL');
   };
   var PCT = function (n, d) {
-    return (n == null || !isFinite(n)) ? '—' : (n * 100).toFixed(d == null ? 1 : d) + '%';
+    return (n == null || !isFinite(n)) ? '—'
+      : (n * 100).toFixed(d == null ? 1 : d).replace('.', ',') + '%';
+  };
+  /* Elasticidad como cifra, no como texto de consola: "−2,43" y no "-2.43". */
+  var EPS = function (n) {
+    return (n == null || !isFinite(n)) ? '—'
+      : (n < 0 ? '−' : '') + Math.abs(n).toFixed(2).replace('.', ',');
   };
   var esc = function (s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -81,17 +87,17 @@
      conveniencia con muchas marcas sustitutas. */
   var PRIORES = [
     ['Bebidas gaseosas', /coca|pepsi|bebida|gaseosa|sprite|fanta|nectar|jugo/, -2.6, -3.8, -1.5,
-     'Categoria muy promocionada y con marcas altamente sustituibles.'],
+     'Categoría muy promocionada y con marcas altamente sustituibles.'],
     ['Snacks y galletas', /galleta|snack|papas fritas|ramitas|dulce|chocolate/, -2.2, -3.0, -1.2,
-     'Compra por impulso: la sustitucion entre marcas es alta.'],
+     'Compra por impulso: la sustitución entre marcas es alta.'],
     ['Lacteos', /leche|yogur|queso|lacteo|mantequilla|crema/, -1.4, -2.0, -0.6,
      'Compra de rutina; la leche blanca opera casi como commodity.'],
     ['Frutas y verduras', /lechuga|palta|tomate|platano|manzana|papa|cebolla|zanahoria|fruta|verdura|limon/, -0.9, -1.4, -0.4,
      'Sin marca que defender, pero con demanda de base estable.'],
     ['Despensa basica', /arroz|fideo|aceite|azucar|harina|legumbre|sal\b/, -0.8, -1.2, -0.3,
-     'Bien de primera necesidad: la demanda agregada es rigida.'],
+     'Bien de primera necesidad: la demanda agregada es rígida.'],
     ['Limpieza y aseo', /detergente|cloro|limpieza|jabon|shampoo|papel higienico/, -1.8, -2.5, -0.9,
-     'Stock-up: el hogar adelanta compra cuando hay promocion.']
+     'Stock-up: el hogar adelanta compra cuando hay promoción.']
   ];
 
   function caminoPrior(termino) {
@@ -100,9 +106,9 @@
     for (var i = 0; i < PRIORES.length; i++) if (PRIORES[i][1].test(t)) { p = PRIORES[i]; break; }
     if (!p) p = PRIORES[3];
     return {
-      id: 'Prior de categoria', e: p[2], rango: [p[4], p[3]], categoria: p[0],
+      id: 'Prior de categoría', e: p[2], rango: [p[4], p[3]], categoria: p[0],
       peso: 1, fiabilidad: 'media',
-      base: 'Meta-analisis de 1.851 elasticidades publicadas (Bijmolt, van Heerde &amp; Pieters, 2005).',
+      base: 'Meta-análisis de 1.851 elasticidades publicadas (Bijmolt, van Heerde &amp; Pieters, 2005).',
       detalle: p[5]
     };
   }
@@ -115,9 +121,9 @@
      literatura, no una estimacion: por eso pesa menos que los otros dos. */
   function caminoDispersion(comps) {
     if (comps.length < 3) {
-      return { id: 'Dispersion de precios', e: null, peso: 0, fiabilidad: 'insuficiente',
+      return { id: 'Dispersión de precios', e: null, peso: 0, fiabilidad: 'insuficiente',
         base: 'Se necesitan al menos 3 cadenas con el mismo producto.',
-        detalle: 'El barrido trajo ' + comps.length + '. Amplia la busqueda o elige otra variante.' };
+        detalle: 'El barrido trajo ' + comps.length + '. Amplía la búsqueda o elige otra variante.' };
     }
     var ps = comps.map(function (c) { return c.precio; });
     var med = ps.reduce(function (a, b) { return a + b; }, 0) / ps.length;
@@ -126,14 +132,14 @@
     // cv 0% -> -3,2 (precios clavados, categoria commodity) ; cv 30%+ -> -0,7
     var e = -3.2 + (Math.min(cv, 0.30) / 0.30) * 2.5;
     return {
-      id: 'Dispersion de precios', e: Math.round(e * 100) / 100, cv: cv, n: comps.length,
+      id: 'Dispersión de precios', e: Math.round(e * 100) / 100, cv: cv, n: comps.length,
       peso: 0.6, fiabilidad: 'indicativa',
-      base: 'Dispersion observada entre las ' + comps.length + ' cadenas del barrido (CV ' + PCT(cv) + ').',
+      base: 'Dispersión observada entre las ' + comps.length + ' cadenas del barrido (CV ' + PCT(cv) + ').',
       detalle: cv < 0.08
-        ? 'Los precios estan practicamente clavados entre cadenas: nadie se atreve a despegarse, senal de shopper muy sensible.'
+        ? 'Los precios están prácticamente clavados entre cadenas: nadie se atreve a despegarse, señal de shopper muy sensible.'
         : (cv < 0.18
-          ? 'Dispersion moderada: hay espacio para diferenciarse, pero acotado.'
-          : 'Dispersion alta: las cadenas sostienen precios muy distintos por el mismo producto, lo que sugiere baja sustitucion o compra por conveniencia.')
+          ? 'Dispersión moderada: hay espacio para diferenciarse, pero acotado.'
+          : 'Dispersión alta: las cadenas sostienen precios muy distintos por el mismo producto, lo que sugiere baja sustitución o compra por conveniencia.')
     };
   }
 
@@ -146,21 +152,21 @@
   function caminoPromo(comps, margenRetail) {
     var conPromo = comps.filter(function (c) { return c.lista && c.lista > c.precio; });
     if (!conPromo.length) {
-      return { id: 'Promocion revelada', e: null, peso: 0, fiabilidad: 'sin evidencia',
+      return { id: 'Promoción revelada', e: null, peso: 0, fiabilidad: 'sin evidencia',
         base: 'Ninguna cadena del set muestra descuento sobre precio lista en esta captura.',
         detalle: 'Sin promociones no hay conducta que revele la creencia del retailer. ' +
-                 'Ojo: Jumbo dejo de publicar su mecanica, asi que puede haber promociones no visibles.' };
+                 'Ojo: Jumbo dejó de publicar su mecánica, así que puede haber promociones no visibles.' };
     }
     var prof = conPromo.map(function (c) { return (c.lista - c.precio) / c.lista; });
     var d = mediana(prof);
     var e = -1 / (d + margenRetail);
     return {
-      id: 'Promocion revelada', e: Math.round(e * 100) / 100, profundidad: d, n: conPromo.length,
+      id: 'Promoción revelada', e: Math.round(e * 100) / 100, profundidad: d, n: conPromo.length,
       peso: 1.2, fiabilidad: 'alta',
       base: conPromo.length + ' de ' + comps.length + ' cadenas descuentan; profundidad mediana ' + PCT(d) + '.',
       detalle: 'Para que un descuento de ' + PCT(d) + ' se pague con un margen de retail de ' + PCT(margenRetail) +
-               ', la elasticidad tiene que ser al menos ' + e.toFixed(2) + '. Las cadenas lo corren igual, ' +
-               'asi que ese es el piso que ellas mismas asumen.'
+               ', la elasticidad tiene que ser al menos ' + EPS(e) + '. Las cadenas lo corren igual, ' +
+               'así que ése es el piso que ellas mismas asumen.'
     };
   }
 
@@ -177,7 +183,7 @@
   function caminoEquilibrio(comps, costoPct) {
     if (comps.length < 2 || !(costoPct > 0 && costoPct < 1)) {
       return { id: 'Equilibrio de mercado', e: null, peso: 0, fiabilidad: 'insuficiente',
-        base: 'Se necesitan al menos 2 cadenas y un costo supuesto valido.',
+        base: 'Se necesitan al menos 2 cadenas y un costo supuesto válido.',
         detalle: 'Sin set competitivo no hay equilibrio que invertir.' };
     }
     var p = mediana(comps.map(function (c) { return c.precio; }));
@@ -188,8 +194,8 @@
       peso: 1.4, fiabilidad: 'alta',
       base: 'Precio mediano de mercado ' + CLP(p) + ' con costo supuesto al ' + PCT(costoPct) + '.',
       detalle: 'Si las cadenas fijan precio en equilibrio, su margen de ' + PCT(margen) +
-               ' implica que estan asumiendo una elasticidad de ' + e.toFixed(2) + '. ' +
-               'Este camino ancla el modelo al mercado: con el, el precio optimo cae dentro del rango observado ' +
+               ' implica que están asumiendo una elasticidad de ' + EPS(e) + '. ' +
+               'Este camino ancla el modelo al mercado: con él, el precio óptimo cae dentro del rango observado ' +
                'en vez de por encima de todos.'
     };
   }
