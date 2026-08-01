@@ -138,6 +138,27 @@
            vertical-align:-1px;margin-right:6px;}
   @keyframes giro{to{transform:rotate(360deg);}}
 
+  /* --- Pantalla de decision --- */
+  .barra-fila{display:grid;grid-template-columns:110px 1fr 74px 116px;gap:11px;align-items:center;
+              padding:7px 0;border-bottom:1px solid var(--gray-5,#f0f0ee);font-size:12.5px;}
+  .barra-fila:last-child{border-bottom:0;}
+  .barra-yo{background:#f4f8fb;margin:0 -10px;padding:9px 10px;border-radius:6px;border-bottom:0;}
+  .barra-nom{color:var(--gray-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .barra-pista{position:relative;height:3px;background:var(--gray-4);border-radius:2px;}
+  .barra-punto{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;}
+  .barra-val{text-align:right;font-variant-numeric:tabular-nums;}
+  .barra-gap{font-size:11px;text-align:right;}
+  .precio-caja{text-align:center;padding:6px 0 2px;}
+  .precio-num{font-size:38px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+  .precio-slider{width:100%;margin:14px 0 6px;accent-color:#2251FF;}
+  .kpi .dd{font-size:10.5px;color:var(--gray-2);margin-top:3px;}
+  .dos-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:16px;}
+  @media(max-width:700px){.dos-col{grid-template-columns:1fr;}
+    .barra-fila{grid-template-columns:88px 1fr 68px;}.barra-gap{display:none;}}
+  .lab-col{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:7px;}
+  ul.lista{margin:0;padding-left:17px;font-size:12.5px;line-height:1.7;}
+  ul.lista li{margin-bottom:6px;}
+
   /* Fotos de producto: prueba visual de que se compara el mismo item entre cadenas */
   .thumb{width:34px;height:34px;object-fit:contain;background:#fff;border:1px solid var(--gray-4);
     display:block;}
@@ -182,15 +203,86 @@
 </header>
 
 <div class="tabs" id="tabs">
-  <div class="tab on" data-p="metodo">Introducción y método</div>
-  <div class="tab" data-p="buscador">Buscador de SKU</div>
-  <div class="tab" data-p="elast">Elasticidad</div>
-  <div class="tab" data-p="mover">Movimiento de precio</div>
-  <div class="tab" data-p="informe">Informe SKU foco</div>
+  <div class="tab on" data-p="decidir">Decidir el precio</div>
+  <div class="tab" data-p="metodo">Cómo se calcula</div>
+</div>
+
+<!-- ============ DECIDIR ============ -->
+<div class="panel on" id="p-decidir">
+  <div class="card">
+    <h2>1 · Busca el producto</h2>
+    <div class="buscador">
+      <input type="text" id="q" placeholder="Ej: lechuga, coca cola zero, leche entera, detergente">
+      <button type="button" id="btn-buscar">Buscar precios</button>
+    </div>
+    <div class="ejemplos" id="ejemplos"></div>
+    <div id="estado-busqueda" class="foot"></div>
+  </div>
+
+  <div class="card" id="card-variantes" style="display:none">
+    <h2>2 · Elige cuál</h2>
+    <select id="sel-variante"></select>
+  </div>
+
+  <div id="d-sin-set" style="display:none">
+    <div class="card"><div class="aviso">Este producto no aparece en ningún supermercado del set.
+    Elige otra opción del desplegable: las primeras son las que más cadenas tienen.</div></div>
+  </div>
+
+  <div id="d-decision" style="display:none">
+    <div class="card">
+      <h2>3 · Así está el mercado</h2>
+      <div id="d-mercado"></div>
+      <div class="foot">Cada punto es el precio de una cadena. El tuyo en azul.</div>
+    </div>
+
+    <div class="card">
+      <h2>4 · ¿Qué precio quieres poner?</h2>
+      <div class="precio-caja">
+        <div class="precio-num" id="d-precio-val">—</div>
+        <input type="range" id="d-precio" class="precio-slider">
+        <div class="foot" style="border:0;padding:0;margin-top:2px">
+          Tu precio de hoy es <b id="d-base">—</b>.
+          <a id="d-base-set" style="cursor:pointer;color:#1F5FA9">Fijar el actual como referencia</a>
+        </div>
+      </div>
+      <div class="campos" style="margin-top:16px">
+        <div><label>Cuánto te cuesta cada unidad</label><input type="number" id="d-costo"></div>
+        <div><label>Cuántas unidades vendes al mes</label><input type="number" id="d-vol" step="100"></div>
+      </div>
+      <div class="foot">Ajusta estos dos con tus números reales. El resto se recalcula solo.</div>
+    </div>
+
+    <div class="card">
+      <h2>5 · Qué pasa si lo haces</h2>
+      <div id="d-veredicto"></div>
+      <div id="d-kpis"></div>
+      <div id="d-pros"></div>
+    </div>
+
+    <div class="card" id="card-comparativa" style="display:none">
+      <h2>Detalle por cadena</h2>
+      <div class="note" id="note-comparativa">—</div>
+      <div style="overflow-x:auto"><table id="tabla-comparativa"></table></div>
+      <div class="foot" id="foot-comparativa"></div>
+    </div>
+
+    <div class="card" id="card-manual" style="display:none">
+      <h2>Cadenas que no pudimos leer</h2>
+      <div class="note">Lider, Santa Isabel y Tottus bloquean la lectura automática. Ábrelas, copia el precio y cárgalo aquí:
+      entra al análisis como una cadena más.</div>
+      <div id="links-manual"></div>
+      <div class="foot" id="foot-bookmarklet"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ============ 0. METODOLOGIA ============ -->
-<div class="panel on" id="p-metodo">
+<div class="panel" id="p-metodo">
+  <div class="card"><h2>Qué encuentras aquí</h2>
+    <div class="note">Todo el detrás de escena: de dónde sale cada precio, cómo se estima la sensibilidad al precio,
+    qué supuestos se usan y cuáles puedes cambiar. No necesitas leer esto para usar la herramienta.</div>
+  </div>
   <div class="card">
     <h2>Qué hace esta herramienta</h2>
     <p style="font-size:13px;line-height:1.7">Compara el precio de un producto entre las cadenas de supermercado chilenas y
@@ -272,7 +364,7 @@
 </div>
 
 <!-- ============ A. BUSCADOR ============ -->
-<div class="panel" id="p-buscador">
+<div style="display:none" id="p-buscador">
   <div class="card">
     <h2>Barrer precios de un producto</h2>
     <div class="note">Escribe un producto y se capturan precios en vivo. Jumbo, Unimarc y Alvi se leen directo del sitio; Lider, Tottus, Santa Isabel y Acuenta entran vía Google Shopping porque bloquean el acceso directo.</div>
@@ -307,13 +399,13 @@
 </div>
 
 <!-- ============ B. ELASTICIDAD ============ -->
-<div class="panel" id="p-elast"><div id="elast-contenido"></div></div>
+<div class="solo-metodo" id="p-elast"><div id="elast-contenido"></div></div>
 
 <!-- ============ C. MOVIMIENTO DE PRECIO ============ -->
-<div class="panel" id="p-mover"><div id="mover-contenido"></div></div>
+<div style="display:none" id="p-mover"><div id="mover-contenido"></div></div>
 
 <!-- ============ D. INFORME ============ -->
-<div class="panel" id="p-informe">
+<div class="solo-metodo" id="p-informe">
 
 <div class="card" id="informe-vacio">
   <h2>Elige un producto primero</h2>
@@ -914,29 +1006,31 @@ $("foot-global").innerHTML = `Herramienta de pricing dinámico competitivo · SK
 
 <script src="tools/pricing_modelo.js"></script>
 <script src="tools/buscador.js"></script>
+<script src="tools/decidir.js"></script>
 <script>
 /* ================= Pestañas ================= */
 (function(){
-  var pintado = {};
   function activar(p){
     document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.p===p); });
     document.querySelectorAll(".panel").forEach(function(x){ x.classList.toggle("on", x.id==="p-"+p); });
-    // Elasticidad y movimiento dependen del barrido: se repintan al entrar.
-    var d = window.__DATOS_PRICING;
-    if(p==="elast")  PricingModelo.renderElasticidad($("elast-contenido"), d?d.ofertas:null, d?d.termino:"");
-    if(p==="mover")  PricingModelo.renderMovimiento($("mover-contenido"), d?d.ofertas:null, d?d.termino:"");
-    pintado[p]=true;
+    // Elasticidad e informe viven dentro de "Como se calcula".
+    document.querySelectorAll(".solo-metodo").forEach(function(x){ x.style.display = p==="metodo" ? "" : "none"; });
+    if(p==="metodo"){
+      var d = window.__DATOS_PRICING;
+      PricingModelo.renderElasticidad($("elast-contenido"), d?d.ofertas:null, d?d.termino:"");
+    }
   }
   document.getElementById("tabs").addEventListener("click", function(ev){
     var t = ev.target.closest(".tab");
     if(t) activar(t.dataset.p);
   });
-  // Si el barrido termina mientras estás en otra pestaña, se repinta al volver.
   document.addEventListener("pricing:datos", function(){
     var on = document.querySelector(".tab.on");
-    if(on && (on.dataset.p==="elast"||on.dataset.p==="mover")) activar(on.dataset.p);
+    if(on && on.dataset.p==="metodo") activar("metodo");
   });
+  document.querySelectorAll(".solo-metodo").forEach(function(x){ x.style.display = "none"; });
   Buscador.iniciar();
+  Decidir.enlazar();
 })();
 </script>
 </body>
