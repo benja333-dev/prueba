@@ -170,7 +170,7 @@
 
 <header>
   <div class="hero">
-    <div class="hero-img" id="hero-img"></div>
+    <div class="hero-img" id="hero-img" style="display:none"></div>
     <div class="hero-txt">
       <div class="sticker">Pricing dinámico · datos en vivo</div>
       <h1 id="h-title">—</h1>
@@ -388,7 +388,7 @@ let foco = PAYLOAD.foco.slice().sort((a,b)=>a.precio_por_litro-b.precio_por_litr
 let mejorFoco = foco[0], peorFoco = foco[foco.length-1];
 let anchor = foco.find(f=>f.retailer==="Jumbo") || mejorFoco;
 // Titulo del SKU en foco: cambia cuando el buscador selecciona otro.
-let SKU_FOCO = META.sku_foco, FOTO_FOCO = null;
+let SKU_FOCO = META.sku_foco, FOTO_FOCO = null, SKU_ELEGIDO = false;
 
 // Compartida por sintesis y escalera: debe vivir fuera de ambas.
 function inversionFormato(){
@@ -443,10 +443,16 @@ $("kpis").innerHTML = kpis.map(k=>
 
 /* Tira comparativa con foto: el mismo SKU, cadena por cadena */
 // Foto unica del SKU: es el mismo producto en las 3 cadenas, repetirla no aporta.
-// La foto sigue al SKU en foco: si el buscador eligio otro, cambia con el.
-const conFoto = FOTO_FOCO ? {imagen:FOTO_FOCO} : (foco.find(f=>f.imagen) || U.find(f=>f.imagen));
-$("hero-img").innerHTML = conFoto
-  ? `<img src="${foto(conFoto.imagen,300)}" alt="${SKU_FOCO}" loading="lazy">` : "";
+// La foto aparece solo al elegir un producto: antes el recuadro salia vacio.
+const img = FOTO_FOCO || (foco.find(f=>f.imagen)||{}).imagen || null;
+const cajaFoto = $("hero-img");
+if(img && SKU_ELEGIDO){
+  cajaFoto.innerHTML = `<img src="${foto(img,300)}" alt="${SKU_FOCO}" loading="lazy">`;
+  cajaFoto.style.display = "";
+}else{
+  cajaFoto.innerHTML = "";
+  cajaFoto.style.display = "none";
+}
 
 $("foco-strip").innerHTML = foco.map(f=>{
   const best = f.precio_por_litro===mejorFoco.precio_por_litro;
@@ -492,8 +498,10 @@ $("flag-metodo").innerHTML = "<b>Cómo leer esto.</b> Todos los precios son de <
 function pintarDumbbell(){
 $("t-dumbbell").textContent = "Precio de góndola contra precio realmente pagado";
 (function(){
-  const items = U.filter(x=>/coca/i.test(x.nombre||"") && /(zero|sin az)/i.test(x.nombre||"") && !/pack/i.test(x.nombre||""))
-                 .sort((a,b)=>b.litros-a.litros).slice(0,12);
+  // Antes filtraba por /coca/ fijo, asi que con cualquier otro producto el
+  // grafico salia en blanco. Ahora usa el set del SKU activo.
+  const items = U.filter(x=>x.precio_lista>0 || x.precio_efectivo>0)
+                 .sort((a,b)=>(b.litros||b.cantidad||0)-(a.litros||a.cantidad||0)).slice(0,12);
   const W=820,H=Math.max(180,items.length*30+70),L=250,R=60;
   const max=Math.max(...items.map(d=>d.precio_lista))*1.08;
   const x=v=>L+(v/max)*(W-L-R);
@@ -683,6 +691,7 @@ function fijarSku(ofertas, etiqueta, foto){
   mejorFoco = foco[0]; peorFoco = foco[foco.length-1];
   anchor = foco.find(f=>f.retailer==="Jumbo") || mejorFoco;
   SKU_FOCO = etiqueta || SKU_FOCO;
+  SKU_ELEGIDO = true;
   FOTO_FOCO = foto || (foco.find(f=>f.imagen)||{}).imagen || null;
   pintarInforme();
   return true;
