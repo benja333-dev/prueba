@@ -367,7 +367,7 @@ const CLP = n => n==null||isNaN(n) ? "—" : "$" + Math.round(n).toLocaleString(
 const PCT = n => (n>=0?"+":"") + n.toFixed(1) + "%";
 const $ = id => document.getElementById(id);
 
-const U = PAYLOAD.universo, META = PAYLOAD.meta;
+let U = PAYLOAD.universo; const META = PAYLOAD.meta;
 
 // VTEX sirve los originales a 1000x1000 (~125 KB c/u). El segmento -W-H del path
 // devuelve una miniatura de ~7 KB: con ~180 productos la diferencia es de decenas de MB.
@@ -384,12 +384,29 @@ function foto(url, px){
 /* ---------- SKU foco y comparables directos ---------- */
 // Comparable = mismo formato exacto en otra cadena. Es la unica comparacion
 // que no requiere supuestos de conversion entre formatos.
-const foco = PAYLOAD.foco.slice().sort((a,b)=>a.precio_por_litro-b.precio_por_litro);
-const mejorFoco = foco[0], peorFoco = foco[foco.length-1];
-const anchor = foco.find(f=>f.retailer==="Jumbo") || mejorFoco;
+let foco = PAYLOAD.foco.slice().sort((a,b)=>a.precio_por_litro-b.precio_por_litro);
+let mejorFoco = foco[0], peorFoco = foco[foco.length-1];
+let anchor = foco.find(f=>f.retailer==="Jumbo") || mejorFoco;
+// Titulo del SKU en foco: cambia cuando el buscador selecciona otro.
+let SKU_FOCO = META.sku_foco, FOTO_FOCO = null;
+
+// Compartida por sintesis y escalera: debe vivir fuera de ambas.
+function inversionFormato(){
+  for(const r of META.retailers_auto){
+    const fam = U.filter(x=>x.retailer===r && /coca/i.test(x.nombre||"") &&
+                          /(zero|sin az)/i.test(x.nombre||"") && !/pack/i.test(x.nombre||""))
+                 .sort((a,b)=>a.litros-b.litros);
+    for(let i=0;i<fam.length-1;i++)
+      for(let j=i+1;j<fam.length;j++)
+        if(fam[i].precio_por_litro < fam[j].precio_por_litro*0.92)
+          return `en ${r} el formato ${fam[i].litros} L sale a ${CLP(fam[i].precio_por_litro)}/L, más barato que el de ${fam[j].litros} L (${CLP(fam[j].precio_por_litro)}/L)`;
+  }
+  return null;
+}
 
 /* ================= 1. SINTESIS ================= */
-$("h-title").textContent = META.sku_foco + " — posición competitiva y espacio de pricing";
+function pintarSintesis(){
+$("h-title").textContent = SKU_FOCO + " — posición competitiva y espacio de pricing";
 $("h-sub").innerHTML = "Captura en vivo <b>" + META.capturado + "</b> · " +
   listaEs(META.retailers_auto) + " · <b>" + META.n_skus + "</b> SKUs del set competitivo";
 
@@ -426,9 +443,10 @@ $("kpis").innerHTML = kpis.map(k=>
 
 /* Tira comparativa con foto: el mismo SKU, cadena por cadena */
 // Foto unica del SKU: es el mismo producto en las 3 cadenas, repetirla no aporta.
-const conFoto = foco.find(f=>f.imagen) || U.find(f=>f.imagen);
+// La foto sigue al SKU en foco: si el buscador eligio otro, cambia con el.
+const conFoto = FOTO_FOCO ? {imagen:FOTO_FOCO} : (foco.find(f=>f.imagen) || U.find(f=>f.imagen));
 $("hero-img").innerHTML = conFoto
-  ? `<img src="${foto(conFoto.imagen,300)}" alt="${META.sku_foco}">` : "";
+  ? `<img src="${foto(conFoto.imagen,300)}" alt="${SKU_FOCO}" loading="lazy">` : "";
 
 $("foco-strip").innerHTML = foco.map(f=>{
   const best = f.precio_por_litro===mejorFoco.precio_por_litro;
@@ -464,24 +482,14 @@ function recomendar(){
 }
 // Inversion de escalera: un formato menor mas barato por litro que uno mayor
 // en la MISMA cadena es un defecto de pricing que canibaliza el formato grande.
-function inversionFormato(){
-  for(const r of META.retailers_auto){
-    const fam = U.filter(x=>x.retailer===r && /coca/i.test(x.nombre||"") &&
-                          /(zero|sin az)/i.test(x.nombre||"") && !/pack/i.test(x.nombre||""))
-                 .sort((a,b)=>a.litros-b.litros);
-    for(let i=0;i<fam.length-1;i++)
-      for(let j=i+1;j<fam.length;j++)
-        if(fam[i].precio_por_litro < fam[j].precio_por_litro*0.92)
-          return `en ${r} el formato ${fam[i].litros} L sale a ${CLP(fam[i].precio_por_litro)}/L, más barato que el de ${fam[j].litros} L (${CLP(fam[j].precio_por_litro)}/L)`;
-  }
-  return null;
-}
 $("reco").innerHTML = recomendar();
 $("flag-metodo").innerHTML = "<b>Cómo leer esto.</b> Todos los precios son de <b>canal online</b> y de la tienda por defecto de cada cadena; " +
   "el precio en sala física puede diferir. Las mecánicas se convierten a precio unitario efectivo asumiendo que el shopper cumple la condición " +
   "(ej. \"2 x $2.990\" se contabiliza como $1.495 por unidad), que es el mejor caso para el consumidor.";
 
+}
 /* ================= 2. DUMBBELL ================= */
+function pintarDumbbell(){
 $("t-dumbbell").textContent = "Precio de góndola contra precio realmente pagado";
 (function(){
   const items = U.filter(x=>/coca/i.test(x.nombre||"") && /(zero|sin az)/i.test(x.nombre||"") && !/pack/i.test(x.nombre||""))
@@ -523,8 +531,9 @@ $("t-dumbbell").textContent = "Precio de góndola contra precio realmente pagado
     Object.entries(porRet).map(([r,v])=>`<b>${r}</b> promociona ${v.p} de ${v.n}`).join("; ") + ".";
 })();
 
+}
 /* ================= 3. ESCALERA ================= */
-(function(){
+function pintarEscalera(){
   const items=U.filter(x=>x.precio_por_litro).sort((a,b)=>a.precio_por_litro-b.precio_por_litro).slice(0,26);
   const W=820,H=items.length*20+64,L=330,R=74;
   const max=Math.max(...items.map(d=>d.precio_por_litro))*1.06;
@@ -550,9 +559,10 @@ $("t-dumbbell").textContent = "Precio de góndola contra precio realmente pagado
     "</b> de más barato a más caro por litro. Los formatos grandes y los packs dominan la parte baja de la escalera: " +
     "quien compra por litro tiene alternativas más eficientes dentro de la misma marca." +
     (inv ? " <b>Inversión detectada:</b> " + inv + " — un formato menor más barato por litro canibaliza al mayor y erosiona el mix." : "");
-})();
+}
 
 /* ================= 4. ELASTICIDAD ================= */
+function prepararElast(){
 const S = {eps:-1.6, P:anchor.precio_efectivo, C:Math.round(anchor.precio_efectivo*0.62), Q:12000,
            P0:anchor.precio_efectivo, Q0:12000};
 $("r-eps").value=S.eps; $("r-p").value=S.P; $("n-c").value=S.C; $("n-q").value=S.Q;
@@ -577,7 +587,8 @@ function pintarElast(){
   if(zona.length){
     const z1=x(zona[0].P), z2=x(zona[zona.length-1].P);
     s+=`<rect x="${z1}" y="${T}" width="${Math.max(1,z2-z1)}" height="${H-T-B}" fill="#AAE6F0" opacity=".34"/>`;
-    s+=`<text class="ax" x="${(z1+z2)/2}" y="${T+13}" text-anchor="middle" style="fill:#00618c;font-weight:700;font-size:9.5px">zona de maniobra</text>`;
+    // Al pie de la banda: arriba chocaba con la etiqueta del optimo.
+    s+=`<text class="ax" x="${(z1+z2)/2}" y="${H-B-7}" text-anchor="middle" style="fill:#00618c;font-weight:700;font-size:9.5px">zona de maniobra</text>`;
   }
   for(let i=0;i<=4;i++){const m=minM+(maxM-minM)*i/4;
     s+=`<text class="ax" x="${L-7}" y="${y(m)+3}" text-anchor="end">${(m/1e6).toFixed(1)}M</text>;`}
@@ -594,10 +605,25 @@ function pintarElast(){
   s+=`<line x1="${x(S.P)}" y1="${T}" x2="${x(S.P)}" y2="${H-B}" stroke="#2251FF" stroke-width="1.6"/>`;
   s+=`<circle cx="${x(S.P)}" cy="${y(mgn(S.P))}" r="5" fill="#2251FF"/>`;
   s+=`<text class="val" x="${x(S.P)}" y="${H-B+14}" text-anchor="middle" style="fill:#2251FF">tú ${CLP(S.P)}</text>`;
-  // competencia
-  foco.forEach(f=>{ if(f.precio_efectivo>=lo&&f.precio_efectivo<=hi){
-    s+=`<line x1="${x(f.precio_efectivo)}" y1="${T}" x2="${x(f.precio_efectivo)}" y2="${H-B}" stroke="#C0392B" stroke-width="1" stroke-dasharray="2,3"/>`;
-    s+=`<text class="ax" x="${x(f.precio_efectivo)}" y="${T+30}" text-anchor="middle" style="fill:#C0392B;font-size:9px">${f.retailer}</text>`;}});
+  // Competencia. Las etiquetas se escalonan y se anclan segun su posicion:
+  // dibujadas todas a la misma altura y centradas se encaballaban entre si y
+  // se cortaban en los bordes del grafico.
+  const comp = foco.filter(f=>f.precio_efectivo>=lo&&f.precio_efectivo<=hi)
+                   .sort((a,b)=>a.precio_efectivo-b.precio_efectivo);
+  const usados=[];
+  comp.forEach(f=>{
+    const px=x(f.precio_efectivo);
+    // baja un escalon por cada etiqueta que quede a menos de 62px a la izquierda
+    let nivel=0;
+    while(usados.some(u=>u.nivel===nivel && Math.abs(u.px-px)<62)) nivel++;
+    usados.push({px,nivel});
+    const ty=T+26+nivel*12;
+    const anchor = px<L+42 ? "start" : (px>W-R-42 ? "end" : "middle");
+    const dx = anchor==="start" ? 3 : (anchor==="end" ? -3 : 0);
+    const etq = f.retailer.length>13 ? f.retailer.slice(0,12)+"…" : f.retailer;
+    s+=`<line x1="${px}" y1="${ty+3}" x2="${px}" y2="${H-B}" stroke="#C0392B" stroke-width="1" stroke-dasharray="2,3"/>`;
+    s+=`<text class="ax" x="${px+dx}" y="${ty}" text-anchor="${anchor}" style="fill:#C0392B;font-size:9px">${etq}</text>`;
+  });
   $("svg-elast").innerHTML=s;
 
   const dM=(mgn(S.P)/best.M-1)*100;
@@ -619,11 +645,57 @@ function sync(){
   $("v-eps").textContent=S.eps.toFixed(2); $("v-p").textContent=CLP(S.P);
   pintarElast();
 }
-["r-eps","r-p","n-c","n-q"].forEach(id=>$(id).addEventListener("input",sync));
+// Los controles se enlazan una sola vez; prepararElast solo re-siembra el estado
+// del SKU activo y redibuja.
+window.__sync = sync;
 sync();
+}
+
+["r-eps","r-p","n-c","n-q"].forEach(id=>$(id).addEventListener("input",()=>{ if(window.__sync) window.__sync(); }));
+
+/* ================= Orquestador del SKU en foco ================= */
+/* El informe nace mostrando el SKU de la captura diaria. Cuando el buscador
+   selecciona otro, se recalcula todo desde sus ofertas: sin esto la foto y
+   los graficos seguian hablando de bebidas aunque hubieras elegido lechuga. */
+function pintarInforme(){
+  pintarSintesis(); pintarDumbbell(); pintarEscalera(); prepararElast(); pintarTabla();
+}
+
+function fijarSku(ofertas, etiqueta, foto){
+  const conPrecio = ofertas.filter(o => o.precio > 0);
+  if(conPrecio.length < 1) return false;
+  // El informe razona en precio_efectivo y precio_por_litro: se traduce el
+  // formato del buscador para no tocar el resto del codigo.
+  const traducido = conPrecio.map(o => ({
+    retailer: o.retailer, grupo: o.grupo || null, sku: o.sku || o.nombre,
+    nombre: o.nombre, marca: o.marca || null,
+    litros: o.unidad === "L" ? o.cantidad : null,
+    cantidad: o.cantidad, unidad: o.unidad,
+    precio_lista: o.precio_lista || o.precio,
+    precio_efectivo: o.precio,
+    precio_por_litro: o.precio_por_unidad || o.precio,
+    ppl_lista: o.precio_lista && o.cantidad ? Math.round(o.precio_lista / o.cantidad) : null,
+    mecanica: o.mecanica || null, requiere_lealtad: o.requiere_lealtad || null,
+    stock: true, imagen: o.imagen || null, url: o.url || null
+  }));
+  U = traducido;
+  foco = traducido.slice().sort((a,b)=>a.precio_por_litro-b.precio_por_litro);
+  mejorFoco = foco[0]; peorFoco = foco[foco.length-1];
+  anchor = foco.find(f=>f.retailer==="Jumbo") || mejorFoco;
+  SKU_FOCO = etiqueta || SKU_FOCO;
+  FOTO_FOCO = foto || (foco.find(f=>f.imagen)||{}).imagen || null;
+  pintarInforme();
+  return true;
+}
+
+pintarInforme();
+document.addEventListener("pricing:datos", function(){
+  const d = window.__DATOS_PRICING;
+  if(d && d.ofertas && d.ofertas.length) fijarSku(d.ofertas, d.variante && d.variante.etiqueta, null);
+});
 
 /* ================= 5. TABLA ================= */
-(function(){
+function pintarTabla(){
   const rows=U.slice().sort((a,b)=>a.precio_por_litro-b.precio_por_litro);
   let h=`<thead><tr><th></th><th>Producto</th><th>Cadena</th><th class="num">Litros</th><th class="num">Lista</th>
     <th class="num">Efectivo</th><th class="num">$/L</th><th>Mecánica</th><th>Estado</th></tr></thead><tbody>`;
@@ -647,7 +719,7 @@ sync();
     (club? `<b>${club}</b> SKUs tienen precio condicionado a programa de lealtad (marcados “Club”): el precio efectivo aplica sólo a socios, ` +
            `por lo que sobreestima el precio real para el shopper no inscrito. ` : "") +
     `Precios de canal online; pueden diferir de sala física.`;
-})();
+}
 
 /* ================= 5b. INDICE POR CATEGORIA ================= */
 (function(){
@@ -704,7 +776,7 @@ sync();
   $("tabla-cob").innerHTML=h+"</tbody>";
 })();
 
-$("foot-global").innerHTML = `Herramienta de pricing dinámico competitivo · SKU foco ${META.sku_foco} · ` +
+$("foot-global").innerHTML = `Herramienta de pricing dinámico competitivo · SKU foco ${SKU_FOCO} · ` +
   `captura ${META.capturado} · generado automáticamente desde n8n. ` +
   `Los precios son observaciones públicas de catálogos online; la elasticidad es un supuesto calibrable y no una medición.`;
 </script>
