@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Effectiveness — Cuartiles de Fuerza de Venta</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy:#051c2c; --navy2:#0a2e44; --blue:#2251ff; --cyan:#00a9f4; --teal:#00b8a2;
+  --bg:#f4f6f8; --card:#ffffff; --ink:#051c2c; --muted:#5b6a75; --line:#e1e7ec;
+  --good:#00b8a2; --bad:#e5546c; --warn:#f5a623;
+  --q1:#00806f; --q2:#00a9f4; --q3:#f5a623; --q4:#e5546c;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif}
+body{background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:22px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{font-size:21px;font-weight:600}
+header h1 span{color:var(--cyan)}
+header .sub{font-size:12.5px;color:#9fb3c0;margin-top:4px}
+.kpi-strip{display:flex;gap:14px;flex-wrap:wrap}
+.kpi{background:var(--navy2);border-radius:8px;padding:10px 16px;min-width:132px}
+.kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#8fa5b3}
+.kpi .val{font-size:19px;font-weight:700;margin-top:2px}
+.kpi .val.good{color:var(--teal)} .kpi .val.bad{color:#ff7d92} .kpi .val.warn{color:#ffc760}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 32px;display:flex;gap:4px;overflow-x:auto;position:sticky;top:0;z-index:20}
+nav button{background:none;border:none;padding:14px 18px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:26px 32px;max-width:1320px;margin:0 auto}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+.card .hint{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(195px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 10px;background:var(--navy);color:#fff;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap}
+th:hover{background:var(--navy2)}
+td{padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:700;background:#eef2f6}
+tbody tr:hover{background:#f7fafc}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.q1{background:#d9f4ef;color:#00806f}.pill.q2{background:#dbf0fd;color:#0071a8}
+.pill.q3{background:#fdf0d8;color:#b57900}.pill.q4{background:#fde3e8;color:#c73050}
+.pill.good{background:#d9f4ef;color:#00806f}.pill.bad{background:#fde3e8;color:#c73050}.pill.warn{background:#fdf0d8;color:#b57900}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:11px 20px;font-size:13.5px;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.btn.big{padding:14px 26px;font-size:15px}
+.field{margin-bottom:12px}
+.field label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.field label .v{color:var(--blue);font-weight:700}
+.field input[type=range]{width:100%;accent-color:var(--blue)}
+.field select,.field input[type=number]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px}
+.field .why{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+svg text{font-family:'Helvetica Neue',Arial,sans-serif}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.callout{border-left:4px solid var(--cyan);background:#eef7fd;padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.6;margin-bottom:14px}
+.callout.warn{border-left-color:var(--warn);background:#fdf7e9}
+.callout.good{border-left-color:var(--teal);background:#e9f8f5}
+.hero{background:linear-gradient(120deg,var(--navy),#123a56);color:#fff;border-radius:12px;padding:30px;margin-bottom:20px}
+.hero h2{font-size:20px;margin-bottom:8px}
+.hero p{font-size:13.5px;color:#c3d2dc;line-height:1.65;max-width:820px;margin-bottom:16px}
+.comp-card{border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+.comp-card h4{font-size:13.5px;margin-bottom:6px;color:var(--blue)}
+.comp-card p{font-size:12px;color:var(--muted);line-height:1.5}
+.comp-card .ex{font-size:11.5px;margin-top:7px;background:#f4f6f8;border-radius:6px;padding:6px 9px}
+h3.sec{font-size:14px;margin:20px 0 10px;border-bottom:2px solid var(--navy);padding-bottom:6px}
+.chip{display:inline-block;background:#eef2f6;border-radius:6px;padding:4px 10px;font-size:11.5px;margin:0 6px 6px 0;color:var(--muted)}
+.chip b{color:var(--ink)}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--muted);font-size:13px}
+.drop.on{border-color:var(--blue);background:#eef2ff}
+.action{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:0 9px 9px 0;padding:13px 16px;margin-bottom:11px}
+.action h4{font-size:13.5px;margin-bottom:5px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.action h4 .imp{color:var(--teal);font-weight:800;font-size:13px;white-space:nowrap}
+.action p{font-size:12.5px;color:var(--muted);line-height:1.55}
+.action .who{font-size:11.5px;margin-top:6px;color:var(--ink)}
+.bignum{font-size:30px;font-weight:800;line-height:1.1}
+.bignum small{display:block;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+.tiny{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:8px}
+.biblio li{font-size:13px;line-height:1.65;margin-bottom:9px}
+ul.bul{margin:8px 0 8px 20px}ul.bul li{font-size:12.5px;line-height:1.6;margin-bottom:5px;color:var(--muted)}
+ul.bul li b{color:var(--ink)}
+@media(max-width:700px){main,header,nav{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Sales Effectiveness <span>| Cuartiles de Fuerza de Venta</span></h1>
+    <div class="sub">Quién vende bien, quién vende mal — y <b>por qué</b>: descomposición de la venta en 6 palancas accionables</div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="lbl">Vendedores</div><div class="val" id="kRep">—</div></div>
+    <div class="kpi"><div class="lbl">Venta neta / mes</div><div class="val" id="kRev">—</div></div>
+    <div class="kpi"><div class="lbl">Brecha Q1 vs Q4</div><div class="val warn" id="kGap">—</div></div>
+    <div class="kpi"><div class="lbl">Oportunidad / año</div><div class="val good" id="kOpp">—</div></div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" data-tab="guia">🎓 Guía & Datos</button>
+  <button data-tab="cuartiles">📊 Cuartiles</button>
+  <button data-tab="diag">🔍 Diagnóstico — ¿por qué?</button>
+  <button data-tab="rutas">🚚 Rutas & Actividad</button>
+  <button data-tab="tiempo">⏱️ Tiempo por tendero</button>
+  <button data-tab="plan">🎯 Oportunidad & Plan</button>
+  <button data-tab="metodo">📚 Metodología</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════ GUÍA ══════════════════ -->
+<section class="tab active" id="tab-guia">
+  <div class="hero">
+    <h2>De "Juan vende poco" a "Juan visita al 48% de su cartera y cierra 1 de cada 3 visitas"</h2>
+    <p>Un ranking de ventas te dice <b>quién</b> está abajo. No te dice <b>qué hacer</b>. Este modelo descompone la venta de cada vendedor en seis palancas multiplicativas — territorio, cobertura, efectividad de visita, frecuencia, tamaño de pedido y precio/mix — y compara a cada persona contra el <b>perfil del cuartil superior</b>. El resultado: para cada vendedor del cuartil inferior, cuál es la palanca que explica la mayor parte de su brecha, cuántos pesos vale cerrarla, y qué intervención concreta corresponde.</p>
+    <button class="btn big" onclick="loadDemo()">▶ Cargar caso demo (28 preventistas, bebidas Chile)</button>
+    <button class="btn big ghost" style="background:transparent;color:#fff;border-color:#fff" onclick="goTab('guia');document.getElementById('upzone').scrollIntoView({behavior:'smooth'})">Subir mi Excel</button>
+  </div>
+
+  <div class="card">
+    <h2>La ecuación de la efectividad comercial</h2>
+    <div class="hint">Toda venta de una fuerza de campo se puede escribir como un producto de seis factores. Cada factor tiene un dueño, un dato y una intervención distinta. Si la brecha está en <b>cobertura</b> se arregla con ruteros; si está en <b>strike rate</b> se arregla con coaching en terreno; si está en <b>precio</b> se arregla con disciplina de descuentos. Confundirlas es la razón #1 por la que los programas de fuerza de venta no mueven la aguja.</div>
+    <div class="grid g3">
+      <div class="comp-card"><h4>1 · Cartera (clientes asignados)</h4><p>Cuántos clientes tiene el vendedor en su territorio. <b>No es una palanca de desempeño</b>: es diseño de territorio, responsabilidad del gerente.</p><div class="ex">Intervención: rebalanceo de territorios</div></div>
+      <div class="comp-card"><h4>2 · Cobertura (% cartera visitada)</h4><p>De sus clientes asignados, a cuántos efectivamente visitó en el mes. Mide disciplina de rutero y planificación.</p><div class="ex">Intervención: rutero fijo, secuenciación GPS, clientes sin visita</div></div>
+      <div class="comp-card"><h4>3 · Strike rate (% visitas con pedido)</h4><p>De los clientes visitados, cuántos compraron. Es la medida más pura de <b>calidad de la visita</b>: apertura, argumentario, manejo de objeciones, cierre.</p><div class="ex">Intervención: acompañamiento en terreno, pasos de la visita</div></div>
+      <div class="comp-card"><h4>4 · Frecuencia (pedidos por cliente activo)</h4><p>Cuántas veces al mes le compra cada cliente activo. Depende de la frecuencia de visita asignada y de la salud del inventario del cliente.</p><div class="ex">Intervención: frecuencia por segmento, pedido sugerido</div></div>
+      <div class="comp-card"><h4>5 · Drop size (unidades por pedido)</h4><p>Cuánto entra en cada pedido. Palanca de venta cruzada, surtido mínimo, exhibición y activación de SKUs nuevos.</p><div class="ex">Intervención: surtido obligatorio, packs, upselling</div></div>
+      <div class="comp-card"><h4>6 · Precio neto realizado</h4><p>Precio efectivo por unidad = lista × (1 − descuento), influido por el <b>mix</b> (premium vs mainstream). Aquí vive el vendedor que "vende mucho pero regala margen".</p><div class="ex">Intervención: disciplina de descuento, empuje de mix premium</div></div>
+    </div>
+    <div class="callout" style="margin-top:16px"><b>Venta neta = Cartera × Cobertura × Strike rate × Frecuencia × Drop size × Precio neto.</b> La identidad es exacta: no es un modelo estadístico, es una descomposición contable. Por eso la atribución de la brecha suma exactamente al 100% — sin residuos ni supuestos.</div>
+  </div>
+
+  <div class="card" id="upzone">
+    <h2>Cargar tus datos</h2>
+    <div class="hint">Sube un Excel/CSV con <b>una fila por vendedor</b> (y por período si tienes varios meses; el modelo consolida). Descarga la plantilla para ver los nombres de columna esperados — el lector reconoce variantes comunes (mayúsculas, tildes, sinónimos). Los campos marcados con <span class="pill bad">req</span> son obligatorios; el resto enriquece el diagnóstico.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn ghost" onclick="downloadTemplate()">⬇ Descargar plantilla Excel</button>
+      <button class="btn ghost" onclick="downloadData()">⬇ Exportar datos actuales + diagnóstico</button>
+      <button class="btn" onclick="loadDemo()">▶ Cargar demo</button>
+    </div>
+    <div class="drop" id="drop" onclick="document.getElementById('fileIn').click()">
+      <b>Arrastra aquí tu archivo</b> .xlsx / .xls / .csv &nbsp;— o haz clic para elegirlo<br>
+      <span id="fileMsg" style="font-size:12px"></span>
+    </div>
+    <input type="file" id="fileIn" accept=".xlsx,.xls,.csv" style="display:none">
+    <h3 class="sec">Columnas esperadas</h3>
+    <div class="scroll"><table id="tblSchema"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Base de datos cargada</h2>
+    <div class="hint">Clic en cualquier encabezado para ordenar. Los indicadores derivados se calculan al vuelo.</div>
+    <div class="scroll"><table id="tblData"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════════ CUARTILES ══════════════════ -->
+<section class="tab" id="tab-cuartiles">
+  <div class="card">
+    <h2>Criterio de cuartilización</h2>
+    <div class="hint">El cuartil superior (Q1) es el 25% de vendedores con mejor desempeño en la métrica elegida. Ordenar por <b>venta neta</b> premia territorios grandes; ordenar por <b>cumplimiento de cuota</b> o por <b>venta por cliente de cartera</b> neutraliza el tamaño del territorio y aísla la habilidad del vendedor.</div>
+    <div class="grid g3">
+      <div class="field">
+        <label>Métrica de cuartilización</label>
+        <select id="selMetric" onchange="render()">
+          <option value="revNeto">Venta neta ($/mes)</option>
+          <option value="margen">Margen de contribución ($/mes)</option>
+          <option value="unidades">Volumen (unidades/mes)</option>
+          <option value="cumplCuota" selected>Cumplimiento de cuota (%)</option>
+          <option value="revPorCliente">Venta por cliente de cartera ($)</option>
+          <option value="margenPct">Margen (%)</option>
+        </select>
+        <div class="why" id="whyMetric"></div>
+      </div>
+      <div class="field">
+        <label>Filtrar por zona</label>
+        <select id="selZona" onchange="render()"><option value="">Todas</option></select>
+        <div class="why">Cuartilizar dentro de una misma zona controla por diferencias de mercado (densidad, poder adquisitivo, competencia).</div>
+      </div>
+      <div class="field">
+        <label>Filtrar por canal</label>
+        <select id="selCanal" onchange="render()"><option value="">Todos</option></select>
+        <div class="why">Un vendedor de canal moderno y uno de tradicional no son comparables: drop size y frecuencia difieren por diseño.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g4" id="quartCards"></div>
+
+  <div class="card">
+    <h2 id="ttlRank">Ranking de vendedores</h2>
+    <div class="hint">Barras coloreadas por cuartil. La línea punteada es la mediana del equipo. El ancho de la brecha entre el primer y el último vendedor es la medida cruda de la <b>dispersión</b> — en fuerzas de venta maduras Q1/Q4 suele estar entre 1,5x y 2,5x; sobre 3x indica problemas de proceso, no de talento.</div>
+    <div id="chRank"></div>
+    <div class="legend"><span><i class="dot" style="background:var(--q1)"></i>Q1 (top)</span><span><i class="dot" style="background:var(--q2)"></i>Q2</span><span><i class="dot" style="background:var(--q3)"></i>Q3</span><span><i class="dot" style="background:var(--q4)"></i>Q4 (bottom)</span></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Volumen vs. margen — ¿vende mucho o vende bien?</h2>
+      <div class="hint">Eje X: unidades. Eje Y: margen %. Tamaño: venta neta. El cuadrante inferior derecho ("compra-volumen") son vendedores que mueven caja regalando margen — no aparecen como problema en un ranking de ventas.</div>
+      <div id="chScatter"></div>
+    </div>
+    <div class="card">
+      <h2>Embudo de cobertura por cuartil</h2>
+      <div class="hint">Promedio por vendedor: cartera asignada → clientes visitados → clientes que compraron. Las tasas de conversión entre etapas son cobertura y strike rate.</div>
+      <div id="chFunnel"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Perfil promedio de cada cuartil</h2>
+    <div class="hint">Cómo se ve un vendedor típico de cada cuartil en las seis palancas y en los indicadores de resultado. Lee las filas de izquierda a derecha: dónde se abre la brecha es dónde está el problema.</div>
+    <div class="scroll"><table id="tblQuart"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════════ DIAGNÓSTICO ══════════════════ -->
+<section class="tab" id="tab-diag">
+  <div class="card">
+    <h2>Puente de la brecha Q1 → Q4: ¿de dónde sale la diferencia?</h2>
+    <div class="hint">Descomposición multiplicativa por sustitución secuencial. Partimos de la venta del vendedor promedio del <b>cuartil superior</b> y vamos reemplazando, una a una, cada palanca por la del <b>cuartil inferior</b>. Cada barra es cuántos pesos de venta se pierden por esa palanca específica. Las barras suman exactamente la brecha total — sin residuo.</div>
+    <div id="chBridge"></div>
+    <div id="bridgeRead" style="margin-top:14px"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Q1 vs Q4 palanca por palanca</h2>
+      <div class="hint">Cada fila es una palanca en su escala real. Cuanto más largo el segmento, mayor la brecha relativa entre el cuartil superior y el inferior.</div>
+      <div id="chDumbbell"></div>
+    </div>
+    <div class="card">
+      <h2>Mapa de calor de desempeño</h2>
+      <div class="hint">Desviación estándar respecto al promedio del equipo (z-score) en cada palanca. Azul = sobre el promedio, rojo = bajo. Busca <b>filas rojas completas</b> (problema general de actividad) vs. <b>celdas rojas aisladas</b> (problema específico, fácil de coachear).</div>
+      <div id="chHeat"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Diagnóstico individual</h2>
+    <div class="hint">Elige un vendedor. El puente muestra cuánto ganaría si igualara el perfil mediano del cuartil superior <b>de su propio canal</b> en cada palanca — ordenado por impacto. La palanca de arriba es la conversación que hay que tener con esa persona <b>esta semana</b>.</div>
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="field"><label>Vendedor</label><select id="selRep" onchange="renderDrill()"></select></div>
+    </div>
+    <div id="drill"></div>
+  </div>
+
+  <div class="card">
+    <h2>Causa raíz dominante — todo el equipo</h2>
+    <div class="hint">Para cada vendedor bajo la mediana, la palanca que explica la mayor parte de su brecha contra el perfil Q1. Si una causa concentra a la mayoría, el problema es <b>sistémico</b> (proceso, herramientas, incentivos) y no se resuelve vendedor por vendedor.</div>
+    <div class="scroll"><table id="tblRoot"></table></div>
+    <div id="rootRead" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ══════════════════ RUTAS ══════════════════ -->
+<section class="tab" id="tab-rutas">
+  <div class="callout">La actividad no es el resultado, pero lo explica. Un vendedor puede fallar por <b>no hacer suficientes visitas</b> (problema de tiempo y ruteo) o por <b>no convertirlas</b> (problema de habilidad). Estos dos gráficos separan ambos casos — y exigen intervenciones opuestas.</div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Actividad vs. efectividad</h2>
+      <div class="hint">X: visitas realizadas al mes. Y: strike rate. <b>Abajo-derecha</b> = mucha actividad, poca conversión → coaching de calidad de visita. <b>Arriba-izquierda</b> = buen cierre pero pocas visitas → problema de ruteo, tiempo administrativo o territorio disperso.</div>
+      <div id="chAct"></div>
+    </div>
+    <div class="card">
+      <h2>Productividad del tiempo en ruta</h2>
+      <div class="hint">Unidades vendidas por hora efectiva de venta. Combinado con kilómetros recorridos revela territorios mal diseñados: mucho manejo, poca venta.</div>
+      <div id="chProd"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Cumplimiento de rutero y carga de ruta</h2>
+    <div class="hint">Visitas planificadas vs. realizadas, kilómetros por visita y horas de venta como % de la jornada. Un cumplimiento de rutero bajo con muchos km por visita casi siempre es <b>territorio mal diseñado</b>, no falta de esfuerzo.</div>
+    <div class="scroll"><table id="tblRutas"></table></div>
+    <div id="rutasRead" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ══════════════════ TIEMPO POR TENDERO ══════════════════ -->
+<section class="tab" id="tab-tiempo">
+  <div id="simBanner"></div>
+  <div class="card">
+    <h2>El activo escaso del vendedor no es el esfuerzo: es el minuto</h2>
+    <div class="hint">Un preventista tiene ~176 horas al mes. Lo que decide su venta no es cuánto trabaja, sino <b>cuántos de esos minutos llegan a estar frente a un tendero</b> y <b>frente a cuál tendero</b>. Esta vista descompone la jornada, mide el tiempo por visita cliente a cliente y contrasta dónde se gasta el tiempo contra dónde está la venta. Es el nivel de análisis que separa un diagnóstico de gerencia de una conversación de opiniones.</div>
+    <div class="grid g4" id="tCards"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>¿En qué se va la jornada?</h2>
+      <div class="hint">Horas al mes por vendedor promedio de cada cuartil: tiempo <b>en tienda</b> (el único que genera venta), <b>traslado</b> (derivado de los kilómetros de la ruta) y <b>administración</b> (carga de pedidos, reuniones, cobranza, espera). El cuartil superior no trabaja más horas — las reparte distinto.</div>
+      <div id="chJornada"></div>
+      <div class="legend"><span><i class="dot" style="background:var(--teal)"></i>En tienda</span><span><i class="dot" style="background:var(--warn)"></i>Traslado</span><span><i class="dot" style="background:#c9d5de"></i>Administración y espera</span></div>
+    </div>
+    <div class="card">
+      <h2>Minutos por visita, vendedor por vendedor</h2>
+      <div class="hint">Duración promedio de la visita al tendero. Los extremos son ambos sospechosos: <b>bajo 6 minutos</b> no alcanza para revisar inventario y sugerir pedido; <b>sobre 18</b> suele ser conversación, no venta — salvo que sea un cliente grande.</div>
+      <div id="chMinVisita"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>¿Cuánto tiempo necesita una visita para convertir?</h2>
+    <div class="hint">Todas las visitas del equipo agrupadas por duración. Izquierda: qué porcentaje termina en pedido. Derecha: cuántas unidades trae en promedio esa visita.</div>
+    <div id="chCurva"></div>
+    <div id="curvaRead" style="margin-top:14px"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>¿El tiempo va donde está la venta?</h2>
+      <div class="hint">Para cada cuartil: qué porcentaje del tiempo en tienda se dedica a clientes A, B y C, contra qué porcentaje de la venta aportan esos mismos clientes. Cuando la barra de tiempo es más larga que la de venta en el segmento C, hay <b>sobre-servicio de clientes chicos</b> — el error de asignación más caro y más común de una fuerza de venta.</div>
+      <div id="chAsign"></div>
+      <div class="legend"><span><i class="dot" style="background:var(--blue)"></i>% del tiempo</span><span><i class="dot" style="background:var(--teal)"></i>% de la venta</span></div>
+    </div>
+    <div class="card">
+      <h2>Rendimiento del minuto en tienda</h2>
+      <div class="hint">Pesos de venta por hora efectiva frente al tendero. Es la medida final de productividad comercial: combina a quién visita, cuánto se queda y qué logra en ese rato.</div>
+      <div id="chPesoHora"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Detalle por vendedor</h2>
+    <div class="hint">Visitas fantasma = visitas de menos de 4 minutos: en el papel están hechas, en la práctica no ocurrieron. Es el indicador que más rápido destapa problemas de rutero, y el que hay que mirar antes de acusar a alguien de bajo desempeño.</div>
+    <div class="scroll"><table id="tblTiempo"></table></div>
+    <div id="tiempoRead" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Distribución de tiempo por tendero — vendedor individual</h2>
+    <div class="hint">Cada punto es un cliente de la cartera del vendedor: minutos totales que recibió en el mes contra las unidades que compró. La línea es la asignación proporcional al valor. Los puntos muy sobre la línea son clientes que reciben más tiempo del que devuelven.</div>
+    <div class="grid g3" style="margin-bottom:12px">
+      <div class="field"><label>Vendedor</label><select id="selRepT" onchange="renderClientes()"></select></div>
+    </div>
+    <div id="chClientes"></div>
+    <div id="clientesRead" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ══════════════════ PLAN ══════════════════ -->
+<section class="tab" id="tab-plan">
+  <div class="card">
+    <h2>Dimensionamiento de la oportunidad</h2>
+    <div class="hint">Metodología <i>gap-to-median</i>: llevar a cada vendedor que está por debajo del objetivo hasta el nivel objetivo <b>en cada palanca donde está deficitario</b>, dejando el resto igual. El objetivo se calcula <b>dentro de su canal</b> — un vendedor de canal tradicional no puede aspirar al drop size de uno de canal moderno. Es deliberadamente conservador: nadie se convierte en el mejor, sólo deja de estar abajo. La cartera no se toca (es diseño de territorio, se reporta aparte).</div>
+    <div class="grid g3">
+      <div class="field">
+        <label>Nivel objetivo <span class="v" id="vTarget"></span></label>
+        <select id="selTarget" onchange="render()">
+          <option value="median">Mediana del equipo (conservador)</option>
+          <option value="q1med" selected>Mediana del cuartil superior (ambicioso)</option>
+          <option value="p60">Percentil 60 (intermedio)</option>
+        </select>
+        <div class="why">La mediana del equipo es el piso defendible ante el comité: "que nadie esté bajo el promedio". El perfil Q1 es la aspiración de 12–18 meses.</div>
+      </div>
+      <div class="field">
+        <label>Tasa de captura <span class="v" id="vCap"></span></label>
+        <input type="range" id="rCap" min="10" max="100" step="5" value="45" oninput="render()">
+        <div class="why">Qué fracción de la brecha teórica se captura realmente. Programas de fuerza de venta bien ejecutados capturan 30–60% en 12 meses; asumir 100% es un error clásico de caso de negocio.</div>
+      </div>
+      <div class="field">
+        <label>Horizonte de implementación <span class="v" id="vHor"></span></label>
+        <input type="range" id="rHor" min="3" max="18" step="1" value="9" oninput="render()">
+        <div class="why">Meses hasta régimen. Afecta el impacto del año 1 (se asume rampa lineal), no el potencial en régimen.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g4" id="oppCards"></div>
+
+  <div class="card">
+    <h2>Oportunidad por palanca</h2>
+    <div class="hint">Dónde están los pesos. Ordena la agenda del área comercial: la palanca de la izquierda es la que financia el programa.</div>
+    <div id="chOpp"></div>
+  </div>
+
+  <div class="card">
+    <h2>Plan de acción priorizado</h2>
+    <div class="hint">Generado a partir del diagnóstico: cada acción está ligada a una palanca, a un impacto cuantificado y a los vendedores concretos que la necesitan.</div>
+    <div id="actions"></div>
+  </div>
+
+  <div class="card">
+    <h2>Resumen ejecutivo</h2>
+    <div id="exec"></div>
+  </div>
+
+  <div class="card">
+    <h2>Detalle por vendedor — oportunidad y acción</h2>
+    <div class="scroll"><table id="tblPlan"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════════ METODOLOGÍA ══════════════════ -->
+<section class="tab" id="tab-metodo">
+  <div class="card">
+    <h2>Fórmulas del modelo</h2>
+    <h3 class="sec">Identidad de descomposición</h3>
+    <div class="callout"><code>Venta neta = Cartera × Cobertura × Strike rate × Frecuencia × Drop size × Precio neto</code><br><br>
+    donde: Cobertura = clientes visitados ÷ cartera · Strike rate = clientes activos ÷ visitados · Frecuencia = pedidos ÷ clientes activos · Drop size = unidades ÷ pedidos · Precio neto = venta neta ÷ unidades</div>
+    <h3 class="sec">Atribución de la brecha (sustitución secuencial)</h3>
+    <p style="font-size:13px;line-height:1.65;color:var(--muted)">Para pasar de un perfil A a un perfil B, la contribución de la palanca <i>i</i> es el cambio en el producto al reemplazar sólo esa palanca, con las palancas anteriores ya en su valor B y las posteriores aún en A. Formalmente: <code>Cᵢ = P(b₁…bᵢ, aᵢ₊₁…aₙ) − P(b₁…bᵢ₋₁, aᵢ…aₙ)</code>. Las contribuciones suman exactamente la diferencia total (sin residuo cruzado), a costa de depender del orden — por eso el orden fijado sigue la secuencia natural del proceso comercial (territorio → cobertura → cierre → recompra → tamaño → precio), que es también el orden en que un gerente puede intervenir.</p>
+    <h3 class="sec">Dimensionamiento gap-to-median</h3>
+    <p style="font-size:13px;line-height:1.65;color:var(--muted)">Para cada vendedor y cada palanca accionable, si su valor está bajo el objetivo se lleva al objetivo; si está sobre, se deja igual (no se penaliza a nadie). La venta recalculada menos la actual es el potencial bruto; multiplicado por la tasa de captura da el potencial neto. La cartera se excluye de las palancas accionables porque el vendedor no la controla — su desbalance se reporta como oportunidad separada de rediseño de territorios.</p>
+    <h3 class="sec">Cuartilización</h3>
+    <p style="font-size:13px;line-height:1.65;color:var(--muted)">Ordenamiento descendente por la métrica elegida y corte en cuatro grupos de igual tamaño (el residuo de la división se asigna a los cuartiles superiores). Con menos de 8 vendedores los cuartiles pierden significado estadístico — usa la comparación individual contra la mediana.</p>
+  </div>
+
+  <div class="card">
+    <h2>Qué datos pedir y a quién</h2>
+    <div class="scroll"><table id="tblFuentes"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Benchmarks de referencia (CPG / distribución, canal tradicional)</h2>
+    <div class="hint">Rangos típicos observados en operaciones de venta directa a detalle. Úsalos como sanity check, no como meta: la meta correcta es el propio cuartil superior interno, que ya está ajustado por realidad de mercado.</div>
+    <div class="scroll"><table id="tblBench"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Extensiones sugeridas (si consigues el dato)</h2>
+    <ul class="bul">
+      <li><b>Datos por cliente-visita (GPS / app de preventa):</b> permite medir tiempo real en el punto de venta, secuencia de ruta y detectar visitas fantasma. Es el mayor salto de calidad de diagnóstico disponible.</li>
+      <li><b>Mix por SKU y por cliente:</b> habilita medir surtido efectivo (SKUs por cliente vs. surtido objetivo) — típicamente la explicación de drop size bajo.</li>
+      <li><b>Ejecución en punto de venta:</b> share of shelf, presencia de material POP, cumplimiento planograma. Conecta la efectividad del vendedor con la del comprador final.</li>
+      <li><b>Devoluciones y quiebres:</b> un drop size alto con devoluciones altas es sobrecarga de inventario al cliente, no venta real.</li>
+      <li><b>Costo de servir por vendedor:</b> combina esta herramienta con el modelo de Cost to Serve para pasar de venta a <b>margen después de costo de servir</b> — algunos vendedores de alto volumen destruyen valor.</li>
+      <li><b>Compensación y cuota:</b> si el esquema de incentivos paga sólo volumen, el vendedor que regala margen está respondiendo racionalmente. Revisar incentivos antes de coachear.</li>
+      <li><b>Antigüedad y curva de rampa:</b> separar "bajo desempeño" de "aún en rampa" evita rotar gente que sólo necesita tiempo.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ═══════════════════ ESTADO ═══════════════════ */
+let RAW = [];       // filas crudas normalizadas
+let ROWS = [];      // filas con métricas derivadas (filtradas)
+let ALL = [];       // todas con derivadas
+const F = {
+  money: n => (n===null||n===undefined||!isFinite(n)) ? '—' : '$' + Math.round(n).toLocaleString('es-CL'),
+  M: n => !isFinite(n) ? '—' : '$' + (n/1e6).toFixed(n>=1e7?0:1) + 'M',
+  K: n => !isFinite(n) ? '—' : (n/1e3).toFixed(1) + 'K',
+  n: (n,d=0) => !isFinite(n) ? '—' : n.toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d}),
+  p: (n,d=0) => !isFinite(n) ? '—' : (n*100).toFixed(d) + '%',
+};
+
+/* Palancas de la identidad multiplicativa (orden = secuencia del proceso comercial) */
+const LEVERS = [
+  {k:'cartera',   n:'Cartera',      short:'Cartera',   fmt:v=>F.n(v,0),   unit:'clientes',       lever:false, act:'Rediseño de territorio'},
+  {k:'cobertura', n:'Cobertura',    short:'Cobertura', fmt:v=>F.p(v,1),   unit:'% cartera visitada', lever:true, act:'Disciplina de rutero'},
+  {k:'strike',    n:'Strike rate',  short:'Strike',    fmt:v=>F.p(v,1),   unit:'% visitas con pedido', lever:true, act:'Calidad de la visita'},
+  {k:'frec',      n:'Frecuencia',   short:'Frec.',     fmt:v=>F.n(v,2),   unit:'pedidos/cliente activo', lever:true, act:'Frecuencia y recompra'},
+  {k:'drop',      n:'Drop size',    short:'Drop',      fmt:v=>F.n(v,1),   unit:'unidades/pedido', lever:true, act:'Tamaño de pedido'},
+  {k:'precio',    n:'Precio neto',  short:'Precio',    fmt:v=>F.money(v), unit:'$/unidad',       lever:true, act:'Precio y mix'},
+];
+const LEVER_COLOR = {cartera:'#8fa5b3',cobertura:'#2251ff',strike:'#00a9f4',frec:'#00b8a2',drop:'#7b61ff',precio:'#f5a623'};
+const ACTIONS = {
+  cobertura:{t:'Cobertura de cartera — disciplina de rutero',
+    d:'Rutero fijo por día de la semana con secuencia optimizada; reporte semanal de clientes sin visita en el mes; regla dura de "cero clientes sin visitar en 30 días". Revisar primero si el territorio es físicamente recorrible: si los km por visita están sobre el equipo, el problema es diseño, no esfuerzo.',
+    kpi:'% cartera visitada · clientes sin visita >30 días · cumplimiento de rutero'},
+  strike:{t:'Efectividad de la visita — coaching en terreno',
+    d:'Acompañamiento del supervisor 2 días/mes por vendedor con pauta de observación (los 8 pasos de la visita); role play semanal de manejo de objeciones; revisión de los 10 clientes visitados que nunca compran — muchos son problemas de crédito o de contacto equivocado, no de habilidad.',
+    kpi:'strike rate · pedidos por visita · nº de acompañamientos realizados'},
+  frec:{t:'Frecuencia de compra — recompra y cobertura de inventario',
+    d:'Frecuencia de visita diferenciada por segmento (clientes A semanal, C quincenal); pedido sugerido basado en histórico en la app de preventa; alerta de clientes que bajaron su frecuencia respecto a su propio patrón.',
+    kpi:'pedidos por cliente activo · % clientes con caída de frecuencia'},
+  drop:{t:'Tamaño de pedido — surtido y venta cruzada',
+    d:'Surtido mínimo obligatorio por tipo de cliente con medición de cumplimiento; foco en SKUs de mayor margen ausentes en el pedido; packs y escalas de volumen; exhibición adicional. Verificar devoluciones: un drop grande con devoluciones altas es sobrecarga, no venta.',
+    kpi:'unidades por pedido · SKUs por cliente · % cumplimiento de surtido mínimo'},
+  precio:{t:'Precio y mix — recuperar margen regalado',
+    d:'Techo de descuento por vendedor con aprobación escalada sobre el límite; visibilidad del margen por pedido en la app; cuota de mix premium además de la cuota de volumen. Antes de coachear, revisar el esquema de incentivos: si paga sólo volumen, el descuento es la respuesta racional.',
+    kpi:'precio neto por unidad · % descuento · mix premium · margen por pedido'},
+  cartera:{t:'Rediseño de territorios',
+    d:'Rebalanceo de carteras para igualar potencial (no número de clientes) entre vendedores, considerando densidad y tiempos de traslado. Es una intervención del gerente, no del vendedor, y suele requerir ajustar cuotas simultáneamente.',
+    kpi:'potencial por cartera · dispersión de cartera entre vendedores · km por visita'},
+};
+
+/* ═══════════════════ ESQUEMA DE DATOS ═══════════════════ */
+const SCHEMA = [
+  {k:'vendedor',        n:'Vendedor',              req:true,  ej:'María Fuentes', d:'Nombre o código del vendedor', al:['vendedor','nombre','rep','ejecutivo','preventista','asesor','vendedora','nombre vendedor','codigo vendedor']},
+  {k:'zona',            n:'Zona / territorio',     req:false, ej:'RM Sur',        d:'Para cuartilizar dentro de mercados comparables', al:['zona','territorio','region','sucursal','distrito','area']},
+  {k:'canal',           n:'Canal',                 req:false, ej:'Tradicional',   d:'Tradicional, moderno, horeca…', al:['canal','segmento','tipo cliente','channel']},
+  {k:'antiguedad',      n:'Antigüedad (meses)',    req:false, ej:'34',            d:'Separa bajo desempeño de rampa de aprendizaje', al:['antiguedad','antiguedad meses','meses','tenure','experiencia']},
+  {k:'cartera',         n:'Cartera (clientes)',    req:true,  ej:'118',           d:'Clientes asignados en el territorio', al:['cartera','clientes','cartera clientes','clientes asignados','universo','total clientes']},
+  {k:'visitados',       n:'Clientes visitados',    req:true,  ej:'79',            d:'Clientes únicos visitados en el período', al:['visitados','clientes visitados','cobertura clientes','clientes atendidos']},
+  {k:'activos',         n:'Clientes activos',      req:true,  ej:'52',            d:'Clientes únicos que compraron', al:['activos','clientes activos','clientes con compra','compradores','clientes con pedido']},
+  {k:'ordenes',         n:'Pedidos',               req:true,  ej:'141',           d:'Número de pedidos/facturas emitidos', al:['ordenes','pedidos','ordenes','facturas','boletas','transacciones','nro pedidos']},
+  {k:'unidades',        n:'Unidades vendidas',     req:true,  ej:'2.480',         d:'Cajas / unidades / kg — la unidad física de volumen', al:['unidades','volumen','cajas','cantidad','uds','kg','hl','unidades vendidas']},
+  {k:'revBruto',        n:'Venta bruta ($)',       req:true,  ej:'11.160.000',    d:'Venta a precio de lista, antes de descuentos', al:['venta bruta','revenue bruto','revbruto','venta','ingresos','facturacion','venta lista','revenue']},
+  {k:'descuentos',      n:'Descuentos ($)',        req:false, ej:'1.116.000',     d:'Descuentos, rebates y notas de crédito comercial', al:['descuentos','descuento','rebate','notas credito','dcto']},
+  {k:'costo',           n:'Costo de mercadería ($)',req:false,ej:'6.700.000',     d:'COGS de lo vendido — habilita el análisis de margen', al:['costo','costo mercaderia','cogs','costo ventas','costo producto']},
+  {k:'unidPremium',     n:'Unidades premium',      req:false, ej:'520',           d:'Volumen del portafolio premium/foco — mide calidad del mix', al:['unidades premium','premium','volumen premium','uds premium','mix premium']},
+  {k:'visitasPlan',     n:'Visitas planificadas',  req:false, ej:'354',           d:'Visitas del rutero teórico del período', al:['visitas planificadas','visitas plan','rutero','visitas objetivo','plan visitas']},
+  {k:'visitasReal',     n:'Visitas realizadas',    req:false, ej:'298',           d:'Visitas efectivamente ejecutadas', al:['visitas realizadas','visitas','visitas real','visitas efectuadas']},
+  {k:'km',              n:'Kilómetros recorridos', req:false, ej:'620',           d:'Detecta territorios dispersos mal diseñados', al:['km','kilometros','distancia','km recorridos']},
+  {k:'horasVenta',      n:'Horas efectivas de venta',req:false,ej:'92',           d:'Horas en punto de venta (vs. manejo y administración)', al:['horas venta','horas','horas efectivas','tiempo venta','horas terreno']},
+  {k:'cuota',           n:'Cuota / meta ($)',      req:false, ej:'12.000.000',    d:'Permite cuartilizar por cumplimiento, neutralizando tamaño de territorio', al:['cuota','meta','objetivo','target','presupuesto','ppto']},
+];
+
+/* ═══════════════════ DEMO ═══════════════════ */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+function loadDemo(){
+  const rnd = mulberry32(20260801);
+  const g = ()=> (rnd()+rnd()+rnd()+rnd()-2)*1.1;   // ~normal(0,1)
+  const nombres = ['María Fuentes','Jorge Cabrera','Camila Rojas','Patricio Núñez','Valentina Soto','Rodrigo Díaz','Fernanda Muñoz','Cristián Vera','Daniela Pizarro','Sebastián Leiva','Paula Contreras','Marcelo Ibáñez','Andrea Salas','Luis Tapia','Constanza Ríos','Felipe Zúñiga','Javiera Bravo','Nicolás Herrera','Carolina Vidal','Álvaro Sepúlveda','Macarena Godoy','Esteban Cortés','Bárbara Fuenzalida','Gonzalo Araya','Natalia Espinoza','Ignacio Molina','Francisca Lagos','Matías Peña'];
+  const zonas = ['RM Norte','RM Sur','RM Poniente','Valparaíso','Concepción'];
+  const canales = ['Tradicional','Tradicional','Tradicional','Moderno','Horeca'];
+  const out = [];
+  nombres.forEach((nm,i)=>{
+    const s = g();                                    // habilidad latente
+    const zona = zonas[i % zonas.length];
+    const canal = canales[(i*3+1) % canales.length];
+    const cl = (v,a,b)=>Math.max(a,Math.min(b,v));
+    const modern = canal==='Moderno', horeca = canal==='Horeca';
+
+    const cartera   = Math.round(cl(298 + g()*62 + (modern?-203:0) + (horeca?-88:0), 55, 520));
+    const cobertura = cl(0.665 + 0.062*s + g()*0.032 + (modern?0.14:0), 0.32, 0.99);
+    const strike    = cl(0.615 + 0.072*s + g()*0.035 + (modern?0.12:0), 0.28, 0.97);
+    const frec      = cl(2.55 + 0.28*s + g()*0.13 + (modern?0.35:0) + (horeca?0.3:0), 1.15, 4.6);
+    const dropBase  = modern? 34 : horeca? 22 : 17;
+    const drop      = cl(dropBase*(1 + 0.13*s + g()*0.065), 4, 130);
+    const mix       = cl(0.215 + 0.060*s + g()*0.040 + (horeca?0.12:0), 0.02, 0.62);
+    const lista     = 3850 + 2100*mix + g()*70;
+    const desc      = cl(0.108 - 0.024*s + g()*0.018 + (modern?0.045:0), 0.005, 0.30);
+    const precio    = lista*(1-desc);
+    const costoU    = 2560 + 760*mix;
+
+    const visitados = Math.round(cartera*cobertura);
+    const activos   = Math.max(1, Math.round(visitados*strike));
+    const ordenes   = Math.max(1, Math.round(activos*frec));
+    const unidades  = Math.max(1, Math.round(ordenes*drop));
+    const revBruto  = Math.round(unidades*lista);
+    const descuentos= Math.round(revBruto*desc);
+    const costo     = Math.round(unidades*costoU);
+    const visitasPlan = Math.round(cartera*(modern?2.6:2.0));   // frecuencia de visita objetivo del rutero
+    const visitasReal = Math.round(visitados*cl(2.45+0.34*s+g()*0.18,1.0,4.2));
+    const km        = Math.round(cl(760 + g()*230 - s*70 + (zona.startsWith('RM')?-140:230), 300, 1900));
+    // El tiempo es una restricción, no una variable libre: 176 h/mes menos traslado y administración
+    // acotan cuánto puede durar cada visita. De ahí sale la tensión real entre cobertura y profundidad.
+    const trasladoH = km/17;                                       // 17 km/h efectivos en ruta urbana
+    const adminH    = cl(38 + g()*8 - s*4, 22, 60);                // carga de pedidos, reuniones, cobranza, espera
+    const disponibleH = Math.max(20, 176 - trasladoH - adminH);
+    const minObjetivo = cl((modern?20:horeca?14.5:9.2)*(1 + 0.15*s + g()*0.10), 3.5, 42);
+    const minVisita = Math.min(minObjetivo, disponibleH*60/visitasReal);
+    const horasVenta= Math.round(visitasReal*minVisita/60);
+    // la cuota real se pone sobre el histórico del vendedor: hereda parte de su desempeño
+    const cuota     = Math.round(cartera * (modern?205000:horeca?106000:68000) * (1 + 0.26*s + g()*0.05));
+
+    out.push({vendedor:nm, zona, canal,
+      antiguedad: Math.round(cl(30 + s*17 + g()*15, 2, 132)),
+      cartera, visitados, activos, ordenes, unidades,
+      revBruto, descuentos, costo,
+      unidPremium: Math.round(unidades*mix),
+      visitasPlan, visitasReal, km, horasVenta, cuota});
+  });
+  RAW = out;
+  document.getElementById('fileMsg').innerHTML = '<b style="color:var(--teal)">Datos demo cargados</b> — 28 preventistas, embotelladora chilena (mes típico).';
+  boot();
+  goTab('cuartiles');
+}
+
+/* ═══════════════════ CÁLCULO ═══════════════════ */
+function derive(r){
+  const o = Object.assign({}, r);
+  o.descuentos = o.descuentos||0;
+  o.revNeto   = o.revBruto - o.descuentos;
+  o.costo     = o.costo || 0;
+  o.margen    = o.costo ? o.revNeto - o.costo : NaN;
+  o.margenPct = o.costo ? o.margen/o.revNeto : NaN;
+  o.cobertura = o.visitados/o.cartera;
+  o.strike    = o.activos/o.visitados;
+  o.frec      = o.ordenes/o.activos;
+  o.drop      = o.unidades/o.ordenes;
+  o.precio    = o.revNeto/o.unidades;
+  o.descPct   = o.revBruto? o.descuentos/o.revBruto : 0;
+  o.mixPrem   = o.unidPremium!=null ? o.unidPremium/o.unidades : NaN;
+  o.cumplCuota= o.cuota ? o.revNeto/o.cuota : NaN;
+  o.cumplRuta = o.visitasPlan ? o.visitasReal/o.visitasPlan : NaN;
+  o.revPorCliente = o.revNeto/o.cartera;
+  o.unidPorHora = o.horasVenta ? o.unidades/o.horasVenta : NaN;
+  o.kmPorVisita = (o.km && o.visitasReal) ? o.km/o.visitasReal : NaN;
+  o.visitasPorActivo = o.visitasReal ? o.visitasReal/o.activos : NaN;
+  o.revCalc   = LEVERS.reduce((a,l)=>a*o[l.k],1);
+  return o;
+}
+const median = arr => { const a=arr.filter(isFinite).slice().sort((x,y)=>x-y); if(!a.length) return NaN;
+  const m=Math.floor(a.length/2); return a.length%2? a[m] : (a[m-1]+a[m])/2; };
+const pctile = (arr,p) => { const a=arr.filter(isFinite).slice().sort((x,y)=>x-y); if(!a.length) return NaN;
+  const i=(a.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i); return a[lo]+(a[hi]-a[lo])*(i-lo); };
+const mean = arr => { const a=arr.filter(isFinite); return a.length? a.reduce((x,y)=>x+y,0)/a.length : NaN; };
+const sum = (arr,f) => arr.reduce((a,r)=>a+(isFinite(f(r))?f(r):0),0);
+
+/* Puente por sustitución secuencial entre dos perfiles */
+function bridge(from, to, keys){
+  const cur = keys.map(k=>from[k]);
+  const prod = v => v.reduce((a,b)=>a*b,1);
+  let base = prod(cur), out = [];
+  keys.forEach((k,i)=>{
+    cur[i] = to[k];
+    const nv = prod(cur);
+    out.push({k, delta: nv - base});
+    base = nv;
+  });
+  return out;
+}
+
+function quartilize(rows, metric){
+  const s = rows.slice().sort((a,b)=> (b[metric]||-Infinity) - (a[metric]||-Infinity));
+  const n = s.length, base = Math.floor(n/4), rest = n % 4;
+  const sizes = [0,1,2,3].map(i => base + (i < rest ? 1 : 0));
+  let idx = 0;
+  sizes.forEach((sz,qi)=>{ for(let j=0;j<sz;j++){ s[idx].q = qi+1; s[idx].rank = idx+1; idx++; } });
+  return s;
+}
+
+function profile(rows){
+  const p = {};
+  LEVERS.forEach(l => p[l.k] = mean(rows.map(r=>r[l.k])));
+  // reescala el precio para que el producto reproduzca la venta media real del grupo
+  const target = mean(rows.map(r=>r.revNeto));
+  const prod = LEVERS.reduce((a,l)=>a*p[l.k],1);
+  if(isFinite(prod) && prod>0) p.precio *= target/prod;
+  p.revNeto = target;
+  return p;
+}
+function medianProfile(rows){
+  const p = {}; LEVERS.forEach(l => p[l.k] = median(rows.map(r=>r[l.k])));
+  p.revNeto = LEVERS.reduce((a,l)=>a*p[l.k],1); return p;
+}
+
+/* ═══════════════════ RENDER PRINCIPAL ═══════════════════ */
+let STATE = {};
+function render(){
+  if(!RAW.length) return;
+  ALL = RAW.map(derive);
+  const zf = document.getElementById('selZona').value, cf = document.getElementById('selCanal').value;
+  const metric = document.getElementById('selMetric').value;
+  let rows = ALL.filter(r => (!zf||r.zona===zf) && (!cf||r.canal===cf));
+  if(rows.length < 4) rows = ALL.slice();
+  rows = quartilize(rows, metric);
+  ROWS = rows;
+
+  const Q = q => rows.filter(r=>r.q===q);
+  const q1 = Q(1), q4 = Q(4);
+  const pQ1 = profile(q1), pQ4 = profile(q4), q1med = medianProfile(q1);
+  const targetSel = document.getElementById('selTarget').value;
+  const mkTarget = list => {
+    const top = list.slice().sort((a,b)=>(b[metric]||-Infinity)-(a[metric]||-Infinity)).slice(0,Math.max(1,Math.round(list.length/4)));
+    const p = {};
+    LEVERS.forEach(l => p[l.k] = targetSel==='q1med' ? median(top.map(r=>r[l.k]))
+        : targetSel==='p60' ? pctile(list.map(r=>r[l.k]),0.60) : median(list.map(r=>r[l.k])));
+    return p;
+  };
+  const targetProf = mkTarget(rows);
+  // El objetivo se fija DENTRO de cada canal: un tradicional no puede aspirar al drop size de un
+  // vendedor de canal moderno. Con menos de 4 vendedores en el canal se usa el objetivo global.
+  const targetBy = {};
+  [...new Set(rows.map(r=>r.canal||''))].forEach(c=>{
+    const g = rows.filter(r=>(r.canal||'')===c);
+    targetBy[c] = g.length>=4 ? mkTarget(g) : targetProf;
+  });
+  const TGT = r => targetBy[r.canal||''] || targetProf;
+  const cap = +document.getElementById('rCap').value/100;
+  const hor = +document.getElementById('rHor').value;
+
+  // oportunidad por vendedor
+  const opps = rows.map(r=>{
+    const targetProf = TGT(r);
+    const to = {}; LEVERS.forEach(l => to[l.k] = (l.lever && r[l.k] < targetProf[l.k]) ? targetProf[l.k] : r[l.k]);
+    const br = bridge(r, to, LEVERS.map(l=>l.k)).filter(b=>b.delta>0.5);
+    const tot = br.reduce((a,b)=>a+b.delta,0);
+    const gapCartera = Math.max(0, (targetProf.cartera - r.cartera)) * (r.revNeto/r.cartera);
+    return {rep:r, br: br.sort((a,b)=>b.delta-a.delta), tot, gapCartera};
+  });
+  const oppTot = opps.reduce((a,o)=>a+o.tot,0)*cap;
+  const perLever = {}; LEVERS.forEach(l=>perLever[l.k]=0);
+  opps.forEach(o=>o.br.forEach(b=>perLever[b.k]+=b.delta*cap));
+
+  STATE = {rows,q1,q4,pQ1,pQ4,q1med,targetProf,targetBy,TGT,opps,oppTot,perLever,cap,hor,metric};
+
+  // KPIs cabecera
+  const revTot = sum(rows,r=>r.revNeto);
+  document.getElementById('kRep').textContent = rows.length;
+  document.getElementById('kRev').textContent = F.M(revTot);
+  document.getElementById('kGap').textContent = (pQ1.revNeto/pQ4.revNeto).toFixed(1)+'x';
+  document.getElementById('kOpp').textContent = F.M(oppTot*12);
+  document.getElementById('vCap').textContent = F.p(cap,0);
+  document.getElementById('vHor').textContent = hor+' meses';
+  document.getElementById('vTarget').textContent = targetSel==='q1med'?'perfil Q1':targetSel==='p60'?'P60':'mediana';
+  document.getElementById('whyMetric').textContent = {
+    revNeto:'Ranking crudo de venta. Premia territorios grandes — úsalo sólo si las carteras están balanceadas.',
+    margen:'Corrige al vendedor que compra volumen con descuento. La métrica que más se acerca a valor creado.',
+    unidades:'Volumen puro, ignora precio y mix. Útil para metas de participación de mercado.',
+    cumplCuota:'Neutraliza el tamaño del territorio si las cuotas están bien puestas. Es la métrica más justa entre vendedores.',
+    revPorCliente:'Venta por cliente de cartera: aísla la productividad del vendedor sobre el potencial que le asignaron.',
+    margenPct:'Calidad de la venta, no cantidad. Detecta a quien vende bien pero poco (y al revés).'
+  }[metric];
+
+  renderQuartCards(); renderRank(); renderScatter(); renderFunnel(); renderQuartTable();
+  renderBridge(); renderDumbbell(); renderHeat(); renderRoot();
+  renderAct(); renderProd(); renderRutas(); renderTiempo();
+  renderOppCards(); renderOppChart(); renderActions(); renderExec(); renderPlanTable();
+  renderDataTable();
+  const sel = document.getElementById('selRep');
+  const prev = sel.value;
+  sel.innerHTML = rows.slice().sort((a,b)=>a.rank-b.rank).map(r=>`<option value="${r.vendedor}">${r.rank}. ${r.vendedor} — Q${r.q} (${F.M(r.revNeto)})</option>`).join('');
+  if(rows.some(r=>r.vendedor===prev)) sel.value = prev; else sel.value = (rows.find(r=>r.q===4)||rows[0]).vendedor;
+  renderDrill();
+}
+
+/* ═══════════════════ HELPERS SVG ═══════════════════ */
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function svg(w,h,inner,extra=''){ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;max-height:${h}px" ${extra}>${inner}</svg>`; }
+const QC = q => ['','var(--q1)','var(--q2)','var(--q3)','var(--q4)'][q];
+
+/* ═══════════════════ CUARTILES ═══════════════════ */
+function renderQuartCards(){
+  const {rows,metric} = STATE;
+  const lbl = {revNeto:'Venta neta',margen:'Margen',unidades:'Unidades',cumplCuota:'Cumpl. cuota',revPorCliente:'Venta/cliente',margenPct:'Margen %'}[metric];
+  const fm = v => metric==='cumplCuota'||metric==='margenPct' ? F.p(v,0) : metric==='unidades' ? F.n(v,0) : F.M(v);
+  document.getElementById('quartCards').innerHTML = [1,2,3,4].map(q=>{
+    const g = rows.filter(r=>r.q===q); if(!g.length) return '';
+    const avg = mean(g.map(r=>r[metric]));
+    const rev = sum(g,r=>r.revNeto);
+    return `<div class="card" style="border-top:4px solid ${QC(q)}">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:${QC(q)};text-transform:uppercase">Cuartil ${q}${q===1?' — Top':q===4?' — Bottom':''}</div>
+      <div class="bignum" style="margin-top:6px">${fm(avg)}<small>${lbl} promedio · ${g.length} vendedores</small></div>
+      <div class="tiny">Aportan <b>${F.p(rev/sum(rows,r=>r.revNeto),0)}</b> de la venta total (${F.M(rev)}/mes)</div>
+      <div style="margin-top:8px;font-size:11.5px;color:var(--muted);line-height:1.5">${g.map(r=>esc(r.vendedor.split(' ')[0]+' '+r.vendedor.split(' ')[1][0]+'.')).join(' · ')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRank(){
+  const {rows,metric} = STATE;
+  const s = rows.slice().sort((a,b)=>b[metric]-a[metric]);
+  const fm = v => metric==='cumplCuota'||metric==='margenPct' ? F.p(v,0) : metric==='unidades' ? F.n(v,0) : F.M(v);
+  const W=980, rowH=23, PADL=170, PADR=90, top=26, h = top + s.length*rowH + 24;
+  const max = Math.max(...s.map(r=>r[metric]));
+  const med = median(s.map(r=>r[metric]));
+  const x = v => PADL + (v/max)*(W-PADL-PADR);
+  let g = '';
+  s.forEach((r,i)=>{
+    const y = top + i*rowH;
+    g += `<text x="${PADL-8}" y="${y+13}" text-anchor="end" font-size="11.5" fill="var(--ink)">${esc(r.vendedor)}</text>`;
+    g += `<rect x="${PADL}" y="${y+3}" width="${Math.max(1,x(r[metric])-PADL)}" height="${rowH-8}" fill="${QC(r.q)}" rx="2"/>`;
+    g += `<text x="${x(r[metric])+6}" y="${y+13}" font-size="11" fill="var(--muted)">${fm(r[metric])}</text>`;
+    g += `<text x="${PADL-160}" y="${y+13}" font-size="10" fill="${QC(r.q)}" font-weight="700">Q${r.q}</text>`;
+  });
+  g += `<line x1="${x(med)}" y1="${top-6}" x2="${x(med)}" y2="${top+s.length*rowH}" stroke="var(--navy)" stroke-width="1.4" stroke-dasharray="4 3"/>`;
+  g += `<text x="${x(med)+5}" y="${top-10}" font-size="11" fill="var(--navy)" font-weight="700">mediana ${fm(med)}</text>`;
+  document.getElementById('chRank').innerHTML = svg(W,h,g);
+  document.getElementById('ttlRank').textContent = `Ranking de vendedores — ${ {revNeto:'venta neta',margen:'margen',unidades:'unidades',cumplCuota:'cumplimiento de cuota',revPorCliente:'venta por cliente de cartera',margenPct:'margen %'}[metric] }`;
+}
+
+function renderScatter(){
+  const {rows} = STATE;
+  const hasM = rows.some(r=>isFinite(r.margenPct));
+  const W=560,H=380,L=62,R=18,T=18,B=48;
+  const xs = rows.map(r=>r.unidades), ys = rows.map(r=> hasM? r.margenPct : r.precio);
+  const xmin=0, xmax=Math.max(...xs)*1.08, ymin=Math.min(...ys)*0.94, ymax=Math.max(...ys)*1.04;
+  const X=v=>L+(v-xmin)/(xmax-xmin)*(W-L-R), Y=v=>H-B-(v-ymin)/(ymax-ymin)*(H-T-B);
+  const rmax=Math.max(...rows.map(r=>r.revNeto));
+  const mx=median(xs), my=median(ys);
+  let g=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="#fbfcfd"/>`;
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4, v=ymax-(ymax-ymin)*i/4;
+    g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/><text x="${L-7}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--muted)">${hasM?F.p(v,0):F.money(v)}</text>`;}
+  g+=`<line x1="${X(mx)}" y1="${T}" x2="${X(mx)}" y2="${H-B}" stroke="var(--navy)" stroke-dasharray="4 3" opacity=".45"/>`;
+  g+=`<line x1="${L}" y1="${Y(my)}" x2="${W-R}" y2="${Y(my)}" stroke="var(--navy)" stroke-dasharray="4 3" opacity=".45"/>`;
+  g+=`<text x="${W-R-6}" y="${T+14}" text-anchor="end" font-size="10.5" fill="var(--muted)">Estrellas</text>`;
+  g+=`<text x="${W-R-6}" y="${H-B-6}" text-anchor="end" font-size="10.5" fill="var(--bad)">Compra-volumen</text>`;
+  g+=`<text x="${L+6}" y="${H-B-6}" font-size="10.5" fill="var(--muted)">Rezagados</text>`;
+  rows.forEach(r=>{const rr=5+9*Math.sqrt(r.revNeto/rmax);
+    g+=`<circle cx="${X(r.unidades)}" cy="${Y(hasM?r.margenPct:r.precio)}" r="${rr}" fill="${QC(r.q)}" opacity=".72" stroke="#fff"/>`;
+    if(r.q===1||r.q===4) g+=`<text x="${X(r.unidades)}" y="${Y(hasM?r.margenPct:r.precio)-rr-3}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(r.vendedor.split(' ')[0])}</text>`;});
+  g+=`<text x="${(L+W-R)/2}" y="${H-12}" text-anchor="middle" font-size="11" fill="var(--muted)">Unidades vendidas / mes</text>`;
+  g+=`<text transform="translate(14,${(T+H-B)/2}) rotate(-90)" text-anchor="middle" font-size="11" fill="var(--muted)">${hasM?'Margen %':'Precio neto'}</text>`;
+  document.getElementById('chScatter').innerHTML = svg(W,H,g);
+}
+
+function renderFunnel(){
+  const {rows} = STATE;
+  const W=560,H=330,L=44,R=16,T=26,B=50;
+  const data=[1,2,3,4].map(q=>{const gp=rows.filter(r=>r.q===q);
+    return {q, cartera:mean(gp.map(r=>r.cartera)), vis:mean(gp.map(r=>r.visitados)), act:mean(gp.map(r=>r.activos))};});
+  const max=Math.max(...data.map(d=>d.cartera))*1.15;
+  const bw=(W-L-R)/4, sub=(bw-26)/3;
+  let g='';
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.n(max-max*i/4,0)}</text>`;}
+  data.forEach((d,i)=>{
+    const x0=L+i*bw+13;
+    [[d.cartera,'#c9d5de','Cartera'],[d.vis,QC(d.q)+'',(''),],[d.act,QC(d.q),'']].forEach(()=>{});
+    const vals=[{v:d.cartera,c:'#cdd8e0'},{v:d.vis,c:QC(d.q),o:.55},{v:d.act,c:QC(d.q),o:1}];
+    vals.forEach((vv,j)=>{const hh=(vv.v/max)*(H-T-B), x=x0+j*sub;
+      g+=`<rect x="${x}" y="${H-B-hh}" width="${sub-5}" height="${hh}" fill="${vv.c}" opacity="${vv.o||1}" rx="2"/>
+          <text x="${x+(sub-5)/2}" y="${H-B-hh-4}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${F.n(vv.v,0)}</text>`;});
+    g+=`<text x="${x0+sub*1.5}" y="${H-B+15}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${QC(d.q)}">Q${d.q}</text>`;
+    g+=`<text x="${x0+sub*1.5}" y="${H-B+30}" text-anchor="middle" font-size="10" fill="var(--muted)">cob ${F.p(d.vis/d.cartera,0)} · strike ${F.p(d.act/d.vis,0)}</text>`;
+  });
+  g+=`<text x="${L}" y="14" font-size="10.5" fill="var(--muted)">Promedio por vendedor: cartera → visitados → con pedido</text>`;
+  document.getElementById('chFunnel').innerHTML = svg(W,H,g);
+}
+
+function renderQuartTable(){
+  const {rows} = STATE;
+  const gs=[1,2,3,4].map(q=>rows.filter(r=>r.q===q));
+  const defs=[
+    ['Venta neta / mes', r=>r.revNeto, F.M],
+    ['Margen $ / mes', r=>r.margen, F.M],
+    ['Margen %', r=>r.margenPct, v=>F.p(v,1)],
+    ['Cumplimiento de cuota', r=>r.cumplCuota, v=>F.p(v,0)],
+    ['Unidades / mes', r=>r.unidades, v=>F.n(v,0)],
+    ['— Cartera (clientes)', r=>r.cartera, v=>F.n(v,0)],
+    ['— Cobertura', r=>r.cobertura, v=>F.p(v,1)],
+    ['— Strike rate', r=>r.strike, v=>F.p(v,1)],
+    ['— Frecuencia (pedidos/activo)', r=>r.frec, v=>F.n(v,2)],
+    ['— Drop size (uds/pedido)', r=>r.drop, v=>F.n(v,1)],
+    ['— Precio neto ($/ud)', r=>r.precio, F.money],
+    ['Descuento %', r=>r.descPct, v=>F.p(v,1)],
+    ['Mix premium %', r=>r.mixPrem, v=>F.p(v,1)],
+    ['Visitas realizadas / mes', r=>r.visitasReal, v=>F.n(v,0)],
+    ['Cumplimiento de rutero', r=>r.cumplRuta, v=>F.p(v,0)],
+    ['Km por visita', r=>r.kmPorVisita, v=>F.n(v,1)],
+    ['Unidades por hora de venta', r=>r.unidPorHora, v=>F.n(v,1)],
+    ['Antigüedad (meses)', r=>r.antiguedad, v=>F.n(v,0)],
+  ];
+  let h=`<thead><tr><th>Indicador</th><th class="num" style="color:#7ee8d5">Q1 top</th><th class="num">Q2</th><th class="num">Q3</th><th class="num" style="color:#ffb0be">Q4 bottom</th><th class="num">Brecha Q1/Q4</th></tr></thead><tbody>`;
+  defs.forEach(([n,f,fmt])=>{
+    const vs=gs.map(g=>mean(g.map(f)));
+    if(!vs.some(isFinite)) return;
+    const ratio = isFinite(vs[0])&&isFinite(vs[3])&&vs[3]!==0 ? vs[0]/vs[3] : NaN;
+    const strong = Math.abs(ratio-1)>0.25;
+    h+=`<tr><td${n.startsWith('—')?' style="padding-left:20px;color:var(--muted)"':''}>${n}</td>`+
+       vs.map(v=>`<td class="num">${isFinite(v)?fmt(v):'—'}</td>`).join('')+
+       `<td class="num"><b style="color:${strong?'var(--bad)':'var(--muted)'}">${isFinite(ratio)?ratio.toFixed(2)+'x':'—'}</b></td></tr>`;
+  });
+  document.getElementById('tblQuart').innerHTML = h+'</tbody>';
+}
+
+/* ═══════════════════ DIAGNÓSTICO ═══════════════════ */
+function renderBridge(){
+  const {pQ1,pQ4} = STATE;
+  const br = bridge(pQ1, pQ4, LEVERS.map(l=>l.k));
+  const W=980,H=380,L=64,R=20,T=30,B=76;
+  const bars=[{n:'Q1 promedio',v:pQ1.revNeto,type:'t'}].concat(
+    br.map(b=>({n:LEVERS.find(l=>l.k===b.k).n, v:b.delta, type:'d', k:b.k})),
+    [{n:'Q4 promedio',v:pQ4.revNeto,type:'t'}]);
+  const maxv = pQ1.revNeto*1.06;
+  const Y=v=>H-B-(v/maxv)*(H-T-B);
+  const bw=(W-L-R)/bars.length;
+  let acc=0,g='';
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.M(maxv-maxv*i/4)}</text>`;}
+  bars.forEach((b,i)=>{
+    const x=L+i*bw+bw*0.16, w=bw*0.68;
+    let y0,y1,col,lbl;
+    if(b.type==='t'){ y0=Y(b.v); y1=Y(0); col='var(--navy)'; lbl=F.M(b.v); acc=b.v; }
+    else { const from=acc, to=acc+b.v; acc=to; y0=Y(Math.max(from,to)); y1=Y(Math.min(from,to));
+      col=b.v<0?'var(--bad)':'var(--teal)'; lbl=(b.v>0?'+':'')+F.M(b.v); }
+    g+=`<rect x="${x}" y="${y0}" width="${w}" height="${Math.max(2,y1-y0)}" fill="${col}" rx="2"/>`;
+    g+=`<text x="${x+w/2}" y="${y0-6}" text-anchor="middle" font-size="11" font-weight="700" fill="${b.type==='t'?'var(--navy)':col}">${lbl}</text>`;
+    const words=b.n.split(' ');
+    g+=`<text x="${x+w/2}" y="${H-B+16}" text-anchor="middle" font-size="11" fill="var(--ink)">${esc(words[0])}</text>`;
+    if(words[1]) g+=`<text x="${x+w/2}" y="${H-B+29}" text-anchor="middle" font-size="11" fill="var(--ink)">${esc(words.slice(1).join(' '))}</text>`;
+    if(b.type==='d'){
+      const l=LEVERS.find(l=>l.k===b.k);
+      g+=`<text x="${x+w/2}" y="${H-B+44}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${l.fmt(pQ1[b.k])} → ${l.fmt(pQ4[b.k])}</text>`;
+      g+=`<text x="${x+w/2}" y="${H-B+56}" text-anchor="middle" font-size="9.5" fill="${b.v<0?'var(--bad)':'var(--teal)'}" font-weight="700">${F.p(Math.abs(b.v)/(pQ1.revNeto-pQ4.revNeto),0)} de la brecha</text>`;
+    }
+    if(i<bars.length-1) g+=`<line x1="${x+w}" y1="${Y(acc)}" x2="${x+bw}" y2="${Y(acc)}" stroke="var(--muted)" stroke-dasharray="3 2"/>`;
+  });
+  document.getElementById('chBridge').innerHTML = svg(W,H,g);
+
+  const tot = pQ1.revNeto - pQ4.revNeto;
+  const ord = br.map(b=>({...b, pct: -b.delta/tot, l:LEVERS.find(l=>l.k===b.k)})).sort((a,b)=>b.pct-a.pct);
+  const top2 = ord.slice(0,2);
+  const leverOnly = ord.filter(o=>o.l.lever);
+  document.getElementById('bridgeRead').innerHTML =
+    `<div class="callout ${top2[0].l.lever?'warn':''}"><b>Lectura:</b> el vendedor promedio del cuartil superior vende ${F.M(pQ1.revNeto)}/mes contra ${F.M(pQ4.revNeto)} del cuartil inferior — una brecha de <b>${F.M(tot)}/mes (${(pQ1.revNeto/pQ4.revNeto).toFixed(1)}x)</b>.
+    ${top2.map(t=>`<b>${t.l.n}</b> explica ${F.p(t.pct,0)}`).join(' y ')} — juntas, <b>${F.p(top2.reduce((a,t)=>a+t.pct,0),0)} de toda la diferencia</b>.
+    ${ord[0].l.lever===false ? `⚠ Ojo: la mayor brecha está en <b>cartera</b>, que el vendedor no controla. Antes de coachear a nadie, hay que <b>rebalancear territorios</b>: se está midiendo tamaño de territorio, no desempeño.` :
+      `La conversación con el equipo del cuartil inferior debe empezar por <b>${leverOnly[0].l.act.toLowerCase()}</b>, no por "hay que vender más".`}</div>`;
+}
+
+function renderDumbbell(){
+  const {pQ1,pQ4,rows} = STATE;
+  const q1=rows.filter(r=>r.q===1), q4=rows.filter(r=>r.q===4);
+  const metrics=[
+    ...LEVERS.map(l=>({n:l.n, a:pQ1[l.k], b:pQ4[l.k], f:l.fmt})),
+    {n:'Descuento %', a:mean(q1.map(r=>r.descPct)), b:mean(q4.map(r=>r.descPct)), f:v=>F.p(v,1), inv:true},
+    {n:'Mix premium %', a:mean(q1.map(r=>r.mixPrem)), b:mean(q4.map(r=>r.mixPrem)), f:v=>F.p(v,1)},
+    {n:'Visitas / mes', a:mean(q1.map(r=>r.visitasReal)), b:mean(q4.map(r=>r.visitasReal)), f:v=>F.n(v,0)},
+    {n:'Margen %', a:mean(q1.map(r=>r.margenPct)), b:mean(q4.map(r=>r.margenPct)), f:v=>F.p(v,1)},
+  ].filter(m=>isFinite(m.a)&&isFinite(m.b));
+  const W=560, rowH=34, L=136, R=112, T=24, H=T+metrics.length*rowH+16;
+  let g=`<text x="${L}" y="14" font-size="10.5" fill="var(--muted)">escala relativa por fila · <tspan fill="var(--q1)" font-weight="700">●</tspan> Q1 &nbsp; <tspan fill="var(--q4)" font-weight="700">●</tspan> Q4</text>`;
+  metrics.forEach((m,i)=>{
+    const y=T+i*rowH+16;
+    const lo=Math.min(m.a,m.b)*0.86, hi=Math.max(m.a,m.b)*1.06;
+    const X=v=>L+(v-lo)/(hi-lo)*(W-L-R);
+    g+=`<text x="${L-8}" y="${y+4}" text-anchor="end" font-size="11.5" fill="var(--ink)">${esc(m.n)}</text>`;
+    g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+    g+=`<line x1="${X(m.a)}" y1="${y}" x2="${X(m.b)}" y2="${y}" stroke="#c9d5de" stroke-width="5" stroke-linecap="round"/>`;
+    g+=`<circle cx="${X(m.b)}" cy="${y}" r="6" fill="var(--q4)"/><circle cx="${X(m.a)}" cy="${y}" r="6" fill="var(--q1)"/>`;
+    const d=(m.a/m.b-1)*(m.inv?-1:1);
+    g+=`<text x="${W-R+8}" y="${y-2}" font-size="10.5" fill="var(--muted)">${m.f(m.b)} → ${m.f(m.a)}</text>`;
+    g+=`<text x="${W-R+8}" y="${y+11}" font-size="10.5" font-weight="700" fill="${d>0?'var(--teal)':'var(--bad)'}">${d>0?'+':''}${F.p(d,0)}</text>`;
+  });
+  document.getElementById('chDumbbell').innerHTML = svg(W,H,g);
+}
+
+function renderHeat(){
+  const {rows} = STATE;
+  const cols=[{k:'cobertura',n:'Cob.'},{k:'strike',n:'Strike'},{k:'frec',n:'Frec.'},{k:'drop',n:'Drop'},{k:'precio',n:'Precio'},{k:'margenPct',n:'Mg %'},{k:'cumplRuta',n:'Rutero'}]
+    .filter(c=>rows.some(r=>isFinite(r[c.k])));
+  const stats={}; cols.forEach(c=>{const v=rows.map(r=>r[c.k]).filter(isFinite);const m=mean(v);
+    stats[c.k]={m, sd: Math.sqrt(mean(v.map(x=>(x-m)**2)))||1};});
+  const s=rows.slice().sort((a,b)=>a.rank-b.rank);
+  const cw=48, rh=19, L=118, T=40, W=L+cols.length*cw+56, H=T+s.length*rh+14;
+  let g='';
+  cols.forEach((c,j)=>g+=`<text x="${L+j*cw+cw/2}" y="${T-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${c.n}</text>`);
+  s.forEach((r,i)=>{
+    const y=T+i*rh;
+    g+=`<text x="${L-6}" y="${y+13}" text-anchor="end" font-size="10.5" fill="var(--ink)">${esc(r.vendedor)}</text>`;
+    g+=`<text x="${L-112}" y="${y+13}" font-size="9.5" font-weight="700" fill="${QC(r.q)}">Q${r.q}</text>`;
+    cols.forEach((c,j)=>{
+      const z=isFinite(r[c.k])?(r[c.k]-stats[c.k].m)/stats[c.k].sd:NaN;
+      const a=Math.min(1,Math.abs(z)/2);
+      const col=!isFinite(z)?'#f0f3f6':z>=0?`rgba(0,169,244,${0.12+a*0.72})`:`rgba(229,84,108,${0.12+a*0.72})`;
+      g+=`<rect x="${L+j*cw}" y="${y+1}" width="${cw-2}" height="${rh-3}" fill="${col}" rx="2"/>`;
+      g+=`<text x="${L+j*cw+(cw-2)/2}" y="${y+13}" text-anchor="middle" font-size="9.5" fill="${Math.abs(z)>1.3?'#fff':'var(--ink)'}">${isFinite(z)?(z>0?'+':'')+z.toFixed(1):'—'}</text>`;
+    });
+  });
+  document.getElementById('chHeat').innerHTML = svg(W,H,g);
+}
+
+function renderDrill(){
+  if(!STATE.rows) return;
+  const name=document.getElementById('selRep').value;
+  const r=STATE.rows.find(x=>x.vendedor===name); if(!r) return;
+  const q1med=STATE.TGT(r);   // objetivo del cuartil superior de SU canal
+  const to={}; LEVERS.forEach(l=>to[l.k]= l.lever ? q1med[l.k] : r[l.k]);
+  const br=bridge(r,to,LEVERS.map(l=>l.k)).map(b=>({...b,l:LEVERS.find(l=>l.k===b.k)})).sort((a,b)=>b.delta-a.delta);
+  const upside=br.reduce((a,b)=>a+b.delta,0);
+  const pos=br.filter(b=>b.delta>0);
+  const W=920,H=300,L=64,R=20,T=26,B=52;
+  const bars=[{n:'Venta actual',v:r.revNeto,type:'t'}].concat(br.map(b=>({n:b.l.n,v:b.delta,type:'d',k:b.k})),[{n:'Con perfil Q1',v:r.revNeto+upside,type:'t'}]);
+  const maxv=(r.revNeto+Math.max(0,upside))*1.12, Y=v=>H-B-(v/maxv)*(H-T-B), bw=(W-L-R)/bars.length;
+  let acc=0,g='';
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.M(maxv-maxv*i/4)}</text>`;}
+  bars.forEach((b,i)=>{
+    const x=L+i*bw+bw*0.16,w=bw*0.68; let y0,y1,col,lbl;
+    if(b.type==='t'){y0=Y(b.v);y1=Y(0);col='var(--navy)';lbl=F.M(b.v);acc=b.v;}
+    else{const from=acc,t2=acc+b.v;acc=t2;y0=Y(Math.max(from,t2));y1=Y(Math.min(from,t2));
+      col=b.v>0?'var(--teal)':'#c9d5de';lbl=(b.v>0?'+':'')+F.M(b.v);}
+    g+=`<rect x="${x}" y="${y0}" width="${w}" height="${Math.max(2,y1-y0)}" fill="${col}" rx="2"/>
+        <text x="${x+w/2}" y="${y0-6}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${b.type==='t'?'var(--navy)':col}">${lbl}</text>
+        <text x="${x+w/2}" y="${H-B+16}" text-anchor="middle" font-size="10.5" fill="var(--ink)">${esc(b.n)}</text>`;
+    if(b.type==='d'){const l=LEVERS.find(l=>l.k===b.k);
+      g+=`<text x="${x+w/2}" y="${H-B+30}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${l.fmt(r[b.k])} → ${l.fmt(to[b.k])}</text>`;}
+  });
+  const gaps=LEVERS.map(l=>({l, mine:r[l.k], tgt:q1med[l.k], d: r[l.k]/q1med[l.k]-1}));
+  const diag = pos.length? pos[0].l : null;
+  const sameCanal = STATE.rows.filter(x=>x.q===1 && x.canal===r.canal);
+  const mentorPool = sameCanal.filter(x=>x.zona===r.zona).length? sameCanal.filter(x=>x.zona===r.zona) : sameCanal;
+  const mKey = diag? diag.k : 'revNeto';
+  const mentor = (mentorPool.length?mentorPool:STATE.rows.filter(x=>x.q===1)).sort((a,b)=>b[mKey]-a[mKey])[0];
+  document.getElementById('drill').innerHTML = `
+   <div class="grid g4" style="margin-bottom:14px">
+     <div class="card" style="margin:0"><div class="bignum">${F.M(r.revNeto)}<small>Venta neta / mes · rank ${r.rank} de ${STATE.rows.length}</small></div></div>
+     <div class="card" style="margin:0"><div class="bignum" style="color:${QC(r.q)}">Q${r.q}<small>${r.zona||'—'} · ${r.canal||'—'} · ${isFinite(r.antiguedad)?r.antiguedad+' meses':'—'}</small></div></div>
+     <div class="card" style="margin:0"><div class="bignum" style="color:${isFinite(r.cumplCuota)&&r.cumplCuota>=1?'var(--teal)':'var(--bad)'}">${isFinite(r.cumplCuota)?F.p(r.cumplCuota,0):'—'}<small>Cumplimiento de cuota</small></div></div>
+     <div class="card" style="margin:0"><div class="bignum" style="color:var(--teal)">${F.M(upside)}<small>Potencial mensual con perfil Q1</small></div></div>
+   </div>
+   ${diag? `<div class="callout ${r.q>2?'warn':'good'}"><b>Diagnóstico:</b> la mayor brecha de ${esc(r.vendedor)} está en <b>${diag.n}</b> (${diag.fmt(r[diag.k])} vs. ${diag.fmt(q1med[diag.k])} del perfil Q1 de su canal) — vale <b>${F.M(pos[0].delta)}/mes</b>, el ${F.p(pos[0].delta/upside,0)} de su potencial.
+     ${pos[1]?`Le sigue <b>${pos[1].l.n}</b> con ${F.M(pos[1].delta)}/mes.`:''}
+     Acción: <b>${ACTIONS[diag.k].t}</b>. ${mentor&&mentor.vendedor!==r.vendedor?`Referente interno para acompañamiento: <b>${esc(mentor.vendedor)}</b> (${diag.fmt(mentor[diag.k])} en esta palanca${mentor.zona===r.zona?', misma zona':''}).`:''}</div>`
+    : `<div class="callout good"><b>${esc(r.vendedor)} está en o sobre el perfil del cuartil superior en todas las palancas accionables.</b> Es candidato a referente para acompañamiento de otros vendedores, y su rutero/cartera vale la pena documentar como práctica estándar.</div>`}
+   <div id="drillChart">${svg(W,H,g)}</div>
+   <div class="scroll" style="margin-top:14px"><table>
+     <thead><tr><th>Palanca</th><th class="num">${esc(r.vendedor)}</th><th class="num">Objetivo Q1 (su canal)</th><th class="num">Brecha</th><th class="num">Vale ($/mes)</th><th>Intervención</th></tr></thead>
+     <tbody>${gaps.map(gg=>{const b=br.find(x=>x.k===gg.l.k);
+       return `<tr><td>${gg.l.n} <span style="color:var(--muted);font-size:11px">(${gg.l.unit})</span></td>
+       <td class="num">${gg.l.fmt(gg.mine)}</td><td class="num">${gg.l.fmt(gg.tgt)}</td>
+       <td class="num"><span class="pill ${gg.d>=0?'good':gg.d>-0.12?'warn':'bad'}">${gg.d>0?'+':''}${F.p(gg.d,0)}</span></td>
+       <td class="num">${b&&b.delta>0?'<b style="color:var(--teal)">'+F.M(b.delta)+'</b>':'—'}</td>
+       <td style="white-space:normal;color:var(--muted);font-size:12px">${gg.l.lever?gg.l.act:'<i>No accionable por el vendedor — territorio</i>'}</td></tr>`;}).join('')}
+     </tbody></table></div>`;
+}
+
+function renderRoot(){
+  const {rows} = STATE;
+  const med = median(rows.map(r=>r.revNeto));
+  const under = rows.filter(r=>r.revNeto<med);
+  const recs = under.map(r=>{
+    const q1med=STATE.TGT(r);
+    const to={}; LEVERS.forEach(l=>to[l.k]= l.lever? q1med[l.k] : r[l.k]);
+    const br=bridge(r,to,LEVERS.map(l=>l.k)).filter(b=>b.delta>0).sort((a,b)=>b.delta-a.delta);
+    const tot=br.reduce((a,b)=>a+b.delta,0);
+    return {r, main: br[0], second: br[1], tot};
+  }).filter(x=>x.main).sort((a,b)=>b.tot-a.tot);
+  const counts={}; recs.forEach(x=>counts[x.main.k]=(counts[x.main.k]||0)+1);
+  const money={}; recs.forEach(x=>money[x.main.k]=(money[x.main.k]||0)+x.main.delta);
+  let h=`<thead><tr><th>Vendedor</th><th>Q</th><th>Zona</th><th class="num">Venta neta</th><th>Causa raíz dominante</th><th class="num">Impacto</th><th>Causa secundaria</th><th class="num">Potencial total</th></tr></thead><tbody>`;
+  recs.forEach(x=>{const l=LEVERS.find(l=>l.k===x.main.k);
+    h+=`<tr><td><b>${esc(x.r.vendedor)}</b></td><td><span class="pill q${x.r.q}">Q${x.r.q}</span></td><td>${esc(x.r.zona||'—')}</td>
+      <td class="num">${F.M(x.r.revNeto)}</td>
+      <td><span style="color:${LEVER_COLOR[x.main.k]};font-weight:700">${l.n}</span> <span style="color:var(--muted);font-size:11.5px">${l.fmt(x.r[x.main.k])} vs ${l.fmt(STATE.TGT(x.r)[x.main.k])}</span></td>
+      <td class="num">${F.M(x.main.delta)}</td>
+      <td style="color:var(--muted)">${x.second?LEVERS.find(l=>l.k===x.second.k).n+' ('+F.M(x.second.delta)+')':'—'}</td>
+      <td class="num"><b style="color:var(--teal)">${F.M(x.tot)}</b></td></tr>`;});
+  document.getElementById('tblRoot').innerHTML=h+'</tbody>';
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  const topM=Object.entries(money).sort((a,b)=>b[1]-a[1])[0];
+  if(!top) {document.getElementById('rootRead').innerHTML=''; return;}
+  const tl=LEVERS.find(l=>l.k===top[0]), ml=LEVERS.find(l=>l.k===topM[0]);
+  const share=top[1]/recs.length;
+  document.getElementById('rootRead').innerHTML = `<div class="callout ${share>0.5?'warn':''}">
+    <b>${top[1]} de ${recs.length}</b> vendedores bajo la mediana (${F.p(share,0)}) tienen la misma causa raíz dominante: <b>${tl.n}</b>.
+    ${share>0.5 ? `Esto es un <b>problema sistémico, no individual</b>: cuando más de la mitad del equipo falla en la misma palanca, la causa está en el proceso, la herramienta o el incentivo — no en las personas. Coachear uno a uno será caro e ineficaz; hay que arreglar <b>${tl.act.toLowerCase()}</b> a nivel de sistema.`
+      : `El equipo tiene causas <b>heterogéneas</b>: el abordaje correcto es individual (planes de acción por vendedor con su supervisor), no un programa único para todos.`}
+    En pesos, la palanca que más pesa es <b>${ml.n}</b> con ${F.M(topM[1])}/mes concentrados.</div>`;
+}
+
+/* ═══════════════════ RUTAS ═══════════════════ */
+function renderAct(){
+  const {rows}=STATE;
+  const ok=rows.filter(r=>isFinite(r.visitasReal));
+  if(!ok.length){document.getElementById('chAct').innerHTML='<div class="tiny">Sin datos de visitas realizadas — agrega la columna para habilitar este análisis.</div>';return;}
+  const W=560,H=380,L=58,R=18,T=18,B=48;
+  const xs=ok.map(r=>r.visitasReal), ys=ok.map(r=>r.strike);
+  const xmin=Math.min(...xs)*0.9,xmax=Math.max(...xs)*1.06,ymin=Math.min(...ys)*0.92,ymax=Math.max(...ys)*1.05;
+  const X=v=>L+(v-xmin)/(xmax-xmin)*(W-L-R), Y=v=>H-B-(v-ymin)/(ymax-ymin)*(H-T-B);
+  const mx=median(xs),my=median(ys);
+  let g=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="#fbfcfd"/>`;
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.p(ymax-(ymax-ymin)*i/4,0)}</text>`;}
+  g+=`<line x1="${X(mx)}" y1="${T}" x2="${X(mx)}" y2="${H-B}" stroke="var(--navy)" stroke-dasharray="4 3" opacity=".45"/>
+      <line x1="${L}" y1="${Y(my)}" x2="${W-R}" y2="${Y(my)}" stroke="var(--navy)" stroke-dasharray="4 3" opacity=".45"/>`;
+  g+=`<text x="${L+6}" y="${T+14}" font-size="10.5" fill="var(--muted)">Buen cierre, poca actividad → ruteo</text>`;
+  g+=`<text x="${W-R-6}" y="${H-B-6}" text-anchor="end" font-size="10.5" fill="var(--bad)">Mucha actividad, mal cierre → coaching</text>`;
+  ok.forEach(r=>{g+=`<circle cx="${X(r.visitasReal)}" cy="${Y(r.strike)}" r="6.5" fill="${QC(r.q)}" opacity=".8" stroke="#fff"/>`;
+    if(r.q===4)g+=`<text x="${X(r.visitasReal)}" y="${Y(r.strike)-10}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(r.vendedor.split(' ')[0])}</text>`;});
+  g+=`<text x="${(L+W-R)/2}" y="${H-12}" text-anchor="middle" font-size="11" fill="var(--muted)">Visitas realizadas / mes</text>`;
+  g+=`<text transform="translate(14,${(T+H-B)/2}) rotate(-90)" text-anchor="middle" font-size="11" fill="var(--muted)">Strike rate</text>`;
+  document.getElementById('chAct').innerHTML=svg(W,H,g);
+}
+function renderProd(){
+  const {rows}=STATE;
+  const ok=rows.filter(r=>isFinite(r.unidPorHora)).sort((a,b)=>b.unidPorHora-a.unidPorHora);
+  if(!ok.length){document.getElementById('chProd').innerHTML='<div class="tiny">Sin datos de horas de venta — agrega la columna para habilitar este análisis.</div>';return;}
+  const W=560,rowH=20,L=130,R=118,T=16,H=T+ok.length*rowH+12;
+  const max=Math.max(...ok.map(r=>r.unidPorHora));
+  let g='';
+  ok.forEach((r,i)=>{const y=T+i*rowH;const w=(r.unidPorHora/max)*(W-L-R);
+    g+=`<text x="${L-7}" y="${y+12}" text-anchor="end" font-size="11" fill="var(--ink)">${esc(r.vendedor)}</text>
+        <rect x="${L}" y="${y+3}" width="${Math.max(1,w)}" height="${rowH-8}" fill="${QC(r.q)}" rx="2"/>
+        <text x="${L+w+6}" y="${y+12}" font-size="10" fill="var(--muted)">${F.n(r.unidPorHora,1)} u/h · ${isFinite(r.kmPorVisita)?F.n(r.kmPorVisita,1)+' km/visita':''}</text>`;});
+  document.getElementById('chProd').innerHTML=svg(W,H,g);
+}
+function renderRutas(){
+  const {rows}=STATE;
+  const med={ruta:median(rows.map(r=>r.cumplRuta)), km:median(rows.map(r=>r.kmPorVisita)), uh:median(rows.map(r=>r.unidPorHora))};
+  let h=`<thead><tr><th>Vendedor</th><th>Q</th><th>Zona</th><th class="num">Visitas plan</th><th class="num">Visitas real</th><th class="num">Cumpl. rutero</th><th class="num">Visitas/cliente activo</th><th class="num">Km</th><th class="num">Km/visita</th><th class="num">Horas venta</th><th class="num">Uds/hora</th><th>Lectura</th></tr></thead><tbody>`;
+  rows.slice().sort((a,b)=>a.rank-b.rank).forEach(r=>{
+    let read='—';
+    if(isFinite(r.cumplRuta)&&isFinite(r.kmPorVisita)){
+      if(r.cumplRuta<med.ruta && r.kmPorVisita>med.km) read='<span class="pill bad">Territorio disperso</span> mucho traslado, poco rutero';
+      else if(r.cumplRuta<med.ruta) read='<span class="pill warn">Disciplina de rutero</span>';
+      else if(r.strike<median(rows.map(x=>x.strike))) read='<span class="pill warn">Actividad OK, cierre bajo</span>';
+      else read='<span class="pill good">Actividad sana</span>';
+    }
+    h+=`<tr><td><b>${esc(r.vendedor)}</b></td><td><span class="pill q${r.q}">Q${r.q}</span></td><td>${esc(r.zona||'—')}</td>
+      <td class="num">${F.n(r.visitasPlan,0)}</td><td class="num">${F.n(r.visitasReal,0)}</td>
+      <td class="num">${isFinite(r.cumplRuta)?F.p(r.cumplRuta,0):'—'}</td>
+      <td class="num">${isFinite(r.visitasPorActivo)?F.n(r.visitasPorActivo,1):'—'}</td>
+      <td class="num">${F.n(r.km,0)}</td><td class="num">${isFinite(r.kmPorVisita)?F.n(r.kmPorVisita,1):'—'}</td>
+      <td class="num">${F.n(r.horasVenta,0)}</td><td class="num">${isFinite(r.unidPorHora)?F.n(r.unidPorHora,1):'—'}</td>
+      <td style="white-space:normal">${read}</td></tr>`;});
+  document.getElementById('tblRutas').innerHTML=h+'</tbody>';
+  const disp=rows.filter(r=>isFinite(r.cumplRuta)&&isFinite(r.kmPorVisita)&&r.cumplRuta<med.ruta&&r.kmPorVisita>med.km);
+  document.getElementById('rutasRead').innerHTML = disp.length? `<div class="callout warn"><b>${disp.length} vendedores</b> (${disp.map(r=>esc(r.vendedor)).join(', ')}) combinan cumplimiento de rutero bajo la mediana con más kilómetros por visita que el resto. Antes de exigirles más visitas, hay que <b>revisar el diseño de su territorio</b>: probablemente están pagando en tiempo de traslado lo que no pueden dar en cobertura.</div>` : '';
+}
+
+/* ═══════════════════ TIEMPO POR TENDERO ═══════════════════ */
+const JORNADA = 176;      // horas laborales al mes
+const VEL_RUTA = 17;      // km/h efectivos en ruta urbana con paradas
+const SEG_W = {A:3.4, B:1.55, C:0.72};
+let VISITS = {};          // {vendedor: {clientes:[], visitas:[], sim:bool}}
+let VIS_SIM = true;       // true = generado desde los agregados; false = archivo real de visitas
+
+function allocate(weights,total){        // reparte un entero total según pesos (mayor resto)
+  const s=weights.reduce((a,b)=>a+b,0)||1;
+  const raw=weights.map(w=>w/s*total), out=raw.map(Math.floor);
+  let rest=total-out.reduce((a,b)=>a+b,0);
+  const ord=raw.map((v,i)=>[v-Math.floor(v),i]).sort((a,b)=>b[0]-a[0]);
+  for(let i=0;i<rest && ord.length;i++) out[ord[i%ord.length][1]]++;
+  return out;
+}
+/* Simula el detalle visita a visita a partir de los agregados del vendedor.
+   Reconcilia por construcción: nº de visitas, clientes visitados, clientes activos,
+   pedidos, unidades y horas en tienda coinciden con los datos cargados. */
+function genVisits(rows){
+  const V={};
+  // Supuesto del simulador: quien saca más venta por cliente de cartera es quien mejor prioriza
+  // su tiempo. Se traduce en un exponente de foco sobre el valor del cliente al repartir visitas
+  // y minutos — los de abajo reparten parejo y terminan sobre-sirviendo a los clientes chicos.
+  const medRPC = median(rows.map(r=>r.revPorCliente)) || 1;
+  rows.forEach(r=>{
+    const foco = Math.max(0.45, Math.min(2.1, 1 + 1.6*(r.revPorCliente/medRPC - 1)));
+    const rnd=mulberry32(Math.round(Math.abs(r.cartera*7919 + r.unidades*13 + r.ordenes)));
+    const nCli=Math.max(1,Math.round(r.visitados));
+    const nAct=Math.min(nCli,Math.max(1,Math.round(r.activos)));
+    const nOrd=Math.max(nAct,Math.round(r.ordenes));
+    let nVis=Math.max(nCli,Math.round(r.visitasReal||nCli*2.4));
+    const estilo=0.74+rnd()*0.52;                       // ritmo propio del vendedor
+    const cli=[];
+    for(let i=0;i<nCli;i++){ const u=rnd();
+      const seg = u<0.18?'A' : u<0.46?'B' : 'C';
+      cli.push({id:i+1, seg, w:SEG_W[seg]*(0.55+rnd()*0.9), visitas:1, pedidos:0, uds:0, min:0});
+    }
+    // quiénes compran: sesgado a los clientes de mayor valor, con ruido
+    const rank=cli.map((c,i)=>[c.w*(0.45+rnd()),i]).sort((a,b)=>b[0]-a[0]);
+    const comp=rank.slice(0,nAct).map(x=>cli[x[1]]);
+    comp.forEach(c=>c.pedidos=1);
+    allocate(comp.map(c=>c.w), Math.max(0,nOrd-nAct)).forEach((e,i)=>comp[i].pedidos+=e);
+    // visitas: piso = una por cliente y al menos una por pedido (no se puede pedir sin visita);
+    // el remanente se reparte por valor del cliente elevado al foco del vendedor
+    cli.forEach(c=>c.visitas=Math.max(1,c.pedidos));
+    const piso=cli.reduce((a,c)=>a+c.visitas,0);
+    if(nVis<piso) nVis=piso;                       // más pedidos que visitas registradas (p.ej. televenta)
+    allocate(cli.map(c=>Math.pow(c.w,foco)), nVis-piso).forEach((e,i)=>cli[i].visitas+=e);
+    allocate(comp.map(c=>c.w*(0.6+rnd()*0.8)), Math.round(r.unidades)).forEach((e,i)=>comp[i].uds=e);
+    // visitas individuales
+    const visitas=[];
+    const durBase={A:15.5,B:10.6,C:7.4};
+    cli.forEach(c=>{
+      const udsPorPedido = c.pedidos? allocate(Array.from({length:c.pedidos},()=>0.6+rnd()*0.8), c.uds) : [];
+      const conPedido=new Set();
+      // los pedidos caen en visitas al azar dentro de las del cliente
+      const idx=Array.from({length:c.visitas},(_,j)=>j).sort(()=>rnd()-0.5).slice(0,c.pedidos);
+      idx.forEach(j=>conPedido.add(j));
+      let p=0;
+      for(let j=0;j<c.visitas;j++){
+        const ped=conPedido.has(j);
+        // la visita con pedido dura algo más (tomar el pedido toma tiempo), pero las distribuciones
+        // se solapan: el ruido evita una relación duración→conversión artificialmente perfecta
+        const dur=durBase[c.seg]*estilo*(ped?1.14:0.88)*(0.52+rnd()*1.02)*Math.pow(c.w/1.4,(foco-1)*0.45);
+        visitas.push({cli:c.id, seg:c.seg, dur, pedido:ped, uds: ped? (udsPorPedido[p++]||0) : 0});
+      }
+    });
+    // escalar duraciones para cuadrar con las horas efectivas en tienda declaradas
+    const sumDur=visitas.reduce((a,v)=>a+v.dur,0)||1;
+    const objetivo=(r.horasVenta||sumDur/60)*60;
+    const k=objetivo/sumDur;
+    visitas.forEach(v=>{ v.dur*=k; });
+    // traslado por visita, derivado de los kilómetros de la ruta
+    const trasladoTot=(r.km||0)/VEL_RUTA*60;
+    const wT=visitas.map(()=>0.55+rnd()*0.9), sT=wT.reduce((a,b)=>a+b,0);
+    visitas.forEach((v,i)=>{ v.traslado=trasladoTot*wT[i]/sT; });
+    cli.forEach(c=>{ c.min=0; });
+    const byId={}; cli.forEach(c=>byId[c.id]=c);
+    visitas.forEach(v=>{ byId[v.cli].min+=v.dur; });
+    V[r.vendedor]={clientes:cli, visitas, sim:true};
+  });
+  return V;
+}
+function aggTiempo(r){
+  const v=VISITS[r.vendedor]; if(!v) return null;
+  const vs=v.visitas, n=vs.length||1;
+  const tot=vs.reduce((a,x)=>a+x.dur,0);
+  const seg={A:{t:0,u:0},B:{t:0,u:0},C:{t:0,u:0}};
+  vs.forEach(x=>{ seg[x.seg].t+=x.dur; seg[x.seg].u+=x.uds; });
+  const uTot=vs.reduce((a,x)=>a+x.uds,0)||1;
+  const traslado=vs.reduce((a,x)=>a+x.traslado,0)/60;
+  const tienda=tot/60;
+  return {
+    n, minVisita: tot/n, tienda, traslado,
+    admin: Math.max(0, JORNADA-tienda-traslado),
+    fantasma: vs.filter(x=>x.dur<4).length/n,
+    fantasmaN: vs.filter(x=>x.dur<4).length,
+    minPedido: tot/Math.max(1,vs.filter(x=>x.pedido).length),
+    pesoHora: r.revNeto/Math.max(0.1,tienda),
+    udsHora: r.unidades/Math.max(0.1,tienda),
+    tSeg:{A:seg.A.t/tot, B:seg.B.t/tot, C:seg.C.t/tot},
+    vSeg:{A:seg.A.u/uTot, B:seg.B.u/uTot, C:seg.C.u/uTot},
+    sobreC: seg.C.t/tot - seg.C.u/uTot,
+    clientes: v.clientes,
+  };
+}
+function renderTiempo(){
+  const rows=STATE.rows;
+  rows.forEach(r=>{ r.T=aggTiempo(r); });
+  if(rows.some(r=>!r.T)) return;
+  document.getElementById('simBanner').innerHTML = VIS_SIM
+    ? `<div class="callout warn"><b>Detalle de visitas simulado.</b> No cargaste un archivo visita a visita, así que el detalle se reconstruye a partir de tus agregados: el número de visitas, clientes, pedidos, unidades y horas en tienda <b>coinciden exactamente</b> con tus datos, pero la distribución del tiempo entre clientes es un supuesto (clientes grandes reciben visitas más largas, las visitas con pedido duran más). Sirve para dimensionar y para decidir qué medir; <b>no para evaluar a una persona</b>. Para eso hay que exportar el log de la app de preventa — una fila por visita con hora de entrada y salida — y subirlo en la hoja <b>"Visitas"</b> del Excel.</div>`
+    : `<div class="callout good"><b>Detalle de visitas real.</b> El análisis usa el log visita a visita que cargaste.</div>`;
+  renderTCards(); renderJornada(); renderMinVisita(); renderCurva(); renderAsign(); renderPesoHora(); renderTablaTiempo();
+  const sel=document.getElementById('selRepT'), prev=sel.value;
+  sel.innerHTML=rows.slice().sort((a,b)=>a.rank-b.rank).map(r=>`<option value="${esc(r.vendedor)}">${r.rank}. ${esc(r.vendedor)} — Q${r.q}</option>`).join('');
+  if(rows.some(r=>r.vendedor===prev)) sel.value=prev; else sel.value=(rows.find(r=>r.q===4)||rows[0]).vendedor;
+  renderClientes();
+}
+function renderTCards(){
+  const rows=STATE.rows;
+  const mv=mean(rows.map(r=>r.T.minVisita)), ph=mean(rows.map(r=>r.T.pesoHora));
+  const fa=sum(rows,r=>r.T.fantasmaN)/sum(rows,r=>r.T.n);
+  const ti=mean(rows.map(r=>r.T.tienda));
+  const q1=rows.filter(r=>r.q===1), q4=rows.filter(r=>r.q===4);
+  document.getElementById('tCards').innerHTML=`
+   <div class="card" style="margin:0;border-top:4px solid var(--teal)"><div class="bignum">${F.n(mv,1)} min<small>Duración media de la visita</small></div><div class="tiny">Q1 ${F.n(mean(q1.map(r=>r.T.minVisita)),1)} min · Q4 ${F.n(mean(q4.map(r=>r.T.minVisita)),1)} min</div></div>
+   <div class="card" style="margin:0;border-top:4px solid var(--blue)"><div class="bignum">${F.p(ti/JORNADA,0)}<small>De la jornada frente al tendero</small></div><div class="tiny">${F.n(ti,0)} h de ${JORNADA} h al mes · el resto es traslado y administración</div></div>
+   <div class="card" style="margin:0;border-top:4px solid var(--warn)"><div class="bignum" style="color:var(--warn)">${F.p(fa,1)}<small>Visitas fantasma (&lt;4 min)</small></div><div class="tiny">${F.n(sum(rows,r=>r.T.fantasmaN),0)} visitas al mes que en la práctica no ocurrieron</div></div>
+   <div class="card" style="margin:0;border-top:4px solid var(--cyan)"><div class="bignum">${F.money(ph)}<small>Venta por hora en tienda</small></div><div class="tiny">Q1 ${F.money(mean(q1.map(r=>r.T.pesoHora)))} vs Q4 ${F.money(mean(q4.map(r=>r.T.pesoHora)))} — ${(mean(q1.map(r=>r.T.pesoHora))/mean(q4.map(r=>r.T.pesoHora))).toFixed(1)}x</div></div>`;
+}
+function renderJornada(){
+  const rows=STATE.rows;
+  const W=560,H=320,L=52,R=16,T=26,B=54;
+  const data=[1,2,3,4].map(q=>{const g=rows.filter(r=>r.q===q);
+    return {q, tienda:mean(g.map(r=>r.T.tienda)), traslado:mean(g.map(r=>r.T.traslado)), admin:mean(g.map(r=>r.T.admin))};});
+  const max=JORNADA*1.05, bw=(W-L-R)/4;
+  const Y=v=>H-B-(v/max)*(H-T-B);
+  let g='';
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.n(max-max*i/4,0)}h</text>`;}
+  data.forEach((d,i)=>{
+    const x=L+i*bw+bw*0.22, w=bw*0.56; let acc=0;
+    [['tienda','var(--teal)'],['traslado','var(--warn)'],['admin','#c9d5de']].forEach(([k,c])=>{
+      const hh=(d[k]/max)*(H-T-B);
+      g+=`<rect x="${x}" y="${Y(acc+d[k])}" width="${w}" height="${Math.max(1,hh)}" fill="${c}"/>`;
+      if(d[k]>10) g+=`<text x="${x+w/2}" y="${Y(acc+d[k])+hh/2+4}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${k==='admin'?'var(--ink)':'#fff'}">${F.n(d[k],0)}h</text>`;
+      acc+=d[k];
+    });
+    g+=`<text x="${x+w/2}" y="${H-B+16}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${QC(d.q)}">Q${d.q}</text>
+        <text x="${x+w/2}" y="${H-B+31}" text-anchor="middle" font-size="10" fill="var(--muted)">${F.p(d.tienda/JORNADA,0)} en tienda</text>`;
+  });
+  g+=`<line x1="${L}" y1="${Y(JORNADA)}" x2="${W-R}" y2="${Y(JORNADA)}" stroke="var(--navy)" stroke-dasharray="4 3"/>
+      <text x="${W-R}" y="${Y(JORNADA)-5}" text-anchor="end" font-size="10" fill="var(--navy)">jornada ${JORNADA} h/mes</text>`;
+  document.getElementById('chJornada').innerHTML=svg(W,H,g);
+}
+function renderMinVisita(){
+  const rows=STATE.rows.slice().sort((a,b)=>b.T.minVisita-a.T.minVisita);
+  const W=560,rowH=20,L=126,R=126,T=18,H=T+rows.length*rowH+14;
+  const max=Math.max(...rows.map(r=>r.T.minVisita))*1.05;
+  const med=median(rows.map(r=>r.T.minVisita));
+  let g='';
+  rows.forEach((r,i)=>{const y=T+i*rowH, w=(r.T.minVisita/max)*(W-L-R);
+    g+=`<text x="${L-7}" y="${y+12}" text-anchor="end" font-size="10.5" fill="var(--ink)">${esc(r.vendedor)}</text>
+        <rect x="${L}" y="${y+3}" width="${Math.max(1,w)}" height="${rowH-8}" fill="${QC(r.q)}" rx="2"/>
+        <text x="${L+w+6}" y="${y+12}" font-size="10" fill="var(--muted)">${F.n(r.T.minVisita,1)} min · ${F.p(r.T.fantasma,0)} fantasma</text>`;});
+  const xm=L+(med/max)*(W-L-R);
+  g+=`<line x1="${xm}" y1="${T-4}" x2="${xm}" y2="${T+rows.length*rowH}" stroke="var(--navy)" stroke-dasharray="4 3"/>
+      <text x="${xm+4}" y="${T-7}" font-size="10" fill="var(--navy)">mediana ${F.n(med,1)}</text>`;
+  document.getElementById('chMinVisita').innerHTML=svg(W,H,g);
+}
+function renderCurva(){
+  const rows=STATE.rows;
+  const bins=[[0,4],[4,7],[7,10],[10,14],[14,20],[20,999]];
+  const acc=bins.map(()=>({n:0,ped:0,uds:0}));
+  rows.forEach(r=>VISITS[r.vendedor].visitas.forEach(v=>{
+    const i=bins.findIndex(b=>v.dur>=b[0]&&v.dur<b[1]); if(i<0) return;
+    acc[i].n++; if(v.pedido){acc[i].ped++; acc[i].uds+=v.uds;}
+  }));
+  const W=980,H=300,T=28,B=62, PW=(W-70)/2, L1=54, L2=L1+PW+40;
+  const maxS=Math.max(...acc.map(a=>a.n?a.ped/a.n:0))*1.15||1;
+  const maxU=Math.max(...acc.map(a=>a.n?a.uds/a.n:0))*1.15||1;
+  const totN=acc.reduce((a,b)=>a+b.n,0)||1;
+  let g='';
+  [[L1,maxS,a=>a.n?a.ped/a.n:0,v=>F.p(v,0),'% de visitas que terminan en pedido','var(--blue)'],
+   [L2,maxU,a=>a.n?a.uds/a.n:0,v=>F.n(v,1),'Unidades promedio por visita','var(--teal)']].forEach(([L,max,f,fmt,ttl,col])=>{
+    const bw=(PW-L1+30)/bins.length;
+    g+=`<text x="${L}" y="14" font-size="11.5" font-weight="700" fill="var(--ink)">${ttl}</text>`;
+    for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;
+      g+=`<line x1="${L}" y1="${y}" x2="${L+PW-30}" y2="${y}" stroke="var(--line)"/>
+          <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="9.5" fill="var(--muted)">${fmt(max-max*i/4)}</text>`;}
+    bins.forEach((b,i)=>{
+      const v=f(acc[i]), hh=(v/max)*(H-T-B), x=L+i*((PW-30)/bins.length)+((PW-30)/bins.length)*0.18, w=((PW-30)/bins.length)*0.64;
+      g+=`<rect x="${x}" y="${H-B-hh}" width="${w}" height="${Math.max(1,hh)}" fill="${i===0?'var(--bad)':col}" rx="2"/>
+          <text x="${x+w/2}" y="${H-B-hh-6}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${i===0?'var(--bad)':col}">${fmt(v)}</text>
+          <text x="${x+w/2}" y="${H-B+15}" text-anchor="middle" font-size="10" fill="var(--ink)">${b[1]===999?'20+':b[0]+'–'+b[1]}</text>
+          <text x="${x+w/2}" y="${H-B+28}" text-anchor="middle" font-size="9" fill="var(--muted)">${F.p(acc[i].n/totN,0)}</text>`;
+    });
+    g+=`<text x="${L+(PW-30)/2}" y="${H-B+46}" text-anchor="middle" font-size="10.5" fill="var(--muted)">minutos en tienda (abajo: % de las visitas)</text>`;
+  });
+  document.getElementById('chCurva').innerHTML=svg(W,H,g);
+  const corta=acc[0], sana=acc[3];
+  document.getElementById('curvaRead').innerHTML=`<div class="callout"><b>Lectura:</b> las visitas de menos de 4 minutos son el <b>${F.p(corta.n/totN,0)}</b> del total y convierten en pedido sólo el ${F.p(corta.n?corta.ped/corta.n:0,0)}, contra ${F.p(sana.n?sana.ped/sana.n:0,0)} de las visitas de 10 a 14 minutos.
+  <br><br><b>Cuidado con la causalidad:</b> parte de esta relación es al revés — una visita que termina en pedido dura más <i>porque</i> hubo pedido (tomar el pedido toma tiempo). Lo que sí es conclusión sólida: una visita de 3 minutos <b>no alcanza</b> para revisar inventario, detectar quiebres y sugerir un pedido. Por eso la métrica accionable no es "alargar todas las visitas" sino <b>eliminar las visitas fantasma</b> y proteger el tiempo de las visitas que valen.</div>`;
+}
+function renderAsign(){
+  const rows=STATE.rows;
+  const W=560,H=330,T=30,B=54,L=64;
+  const data=[1,4].map(q=>{const g=rows.filter(r=>r.q===q);
+    return {q, t:{A:mean(g.map(r=>r.T.tSeg.A)),B:mean(g.map(r=>r.T.tSeg.B)),C:mean(g.map(r=>r.T.tSeg.C))},
+              v:{A:mean(g.map(r=>r.T.vSeg.A)),B:mean(g.map(r=>r.T.vSeg.B)),C:mean(g.map(r=>r.T.vSeg.C))}};});
+  const max=Math.max(...data.flatMap(d=>[d.t.A,d.t.B,d.t.C,d.v.A,d.v.B,d.v.C]))*1.2;
+  const gw=(W-L-16)/2, Y=v=>H-B-(v/max)*(H-T-B);
+  let g='';
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-16}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.p(max-max*i/4,0)}</text>`;}
+  data.forEach((d,gi)=>{
+    const x0=L+gi*gw;
+    g+=`<text x="${x0+gw/2}" y="16" text-anchor="middle" font-size="11.5" font-weight="700" fill="${QC(d.q)}">Cuartil ${d.q}${d.q===1?' (top)':' (bottom)'}</text>`;
+    ['A','B','C'].forEach((sg,si)=>{
+      const sw=gw/3.35, x=x0+si*sw+8;
+      [[d.t[sg],'var(--blue)',0],[d.v[sg],'var(--teal)',1]].forEach(([v,c,j])=>{
+        const hh=(v/max)*(H-T-B), bx=x+j*(sw*0.4);
+        g+=`<rect x="${bx}" y="${Y(v)}" width="${sw*0.36}" height="${Math.max(1,hh)}" fill="${c}" rx="2"/>
+            <text x="${bx+sw*0.18}" y="${Y(v)-4}" text-anchor="middle" font-size="9.5" fill="${c}" font-weight="700">${F.p(v,0)}</text>`;
+      });
+      g+=`<text x="${x+sw*0.38}" y="${H-B+16}" text-anchor="middle" font-size="11" fill="var(--ink)">Clientes ${sg}</text>`;
+      const gap=d.t[sg]-d.v[sg];
+      // dar más tiempo del que aporta es priorizar si el cliente es A, y sobre-servir si es C
+      const col = Math.abs(gap)<0.04 ? 'var(--muted)'
+        : sg==='A' ? (gap>0?'var(--teal)':'var(--bad)')
+        : sg==='C' ? (gap>0?'var(--bad)':'var(--teal)') : 'var(--muted)';
+      g+=`<text x="${x+sw*0.38}" y="${H-B+30}" text-anchor="middle" font-size="9.5" fill="${col}">${gap>0?'+':''}${F.p(gap,0)} pts</text>`;
+    });
+  });
+  document.getElementById('chAsign').innerHTML=svg(W,H,g);
+}
+function renderPesoHora(){
+  const rows=STATE.rows.slice().sort((a,b)=>b.T.pesoHora-a.T.pesoHora);
+  const W=560,rowH=20,L=126,R=118,T=16,H=T+rows.length*rowH+12;
+  const max=Math.max(...rows.map(r=>r.T.pesoHora));
+  let g='';
+  rows.forEach((r,i)=>{const y=T+i*rowH,w=(r.T.pesoHora/max)*(W-L-R);
+    g+=`<text x="${L-7}" y="${y+12}" text-anchor="end" font-size="10.5" fill="var(--ink)">${esc(r.vendedor)}</text>
+        <rect x="${L}" y="${y+3}" width="${Math.max(1,w)}" height="${rowH-8}" fill="${QC(r.q)}" rx="2"/>
+        <text x="${L+w+6}" y="${y+12}" font-size="10" fill="var(--muted)">${F.money(r.T.pesoHora)}/h · ${F.n(r.T.udsHora,0)} u/h</text>`;});
+  document.getElementById('chPesoHora').innerHTML=svg(W,H,g);
+}
+function renderTablaTiempo(){
+  const rows=STATE.rows.slice().sort((a,b)=>a.rank-b.rank);
+  const medMin=median(rows.map(r=>r.T.minVisita)), medFan=median(rows.map(r=>r.T.fantasma)), medC=median(rows.map(r=>r.T.tSeg.C));
+  let h=`<thead><tr><th>Vendedor</th><th>Q</th><th class="num">Visitas/mes</th><th class="num">Min/visita</th><th class="num">Horas en tienda</th><th class="num">% jornada</th><th class="num">Traslado (h)</th><th class="num">Visitas fantasma</th><th class="num">% tiempo en A</th><th class="num">% tiempo en C</th><th class="num">$/hora tienda</th><th>Lectura</th></tr></thead><tbody>`;
+  rows.forEach(r=>{const t=r.T; let read='<span class="pill good">Uso del tiempo sano</span>';
+    if(t.fantasma>medFan*1.4 && t.fantasma>0.12) read='<span class="pill bad">Visitas fantasma</span> el rutero se cumple en el papel';
+    else if(t.sobreC>0.10) read='<span class="pill warn">Sobre-servicio de clientes C</span>';
+    else if(t.minVisita<medMin*0.75) read='<span class="pill warn">Visitas muy cortas</span> no alcanza a vender';
+    else if(t.traslado>t.tienda) read='<span class="pill bad">Más traslado que tienda</span> revisar territorio';
+    else if(t.minVisita>medMin*1.35) read='<span class="pill warn">Visitas largas</span> ¿conversación o venta?';
+    h+=`<tr><td><b>${esc(r.vendedor)}</b></td><td><span class="pill q${r.q}">Q${r.q}</span></td>
+      <td class="num">${F.n(t.n,0)}</td><td class="num">${F.n(t.minVisita,1)}</td><td class="num">${F.n(t.tienda,0)}</td>
+      <td class="num">${F.p(t.tienda/JORNADA,0)}</td><td class="num">${F.n(t.traslado,0)}</td>
+      <td class="num">${F.p(t.fantasma,0)}</td><td class="num">${F.p(t.tSeg.A,0)}</td>
+      <td class="num" style="color:${t.tSeg.C>medC*1.15?'var(--bad)':'inherit'}">${F.p(t.tSeg.C,0)}</td>
+      <td class="num">${F.money(t.pesoHora)}</td><td style="white-space:normal">${read}</td></tr>`;});
+  document.getElementById('tblTiempo').innerHTML=h+'</tbody>';
+  const q1=rows.filter(r=>r.q===1), q4=rows.filter(r=>r.q===4);
+  const sobre=rows.filter(r=>r.T.sobreC>0.10);
+  const fan=rows.filter(r=>r.T.fantasma>0.15);
+  const horasFan=sum(rows,r=>r.T.fantasmaN*r.T.minVisita)/60;
+  document.getElementById('tiempoRead').innerHTML=`<div class="callout warn">
+    <b>Tres hallazgos del tiempo.</b>
+    <b>(1)</b> El cuartil superior dedica ${F.p(mean(q1.map(r=>r.T.tSeg.A)),0)} de su tiempo a clientes A contra ${F.p(mean(q4.map(r=>r.T.tSeg.A)),0)} del cuartil inferior — la diferencia no es cuánto trabajan, es <b>a quién le dedican el rato</b>.
+    <b>(2)</b> ${sobre.length} vendedores dedican al segmento C más de 10 puntos porcentuales de tiempo por sobre lo que ese segmento aporta en venta${sobre.length?` (${sobre.slice(0,4).map(r=>esc(r.vendedor)).join(', ')}${sobre.length>4?'…':''})`:''}: ahí hay horas que se pueden reasignar sin contratar a nadie.
+    <b>(3)</b> Las visitas fantasma consumen ${F.n(horasFan,0)} h/mes del equipo${fan.length?` y se concentran en ${fan.length} vendedores`:''} — no es tiempo perdido en el sentido de ocio: es tiempo <b>reportado como cobertura</b> que no produce venta, y por eso distorsiona todo el indicador de cobertura del tablero.</div>`;
+}
+function renderClientes(){
+  if(!STATE.rows) return;
+  const name=document.getElementById('selRepT').value;
+  const r=STATE.rows.find(x=>x.vendedor===name); if(!r||!r.T) return;
+  const cl=r.T.clientes;
+  const W=920,H=400,L=64,R=20,T=20,B=52;
+  const maxU=Math.max(...cl.map(c=>c.uds))*1.06||1, maxM=Math.max(...cl.map(c=>c.min))*1.06||1;
+  const X=v=>L+(v/maxU)*(W-L-R), Y=v=>H-B-(v/maxM)*(H-T-B);
+  const totU=cl.reduce((a,c)=>a+c.uds,0)||1, totM=cl.reduce((a,c)=>a+c.min,0);
+  const SC={A:'var(--q1)',B:'var(--q2)',C:'var(--q3)'};
+  let g=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="#fbfcfd"/>`;
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;
+    g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+        <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.n(maxM-maxM*i/4,0)} min</text>`;}
+  // línea de asignación proporcional al valor
+  g+=`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(maxU)}" y2="${Y(maxU/totU*totM)}" stroke="var(--navy)" stroke-dasharray="5 4" opacity=".6"/>`;
+  g+=`<text x="${W-R-6}" y="${Y(maxU/totU*totM)-8}" text-anchor="end" font-size="10" fill="var(--navy)">tiempo proporcional al valor del cliente</text>`;
+  const sobre=[];
+  cl.forEach(c=>{
+    const esperado=c.uds/totU*totM;
+    if(c.min>esperado*2.2 && c.min>totM*0.008) sobre.push(c);
+    g+=`<circle cx="${X(c.uds)}" cy="${Y(c.min)}" r="4.6" fill="${SC[c.seg]}" opacity=".75" stroke="#fff" stroke-width=".8"/>`;
+  });
+  g+=`<text x="${(L+W-R)/2}" y="${H-14}" text-anchor="middle" font-size="11" fill="var(--muted)">Unidades compradas por el cliente en el mes</text>`;
+  g+=`<text transform="translate(15,${(T+H-B)/2}) rotate(-90)" text-anchor="middle" font-size="11" fill="var(--muted)">Minutos recibidos en el mes</text>`;
+  document.getElementById('chClientes').innerHTML=svg(W,H,g)+
+    `<div class="legend"><span><i class="dot" style="background:var(--q1)"></i>Cliente A</span><span><i class="dot" style="background:var(--q2)"></i>Cliente B</span><span><i class="dot" style="background:var(--q3)"></i>Cliente C</span></div>`;
+  const sinCompra=cl.filter(c=>c.uds===0);
+  const minSin=sinCompra.reduce((a,c)=>a+c.min,0);
+  const t=r.T;
+  document.getElementById('clientesRead').innerHTML=`<div class="callout">
+    <b>${esc(r.vendedor)}</b> reparte ${F.n(totM/60,0)} horas al mes entre ${cl.length} clientes visitados: ${F.n(t.minVisita,1)} min por visita en promedio.
+    <b>${sinCompra.length} clientes (${F.p(sinCompra.length/cl.length,0)}) recibieron visita y no compraron nada</b>, consumiendo ${F.n(minSin/60,0)} h del mes${minSin>totM*0.15?' — es el bolsón de tiempo más grande y más fácil de recuperar':''}.
+    ${sobre.length?`Además hay <b>${sobre.length} clientes que reciben más del doble del tiempo</b> que justifica su compra.`:''}
+    <br><br><b>Qué hacer con esto:</b> no es "visitar menos", es <b>redistribuir</b>. Primero entender por qué esos clientes no compran (crédito bloqueado, contacto equivocado, quiebre de surtido, competencia con exclusividad); si no hay caso, bajarles la frecuencia y mover esas horas a los clientes A, que en esta cartera reciben ${F.p(t.tSeg.A,0)} del tiempo y aportan ${F.p(t.vSeg.A,0)} del volumen.</div>`;
+}
+
+/* ═══════════════════ PLAN ═══════════════════ */
+function renderOppCards(){
+  const {opps,oppTot,cap,hor,rows} = STATE;
+  const revTot=sum(rows,r=>r.revNeto);
+  const rampa = oppTot*12*(1 - hor/24);
+  const cart = opps.reduce((a,o)=>a+o.gapCartera,0)*cap;
+  const nrep = opps.filter(o=>o.tot>0).length;
+  document.getElementById('oppCards').innerHTML = `
+  <div class="card" style="border-top:4px solid var(--teal)"><div class="bignum" style="color:var(--teal)">${F.M(oppTot)}<small>Oportunidad mensual (capturada)</small></div><div class="tiny">${F.p(oppTot/revTot,1)} sobre la venta actual del equipo</div></div>
+  <div class="card" style="border-top:4px solid var(--blue)"><div class="bignum">${F.M(oppTot*12)}<small>Impacto anual en régimen</small></div><div class="tiny">Año 1 con rampa de ${hor} meses: <b>${F.M(rampa)}</b></div></div>
+  <div class="card" style="border-top:4px solid var(--cyan)"><div class="bignum">${nrep}<small>Vendedores con brecha accionable</small></div><div class="tiny">de ${rows.length} en el equipo · ${F.M(oppTot/Math.max(1,nrep))} promedio cada uno</div></div>
+  <div class="card" style="border-top:4px solid var(--warn)"><div class="bignum" style="color:var(--warn)">${F.M(cart)}<small>Adicional por rebalanceo de territorios</small></div><div class="tiny">No incluido arriba: requiere decisión del gerente, no coaching</div></div>`;
+}
+function renderOppChart(){
+  const {perLever}=STATE;
+  const data=LEVERS.filter(l=>l.lever).map(l=>({l,v:perLever[l.k]})).sort((a,b)=>b.v-a.v);
+  const tot=data.reduce((a,d)=>a+d.v,0)||1;
+  const W=980,H=250,L=64,R=20,T=24,B=64;
+  const max=Math.max(...data.map(d=>d.v))*1.15, bw=(W-L-R)/data.length;
+  let g='';
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--line)"/>
+    <text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${F.M(max-max*i/4)}</text>`;}
+  data.forEach((d,i)=>{const x=L+i*bw+bw*0.2,w=bw*0.6,hh=(d.v/max)*(H-T-B);
+    g+=`<rect x="${x}" y="${H-B-hh}" width="${w}" height="${Math.max(2,hh)}" fill="${LEVER_COLOR[d.l.k]}" rx="2"/>
+        <text x="${x+w/2}" y="${H-B-hh-8}" text-anchor="middle" font-size="12" font-weight="700" fill="${LEVER_COLOR[d.l.k]}">${F.M(d.v)}</text>
+        <text x="${x+w/2}" y="${H-B+17}" text-anchor="middle" font-size="11.5" fill="var(--ink)">${esc(d.l.n)}</text>
+        <text x="${x+w/2}" y="${H-B+32}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${F.p(d.v/tot,0)} del total</text>
+        <text x="${x+w/2}" y="${H-B+46}" text-anchor="middle" font-size="10" fill="var(--muted)">${esc(d.l.act)}</text>`;});
+  document.getElementById('chOpp').innerHTML=svg(W,H,g);
+}
+function renderActions(){
+  const {perLever,opps,rows}=STATE;
+  const data=LEVERS.filter(l=>l.lever).map(l=>({l,v:perLever[l.k]})).sort((a,b)=>b.v-a.v).filter(d=>d.v>0);
+  document.getElementById('actions').innerHTML = data.map((d,i)=>{
+    const a=ACTIONS[d.l.k];
+    const who=opps.filter(o=>o.br.some(b=>b.k===d.l.k)&&o.br[0].k===d.l.k).map(o=>o.rep).sort((x,y)=>x.rank-y.rank);
+    const others=opps.filter(o=>o.br.some(b=>b.k===d.l.k)&&o.br[0].k!==d.l.k).length;
+    // el referente debe jugar el mismo juego: mismo canal que la mayoría de los vendedores en foco
+    const modal = {}; who.forEach(r=>modal[r.canal||'']=(modal[r.canal||'']||0)+1);
+    const canalFoco = Object.entries(modal).sort((a,b)=>b[1]-a[1])[0];
+    const pool = rows.filter(r=>r.q===1 && (!canalFoco||!canalFoco[0]||r.canal===canalFoco[0]));
+    const champ=(pool.length?pool:rows.filter(r=>r.q===1)).sort((x,y)=>y[d.l.k]-x[d.l.k])[0];
+    return `<div class="action" style="border-left-color:${LEVER_COLOR[d.l.k]}">
+      <h4><span>${i+1}. ${a.t}</span><span class="imp">${F.M(d.v)}/mes · ${F.M(d.v*12)}/año</span></h4>
+      <p>${a.d}</p>
+      <div class="who"><b>Foco principal (${who.length}):</b> ${who.length?who.map(r=>esc(r.vendedor)).join(', '):'—'}${others?` <span style="color:var(--muted)">· otros ${others} vendedores tienen brecha secundaria aquí</span>`:''}</div>
+      <div class="who" style="color:var(--muted)"><b>Referente interno:</b> ${champ?esc(champ.vendedor)+' ('+d.l.fmt(champ[d.l.k])+')':'—'} &nbsp;·&nbsp; <b>Meta:</b> ${d.l.fmt((champ?STATE.TGT(champ):STATE.targetProf)[d.l.k])} &nbsp;·&nbsp; <b>KPI de seguimiento:</b> ${a.kpi}</div>
+    </div>`;}).join('');
+}
+function renderExec(){
+  const {rows,pQ1,pQ4,oppTot,perLever,opps,cap,hor,targetProf:q1med}=STATE;
+  const revTot=sum(rows,r=>r.revNeto);
+  const ord=LEVERS.filter(l=>l.lever).map(l=>({l,v:perLever[l.k]})).sort((a,b)=>b.v-a.v);
+  const q4=rows.filter(r=>r.q===4);
+  const br=bridge(pQ1,pQ4,LEVERS.map(l=>l.k)).map(b=>({...b,l:LEVERS.find(l=>l.k===b.k)})).sort((a,b)=>a.delta-b.delta);
+  const worst=opps.slice().sort((a,b)=>b.tot-a.tot).slice(0,3);
+  const cartDisp = Math.max(...rows.map(r=>r.cartera))/Math.min(...rows.map(r=>r.cartera));
+  document.getElementById('exec').innerHTML = `
+  <div class="callout"><b>1 · El tamaño del problema.</b> El equipo vende ${F.M(revTot)}/mes con ${rows.length} vendedores. El cuartil superior vende ${(pQ1.revNeto/pQ4.revNeto).toFixed(1)}x lo del inferior (${F.M(pQ1.revNeto)} vs ${F.M(pQ4.revNeto)} por vendedor/mes). Cerrar parcialmente esa brecha vale <b>${F.M(oppTot)}/mes — ${F.M(oppTot*12)}/año</b> (${F.p(oppTot/revTot,1)} de la venta actual), asumiendo ${F.p(cap,0)} de captura sobre el potencial teórico.</div>
+  <div class="callout"><b>2 · Dónde está la brecha.</b> ${br.slice(0,2).map(b=>`<b>${b.l.n}</b> (${F.p(-b.delta/(pQ1.revNeto-pQ4.revNeto),0)} de la diferencia Q1–Q4)`).join(' y ')}. En pesos accionables el orden es: ${ord.slice(0,3).map(o=>`<b>${o.l.n}</b> ${F.M(o.v)}`).join(' · ')}. Esa es la secuencia de la agenda comercial de los próximos ${hor} meses.</div>
+  <div class="callout warn"><b>3 · Qué hacer primero (30 días).</b> (a) Instalar el tablero de las 6 palancas en la reunión semanal de ventas — hoy se revisa sólo venta total, que es un resultado, no una causa. (b) Plan individual escrito para los ${q4.length} vendedores del cuartil inferior, con <b>una sola</b> palanca prioritaria cada uno y meta explícita (${ord[0].l.n}: llegar a ${ord[0].l.fmt(q1med[ord[0].l.k])}). (c) Acompañamiento en terreno del supervisor, 2 días/mes por vendedor de Q4, con pauta de observación y no como auditoría.</div>
+  <div class="callout"><b>4 · Los tres casos de mayor valor.</b> ${worst.map(w=>`<b>${esc(w.rep.vendedor)}</b> (${F.M(w.tot)}/mes, palanca ${LEVERS.find(l=>l.k===w.br[0].k).n})`).join(' · ')}. Empezar por aquí concentra ${F.p(worst.reduce((a,w)=>a+w.tot,0)*cap/oppTot,0)} de la oportunidad total en 3 conversaciones.</div>
+  <div class="callout ${cartDisp>1.8?'warn':''}"><b>5 · Antes de coachear, revisar el terreno de juego.</b> La cartera más grande del equipo tiene <b>${cartDisp.toFixed(1)}x</b> los clientes de la más chica. ${cartDisp>1.8?'Esa dispersión es suficiente para que parte del "bajo desempeño" sea en realidad <b>territorio mal asignado</b>. Rebalancear carteras y recalibrar cuotas es un prerrequisito, no un complemento — y es decisión del gerente, no del vendedor.':'La dispersión de carteras es razonable: las diferencias de desempeño son atribuibles al vendedor, no al territorio.'}</div>
+  <div class="callout good"><b>6 · Cómo medir que funciona.</b> Seguimiento mensual de las 6 palancas por vendedor, no de la venta. La venta se mueve tarde y con ruido; la cobertura y el strike rate se mueven en 4 semanas y anticipan el resultado. Meta de gestión: reducir el ratio Q1/Q4 de ${(pQ1.revNeto/pQ4.revNeto).toFixed(1)}x a menos de ${Math.max(1.5,(pQ1.revNeto/pQ4.revNeto)*0.75).toFixed(1)}x en ${hor} meses — subiendo el piso, no bajando el techo.</div>`;
+}
+function renderPlanTable(){
+  const {opps,cap}=STATE;
+  const s=opps.slice().sort((a,b)=>b.tot-a.tot);
+  let h=`<thead><tr><th>Vendedor</th><th>Q</th><th class="num">Venta actual</th><th class="num">Potencial bruto</th><th class="num">Potencial capturado</th><th class="num">Δ %</th><th>Palanca 1</th><th>Palanca 2</th><th>Acción</th></tr></thead><tbody>`;
+  s.forEach(o=>{const r=o.rep;
+    h+=`<tr><td><b>${esc(r.vendedor)}</b></td><td><span class="pill q${r.q}">Q${r.q}</span></td>
+      <td class="num">${F.M(r.revNeto)}</td><td class="num">${o.tot>0?F.M(o.tot):'—'}</td>
+      <td class="num"><b style="color:var(--teal)">${o.tot>0?F.M(o.tot*cap):'—'}</b></td>
+      <td class="num">${o.tot>0?F.p(o.tot/r.revNeto,0):'—'}</td>
+      <td>${o.br[0]?`<span style="color:${LEVER_COLOR[o.br[0].k]};font-weight:700">${LEVERS.find(l=>l.k===o.br[0].k).n}</span>`:'<span class="pill good">Referente</span>'}</td>
+      <td style="color:var(--muted)">${o.br[1]?LEVERS.find(l=>l.k===o.br[1].k).n:'—'}</td>
+      <td style="white-space:normal;font-size:12px">${o.br[0]?ACTIONS[o.br[0].k].t:'Documentar sus prácticas y usarlo como referente de acompañamiento'}</td></tr>`;});
+  document.getElementById('tblPlan').innerHTML=h+'</tbody>';
+}
+
+/* ═══════════════════ TABLAS DE DATOS / ESQUEMA ═══════════════════ */
+let sortKey='rank', sortDir=1;
+function renderDataTable(){
+  const cols=[['rank','#','n'],['vendedor','Vendedor','t'],['q','Q','q'],['zona','Zona','t'],['canal','Canal','t'],
+    ['cartera','Cartera','n'],['visitados','Visitados','n'],['activos','Activos','n'],['cobertura','Cobertura','p'],['strike','Strike','p'],
+    ['ordenes','Pedidos','n'],['frec','Frec.','d2'],['unidades','Unidades','n'],['drop','Drop','d1'],
+    ['revNeto','Venta neta','m'],['precio','Precio neto','$'],['descPct','Dcto %','p'],['margen','Margen','m'],['margenPct','Margen %','p'],
+    ['mixPrem','Mix prem.','p'],['cumplCuota','Cumpl. cuota','p'],['visitasReal','Visitas','n'],['cumplRuta','Cumpl. rutero','p'],['antiguedad','Antig.','n']];
+  const fmt=(v,t)=> t==='p'?(isFinite(v)?F.p(v,1):'—') : t==='m'?F.M(v) : t==='$'?F.money(v) : t==='d2'?F.n(v,2) : t==='d1'?F.n(v,1) : t==='n'?F.n(v,0) : (v??'—');
+  const s=ROWS.slice().sort((a,b)=>{const x=a[sortKey],y=b[sortKey];
+    return (typeof x==='string'? String(x).localeCompare(String(y)) : (x-y))*sortDir;});
+  let h=`<thead><tr>${cols.map(c=>`<th class="${c[2]==='t'||c[2]==='q'?'':'num'}" onclick="setSort('${c[0]}')">${c[1]}${sortKey===c[0]?(sortDir>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>`;
+  s.forEach(r=>{h+='<tr>'+cols.map(c=> c[2]==='q'
+      ? `<td><span class="pill q${r.q}">Q${r.q}</span></td>`
+      : `<td class="${c[2]==='t'?'':'num'}">${c[0]==='vendedor'?'<b>'+esc(r.vendedor)+'</b>':fmt(r[c[0]],c[2])}</td>`).join('')+'</tr>';});
+  document.getElementById('tblData').innerHTML=h+'</tbody>';
+}
+function setSort(k){ if(sortKey===k) sortDir*=-1; else {sortKey=k;sortDir= (k==='vendedor'||k==='zona'||k==='canal')?1:-1;} renderDataTable(); }
+function renderSchema(){
+  document.getElementById('tblSchema').innerHTML =
+    `<thead><tr><th>Columna esperada</th><th>Req.</th><th>Ejemplo</th><th>Para qué sirve</th></tr></thead><tbody>`+
+    SCHEMA.map(s=>`<tr><td><b>${s.n}</b></td><td>${s.req?'<span class="pill bad">req</span>':'<span class="pill warn">opc</span>'}</td>
+      <td class="num">${s.ej}</td><td style="white-space:normal;color:var(--muted)">${s.d}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('tblFuentes').innerHTML =
+    `<thead><tr><th>Dato</th><th>Fuente típica</th><th>A quién pedirlo</th></tr></thead><tbody>`+
+    [['Venta, unidades, pedidos, descuentos, costo','ERP / facturación (SAP, Softland, Defontana)','Controlling comercial o TI'],
+     ['Cartera asignada, cobertura, visitas','App de preventa / CRM (Salesforce, Zoho, app propia)','Jefatura de ventas o TI comercial'],
+     ['Clientes activos y frecuencia','Se derivan de la facturación por cliente','Controlling comercial'],
+     ['Cuotas y metas','Planificación comercial','Gerencia comercial'],
+     ['Km y tiempos de ruta','GPS de flota o app de preventa','Distribución / logística'],
+     ['Mix premium','Maestro de SKU con clasificación de portafolio','Marketing / trade marketing'],
+     ['Antigüedad y dotación','RRHH','Gestión de personas']].map(r=>`<tr><td><b>${r[0]}</b></td><td style="white-space:normal">${r[1]}</td><td style="white-space:normal;color:var(--muted)">${r[2]}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('tblBench').innerHTML =
+    `<thead><tr><th>Indicador</th><th class="num">Bajo</th><th class="num">Típico</th><th class="num">Clase mundial</th><th>Comentario</th></tr></thead><tbody>`+
+    [['Cobertura de cartera (mes)','<55%','65–80%','>90%','Bajo 55% hay clientes que nadie visita hace meses'],
+     ['Strike rate (visitas con pedido)','<45%','55–70%','>80%','La métrica más sensible a coaching en terreno'],
+     ['Pedidos por cliente activo (mes)','<1,5','2–3','>3,5','Depende de la frecuencia de visita asignada'],
+     ['Cumplimiento de rutero','<70%','80–90%','>95%','Bajo 70% revisar diseño de territorio antes que disciplina'],
+     ['Descuento sobre lista','>18%','8–14%','<7%','Muy sensible al esquema de incentivos'],
+     ['Dispersión Q1/Q4 en venta','>3,0x','1,5–2,5x','<1,5x','Sobre 3x el problema es de proceso, no de talento'],
+     ['Tiempo efectivo de venta / jornada','<35%','40–50%','>55%','El resto es traslado, administración y espera']]
+    .map(r=>`<tr><td><b>${r[0]}</b></td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td style="white-space:normal;color:var(--muted)">${r[4]}</td></tr>`).join('')+'</tbody>';
+}
+
+/* ═══════════════════ EXCEL ═══════════════════ */
+const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function mapHeaders(headers){
+  const map={};
+  headers.forEach((h,i)=>{
+    const nh=norm(h);
+    for(const s of SCHEMA){
+      if(map[s.k]!==undefined) continue;
+      if(s.al.some(a=>norm(a)===nh)){ map[s.k]=i; return; }
+    }
+  });
+  headers.forEach((h,i)=>{ // segunda pasada: coincidencia parcial
+    const nh=norm(h);
+    for(const s of SCHEMA){
+      if(map[s.k]!==undefined) continue;
+      if(s.al.some(a=>nh.includes(norm(a))||norm(a).includes(nh))){ map[s.k]=i; return; }
+    }
+  });
+  return map;
+}
+const toNum = v => { if(v===null||v===undefined||v==='') return NaN;
+  if(typeof v==='number') return v;
+  const s=String(v).replace(/[$\s%]/g,'').replace(/\.(?=\d{3}\b)/g,'').replace(',','.');
+  const n=parseFloat(s); return isFinite(n)?n:NaN; };
+function ingest(rowsArr){
+  const headers=rowsArr[0].map(h=>String(h||''));
+  const map=mapHeaders(headers);
+  const missing=SCHEMA.filter(s=>s.req && map[s.k]===undefined);
+  if(missing.length){ alert('Faltan columnas obligatorias: '+missing.map(m=>m.n).join(', ')+'\n\nDescarga la plantilla para ver el formato esperado.'); return false; }
+  const agg={};
+  rowsArr.slice(1).forEach(r=>{
+    const name=r[map.vendedor]; if(name===undefined||name===null||name==='') return;
+    const key=String(name).trim();
+    if(!agg[key]) agg[key]={vendedor:key, zona:'', canal:'', _n:0};
+    const a=agg[key]; a._n++;
+    ['zona','canal'].forEach(k=>{ if(map[k]!==undefined && r[map[k]]) a[k]=String(r[map[k]]); });
+    ['cartera','visitados','activos','ordenes','unidades','revBruto','descuentos','costo','unidPremium','visitasPlan','visitasReal','km','horasVenta','cuota'].forEach(k=>{
+      if(map[k]===undefined) return; const v=toNum(r[map[k]]); if(!isFinite(v)) return;
+      // stocks (cartera, clientes) se promedian entre períodos; flujos se suman
+      a[k]=(a[k]||0)+v;
+    });
+    if(map.antiguedad!==undefined){const v=toNum(r[map.antiguedad]); if(isFinite(v)) a.antiguedad=Math.max(a.antiguedad||0,v);}
+  });
+  const out=Object.values(agg).map(a=>{
+    if(a._n>1) ['cartera','visitados','activos'].forEach(k=>{ if(a[k]!==undefined) a[k]=a[k]/a._n; });
+    delete a._n; return a;
+  }).filter(a=>a.cartera>0&&a.unidades>0&&a.ordenes>0&&a.activos>0&&a.visitados>0);
+  if(out.length<4){ alert('Se necesitan al menos 4 vendedores con datos completos para cuartilizar. Filas válidas encontradas: '+out.length); return false; }
+  RAW=out;
+  const found=Object.keys(map).length, tot=SCHEMA.length;
+  document.getElementById('fileMsg').innerHTML=`<b style="color:var(--teal)">${out.length} vendedores cargados</b> — ${found} de ${tot} columnas reconocidas${found<tot?' (el resto queda sin usar: '+SCHEMA.filter(s=>map[s.k]===undefined).map(s=>s.n).join(', ')+')':''}.`;
+  return true;
+}
+function handleFile(file){
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const arr=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
+      if(ingest(arr)){
+        const hv=wb.SheetNames.find(n=>norm(n).includes('visita'));
+        VIS_SIM=true;
+        if(hv){ const v=ingestVisitas(XLSX.utils.sheet_to_json(wb.Sheets[hv],{header:1,blankrows:false})); if(v) VISITS=v; }
+        boot(); goTab('cuartiles');
+      }
+    }catch(err){ alert('No se pudo leer el archivo: '+err.message); }
+  };
+  rd.readAsArrayBuffer(file);
+}
+/* Hoja opcional "Visitas": una fila por visita. Columnas reconocidas:
+   vendedor · cliente · segmento (A/B/C) · duración en minutos (o entrada+salida) · pedido (sí/no) · unidades · traslado */
+const VIS_AL = {
+  vendedor:['vendedor','nombre','rep','preventista','ejecutivo','vendedora','asesor'],
+  cliente:['cliente','codigo cliente','local','tendero','pdv','punto de venta','id cliente'],
+  seg:['segmento','clasificacion','tipo cliente','abc','categoria cliente'],
+  dur:['duracion','duracion minutos','minutos','min','tiempo','tiempo en tienda','permanencia'],
+  entrada:['hora entrada','entrada','check in','checkin','inicio'],
+  salida:['hora salida','salida','check out','checkout','fin'],
+  pedido:['pedido','compro','con pedido','venta','hubo pedido'],
+  uds:['unidades','cajas','volumen','cantidad','uds'],
+  traslado:['traslado','tiempo traslado','desplazamiento','viaje'],
+};
+function ingestVisitas(arr){
+  if(!arr||arr.length<2) return null;
+  const hs=arr[0].map(h=>norm(h)), map={};
+  Object.entries(VIS_AL).forEach(([k,als])=>{
+    let i=hs.findIndex(h=>als.some(a=>norm(a)===h));
+    if(i<0) i=hs.findIndex(h=>als.some(a=>h.includes(norm(a))));
+    if(i>=0) map[k]=i;
+  });
+  if(map.vendedor===undefined || (map.dur===undefined && (map.entrada===undefined||map.salida===undefined))){
+    alert('Encontré una hoja de visitas pero no pude reconocer sus columnas. Necesito al menos "Vendedor" y "Duración (min)" —o bien "Hora entrada" y "Hora salida"—. El resto del análisis funciona igual con el detalle simulado.');
+    return null;
+  }
+  const hora = v => { if(v===null||v===undefined||v==='') return NaN;
+    if(typeof v==='number') return v*24*60;                       // serial de Excel
+    const m=String(v).match(/(\d{1,2}):(\d{2})/); return m? (+m[1]*60 + +m[2]) : NaN; };
+  const V={}, sí=/^(s|y|1|true|v)/i;
+  arr.slice(1).forEach(row=>{
+    const vend=row[map.vendedor]; if(vend===undefined||vend===null||vend==='') return;
+    const name=String(vend).trim();
+    let dur = map.dur!==undefined ? toNum(row[map.dur]) : NaN;
+    if(!isFinite(dur) && map.entrada!==undefined && map.salida!==undefined){
+      const a=hora(row[map.entrada]), b=hora(row[map.salida]);
+      if(isFinite(a)&&isFinite(b)) dur = b>=a ? b-a : b+1440-a;
+    }
+    if(!isFinite(dur)||dur<0||dur>480) return;
+    const uds = map.uds!==undefined ? (toNum(row[map.uds])||0) : 0;
+    const ped = map.pedido!==undefined ? sí.test(String(row[map.pedido]).trim()) || toNum(row[map.pedido])>0 : uds>0;
+    let seg = map.seg!==undefined ? String(row[map.seg]||'').trim().toUpperCase()[0] : null;
+    if(!['A','B','C'].includes(seg)) seg=null;
+    const cli = map.cliente!==undefined ? String(row[map.cliente]).trim() : 'cli';
+    if(!V[name]) V[name]={clientes:[], visitas:[], sim:false, _c:{}};
+    const v=V[name];
+    v.visitas.push({cli, seg, dur, pedido:ped, uds, traslado: map.traslado!==undefined?(toNum(row[map.traslado])||0):0});
+    if(!v._c[cli]) v._c[cli]={id:cli, seg, uds:0, min:0, visitas:0, pedidos:0};
+    const c=v._c[cli]; c.uds+=uds; c.min+=dur; c.visitas++; if(ped) c.pedidos++;
+  });
+  const names=Object.keys(V);
+  if(!names.length) return null;
+  names.forEach(n=>{
+    const v=V[n], cs=Object.values(v._c);
+    // si el archivo no trae segmento, se clasifica ABC por volumen comprado (Pareto 20/30/50 del volumen)
+    if(cs.some(c=>!c.seg)){
+      const ord=cs.slice().sort((a,b)=>b.uds-a.uds), tot=ord.reduce((a,c)=>a+c.uds,0)||1;
+      let acc=0; ord.forEach(c=>{ acc+=c.uds/tot; c.seg = acc<=0.5?'A' : acc<=0.8?'B' : 'C'; });
+    }
+    const byId={}; cs.forEach(c=>byId[c.id]=c);
+    v.visitas.forEach(x=>{ if(!x.seg) x.seg=byId[x.cli].seg; });
+    // reparte el traslado por km si el archivo no lo trae
+    if(!v.visitas.some(x=>x.traslado>0)){
+      const r=(ALL.find(a=>a.vendedor===n)||{}); const tot=(r.km||0)/VEL_RUTA*60;
+      v.visitas.forEach(x=>x.traslado=tot/v.visitas.length);
+    }
+    v.clientes=cs; delete v._c;
+  });
+  const falt=RAW.map(r=>r.vendedor).filter(n=>!V[n]);
+  if(falt.length){        // completa con simulación a los que no aparecen en la hoja de visitas
+    const simu=genVisits(RAW.filter(r=>falt.includes(r.vendedor)).map(derive));
+    Object.assign(V,simu);
+  }
+  VIS_SIM=false;
+  const nv=names.reduce((a,n)=>a+V[n].visitas.length,0);
+  document.getElementById('fileMsg').innerHTML += `<br><b style="color:var(--teal)">+ ${F.n(nv,0)} visitas individuales</b> leídas para ${names.length} vendedores${falt.length?` (${falt.length} sin detalle: se simula)`:''}.`;
+  return V;
+}
+function downloadTemplate(){
+  const headers=SCHEMA.map(s=>s.n);
+  const rows=[headers];
+  const demoSrc = RAW.length? RAW : (loadDemoSilent(), RAW);
+  demoSrc.slice(0,3).forEach(r=>rows.push(SCHEMA.map(s=>r[s.k]!==undefined?r[s.k]:'')));
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=headers.map(h=>({wch:Math.max(14,h.length+2)}));
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Vendedores');
+  // hoja opcional de detalle visita a visita (habilita el análisis de tiempo por tendero)
+  const vh=[['Vendedor','Cliente','Segmento','Hora entrada','Hora salida','Duración (min)','¿Pedido?','Unidades','Traslado (min)']];
+  const src=Object.keys(VISITS)[0];
+  if(src){ let t=8*60+30;
+    VISITS[src].visitas.slice(0,60).forEach((v,i)=>{
+      const hh=x=>String(Math.floor(x/60)).padStart(2,'0')+':'+String(Math.round(x%60)).padStart(2,'0');
+      const ent=t, sal=t+v.dur; t=sal+v.traslado;
+      vh.push([src,'CL-'+String(v.cli).padStart(4,'0'),v.seg,hh(ent),hh(sal),+v.dur.toFixed(1),v.pedido?'Sí':'No',v.uds,+v.traslado.toFixed(1)]);
+    });
+  }
+  const ws3=XLSX.utils.aoa_to_sheet(vh); ws3['!cols']=vh[0].map(h=>({wch:Math.max(13,h.length+2)}));
+  XLSX.utils.book_append_sheet(wb,ws3,'Visitas');
+  const doc=[['Campo','Obligatorio','Descripción','Ejemplo'],...SCHEMA.map(s=>[s.n,s.req?'SÍ':'no',s.d,s.ej]),
+    ['','','',''],
+    ['HOJA "VISITAS" (opcional)','no','Una fila por visita. Habilita el análisis de tiempo por tendero: duración por cliente, visitas fantasma y asignación de tiempo vs valor. Basta con Vendedor + Duración, o Vendedor + Hora entrada + Hora salida. Exportable desde la app de preventa o el GPS.','ver hoja Visitas']];
+  const ws2=XLSX.utils.aoa_to_sheet(doc); ws2['!cols']=[{wch:26},{wch:12},{wch:60},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Instrucciones');
+  XLSX.writeFile(wb,'plantilla_sales_effectiveness.xlsx');
+}
+function loadDemoSilent(){ const t=document.getElementById('fileMsg').innerHTML; loadDemo(); document.getElementById('fileMsg').innerHTML=t; }
+function downloadData(){
+  if(!ROWS.length){ alert('Primero carga datos.'); return; }
+  const {opps,cap}=STATE;
+  const q1med=STATE.targetProf;
+  const hdr=['Vendedor','Zona','Canal','Cuartil','Rank','Venta neta','Margen','Unidades','Cartera','Cobertura','Strike','Frecuencia','Drop size','Precio neto','Descuento %','Margen %','Cumpl. cuota','Cumpl. rutero','Palanca 1','Brecha 1 ($/mes)','Palanca 2','Potencial bruto','Potencial capturado','Acción recomendada'];
+  const rows=[hdr];
+  opps.slice().sort((a,b)=>a.rep.rank-b.rep.rank).forEach(o=>{const r=o.rep;
+    rows.push([r.vendedor,r.zona,r.canal,'Q'+r.q,r.rank,Math.round(r.revNeto),Math.round(r.margen||0),Math.round(r.unidades),Math.round(r.cartera),
+      +r.cobertura.toFixed(3),+r.strike.toFixed(3),+r.frec.toFixed(2),+r.drop.toFixed(1),Math.round(r.precio),
+      +(r.descPct||0).toFixed(3),isFinite(r.margenPct)?+r.margenPct.toFixed(3):'',isFinite(r.cumplCuota)?+r.cumplCuota.toFixed(3):'',isFinite(r.cumplRuta)?+r.cumplRuta.toFixed(3):'',
+      o.br[0]?LEVERS.find(l=>l.k===o.br[0].k).n:'—', o.br[0]?Math.round(o.br[0].delta):0,
+      o.br[1]?LEVERS.find(l=>l.k===o.br[1].k).n:'—', Math.round(o.tot), Math.round(o.tot*cap),
+      o.br[0]?ACTIONS[o.br[0].k].t:'Referente — documentar prácticas']);});
+  const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=hdr.map(h=>({wch:Math.max(12,h.length+2)}));
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Diagnóstico');
+  const pf=[['Palanca','Perfil Q1 (mediana)','Unidad','Accionable']].concat(LEVERS.map(l=>[l.n,+q1med[l.k].toFixed(4),l.unit,l.lever?'sí':'no (territorio)']));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pf),'Perfil Q1');
+  XLSX.writeFile(wb,'sales_effectiveness_diagnostico.xlsx');
+}
+
+/* ═══════════════════ NAV / BOOT ═══════════════════ */
+function goTab(t){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+t));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>goTab(b.dataset.tab));
+function boot(){
+  const zs=[...new Set(RAW.map(r=>r.zona).filter(Boolean))].sort();
+  const cs=[...new Set(RAW.map(r=>r.canal).filter(Boolean))].sort();
+  const zsel=document.getElementById('selZona'), csel=document.getElementById('selCanal');
+  zsel.innerHTML='<option value="">Todas</option>'+zs.map(z=>`<option>${esc(z)}</option>`).join('');
+  csel.innerHTML='<option value="">Todos</option>'+cs.map(c=>`<option>${esc(c)}</option>`).join('');
+  if(VIS_SIM) VISITS = genVisits(RAW.map(derive));
+  render();
+}
+const dz=document.getElementById('drop');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('on');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('on'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('on');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById('fileIn').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+renderSchema();
+loadDemo();
+goTab('guia');
+</script>
+</body>
+</html>

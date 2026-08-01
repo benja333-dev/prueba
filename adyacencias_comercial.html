@@ -1,0 +1,1452 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adjacency Explorer — Mapa de Adyacencias Comerciales</title>
+<style>
+:root{
+  --deep:#051C2C; --deep2:#0A2F45; --ink:#0B1B26; --line:#D9E1E8; --line2:#EAF0F4;
+  --bg:#F4F7F9; --white:#fff; --mut:#5A6E7C;
+  --blue:#2251FF; --cyan:#00A9F4; --teal:#00A88F; --green:#3CB878;
+  --amber:#F2AF00; --orange:#F0731E; --red:#D0021B; --purple:#7D5BC6;
+  --core:#051C2C;
+  --r:4px; --sh:0 1px 3px rgba(5,28,44,.08),0 6px 20px rgba(5,28,44,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ---------- shell ---------- */
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{background:var(--deep);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:16px;flex:0 0 auto}
+header .brand{display:flex;align-items:baseline;gap:10px}
+header h1{font-size:15px;letter-spacing:.02em}
+header .sub{font-size:11px;color:#8FB4C9;letter-spacing:.06em;text-transform:uppercase}
+header .spacer{flex:1}
+header button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;
+  padding:5px 11px;border-radius:var(--r);font-size:11.5px;letter-spacing:.02em}
+header button:hover{background:rgba(255,255,255,.18)}
+header button.pri{background:var(--blue);border-color:var(--blue)}
+header button.pri:hover{background:#1a43e0}
+
+#body{flex:1;display:flex;min-height:0}
+#side{width:290px;flex:0 0 290px;background:var(--white);border-right:1px solid var(--line);
+  overflow-y:auto;padding:14px}
+#main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+#detail{width:390px;flex:0 0 390px;background:var(--white);border-left:1px solid var(--line);
+  overflow-y:auto;display:none}
+#detail.on{display:block}
+
+/* ---------- sidebar ---------- */
+.grp{margin-bottom:18px}
+.grp>label,.glabel{display:block;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.hint{font-size:11px;color:var(--mut);margin-top:5px;line-height:1.4}
+select,input[type=text],input[type=number],textarea{width:100%;padding:7px 9px;border:1px solid var(--line);
+  border-radius:var(--r);background:#fff;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(34,81,255,.10)}
+textarea{resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.row{display:flex;gap:7px}
+.row>*{flex:1}
+.chipwrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:3px 9px;font-size:11px;
+  display:inline-flex;align-items:center;gap:5px}
+.chip.core{background:var(--deep);color:#fff;border-color:var(--deep)}
+.chip .x{opacity:.55;font-weight:700}
+.chip .x:hover{opacity:1}
+.slider{margin-bottom:11px}
+.slider .lab{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px}
+.slider .lab b{font-weight:600;color:var(--blue)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.btn{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:var(--r);
+  font-size:11.5px;width:100%;text-align:center}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.dark{background:var(--deep);color:#fff;border-color:var(--deep)}
+.btn.dark:hover{background:var(--deep2);color:#fff}
+.btn.sm{padding:5px 8px;font-size:11px;width:auto}
+details{border-top:1px solid var(--line2);padding-top:10px;margin-top:4px}
+details>summary{cursor:pointer;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--mut);list-style:none;display:flex;justify-content:space-between}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";font-size:14px;line-height:1}
+details[open]>summary::after{content:"–"}
+details .in{padding-top:10px}
+
+/* ---------- tabs / canvas ---------- */
+#tabs{display:flex;gap:2px;background:var(--white);border-bottom:1px solid var(--line);padding:0 14px;flex:0 0 auto}
+.tab{padding:10px 14px;font-size:12px;border:none;background:none;color:var(--mut);
+  border-bottom:2px solid transparent;letter-spacing:.01em}
+.tab.on{color:var(--deep);border-bottom-color:var(--blue);font-weight:600}
+#canvas{flex:1;overflow:auto;position:relative;padding:16px}
+.view{display:none}
+.view.on{display:block}
+
+.legend{position:absolute;right:18px;top:16px;background:rgba(255,255,255,.94);border:1px solid var(--line);
+  border-radius:var(--r);padding:10px 12px;font-size:11px;box-shadow:var(--sh);z-index:5;max-width:225px}
+.legend b{display:block;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.legend .sc{display:flex;height:9px;border-radius:2px;overflow:hidden;margin:4px 0}
+.legend .sc i{flex:1}
+.legend .ax{display:flex;justify-content:space-between;color:var(--mut);font-size:10px}
+.legend hr{border:none;border-top:1px solid var(--line2);margin:9px 0}
+
+svg{display:block}
+.hex{cursor:pointer;transition:opacity .12s}
+.hex polygon{stroke:#fff;stroke-width:2;transition:stroke .12s,stroke-width .12s}
+.hex:hover polygon{stroke:var(--ink);stroke-width:2.5}
+.hex.sel polygon{stroke:var(--ink);stroke-width:3.5}
+.hex text{pointer-events:none;font-size:9.5px;text-anchor:middle;font-weight:600}
+.hex text.s{font-size:8.5px;font-weight:500;opacity:.82}
+.hex.dim{opacity:.22}
+.ringlab{font-size:9.5px;fill:#9AAAB5;text-transform:uppercase;letter-spacing:.1em;text-anchor:middle}
+.ringline{fill:none;stroke:#CFDCE4;stroke-dasharray:3 4}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;background:#fff;font-size:12px}
+th{text-align:left;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);
+  padding:8px 9px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2;white-space:nowrap;cursor:pointer}
+th.num,td.num{text-align:right}
+td{padding:7px 9px;border-bottom:1px solid var(--line2)}
+tbody tr:hover{background:#F7FAFC;cursor:pointer}
+.pill{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10.5px;font-weight:600}
+.bar{height:6px;border-radius:3px;background:var(--line2);position:relative;min-width:44px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--blue)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.card>h3{padding:11px 14px;border-bottom:1px solid var(--line);font-size:12.5px}
+
+/* ---------- detail panel ---------- */
+#detail .dh{background:var(--deep);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:3}
+#detail .dh .fam{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8FB4C9}
+#detail .dh h2{font-size:17px;margin:3px 0 2px}
+#detail .dh .cl{position:absolute;right:12px;top:12px;background:none;border:none;color:#8FB4C9;font-size:18px;line-height:1}
+#detail .dh .cl:hover{color:#fff}
+#detail section{padding:14px 16px;border-bottom:1px solid var(--line2)}
+#detail section>h4{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:9px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2)}
+.kpi{background:#fff;padding:10px 12px}
+.kpi .v{font-size:19px;font-weight:600;letter-spacing:-.02em}
+.kpi .k{font-size:10px;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
+.kpi .n{font-size:10.5px;color:var(--mut)}
+.mrow{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11.5px}
+.mrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow .bar{width:100px;flex:0 0 100px}
+.mrow .vl{width:44px;text-align:right}
+.gap{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11.5px}
+.gap .nm{flex:1}
+.gapbar{width:120px;height:7px;background:var(--line2);border-radius:3px;position:relative;flex:0 0 120px}
+.gapbar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.note{font-size:11px;color:var(--mut);line-height:1.5}
+.tagline{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:10.5px;background:var(--line2);border-radius:3px;padding:2px 6px}
+.tag.on{background:var(--deep);color:#fff}
+.conf{display:inline-block;width:7px;height:7px;border-radius:99px;margin-left:5px;vertical-align:middle}
+
+/* ---------- modal ---------- */
+#modal{position:fixed;inset:0;background:rgba(5,28,44,.55);display:none;align-items:center;
+  justify-content:center;z-index:50;padding:24px}
+#modal.on{display:flex}
+#modal .box{background:#fff;border-radius:6px;max-width:820px;width:100%;max-height:86vh;
+  display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+#modal .box h3{padding:14px 18px;border-bottom:1px solid var(--line);font-size:14px;display:flex;justify-content:space-between}
+#modal .box .in{padding:16px 18px;overflow:auto}
+#modal .box .ft{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+#modal .box .ft .btn{width:auto;padding:7px 14px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--deep);color:#fff;
+  padding:9px 16px;border-radius:var(--r);font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}
+#toast.on{opacity:1}
+.warn{background:#FFF8E6;border:1px solid #F2D98A;border-radius:var(--r);padding:9px 11px;font-size:11px;color:#6B5100;line-height:1.5}
+@media print{#side,#detail,header button,#tabs{display:none}#body{display:block}}
+</style>
+
+<div id="app">
+<header>
+  <div class="brand"><h1>Adjacency Explorer</h1><span class="sub">Mapa de adyacencias comerciales</span></div>
+  <div class="spacer"></div>
+  <button onclick="openResearch()">Investigar industria nueva</button>
+  <button onclick="openImport()">Importar datos</button>
+  <button onclick="exportJSON()">Exportar</button>
+  <button class="pri" onclick="openMethod()">Metodología</button>
+</header>
+
+<div id="body">
+  <!-- ============ SIDEBAR ============ -->
+  <aside id="side">
+    <div class="grp">
+      <label>1 · Tu compañía</label>
+      <select id="company" onchange="onCompany()"></select>
+      <div class="hint" id="coHint"></div>
+    </div>
+
+    <div class="grp">
+      <label>2 · Core actual (categorías donde ya juegas)</label>
+      <div class="row">
+        <select id="addCat"></select>
+        <button class="btn sm" style="flex:0 0 auto" onclick="addCore()">Añadir</button>
+      </div>
+      <div class="chipwrap" id="coreChips"></div>
+    </div>
+
+    <div class="grp">
+      <label>3 · Geografía</label>
+      <select id="region" onchange="run()">
+        <option value="WORLD">Mundo</option>
+        <option value="LATAM" selected>LATAM</option>
+        <option value="BR">Brasil</option>
+        <option value="MX">México</option>
+        <option value="CL">Chile</option>
+        <option value="CO">Colombia</option>
+        <option value="PE">Perú</option>
+        <option value="AR">Argentina</option>
+        <option value="ANDINO">Región Andina (CO+PE+EC+BO)</option>
+        <option value="CONOSUR">Cono Sur (CL+AR+UY+PY)</option>
+      </select>
+      <div class="hint">El tamaño de mercado, los competidores y el market share se recalculan por geografía.</div>
+    </div>
+
+    <div class="grp">
+      <label>4 · Grupo de peers (define las adyacencias reveladas)</label>
+      <select id="peerMode" onchange="run()">
+        <option value="auto">Automático — peers que comparten mi core</option>
+        <option value="region">Solo peers presentes en mi geografía</option>
+        <option value="manual">Selección manual</option>
+        <option value="all">Todo el universo</option>
+      </select>
+      <div class="chipwrap" id="peerChips"></div>
+      <div class="hint" id="peerHint"></div>
+    </div>
+
+    <details open>
+      <summary>5 · Pesos del scoring</summary>
+      <div class="in">
+        <div class="slider"><div class="lab"><span>Atractivo vs. Factibilidad</span><b id="wBalL">50/50</b></div>
+          <input type="range" id="wBal" min="0" max="100" value="50" oninput="run()"></div>
+        <div class="glabel" style="margin-top:10px">Atractivo del mercado</div>
+        <div class="slider"><div class="lab"><span>Tamaño (TAM)</span><b id="wTamL">35%</b></div>
+          <input type="range" id="wTam" min="0" max="100" value="35" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>Crecimiento (CAGR)</span><b id="wCagrL">30%</b></div>
+          <input type="range" id="wCagr" min="0" max="100" value="30" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>Rentabilidad (margen)</span><b id="wMgnL">20%</b></div>
+          <input type="range" id="wMgn" min="0" max="100" value="20" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>Fragmentación (1−HHI)</span><b id="wFragL">15%</b></div>
+          <input type="range" id="wFrag" min="0" max="100" value="15" oninput="run()"></div>
+        <div class="glabel" style="margin-top:10px">Factibilidad / derecho a ganar</div>
+        <div class="slider"><div class="lab"><span>Adyacencia revelada (peers)</span><b id="wProxL">50%</b></div>
+          <input type="range" id="wProx" min="0" max="100" value="50" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>Fit de capacidades</span><b id="wFitL">35%</b></div>
+          <input type="range" id="wFit" min="0" max="100" value="35" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>Penalidad por capital requerido</span><b id="wCapexL">15%</b></div>
+          <input type="range" id="wCapex" min="0" max="100" value="15" oninput="run()"></div>
+        <button class="btn" style="margin-top:6px" onclick="resetW()">Restablecer pesos</button>
+      </div>
+    </details>
+
+    <details>
+      <summary>6 · Filtros del panal</summary>
+      <div class="in">
+        <div class="slider"><div class="lab"><span>Máx. adyacencias en el panal</span><b id="nHexL">18</b></div>
+          <input type="range" id="nHex" min="6" max="54" value="18" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>Categorías core en el panal</span><b id="nCoreL">6</b></div>
+          <input type="range" id="nCore" min="0" max="18" value="6" oninput="run()"></div>
+        <div class="slider"><div class="lab"><span>TAM mínimo (US$ MM)</span><b id="minTamL">0</b></div>
+          <input type="range" id="minTam" min="0" max="3000" step="50" value="0" oninput="run()"></div>
+        <label style="text-transform:none;letter-spacing:0;font-weight:400;font-size:12px;color:var(--ink)">
+          <input type="checkbox" id="fShowCore" checked onchange="run()" style="width:auto"> Mostrar el core actual</label>
+        <label style="text-transform:none;letter-spacing:0;font-weight:400;font-size:12px;color:var(--ink)">
+          <input type="checkbox" id="fOnlyWhite" onchange="run()" style="width:auto"> Solo white space (donde no juego)</label>
+        <div style="margin-top:8px"><div class="glabel">Familias</div><div class="chipwrap" id="famChips"></div></div>
+      </div>
+    </details>
+
+    <details>
+      <summary>7 · Añadir datos propios</summary>
+      <div class="in">
+        <div class="glabel">Nueva categoría</div>
+        <input type="text" id="ncName" placeholder="Nombre de la categoría">
+        <div class="row" style="margin-top:6px">
+          <input type="text" id="ncFam" placeholder="Familia">
+          <input type="number" id="ncTam" placeholder="TAM región (MM)">
+        </div>
+        <div class="row" style="margin-top:6px">
+          <input type="number" id="ncCagr" placeholder="CAGR %" step="0.1">
+          <input type="number" id="ncEbit" placeholder="Margen EBIT %" step="0.1">
+        </div>
+        <button class="btn" style="margin-top:6px" onclick="addCategory()">Crear categoría</button>
+        <div class="glabel" style="margin-top:14px">Nueva compañía / peer</div>
+        <input type="text" id="ncoName" placeholder="Nombre de la compañía">
+        <button class="btn" style="margin-top:6px" onclick="addCompany()">Crear compañía</button>
+        <div class="hint">Tras crearla, selecciónala arriba y añade sus categorías al core.</div>
+      </div>
+    </details>
+
+    <div class="warn" style="margin-top:14px">Los tamaños de mercado, márgenes y participaciones son <b>estimaciones directionales</b>
+      construidas a partir de fuentes públicas y benchmarks de industria. Sirven para priorizar, no para valorizar.
+      Valida las 2–3 adyacencias finalistas con data primaria antes de decidir.</div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div id="main">
+    <div id="tabs">
+      <button class="tab on" data-v="hive" onclick="setView('hive')">Panal de adyacencias</button>
+      <button class="tab" data-v="matrix" onclick="setView('matrix')">Matriz atractivo · factibilidad</button>
+      <button class="tab" data-v="rank" onclick="setView('rank')">Ranking y premio</button>
+      <button class="tab" data-v="white" onclick="setView('white')">White space vs. peers</button>
+      <button class="tab" data-v="comp" onclick="setView('comp')">Competencia</button>
+      <button class="tab" data-v="sim" onclick="setView('sim')">Simulador de portafolio <span id="basketN" class="pill" style="background:var(--blue);color:#fff;display:none"></span></button>
+    </div>
+    <div id="canvas">
+      <div class="view on" id="v-hive">
+        <div class="legend" id="hiveLegend"></div>
+        <div id="hiveWrap"></div>
+      </div>
+      <div class="view" id="v-matrix"><div id="matrixWrap"></div></div>
+      <div class="view" id="v-rank"><div class="card"><h3 id="rankTitle">Ranking de adyacencias</h3><div style="overflow:auto;max-height:calc(100vh - 190px)"><table id="rankTbl"></table></div></div></div>
+      <div class="view" id="v-white"><div class="card"><h3>White space — qué hacen mis peers que yo no hago</h3><div style="overflow:auto;max-height:calc(100vh - 190px)"><table id="whiteTbl"></table></div></div></div>
+      <div class="view" id="v-comp"><div id="compWrap"></div></div>
+      <div class="view" id="v-sim"><div id="simWrap"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ DETAIL ============ -->
+  <aside id="detail"><div id="detailIn"></div></aside>
+</div>
+</div>
+
+<div id="modal" onclick="if(event.target===this)closeModal()"><div class="box">
+  <h3><span id="mTitle"></span><button style="border:none;background:none;font-size:18px" onclick="closeModal()">×</button></h3>
+  <div class="in" id="mBody"></div>
+  <div class="ft" id="mFoot"></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+/* ==========================================================================
+   1. BASE DE DATOS
+   Tamaños de mercado = valor retail LATAM ~2025, US$ MM. Estimaciones
+   directionales calibradas con fuentes públicas (Euromonitor/Mordor/
+   Grand View/prensa sectorial) y benchmarks de industria.
+   ========================================================================== */
+
+// Multiplicadores de tamaño de mercado vs. LATAM = 1.0
+const REGIONS = {
+  WORLD:{n:'Mundo', f:12.0}, LATAM:{n:'LATAM', f:1.0},
+  BR:{n:'Brasil', f:0.370}, MX:{n:'México', f:0.270}, AR:{n:'Argentina', f:0.075},
+  CO:{n:'Colombia', f:0.070}, CL:{n:'Chile', f:0.052}, PE:{n:'Perú', f:0.045},
+  ANDINO:{n:'Región Andina', f:0.145}, CONOSUR:{n:'Cono Sur', f:0.140}
+};
+const REG_COUNTRIES = {WORLD:null, LATAM:['BR','MX','AR','CO','CL','PE','EC','UY','CR','GT'],
+  ANDINO:['CO','PE','EC','BO'], CONOSUR:['CL','AR','UY','PY']};
+
+// Capacidades del sistema de negocio (vector de 12 dimensiones)
+const CAPS = {
+  horneo:'Panificación / horneado', confit:'Confitería y templado de chocolate',
+  fritura:'Freído y extrusión', lacteo:'Proceso lácteo', liquidos:'Embotellado y líquidos',
+  molienda:'Molienda y granos secos', carnico:'Proceso cárnico', quimica:'Formulación química/cosmética',
+  papel:'Conversión de papel y fibra', marca:'Brand building masivo',
+  frio:'Cadena de frío', dts:'Distribución directa alta frecuencia'
+};
+
+// cat: n nombre, f familia, tam (LATAM MM US$), cagr %, ebit %, hhi 0-1, capex 0-1, caps{}
+const RAWCATS = {
+ gall_dulces:{n:'Galletas dulces',f:'Snacks dulces',tam:6800,cagr:3.5,ebit:13,hhi:.22,capex:.45,caps:{horneo:1,molienda:.7,marca:.8,dts:.7,confit:.3}},
+ gall_saladas:{n:'Galletas saladas / crackers',f:'Snacks dulces',tam:3200,cagr:4.5,ebit:12,hhi:.25,capex:.45,caps:{horneo:1,molienda:.7,marca:.7,dts:.7}},
+ chocolates:{n:'Chocolates',f:'Snacks dulces',tam:4200,cagr:6.0,ebit:16,hhi:.35,capex:.55,caps:{confit:1,marca:.9,dts:.6,frio:.3}},
+ confites:{n:'Confites y gomitas',f:'Snacks dulces',tam:2600,cagr:4.0,ebit:15,hhi:.28,capex:.35,caps:{confit:1,marca:.7,dts:.8}},
+ chicles:{n:'Chicles y mentas',f:'Snacks dulces',tam:900,cagr:2.0,ebit:20,hhi:.55,capex:.40,caps:{confit:.8,marca:.8,dts:.9}},
+ barras:{n:'Barras de cereal',f:'Snacks dulces',tam:1100,cagr:8.5,ebit:15,hhi:.30,capex:.35,caps:{horneo:.6,molienda:.6,confit:.5,marca:.8,dts:.5}},
+ pan_ind:{n:'Pan industrial',f:'Panificación',tam:9500,cagr:4.0,ebit:9,hhi:.30,capex:.50,caps:{horneo:1,molienda:.7,marca:.7,dts:1,frio:.2}},
+ pasteleria:{n:'Pastelería industrial',f:'Panificación',tam:2400,cagr:5.0,ebit:11,hhi:.15,capex:.40,caps:{horneo:1,marca:.6,dts:.8,frio:.3}},
+ helados:{n:'Helados',f:'Lácteos y fríos',tam:5200,cagr:5.5,ebit:14,hhi:.35,capex:.70,caps:{lacteo:.7,frio:1,marca:.8,dts:.7,confit:.4}},
+ papas:{n:'Papas fritas',f:'Snacks salados',tam:4800,cagr:5.5,ebit:16,hhi:.45,capex:.60,caps:{fritura:1,marca:.8,dts:.9}},
+ extruidos:{n:'Snacks extruidos',f:'Snacks salados',tam:2900,cagr:6.0,ebit:15,hhi:.40,capex:.50,caps:{fritura:1,molienda:.5,marca:.7,dts:.9}},
+ tortilla:{n:'Tortilla chips / nachos',f:'Snacks salados',tam:1600,cagr:6.5,ebit:15,hhi:.40,capex:.50,caps:{fritura:.9,molienda:.8,marca:.7,dts:.8}},
+ frutos_secos:{n:'Frutos secos',f:'Snacks salados',tam:2100,cagr:8.0,ebit:12,hhi:.12,capex:.30,caps:{marca:.5,dts:.4}},
+ snacks_sal:{n:'Snacks saludables',f:'Snacks salados',tam:1400,cagr:11.0,ebit:14,hhi:.10,capex:.35,caps:{horneo:.5,fritura:.4,marca:.7,dts:.5}},
+ pasta:{n:'Pastas',f:'Básicos secos',tam:4600,cagr:3.0,ebit:11,hhi:.25,capex:.50,caps:{molienda:1,marca:.7,dts:.7}},
+ harina:{n:'Harinas',f:'Básicos secos',tam:5400,cagr:2.5,ebit:7,hhi:.18,capex:.55,caps:{molienda:1,marca:.4,dts:.5}},
+ arroz:{n:'Arroz',f:'Básicos secos',tam:6200,cagr:2.5,ebit:6,hhi:.15,capex:.40,caps:{molienda:.8,marca:.5,dts:.6}},
+ legumbres:{n:'Legumbres',f:'Básicos secos',tam:1800,cagr:3.5,ebit:8,hhi:.08,capex:.30,caps:{molienda:.5,marca:.4,dts:.5}},
+ cereales:{n:'Cereales de desayuno',f:'Básicos secos',tam:2400,cagr:3.0,ebit:17,hhi:.50,capex:.50,caps:{molienda:.7,horneo:.5,marca:.9,dts:.5}},
+ avena:{n:'Avena y granolas',f:'Básicos secos',tam:900,cagr:6.0,ebit:13,hhi:.30,capex:.35,caps:{molienda:.9,marca:.6,dts:.5}},
+ premezclas:{n:'Premezclas de horneo',f:'Básicos secos',tam:700,cagr:5.0,ebit:14,hhi:.25,capex:.35,caps:{molienda:.9,horneo:.6,marca:.6,dts:.5}},
+ salsas:{n:'Salsas de tomate',f:'Salsas y condimentos',tam:2300,cagr:4.0,ebit:13,hhi:.30,capex:.45,caps:{liquidos:.6,marca:.7,dts:.6}},
+ aderezos:{n:'Mayonesa y aderezos',f:'Salsas y condimentos',tam:2100,cagr:4.5,ebit:15,hhi:.35,capex:.40,caps:{liquidos:.5,quimica:.4,marca:.8,dts:.6}},
+ sopas:{n:'Sopas y caldos',f:'Salsas y condimentos',tam:1200,cagr:2.0,ebit:16,hhi:.55,capex:.40,caps:{molienda:.4,marca:.8,dts:.6}},
+ condimentos:{n:'Especias y condimentos',f:'Salsas y condimentos',tam:1500,cagr:5.0,ebit:18,hhi:.25,capex:.30,caps:{molienda:.5,marca:.7,dts:.7}},
+ untables:{n:'Untables dulces (mermeladas, manjar)',f:'Salsas y condimentos',tam:1300,cagr:4.0,ebit:14,hhi:.20,capex:.35,caps:{confit:.6,lacteo:.4,marca:.7,dts:.6}},
+ leche:{n:'Leche líquida',f:'Lácteos y fríos',tam:11000,cagr:3.0,ebit:6,hhi:.30,capex:.70,caps:{lacteo:1,liquidos:.8,frio:.9,dts:.7}},
+ yogurt:{n:'Yogurt y postres refrigerados',f:'Lácteos y fríos',tam:6800,cagr:5.0,ebit:12,hhi:.40,capex:.60,caps:{lacteo:1,frio:1,marca:.8,dts:.7}},
+ quesos:{n:'Quesos',f:'Lácteos y fríos',tam:8200,cagr:4.5,ebit:9,hhi:.15,capex:.60,caps:{lacteo:1,frio:1,dts:.6}},
+ mantequilla:{n:'Mantequilla y cremas',f:'Lácteos y fríos',tam:2600,cagr:3.5,ebit:10,hhi:.25,capex:.50,caps:{lacteo:1,frio:.9,dts:.6}},
+ leche_polvo:{n:'Leche en polvo',f:'Lácteos y fríos',tam:3400,cagr:3.0,ebit:11,hhi:.45,capex:.70,caps:{lacteo:1,molienda:.3,marca:.7,dts:.6}},
+ formula:{n:'Fórmula infantil',f:'Lácteos y fríos',tam:2900,cagr:4.0,ebit:25,hhi:.60,capex:.60,caps:{lacteo:.9,marca:.9,quimica:.4}},
+ gaseosas:{n:'Gaseosas',f:'Bebidas',tam:42000,cagr:3.0,ebit:18,hhi:.60,capex:.80,caps:{liquidos:1,marca:1,dts:1}},
+ jugos:{n:'Jugos y néctares',f:'Bebidas',tam:9500,cagr:4.0,ebit:13,hhi:.35,capex:.60,caps:{liquidos:1,marca:.8,frio:.5,dts:.8}},
+ aguas:{n:'Aguas embotelladas',f:'Bebidas',tam:8800,cagr:7.0,ebit:15,hhi:.40,capex:.70,caps:{liquidos:1,marca:.7,dts:.9}},
+ deportivas:{n:'Bebidas deportivas',f:'Bebidas',tam:2600,cagr:8.0,ebit:18,hhi:.60,capex:.55,caps:{liquidos:1,marca:.9,dts:.9}},
+ energeticas:{n:'Bebidas energéticas',f:'Bebidas',tam:3100,cagr:12.0,ebit:20,hhi:.55,capex:.45,caps:{liquidos:.9,marca:1,dts:.9}},
+ te_listo:{n:'Té listo para tomar',f:'Bebidas',tam:1900,cagr:6.0,ebit:15,hhi:.50,capex:.55,caps:{liquidos:1,marca:.8,dts:.8}},
+ cafe:{n:'Café',f:'Bebidas',tam:8600,cagr:5.5,ebit:16,hhi:.30,capex:.50,caps:{molienda:.7,marca:.9,dts:.6}},
+ te_inf:{n:'Té e infusiones',f:'Bebidas',tam:1200,cagr:3.0,ebit:17,hhi:.35,capex:.30,caps:{marca:.7,dts:.6}},
+ cerveza:{n:'Cerveza',f:'Alcoholes',tam:38000,cagr:3.5,ebit:22,hhi:.70,capex:.90,caps:{liquidos:1,marca:1,dts:1}},
+ vinos:{n:'Vinos',f:'Alcoholes',tam:6500,cagr:2.5,ebit:14,hhi:.15,capex:.70,caps:{liquidos:.8,marca:.8,dts:.6}},
+ espirituosas:{n:'Espirituosas',f:'Alcoholes',tam:9200,cagr:5.0,ebit:20,hhi:.35,capex:.70,caps:{liquidos:.8,marca:1,dts:.7}},
+ pollo_cerdo:{n:'Pollo y cerdo',f:'Proteínas',tam:24000,cagr:4.0,ebit:8,hhi:.35,capex:.85,caps:{carnico:1,frio:1,dts:.6}},
+ embutidos:{n:'Embutidos y cecinas',f:'Proteínas',tam:9800,cagr:4.0,ebit:11,hhi:.25,capex:.60,caps:{carnico:1,frio:1,marca:.7,dts:.7}},
+ congelados:{n:'Congelados procesados',f:'Proteínas',tam:4200,cagr:7.0,ebit:12,hhi:.20,capex:.65,caps:{frio:1,carnico:.5,horneo:.4,marca:.7,dts:.5}},
+ listas:{n:'Comidas listas / meal kits',f:'Proteínas',tam:2800,cagr:9.0,ebit:11,hhi:.15,capex:.50,caps:{frio:.8,carnico:.4,marca:.7,dts:.5}},
+ conservas:{n:'Conservas de mar',f:'Proteínas',tam:3600,cagr:3.5,ebit:10,hhi:.30,capex:.55,caps:{carnico:.5,marca:.7,dts:.7}},
+ salmon:{n:'Salmón y acuicultura',f:'Proteínas',tam:2200,cagr:5.0,ebit:12,hhi:.20,capex:.80,caps:{frio:1,carnico:.6,marca:.4}},
+ pet_food:{n:'Alimento para mascotas',f:'Adyacentes',tam:7200,cagr:9.0,ebit:17,hhi:.35,capex:.55,caps:{molienda:.7,fritura:.5,carnico:.5,marca:.8,dts:.6}},
+ nutricion:{n:'Nutrición deportiva',f:'Adyacentes',tam:1600,cagr:13.0,ebit:20,hhi:.20,capex:.35,caps:{molienda:.5,marca:.9,quimica:.4}},
+ suplementos:{n:'Suplementos y vitaminas',f:'Adyacentes',tam:3800,cagr:10.0,ebit:22,hhi:.12,capex:.30,caps:{quimica:.6,marca:.9}},
+ aceites:{n:'Aceites comestibles',f:'Básicos secos',tam:6400,cagr:3.0,ebit:7,hhi:.25,capex:.60,caps:{molienda:.6,liquidos:.6,marca:.6,dts:.6}},
+ azucar:{n:'Azúcar y endulzantes',f:'Básicos secos',tam:4200,cagr:1.5,ebit:8,hhi:.30,capex:.70,caps:{molienda:.6,confit:.4,marca:.5,dts:.5}},
+ detergentes:{n:'Detergentes',f:'Cuidado del hogar',tam:8900,cagr:4.5,ebit:16,hhi:.50,capex:.50,caps:{quimica:1,marca:.9,dts:.8}},
+ limpiadores:{n:'Limpiadores del hogar',f:'Cuidado del hogar',tam:4200,cagr:5.0,ebit:15,hhi:.30,capex:.40,caps:{quimica:1,marca:.8,dts:.8}},
+ capilar:{n:'Cuidado capilar',f:'Cuidado personal',tam:6800,cagr:5.0,ebit:19,hhi:.45,capex:.40,caps:{quimica:1,marca:1,dts:.7}},
+ jabon:{n:'Jabones y baño',f:'Cuidado personal',tam:3900,cagr:4.0,ebit:17,hhi:.40,capex:.40,caps:{quimica:1,marca:.9,dts:.8}},
+ oral:{n:'Cuidado oral',f:'Cuidado personal',tam:3200,cagr:4.5,ebit:22,hhi:.65,capex:.45,caps:{quimica:1,marca:1,dts:.8}},
+ piel:{n:'Cuidado de la piel',f:'Cuidado personal',tam:7400,cagr:7.0,ebit:21,hhi:.25,capex:.40,caps:{quimica:1,marca:1,dts:.5}},
+ tissue:{n:'Papel tissue',f:'Cuidado del hogar',tam:6200,cagr:4.0,ebit:13,hhi:.40,capex:.85,caps:{papel:1,marca:.7,dts:.8}},
+ panales:{n:'Pañales e higiene',f:'Cuidado personal',tam:5600,cagr:3.0,ebit:14,hhi:.50,capex:.80,caps:{papel:1,quimica:.5,marca:.9,dts:.8}}
+};
+
+// Empresas: hq, rev US$ MM, geo presencia, cats[], sh {cat:{REG:%}}
+const RAWCOS = {
+ carozzi:{n:'Empresas Carozzi',hq:'CL',rev:2400,geo:['CL','PE','AR','CO','MX'],cats:['pasta','gall_dulces','gall_saladas','chocolates','confites','salsas','jugos','harina','premezclas','pet_food','avena','untables','condimentos','arroz','barras','cereales']},
+ nestle:{n:'Nestlé',hq:'CH',rev:103000,geo:['BR','MX','CL','CO','PE','AR','EC'],cats:['chocolates','cafe','leche_polvo','formula','cereales','helados','pet_food','sopas','condimentos','aguas','yogurt','nutricion','gall_dulces','gall_saladas','leche','barras','listas']},
+ arcor:{n:'Grupo Arcor',hq:'AR',rev:4200,geo:['AR','BR','CL','MX','PE','CO'],cats:['confites','chocolates','gall_dulces','gall_saladas','untables','azucar','salsas','aceites','pasta','jugos','congelados','barras','chicles']},
+ bimbo:{n:'Grupo Bimbo',hq:'MX',rev:21000,geo:['MX','BR','CL','AR','CO','PE'],cats:['pan_ind','pasteleria','gall_dulces','snacks_sal','tortilla','papas','barras','confites','premezclas']},
+ mondelez:{n:'Mondelēz',hq:'US',rev:36000,geo:['BR','MX','AR','CL','CO'],cats:['gall_dulces','gall_saladas','chocolates','chicles','confites','barras','pasteleria']},
+ pepsico:{n:'PepsiCo',hq:'US',rev:92000,geo:['BR','MX','CL','AR','CO','PE'],cats:['papas','extruidos','tortilla','gaseosas','jugos','aguas','deportivas','cereales','avena','gall_saladas','frutos_secos','snacks_sal','te_listo','gall_dulces']},
+ alicorp:{n:'Alicorp',hq:'PE',rev:3000,geo:['PE','BO','EC','CL','AR','BR'],cats:['pasta','harina','aceites','aderezos','detergentes','jabon','capilar','salsas','premezclas','pet_food','congelados','condimentos','cafe']},
+ gruma:{n:'Gruma',hq:'MX',rev:5300,geo:['MX','US','CR','GT'],cats:['harina','tortilla','pan_ind']},
+ nutresa:{n:'Grupo Nutresa',hq:'CO',rev:4600,geo:['CO','CL','PE','MX','CR'],cats:['chocolates','gall_dulces','cafe','embutidos','helados','pasta','nutricion','confites','barras','listas','gall_saladas']},
+ tmluc:{n:'Tresmontes Lucchetti',hq:'CL',rev:700,geo:['CL','MX','PE'],cats:['cafe','te_inf','jugos','pasta','salsas','sopas','condimentos','azucar']},
+ watts:{n:"Watt's",hq:'CL',rev:800,geo:['CL','PE'],cats:['jugos','leche','yogurt','quesos','mantequilla','salsas','untables','aceites','congelados','pasteleria','te_listo']},
+ soprole:{n:'Soprole',hq:'CL',rev:900,geo:['CL'],cats:['leche','yogurt','quesos','mantequilla','leche_polvo','helados']},
+ colun:{n:'Colun',hq:'CL',rev:750,geo:['CL'],cats:['leche','yogurt','quesos','mantequilla','helados','leche_polvo']},
+ agrosuper:{n:'Agrosuper',hq:'CL',rev:3200,geo:['CL','BR','MX'],cats:['pollo_cerdo','embutidos','congelados','listas','salmon','conservas']},
+ ariztia:{n:'Ariztía',hq:'CL',rev:900,geo:['CL','PE'],cats:['pollo_cerdo','embutidos','congelados','listas']},
+ ccu:{n:'CCU',hq:'CL',rev:3300,geo:['CL','AR','PY','UY','BO','CO'],cats:['cerveza','gaseosas','aguas','jugos','espirituosas','vinos','te_listo','energeticas']},
+ andina:{n:'Coca-Cola Andina',hq:'CL',rev:3000,geo:['CL','AR','BR','PY'],cats:['gaseosas','aguas','jugos','deportivas','energeticas','te_listo']},
+ ambev:{n:'Ambev',hq:'BR',rev:21000,geo:['BR','AR','CL','PE','UY'],cats:['cerveza','gaseosas','aguas','energeticas','te_listo','espirituosas']},
+ femsa:{n:'Coca-Cola FEMSA',hq:'MX',rev:14000,geo:['MX','BR','CO','AR','GT'],cats:['gaseosas','aguas','jugos','deportivas','te_listo','energeticas','leche']},
+ jbs:{n:'JBS',hq:'BR',rev:77000,geo:['BR','AR','MX','CL'],cats:['pollo_cerdo','embutidos','congelados','listas','pet_food','conservas']},
+ brf:{n:'BRF',hq:'BR',rev:11000,geo:['BR','AR','CL'],cats:['pollo_cerdo','embutidos','congelados','listas','pet_food','quesos','aderezos','pasteleria']},
+ marfrig:{n:'Marfrig',hq:'BR',rev:20000,geo:['BR','AR','CL','UY'],cats:['pollo_cerdo','embutidos','congelados']},
+ lala:{n:'Grupo Lala',hq:'MX',rev:4300,geo:['MX','GT','CR'],cats:['leche','yogurt','quesos','mantequilla','leche_polvo','jugos','helados','embutidos']},
+ gloria:{n:'Grupo Gloria',hq:'PE',rev:3600,geo:['PE','BO','CO','EC','AR','UY'],cats:['leche_polvo','leche','yogurt','quesos','jugos','embutidos','mantequilla','conservas','azucar','cerveza']},
+ alpina:{n:'Alpina',hq:'CO',rev:1200,geo:['CO','EC','VE','US'],cats:['leche','yogurt','quesos','mantequilla','jugos','leche_polvo']},
+ molinos:{n:'Molinos Río de la Plata',hq:'AR',rev:2000,geo:['AR','UY','BR'],cats:['harina','pasta','arroz','aceites','premezclas','legumbres','condimentos','te_inf','congelados','sopas']},
+ mdias:{n:'M. Dias Branco',hq:'BR',rev:2600,geo:['BR'],cats:['gall_dulces','gall_saladas','pasta','harina','premezclas','aceites','snacks_sal','tortilla','chocolates']},
+ camil:{n:'Camil',hq:'BR',rev:2100,geo:['BR','UY','CL','PE'],cats:['arroz','legumbres','azucar','pasta','conservas','cafe','gall_dulces']},
+ ferrero:{n:'Ferrero',hq:'IT',rev:19000,geo:['BR','MX','CL','AR','CO'],cats:['chocolates','confites','untables','gall_dulces','helados']},
+ mars:{n:'Mars Wrigley',hq:'US',rev:47000,geo:['BR','MX','CL','AR','CO'],cats:['chocolates','chicles','confites','pet_food','arroz','salsas']},
+ unilever:{n:'Unilever',hq:'UK',rev:65000,geo:['BR','MX','CL','AR','CO','PE'],cats:['helados','aderezos','sopas','condimentos','detergentes','capilar','jabon','piel','limpiadores','te_inf','te_listo','oral']},
+ pg:{n:'Procter & Gamble',hq:'US',rev:84000,geo:['BR','MX','CL','AR','CO','PE'],cats:['detergentes','capilar','jabon','piel','panales','oral','limpiadores']},
+ colgate:{n:'Colgate-Palmolive',hq:'US',rev:20000,geo:['BR','MX','CL','AR','CO','PE'],cats:['oral','jabon','capilar','detergentes','limpiadores','pet_food']},
+ softys:{n:'Softys (CMPC)',hq:'CL',rev:2600,geo:['CL','BR','MX','PE','AR','CO','UY'],cats:['tissue','panales']},
+ kimberly:{n:'Kimberly-Clark',hq:'US',rev:20000,geo:['BR','MX','CL','CO','PE'],cats:['tissue','panales','jabon']},
+ natura:{n:'Natura &Co',hq:'BR',rev:7000,geo:['BR','MX','CL','AR','CO','PE'],cats:['piel','capilar','jabon']},
+ danone:{n:'Danone',hq:'FR',rev:30000,geo:['BR','MX','AR','CL'],cats:['yogurt','aguas','leche','formula','nutricion','suplementos']},
+ kellanova:{n:'Kellanova',hq:'US',rev:13000,geo:['BR','MX','CL','CO'],cats:['cereales','barras','gall_saladas','papas','snacks_sal','extruidos']},
+ gmills:{n:'General Mills',hq:'US',rev:20000,geo:['BR','MX','CL','AR'],cats:['cereales','premezclas','barras','yogurt','helados','pet_food','congelados','harina']},
+ sigma:{n:'Sigma Alimentos',hq:'MX',rev:8500,geo:['MX','CR','PE','EC','DO'],cats:['embutidos','quesos','listas','yogurt','leche','congelados']}
+};
+
+// Participaciones de mercado estimadas (%) por categoría y región.
+// conf: A alta (fuente pública reciente), B media (triangulación), C directional.
+const SHARES = {
+ gall_saladas:{CL:[['pepsico',39,'A'],['carozzi',22,'B'],['nestle',17,'B'],['mondelez',6,'C']],
+               LATAM:[['mondelez',18,'C'],['mdias',12,'C'],['pepsico',11,'C'],['nestle',8,'C'],['arcor',6,'C'],['carozzi',3,'C']]},
+ gall_dulces:{CL:[['carozzi',34,'B'],['nestle',24,'B'],['bimbo',9,'C'],['mondelez',8,'C'],['arcor',6,'C']],
+              LATAM:[['mondelez',16,'C'],['mdias',11,'C'],['bimbo',9,'C'],['arcor',8,'C'],['nestle',7,'C'],['nutresa',5,'C'],['carozzi',3,'C']]},
+ chocolates:{CL:[['carozzi',29,'B'],['nestle',26,'B'],['arcor',12,'C'],['mondelez',9,'C'],['ferrero',7,'C'],['mars',5,'C']],
+             LATAM:[['nestle',17,'C'],['mondelez',15,'C'],['ferrero',12,'C'],['mars',10,'C'],['arcor',8,'C'],['nutresa',6,'C']]},
+ confites:{CL:[['carozzi',43,'A'],['arcor',15,'B'],['mondelez',9,'C'],['ferrero',5,'C']],
+           LATAM:[['arcor',17,'C'],['mondelez',11,'C'],['nestle',7,'C'],['mars',6,'C'],['carozzi',4,'C']]},
+ pasta:{CL:[['carozzi',45,'B'],['tmluc',26,'B'],['camil',6,'C']],
+        LATAM:[['mdias',13,'C'],['molinos',7,'C'],['camil',6,'C'],['alicorp',6,'C'],['carozzi',5,'C'],['nutresa',4,'C']]},
+ papas:{CL:[['pepsico',72,'B'],['bimbo',9,'C']],LATAM:[['pepsico',56,'B'],['bimbo',7,'C'],['kellanova',4,'C']]},
+ extruidos:{CL:[['pepsico',58,'C'],['bimbo',10,'C']],LATAM:[['pepsico',42,'C'],['bimbo',8,'C'],['arcor',5,'C']]},
+ cerveza:{CL:[['ccu',58,'B'],['ambev',31,'B']],LATAM:[['ambev',43,'B'],['femsa',9,'C'],['ccu',5,'C']]},
+ gaseosas:{CL:[['andina',48,'B'],['ccu',20,'B'],['femsa',18,'C']],LATAM:[['femsa',34,'B'],['ambev',17,'C'],['andina',9,'C'],['ccu',3,'C']]},
+ aguas:{CL:[['andina',36,'C'],['ccu',30,'C'],['nestle',9,'C']],LATAM:[['femsa',22,'C'],['danone',11,'C'],['nestle',9,'C'],['ambev',8,'C']]},
+ jugos:{CL:[['watts',33,'B'],['andina',18,'C'],['carozzi',12,'C'],['ccu',10,'C']],LATAM:[['femsa',13,'C'],['andina',7,'C'],['lala',5,'C'],['alpina',4,'C']]},
+ leche:{CL:[['soprole',25,'B'],['colun',23,'B'],['nestle',15,'B'],['watts',13,'B']],LATAM:[['lala',9,'C'],['gloria',6,'C'],['nestle',6,'C'],['danone',5,'C'],['alpina',3,'C']]},
+ yogurt:{CL:[['soprole',31,'B'],['colun',22,'C'],['nestle',18,'C'],['watts',9,'C']],LATAM:[['danone',22,'B'],['lala',8,'C'],['alpina',6,'C'],['nestle',6,'C']]},
+ quesos:{CL:[['colun',26,'C'],['soprole',14,'C'],['watts',9,'C']],LATAM:[['lala',7,'C'],['sigma',6,'C'],['alpina',4,'C']]},
+ pollo_cerdo:{CL:[['agrosuper',54,'B'],['ariztia',21,'B']],LATAM:[['jbs',19,'B'],['brf',12,'B'],['marfrig',7,'C'],['agrosuper',3,'C']]},
+ embutidos:{CL:[['agrosuper',37,'C'],['ariztia',12,'C']],LATAM:[['sigma',11,'C'],['brf',10,'C'],['jbs',8,'C'],['nutresa',5,'C']]},
+ cafe:{CL:[['nestle',52,'B'],['tmluc',18,'B']],LATAM:[['nestle',22,'C'],['nutresa',7,'C'],['camil',3,'C']]},
+ helados:{CL:[['unilever',56,'B'],['nestle',18,'C'],['colun',7,'C']],LATAM:[['unilever',34,'B'],['nestle',13,'C'],['nutresa',5,'C']]},
+ tissue:{CL:[['softys',63,'B'],['kimberly',21,'B']],LATAM:[['softys',22,'B'],['kimberly',19,'B']]},
+ panales:{CL:[['kimberly',35,'C'],['softys',26,'C'],['pg',15,'C']],LATAM:[['kimberly',27,'C'],['pg',18,'C'],['softys',12,'C']]},
+ detergentes:{CL:[['unilever',34,'C'],['pg',20,'C'],['colgate',11,'C']],LATAM:[['unilever',26,'C'],['pg',18,'C'],['colgate',9,'C'],['alicorp',5,'C']]},
+ oral:{CL:[['colgate',58,'C'],['pg',15,'C']],LATAM:[['colgate',52,'B'],['pg',16,'C'],['unilever',7,'C']]},
+ capilar:{CL:[['unilever',28,'C'],['pg',22,'C'],['natura',9,'C']],LATAM:[['unilever',22,'C'],['pg',18,'C'],['natura',8,'C'],['colgate',6,'C']]},
+ piel:{CL:[['natura',17,'C'],['unilever',14,'C'],['pg',10,'C']],LATAM:[['natura',15,'C'],['unilever',12,'C'],['pg',9,'C']]},
+ pet_food:{CL:[['nestle',36,'C'],['mars',24,'C'],['carozzi',13,'C']],LATAM:[['mars',27,'C'],['nestle',24,'C'],['jbs',4,'C']]},
+ cereales:{CL:[['kellanova',38,'C'],['nestle',26,'C'],['carozzi',12,'C']],LATAM:[['kellanova',30,'C'],['nestle',24,'C'],['gmills',8,'C']]},
+ salsas:{CL:[['carozzi',35,'C'],['tmluc',17,'C'],['watts',12,'C']],LATAM:[['unilever',9,'C'],['arcor',7,'C'],['mars',6,'C']]},
+ aderezos:{CL:[['watts',20,'C'],['unilever',19,'C']],LATAM:[['unilever',24,'C'],['alicorp',7,'C'],['brf',5,'C']]},
+ harina:{CL:[['carozzi',24,'C']],LATAM:[['gruma',13,'C'],['mdias',8,'C'],['alicorp',6,'C'],['molinos',5,'C']]},
+ arroz:{CL:[['carozzi',22,'C'],['camil',11,'C']],LATAM:[['camil',10,'C'],['molinos',5,'C'],['mars',4,'C']]},
+ conservas:{CL:[['agrosuper',17,'C']],LATAM:[['gloria',8,'C'],['camil',5,'C']]},
+ vinos:{CL:[['ccu',22,'C']],LATAM:[['ccu',5,'C']]},
+ espirituosas:{CL:[['ccu',26,'C']],LATAM:[['ambev',6,'C'],['ccu',3,'C']]},
+ congelados:{CL:[['agrosuper',26,'C'],['watts',11,'C']],LATAM:[['brf',13,'C'],['jbs',8,'C'],['nestle',6,'C']]},
+ leche_polvo:{CL:[['nestle',48,'C'],['soprole',14,'C']],LATAM:[['gloria',18,'C'],['nestle',17,'C'],['lala',6,'C']]},
+ formula:{LATAM:[['nestle',38,'C'],['danone',22,'C']],CL:[['nestle',44,'C'],['danone',19,'C']]},
+ pan_ind:{CL:[['bimbo',52,'B']],LATAM:[['bimbo',36,'B'],['gruma',4,'C']]},
+ tortilla:{LATAM:[['gruma',31,'B'],['pepsico',22,'C'],['bimbo',9,'C']],CL:[['pepsico',41,'C'],['bimbo',12,'C']]},
+ barras:{CL:[['nestle',22,'C'],['carozzi',15,'C'],['kellanova',12,'C']],LATAM:[['kellanova',15,'C'],['nestle',13,'C'],['gmills',8,'C']]},
+ chicles:{LATAM:[['mars',44,'B'],['mondelez',26,'C'],['arcor',8,'C']],CL:[['mars',40,'C'],['mondelez',24,'C'],['arcor',12,'C']]},
+ sopas:{CL:[['unilever',43,'C'],['nestle',22,'C'],['tmluc',14,'C']],LATAM:[['unilever',34,'C'],['nestle',21,'C']]},
+ azucar:{CL:[['tmluc',16,'C'],['carozzi',9,'C']],LATAM:[['gloria',5,'C'],['camil',4,'C'],['arcor',4,'C']]},
+ aceites:{LATAM:[['alicorp',7,'C'],['molinos',5,'C'],['mdias',5,'C']],CL:[['watts',18,'C'],['arcor',9,'C']]}
+};
+
+// Modos de entrada por rango de factibilidad
+function entryMode(feas, capex, hhi){
+  if(feas>=70 && capex<.6) return {m:'Orgánico — extensión de marca',d:'Capacidades y canal ya existen. Extiende una marca del core, produce en planta propia o con co-packer.'};
+  if(feas>=70) return {m:'Orgánico con capex dedicado',d:'Alto encaje comercial pero requiere línea propia. Evalúa co-packing para validar demanda antes de invertir.'};
+  if(feas>=52 && hhi<.4) return {m:'M&A bolt-on de un jugador local',d:'Categoría fragmentada: comprar share y capacidad es más rápido y barato que construir marca desde cero.'};
+  if(feas>=52) return {m:'Licencia o alianza de marca',d:'Encaje medio en categoría concentrada. Licenciar una marca internacional reduce el riesgo de brand building.'};
+  if(feas>=36) return {m:'JV o co-packing con socio de capacidad',d:'Te falta una capacidad dura. Un JV limita el capital en riesgo mientras aprendes la categoría.'};
+  return {m:'Vigilar — no entrar aún',d:'Distancia al core demasiado alta. Solo con una tesis de M&A transformacional y equipo dedicado.'};
+}
+
+/* ==========================================================================
+   2. ESTADO
+   ========================================================================== */
+let CATS = JSON.parse(JSON.stringify(RAWCATS));
+let COS  = JSON.parse(JSON.stringify(RAWCOS));
+let ST = {company:'carozzi', core:[], region:'LATAM', peers:[], view:'hive', sel:null,
+          famOff:{}, sortRank:'score', sortDir:-1, sortWhite:'gap', basket:[]};
+let R = {}; // resultados
+
+/* ==========================================================================
+   3. MOTOR
+   ========================================================================== */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const fmtMM = v => v>=1000 ? '$'+(v/1000).toFixed(v>=10000?0:1)+' MM MM' : '$'+Math.round(v)+' MM';
+const usd = v => v>=1000 ? '$'+(v/1000).toFixed(1)+'B' : '$'+Math.round(v)+'M';
+const pct = v => (v>=0?'':'') + v.toFixed(1) + '%';
+
+function regionCats(){ return REGIONS[ST.region].f; }
+
+// TAM de la categoría en la región seleccionada
+function tamOf(k){ return CATS[k].tam * regionCats(); }
+
+// ¿La compañía tiene presencia en la región?
+function coInRegion(id, reg){
+  const c = COS[id]; if(!c) return false;
+  if(reg==='WORLD'||reg==='LATAM') return true;
+  const list = REG_COUNTRIES[reg];
+  if(list) return c.geo.some(g=>list.includes(g));
+  return c.geo.includes(reg);
+}
+
+// --- Peer set ---
+function computePeers(){
+  const mode = document.getElementById('peerMode').value;
+  const all = Object.keys(COS).filter(id=>id!==ST.company);
+  if(mode==='manual') return ST.peers.filter(p=>COS[p]);
+  if(mode==='all') return all;
+  if(mode==='region') return all.filter(id=>coInRegion(id, ST.region));
+  // auto: peers que comparten al menos 1 categoría core (y ponderar por overlap)
+  const shared = all.filter(id=>COS[id].cats.some(c=>ST.core.includes(c)));
+  return shared.length>=4 ? shared : all;
+}
+
+// --- Proximidad revelada (product space, Hidalgo-Hausmann) ---
+// prox(a,b) = min( P(a|b), P(b|a) ) sobre el universo de peers
+function buildProx(peerIds){
+  const M = {}, cnt = {};
+  const keys = Object.keys(CATS);
+  keys.forEach(k=>cnt[k]=0);
+  const rows = peerIds.map(id=>COS[id].cats.filter(c=>CATS[c]));
+  rows.forEach(r=>r.forEach(c=>cnt[c]++));
+  const co = {};
+  rows.forEach(r=>{ for(let i=0;i<r.length;i++) for(let j=0;j<r.length;j++){
+    if(i===j) continue; const a=r[i],b=r[j]; co[a+'|'+b]=(co[a+'|'+b]||0)+1; }});
+  keys.forEach(a=>{ M[a]={}; keys.forEach(b=>{
+    if(a===b){M[a][b]=1;return;}
+    const nab = co[a+'|'+b]||0;
+    const pab = cnt[b]? nab/cnt[b] : 0;   // P(a|b)
+    const pba = cnt[a]? nab/cnt[a] : 0;   // P(b|a)
+    M[a][b] = Math.min(pab,pba);
+  });});
+  return {M, cnt, n:peerIds.length};
+}
+
+// Proximidad de una categoría al core: promedio ponderado de las top conexiones
+function proxToCore(k, M){
+  if(!ST.core.length) return 0;
+  const vals = ST.core.map(c=>M[k]&&M[k][c]!==undefined?M[k][c]:0).sort((a,b)=>b-a);
+  // media de las 3 mejores conexiones, con peso decreciente → premia conexión fuerte a algo del core
+  const w=[.55,.28,.17]; let s=0,ws=0;
+  for(let i=0;i<Math.min(3,vals.length);i++){s+=vals[i]*w[i];ws+=w[i];}
+  return ws? s/ws : 0;
+}
+
+// --- Fit de capacidades ---
+function portfolioCaps(coreArr){
+  const v={}; Object.keys(CAPS).forEach(c=>v[c]=0);
+  (coreArr||ST.core).forEach(k=>{ const cc=(CATS[k]||{}).caps||{};
+    Object.keys(CAPS).forEach(c=>{ v[c]=Math.max(v[c], cc[c]||0); }); });
+  return v;
+}
+function capFit(k, have){
+  const need = CATS[k].caps||{};
+  let num=0, den=0, gaps=[];
+  Object.keys(need).forEach(c=>{
+    const nd=need[c], hv=have[c]||0, g=Math.max(0, nd-hv);
+    den += nd; num += nd - g;
+    if(g>0.15) gaps.push({c, need:nd, have:hv, gap:g});
+  });
+  gaps.sort((a,b)=>b.gap-a.gap);
+  return {fit: den? num/den : 0, gaps};
+}
+
+// --- Normalizaciones ---
+function norm(v, lo, hi){ return clamp((v-lo)/(hi-lo),0,1); }
+
+/* --- Densidad de relatedness (Harvard Growth Lab) ---
+   density(c) = Σ_i prox(c,i)·M_i / Σ_i prox(c,i)
+   Qué proporción del "vecindario" de c ya está dentro de tu portafolio.
+   Sustituye al promedio de las 3 mejores conexiones: no sobre-premia un
+   puente fuerte aislado. */
+function densityOf(k, M, coreSet, keys){
+  let num=0, den=0;
+  keys.forEach(i=>{ if(i===k) return;
+    const p = (M[k]&&M[k][i])||0; den += p; if(coreSet.has(i)) num += p; });
+  return den>0 ? num/den : 0;
+}
+
+/* --- Complejidad de categoría (aprox. de primer orden del PCI) ---
+   kc1 = diversificación media de las compañías que juegan la categoría.
+   Ubicuidad baja + jugadores diversificados = capacidades escasas y
+   márgenes más defendibles. */
+function complexityOf(k, peerIds){
+  const players = peerIds.filter(p=>COS[p].cats.includes(k));
+  if(!players.length) return {ubi:0, kc1:0};
+  const kc1 = players.reduce((a,p)=>a+COS[p].cats.filter(c=>CATS[c]).length,0)/players.length;
+  return {ubi:players.length, kc1};
+}
+
+/* --- Mini business case ---
+   Rampa de ventas a 5 años, curva de aprendizaje en margen, capex por
+   intensidad de la categoría, capital de trabajo y VAN a 12%. */
+const FIN = {wacc:.12, tax:.27, wc:.12, g:.025};
+function businessCase(tam5, reach, ebitPct, capexIdx, cagr){
+  const S5 = tam5*reach;
+  const sales = [1,2,3,4,5].map(t=>S5*Math.pow(t/5,1.35));
+  const mgnRamp=[.35,.65,.85,.95,1];
+  const capex = S5*capexIdx*0.85;                 // inversión total en activos
+  const capexY=[capex*.6, capex*.4, 0,0,0];
+  let npv=0, cum=0, payback=null;
+  const flows=sales.map((s,i)=>{
+    const ebit = s*(ebitPct/100)*mgnRamp[i];
+    const dWC = (s-(i?sales[i-1]:0))*FIN.wc;
+    const fcf = ebit*(1-FIN.tax) - capexY[i] - dWC;
+    npv += fcf/Math.pow(1+FIN.wacc,i+1);
+    cum += fcf; if(payback===null && cum>0) payback=i+1;
+    return {y:i+1, sales:s, ebit, fcf};
+  });
+  const ebit5 = S5*(ebitPct/100);
+  const tv = (ebit5*(1-FIN.tax)*(1+FIN.g))/(FIN.wacc-FIN.g);
+  npv += tv/Math.pow(1+FIN.wacc,5);
+  return {S5, ebit5, capex, npv, payback, flows, roic: capex>0? ebit5*(1-FIN.tax)/capex : 0};
+}
+
+/* --- Monte Carlo sobre el VAN ---
+   Las tres variables que realmente mueven el resultado: share alcanzable,
+   crecimiento y margen. Devuelve P10/P50/P90. */
+function mcNPV(tam, reach, ebitPct, capexIdx, cagr, n){
+  n=n||600;
+  const out=[]; let seed=12345;
+  const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+  const tri=(lo,mid,hi)=>{ const u=rnd(), c=(mid-lo)/(hi-lo);
+    return u<c ? lo+Math.sqrt(u*(hi-lo)*(mid-lo)) : hi-Math.sqrt((1-u)*(hi-lo)*(hi-mid)); };
+  for(let i=0;i<n;i++){
+    const rr = tri(reach*0.45, reach, reach*1.7);
+    const cc = tri(cagr-2.5, cagr, cagr+3);
+    const mm = tri(ebitPct*0.6, ebitPct, ebitPct*1.3);
+    const t5 = tam*Math.pow(1+cc/100,5);
+    out.push(businessCase(t5, rr, mm, capexIdx, cc).npv);
+  }
+  out.sort((a,b)=>a-b);
+  const q=p=>out[Math.floor(clamp(p,0,.999)*out.length)];
+  return {p10:q(.10), p50:q(.50), p90:q(.90), pLoss:out.filter(x=>x<0).length/out.length};
+}
+
+/* ==========================================================================
+   MOTOR — función pura del conjunto core (la reusa el simulador)
+   ========================================================================== */
+function computeRows(coreArr, ctx){
+  const {M, peerIds, W} = ctx;
+  const keys = Object.keys(CATS);
+  const coreSet = new Set(coreArr);
+  const have = portfolioCaps(coreArr);
+  const sA=W.tam+W.cagr+W.mgn+W.frag||1, sF=W.prox+W.fit+W.capex||1;
+  const tams = keys.map(k=>tamOf(k));
+  const tamLo = Math.log10(Math.max(1,Math.min(...tams))), tamHi = Math.log10(Math.max(...tams));
+
+  // densidad y su normalización relativa al set de categorías
+  const dens={}; keys.forEach(k=>dens[k]=densityOf(k,M,coreSet,keys));
+  const dv=Object.values(dens), dLo=Math.min(...dv), dHi=Math.max(...dv);
+
+  // complejidad
+  const cx={}; keys.forEach(k=>cx[k]=complexityOf(k,peerIds));
+  const kv=Object.values(cx).map(x=>x.kc1).filter(x=>x>0);
+  const kLo=kv.length?Math.min(...kv):0, kHi=kv.length?Math.max(...kv):1;
+  const uHi=Math.max(1,...Object.values(cx).map(x=>x.ubi));
+
+  const rows = keys.map(k=>{
+    const c = CATS[k], tam = tamOf(k), isCore = coreSet.has(k);
+    const density = dens[k], densN = norm(density,dLo,dHi);
+    const {fit, gaps} = capFit(k, have);
+    const cxr = cx[k];
+    const complexity = 100*clamp(0.5*norm(cxr.kc1,kLo,kHi) + 0.5*(1-cxr.ubi/uHi),0,1);
+    const A = ( W.tam*norm(Math.log10(Math.max(1,tam)),tamLo,tamHi)
+              + W.cagr*norm(c.cagr,0,13)
+              + W.mgn*norm(c.ebit,4,25)
+              + W.frag*(1-norm(c.hhi,.05,.75)) ) / sA * 100;
+    const F = ( W.prox*densN + W.fit*fit + W.capex*(1-c.capex) ) / sF * 100;
+    const score = Math.pow(Math.max(A,1),1-W.bal) * Math.pow(Math.max(F,1),W.bal);
+    const inCat = peerIds.filter(p=>COS[p].cats.includes(k));
+    const reach = clamp(0.015 + 0.16*(F/100)*(1-norm(c.hhi,.05,.75)), 0.01, 0.22);
+    const tam5 = tam*Math.pow(1+c.cagr/100,5);
+    const prize = tam5*reach, ebitP = prize*c.ebit/100;
+    const bc = businessCase(tam5, reach, c.ebit, c.capex, c.cagr);
+    return {k,c,tam,tam5,isCore,density,densN,prox:density,fit,gaps,complexity,ubi:cxr.ubi,
+            A,F,score,inCat,reach,prize,ebitP,bc,entry:entryMode(F,c.capex,c.hhi)};
+  });
+  const maxS = Math.max(...rows.map(r=>r.score))||1;
+  rows.forEach(r=>r.idx = r.score/maxS*100);
+  rows.sort((a,b)=>b.score-a.score);
+  return {rows, dens, coreSet, have};
+}
+
+/* --- Valor de opción (Complexity Outlook Index adaptado) ---
+   Cuánto sube la densidad del RESTO de categorías si añades c, ponderado por
+   lo atractivas que son. Un movimiento mediocre puede ser el trampolín que
+   desbloquea cinco. Es el eslabón que conecta con el sequencing de Bain. */
+function optionValue(rows, ctx, coreArr){
+  const {M} = ctx;
+  const keys = Object.keys(CATS);
+  const coreSet = new Set(coreArr);
+  const byK = {}; rows.forEach(r=>byK[r.k]=r);
+  // denominador de densidad por categoría (fijo, no depende del core)
+  const denom = {};
+  keys.forEach(d=>{ let s=0; keys.forEach(i=>{ if(i!==d) s+=(M[d]&&M[d][i])||0; }); denom[d]=s; });
+
+  rows.forEach(r=>{
+    if(r.isCore){ r.opt=0; r.unlocks=[]; return; }
+    let gain=0; const unl=[];
+    keys.forEach(d=>{
+      if(d===r.k || coreSet.has(d) || !denom[d]) return;
+      const dd = ((M[d]&&M[d][r.k])||0)/denom[d];      // Δdensidad exacta de d al añadir r.k
+      if(dd<=0) return;
+      const w = (byK[d]?byK[d].A:0)/100;
+      gain += dd*w;
+      if(dd>0.02) unl.push({k:d, d:dd, A:byK[d]?byK[d].A:0, n:CATS[d].n});
+    });
+    unl.sort((a,b)=>b.d*b.A-a.d*a.A);
+    r.optRaw = gain; r.unlocks = unl.slice(0,6);
+  });
+  const mx = Math.max(...rows.map(r=>r.optRaw||0))||1;
+  rows.forEach(r=>{ if(!r.isCore) r.opt = (r.optRaw||0)/mx*100; });
+  return rows;
+}
+
+/* --- Ruta por trampolines ---
+   Si el destino está lejos, busca la secuencia de saltos intermedios que más
+   sube su factibilidad. Greedy explicable: en cada paso elige el trampolín
+   que maximiza (factibilidad propia × cuánto acerca al destino). */
+function computePath(targetK, ctx, maxSteps){
+  maxSteps = maxSteps||3;
+  let core = [...ST.core];
+  const path=[];
+  let cur = computeRows(core, ctx).rows.find(r=>r.k===targetK);
+  const F0 = cur? cur.F : 0;
+  for(let s=0; s<maxSteps; s++){
+    if(!cur || cur.F>=62) break;                       // ya es alcanzable directo
+    const base = computeRows(core, ctx).rows;
+    const cands = base.filter(r=>!r.isCore && r.k!==targetK && r.F>=45)
+      .map(r=>{
+        const test = computeRows(core.concat([r.k]), ctx).rows.find(x=>x.k===targetK);
+        return {r, lift: test? test.F-cur.F : 0, after: test? test.F : cur.F};
+      })
+      .filter(x=>x.lift>1.5)
+      .sort((a,b)=> (b.lift*b.r.F) - (a.lift*a.r.F));
+    if(!cands.length) break;
+    const best = cands[0];
+    path.push({k:best.r.k, n:best.r.c.n, F:best.r.F, idx:best.r.idx,
+               lift:best.lift, after:best.after, prize:best.r.prize});
+    core = core.concat([best.r.k]);
+    cur = computeRows(core, ctx).rows.find(r=>r.k===targetK);
+  }
+  return {path, F0, Ffinal: cur? cur.F : F0, direct: F0>=62};
+}
+
+function run(){
+  ST.region = document.getElementById('region').value;
+  const g=id=>+document.getElementById(id).value;
+  const W={bal:g('wBal')/100, tam:g('wTam'), cagr:g('wCagr'), mgn:g('wMgn'), frag:g('wFrag'),
+           prox:g('wProx'), fit:g('wFit'), capex:g('wCapex')};
+  document.getElementById('wBalL').textContent = Math.round((1-W.bal)*100)+'/'+Math.round(W.bal*100);
+  ['wTam','wCagr','wMgn','wFrag','wProx','wFit','wCapex'].forEach(id=>
+    document.getElementById(id+'L').textContent = g(id)+'%');
+  document.getElementById('nHexL').textContent = g('nHex');
+  document.getElementById('nCoreL').textContent = g('nCore');
+  document.getElementById('minTamL').textContent = '$'+g('minTam')+'MM';
+
+  const peerIds = computePeers();
+  const {M, cnt} = buildProx(peerIds);
+  const ctx = {M, peerIds, W};
+  const {rows, have} = computeRows(ST.core, ctx);
+  optionValue(rows, ctx, ST.core);
+
+  R = {rows, peerIds, M, cnt, have, W, ctx, nPeers:peerIds.length};
+  renderAll();
+}
+
+/* ==========================================================================
+   4. RENDER
+   ========================================================================== */
+const FAMCOL = {'Snacks dulces':'#7D5BC6','Panificación':'#F0731E','Snacks salados':'#F2AF00',
+ 'Básicos secos':'#8A6E4B','Salsas y condimentos':'#D0021B','Lácteos y fríos':'#00A9F4',
+ 'Bebidas':'#2251FF','Alcoholes':'#0E4A8A','Proteínas':'#00A88F','Adyacentes':'#3CB878',
+ 'Cuidado personal':'#C0468F','Cuidado del hogar':'#5A6E7C'};
+function famColor(f){ if(!FAMCOL[f]){ const p=['#7D5BC6','#F0731E','#F2AF00','#8A6E4B','#D0021B','#00A9F4','#2251FF','#00A88F','#3CB878','#C0468F'];
+  FAMCOL[f]=p[Object.keys(FAMCOL).length%p.length]; } return FAMCOL[f]; }
+
+// escala secuencial para el score (claro → azul profundo)
+function scoreColor(v){ // v 0..100
+  const stops=[[0,[233,240,246]],[30,[168,208,236]],[55,[86,159,224]],[75,[34,81,255]],[100,[5,28,44]]];
+  v=clamp(v,0,100);
+  for(let i=1;i<stops.length;i++){ if(v<=stops[i][0]){
+    const [x0,c0]=stops[i-1],[x1,c1]=stops[i], t=(v-x0)/(x1-x0);
+    return `rgb(${c0.map((c,j)=>Math.round(c+(c1[j]-c)*t)).join(',')})`; }}
+  return 'rgb(5,28,44)';
+}
+function textOn(v){ return v>52?'#fff':'#0B1B26'; }
+
+function renderAll(){ renderHive(); renderMatrix(); renderRank(); renderWhite(); renderComp();
+  renderChips(); if(ST.sel) renderDetail(ST.sel); }
+
+/* ---- 4.1 HONEYCOMB ---- */
+// Anillo hexagonal en coordenadas axiales (algoritmo estándar red-blob)
+const HEXDIR=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+function hexRing(radius){
+  if(radius<=0) return [[0,0]];
+  const out=[];
+  let q=HEXDIR[4][0]*radius, r=HEXDIR[4][1]*radius; // arranque en (-R, +R)
+  for(let d=0;d<6;d++) for(let i=0;i<radius;i++){
+    out.push([q,r]); q+=HEXDIR[d][0]; r+=HEXDIR[d][1];
+  }
+  return out;
+}
+function hexPts(cx,cy,s){
+  let p=''; for(let i=0;i<6;i++){ const a=Math.PI/180*(60*i);
+    p += (cx+s*Math.cos(a))+','+(cy+s*Math.sin(a))+' '; } return p.trim();
+}
+// nombre corto para el hexágono (el nombre completo vive en tooltip y panel)
+function shortName(n){
+  return n.replace(/\s*\([^)]*\)\s*/g,' ').split(/\s+\/\s+/)[0].replace(/\s+/g,' ').trim();
+}
+function wrapLabel(t, max){
+  const w=t.split(' '), out=[]; let cur='';
+  w.forEach(x=>{ if((cur+' '+x).trim().length>max){ if(cur)out.push(cur); cur=x; } else cur=(cur+' '+x).trim(); });
+  if(cur) out.push(cur);
+  return out.slice(0,3).map(l=>l.length>max+2? l.slice(0,max+1)+'…' : l);
+}
+
+function activeRows(){
+  const minT=+document.getElementById('minTam').value;
+  const showCore=document.getElementById('fShowCore').checked;
+  const onlyWhite=document.getElementById('fOnlyWhite').checked;
+  return R.rows.filter(r=>{
+    if(ST.famOff[r.c.f]) return false;
+    if(r.tam<minT) return false;
+    if(r.isCore && (!showCore||onlyWhite)) return false;
+    return true;
+  });
+}
+
+function renderHive(){
+  const N=+document.getElementById('nHex').value;
+  const rows = activeRows();
+  const coreAll = rows.filter(r=>r.isCore).sort((a,b)=>b.tam-a.tam);
+  const nCore = +document.getElementById('nCore').value;
+  const core = coreAll.slice(0,nCore);            // cinturón de core (el resto vive en el sidebar)
+  const adj  = rows.filter(r=>!r.isCore).slice(0, N);
+
+  // --- 1. el core ocupa los anillos internos; las adyacencias arrancan después
+  const placed = {}; const label = {};
+  let ring = 1;
+  const put=(b,it)=>{ (placed[b]=placed[b]||[]).push(it); };
+  if(core.length){
+    let rest=[...core];
+    while(rest.length){ placed[ring]=rest.splice(0,6*ring).map(r=>({r}));
+      label[ring]='Core actual'; ring++; }
+  }
+  const base = ring;                              // primer anillo de adyacencias
+  const bandOf = r => r.densN>=.62?0 : r.densN>=.38?1 : r.densN>=.16?2 : 3;
+  const LBL=['Adyacencia cercana','Adyacencia media','Adyacencia lejana','Frontera del core'];
+  const items = adj.map(r=>({r, b:base+bandOf(r)}));
+  items.sort((a,b)=> a.b-b.b || (a.r.c.f<b.r.c.f?-1:a.r.c.f>b.r.c.f?1:0) || b.r.score-a.r.score);
+  const maxRing = base+5;
+  items.forEach(it=>{ let b=it.b;
+    while(b<=maxRing && (placed[b]||[]).length>=6*b) b++;
+    if(b<=maxRing){ put(b,it); if(!label[b]) label[b]=LBL[Math.min(3,b-base)]; } });
+  Object.keys(placed).forEach(b=>{ if(!label[b]) label[b]=LBL[Math.min(3,Math.max(0,b-base))]; });
+
+  const used = Object.keys(placed).map(Number).filter(b=>placed[b].length);
+  const maxR = Math.max(1,...used);
+  const S = maxR>=5 ? 34 : maxR>=4 ? 38 : 44;
+  const W=S*1.5, H=S*Math.sqrt(3), pad=S*1.7+34;
+  const cx=maxR*W+pad, cy=maxR*H+pad, wpx=cx*2, hpx=cy*2;
+  let svg = `<svg viewBox="0 0 ${wpx} ${hpx}" width="${wpx}" height="${hpx}" style="max-width:100%;height:auto">`;
+
+  // anillos guía; cada etiqueta se dibuja una sola vez, en su anillo más externo
+  used.sort((a,b)=>a-b);
+  const labAt={}; used.forEach(b=>{ if(label[b]) labAt[label[b]]=b; });
+  const showLab={}; Object.values(labAt).forEach(b=>showLab[b]=1);
+  // Un panal tesela el plano: no hay hueco radial entre anillos donde poner texto sin
+  // pisar hexágonos. Sólo se rotula la circunferencia externa; el resto va en la leyenda.
+  const ringLabels=[];
+  const outer=Math.max(...used);
+  used.forEach(b=>{ const rad=b*H+S*0.92;
+    svg += `<circle class="ringline" cx="${cx}" cy="${cy}" r="${rad}"/>`;
+    if(b===outer) ringLabels.push(`<text class="ringlab" x="${cx}" y="${cy-rad-11}">${esc(label[b]||'')}</text>`); });
+
+  // centro = la compañía
+  const co=COS[ST.company];
+  svg += `<g><polygon points="${hexPts(cx,cy,S*0.98)}" fill="var(--deep)" stroke="#fff" stroke-width="3"/>`;
+  const cl=wrapLabel(co?co.n:'Mi compañía', S>=40?13:11);
+  cl.forEach((l,i)=>{ svg += `<text x="${cx}" y="${cy-1+(i-(cl.length-1)/2)*11}" fill="#fff" font-size="${S>=40?10:9}" font-weight="600" text-anchor="middle">${esc(l)}</text>`;});
+  svg += `<text x="${cx}" y="${cy+S*0.64}" fill="#8FB4C9" font-size="8.5" text-anchor="middle">${REGIONS[ST.region].n}</text></g>`;
+
+  used.forEach(b=>{
+    const cells = hexRing(b), list = placed[b];
+    const step = cells.length/Math.max(1,list.length);
+    list.forEach((it,i)=>{
+      const cell = cells[Math.round(i*step)%cells.length];
+      const x = cx + W*cell[0];
+      const y = cy + H*(cell[1] + cell[0]/2);
+      const r=it.r, col = r.isCore? '#0A2F45' : scoreColor(r.idx);
+      const tc = r.isCore? '#fff' : textOn(r.idx);
+      const sel = ST.sel===r.k?' sel':'';
+      svg += `<g class="hex${sel}" onclick="select('${r.k}')"><title>${esc(r.c.n)} — ${REGIONS[ST.region].n}
+TAM ${usd(r.tam)} · CAGR ${r.c.cagr}% · EBIT ${r.c.ebit}%
+Atractivo ${Math.round(r.A)} · Factibilidad ${Math.round(r.F)} · Índice ${Math.round(r.idx)}
+${r.inCat.length} de ${R.nPeers} peers ya están aquí</title>`;
+      svg += `<polygon points="${hexPts(x,y,S*0.94)}" fill="${col}"/>`;
+      svg += `<rect x="${x-S*0.38}" y="${y-S*0.70}" width="${S*0.76}" height="3.5" rx="1.5" fill="${famColor(r.c.f)}"/>`;
+      const ls = wrapLabel(shortName(r.c.n), S>=40?13:11);
+      const fs = S>=40?9.5:8.6, lh=fs+1.4;
+      ls.forEach((l,j)=>{ svg += `<text x="${x}" y="${y-3+(j-(ls.length-1)/2)*lh}" fill="${tc}" font-size="${fs}">${esc(l)}</text>`; });
+      svg += `<text class="s" x="${x}" y="${y+S*0.46}" fill="${tc}" font-size="${fs-1}">${usd(r.tam)} · ${r.c.cagr}%</text>`;
+      if(r.isCore) svg += `<text class="s" x="${x}" y="${y+S*0.70}" fill="#8FB4C9" font-size="${fs-1.5}">CORE</text>`;
+      else svg += `<text class="s" x="${x}" y="${y+S*0.70}" fill="${tc}" font-size="${fs-1.5}" opacity=".7">idx ${Math.round(r.idx)}</text>`;
+      svg += `</g>`;
+    });
+  });
+  svg += ringLabels.join('') + `</svg>`;
+  document.getElementById('hiveWrap').innerHTML = svg;
+
+  const shownAdj = used.reduce((a,b)=>a+placed[b].filter(x=>!x.r.isCore).length,0);
+  const fams = [...new Set(rows.map(r=>r.c.f))];
+  document.getElementById('hiveLegend').innerHTML =
+    `<b>Índice de prioridad</b>
+     <div class="sc">${[5,20,35,50,65,80,95].map(v=>`<i style="background:${scoreColor(v)}"></i>`).join('')}</div>
+     <div class="ax"><span>Baja</span><span>Alta</span></div>
+     <hr><b>Anillos — distancia al core</b>
+     ${used.map(b=>`<div style="display:flex;gap:7px;font-size:10.5px;line-height:1.5">
+        <span class="mono" style="color:#9AAAB5;flex:0 0 14px">${b}</span><span>${esc(label[b]||'')}</span></div>`).join('')}
+     <div class="note" style="font-size:10.5px;margin-top:5px">El anillo lo define lo que hacen tus peers,
+     no una opinión: cuántas compañías comparables juegan a la vez en tu core y en esa categoría.</div>
+     <hr><b>Familias</b>
+     <div class="tagline">${fams.map(f=>`<span class="tag" style="border-left:3px solid ${famColor(f)}">${esc(f)}</span>`).join('')}</div>
+     <hr><div class="note" style="font-size:10.5px">${R.nPeers} peers · ${core.length} categorías core${coreAll.length>core.length?' (de '+coreAll.length+')':''} · ${shownAdj} adyacencias</div>`;
+}
+
+/* ---- 4.2 MATRIZ ---- */
+function renderMatrix(){
+  const rows = activeRows().slice(0,60);
+  const W=880,H=580,ml=64,mb=54,mt=26,mr=26;
+  const px = v=>ml+(v/100)*(W-ml-mr), py = v=>H-mb-(v/100)*(H-mb-mt);
+  let s=`<div class="card" style="padding:14px;display:inline-block"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto">`;
+  s+=`<rect x="${px(50)}" y="${py(100)}" width="${px(100)-px(50)}" height="${py(50)-py(100)}" fill="#EAF3FF"/>`;
+  s+=`<rect x="${ml}" y="${py(100)}" width="${px(50)-ml}" height="${py(50)-py(100)}" fill="#F7FAFC"/>`;
+  s+=`<rect x="${px(50)}" y="${py(50)}" width="${px(100)-px(50)}" height="${py(0)-py(50)}" fill="#FCFAF2"/>`;
+  [0,25,50,75,100].forEach(v=>{
+    s+=`<line x1="${px(v)}" y1="${mt}" x2="${px(v)}" y2="${H-mb}" stroke="#E6EDF2"/>`;
+    s+=`<line x1="${ml}" y1="${py(v)}" x2="${W-mr}" y2="${py(v)}" stroke="#E6EDF2"/>`;
+    s+=`<text x="${px(v)}" y="${H-mb+16}" font-size="10" fill="#5A6E7C" text-anchor="middle">${v}</text>`;
+    s+=`<text x="${ml-8}" y="${py(v)+3}" font-size="10" fill="#5A6E7C" text-anchor="end">${v}</text>`;});
+  s+=`<line x1="${px(50)}" y1="${mt}" x2="${px(50)}" y2="${H-mb}" stroke="#9AAAB5" stroke-dasharray="4 4"/>`;
+  s+=`<line x1="${ml}" y1="${py(50)}" x2="${W-mr}" y2="${py(50)}" stroke="#9AAAB5" stroke-dasharray="4 4"/>`;
+  const q=[[75,92,'APOSTAR — mover ya'],[25,92,'CONSTRUIR CAPACIDAD'],[75,10,'EJECUTAR RÁPIDO / BAJO RIESGO'],[25,10,'DESCARTAR O VIGILAR']];
+  q.forEach(([x,y,t])=>s+=`<text x="${px(x)}" y="${py(y)}" font-size="10" font-weight="700" fill="#9AAAB5" text-anchor="middle" letter-spacing="1">${t}</text>`);
+  const maxP=Math.max(...rows.map(r=>r.prize))||1;
+  // etiquetas: sólo las que no chocan, priorizando índice alto (greedy)
+  const taken=[], labels=[];
+  const byScore=[...rows].sort((a,b)=>b.idx-a.idx);
+  const fits=(x,y,w)=>!taken.some(t=>Math.abs(t.y-y)<11 && Math.abs(t.x-x)<(t.w+w)/2+6);
+  rows.forEach(r=>{
+    const rad = 6+22*Math.sqrt(r.prize/maxP);
+    const col = r.isCore?'#0A2F45':scoreColor(r.idx);
+    s+=`<g class="hex" onclick="select('${r.k}')"><title>${esc(r.c.n)}
+Atractivo ${Math.round(r.A)} · Factibilidad ${Math.round(r.F)} · Índice ${Math.round(r.idx)}
+TAM ${usd(r.tam)} · premio año 5 ≈ ${usd(r.prize)}</title>
+      <circle cx="${px(r.F)}" cy="${py(r.A)}" r="${rad}" fill="${col}" fill-opacity="${r.isCore?.30:.80}" stroke="#fff" stroke-width="1.5"/></g>`;
+  });
+  byScore.forEach(r=>{
+    const rad = 6+22*Math.sqrt(r.prize/maxP);
+    const t = shortName(r.c.n); const w=t.length*5.1;
+    const x=px(r.F), y=py(r.A)-rad-5;
+    if(!fits(x,y,w)) return;
+    taken.push({x,y,w});
+    labels.push(`<text x="${x}" y="${y}" font-size="9.5" fill="${r.isCore?'#5A6E7C':'#0B1B26'}" text-anchor="middle" pointer-events="none">${esc(t)}</text>`);
+  });
+  s+=labels.join('');
+  s+=`<text x="${ml+(W-ml-mr)/2}" y="${H-12}" font-size="11" font-weight="600" text-anchor="middle">Factibilidad — derecho a ganar (adyacencia + capacidades − capital)</text>`;
+  s+=`<text transform="rotate(-90 16 ${mt+(H-mb-mt)/2})" x="16" y="${mt+(H-mb-mt)/2}" font-size="11" font-weight="600" text-anchor="middle">Atractivo del mercado (TAM + crecimiento + margen + fragmentación)</text>`;
+  s+=`</svg><div class="note" style="margin-top:8px">Tamaño de burbuja = premio potencial (ventas alcanzables al año 5). Burbujas translúcidas = core actual.</div></div>`;
+  document.getElementById('matrixWrap').innerHTML=s;
+}
+
+/* ---- 4.3 RANKING ---- */
+const RANKCOLS=[['n','Categoría',''],['fam','Familia',''],['tam','TAM',1],['cagr','CAGR',1],
+ ['ebit','EBIT',1],['hhi','HHI',1],['prox','Adyac.',1],['fit','Fit cap.',1],
+ ['A','Atractivo',1],['F','Factib.',1],['score','Índice',1],['reach','Share alc.',1],
+ ['prize','Premio a5',1],['ebitP','EBIT a5',1],['entry','Modo de entrada','']];
+function renderRank(){
+  const rows=[...activeRows()];
+  const key=ST.sortRank, d=ST.sortDir;
+  const val=(r,k)=>({n:r.c.n,fam:r.c.f,tam:r.tam,cagr:r.c.cagr,ebit:r.c.ebit,hhi:r.c.hhi,
+    prox:r.prox,fit:r.fit,A:r.A,F:r.F,score:r.score,reach:r.reach,prize:r.prize,ebitP:r.ebitP,entry:r.entry.m}[k]);
+  rows.sort((a,b)=>{const x=val(a,key),y=val(b,key);
+    return typeof x==='string'? d*x.localeCompare(y) : d*(x-y);});
+  const maxP=Math.max(...rows.map(r=>r.prize))||1;
+  let h=`<thead><tr>${RANKCOLS.map(([k,l,n])=>
+    `<th class="${n?'num':''}" onclick="sortRank('${k}')">${l}${ST.sortRank===k?(ST.sortDir<0?' ▾':' ▴'):''}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(r=>{
+    h+=`<tr onclick="select('${r.k}')">
+      <td><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:${famColor(r.c.f)};margin-right:6px"></span>${esc(r.c.n)}${r.isCore?' <span class="pill" style="background:var(--deep);color:#fff">CORE</span>':''}</td>
+      <td style="color:var(--mut)">${esc(r.c.f)}</td>
+      <td class="num mono">${usd(r.tam)}</td>
+      <td class="num mono">${r.c.cagr.toFixed(1)}%</td>
+      <td class="num mono">${r.c.ebit}%</td>
+      <td class="num mono">${r.c.hhi.toFixed(2)}</td>
+      <td class="num mono">${(r.prox*100).toFixed(0)}</td>
+      <td class="num mono">${(r.fit*100).toFixed(0)}</td>
+      <td class="num mono">${Math.round(r.A)}</td>
+      <td class="num mono">${Math.round(r.F)}</td>
+      <td class="num"><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+        <div class="bar" style="width:52px"><i style="width:${r.idx}%;background:${scoreColor(r.idx)}"></i></div>
+        <b class="mono">${Math.round(r.idx)}</b></div></td>
+      <td class="num mono">${(r.reach*100).toFixed(1)}%</td>
+      <td class="num mono">${usd(r.prize)}</td>
+      <td class="num mono">${usd(r.ebitP)}</td>
+      <td style="font-size:11.5px;color:var(--mut)">${esc(r.entry.m)}</td></tr>`;
+  });
+  document.getElementById('rankTbl').innerHTML=h+'</tbody>';
+  document.getElementById('rankTitle').textContent =
+    `Ranking de adyacencias — ${COS[ST.company]?COS[ST.company].n:''} · ${REGIONS[ST.region].n} · ${rows.length} categorías`;
+}
+function sortRank(k){ ST.sortDir = ST.sortRank===k? -ST.sortDir : -1; ST.sortRank=k; renderRank(); }
+
+/* ---- 4.4 WHITE SPACE ---- */
+function renderWhite(){
+  const peers=R.peerIds;
+  const rows=activeRows().filter(r=>!r.isCore)
+    .map(r=>({...r, gapN:r.inCat.length}))
+    .sort((a,b)=>b.gapN-a.gapN || b.score-a.score).slice(0,30);
+  const cols = peers.map(p=>({id:p,n:COS[p].n,c:COS[p].cats.filter(x=>CATS[x]).length}))
+    .sort((a,b)=>b.c-a.c).slice(0,16);
+  let h=`<thead><tr><th>Categoría</th><th class="num">Peers ahí</th>`+
+    cols.map(c=>`<th style="writing-mode:vertical-rl;transform:rotate(180deg);height:112px;font-size:9.5px;padding:4px">${esc(c.n)}</th>`).join('')+
+    `<th class="num">Índice</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    h+=`<tr onclick="select('${r.k}')"><td>${esc(r.c.n)}</td>
+      <td class="num mono"><b>${r.inCat.length}</b><span style="color:var(--mut)">/${peers.length}</span></td>`;
+    cols.forEach(c=>{ const on=COS[c.id].cats.includes(r.k);
+      h+=`<td style="text-align:center;padding:4px;background:${on?scoreColor(60):'#fff'}">${on?'<span style="color:#fff;font-size:10px">●</span>':'<span style="color:#DCE5EB">·</span>'}</td>`;});
+    h+=`<td class="num mono"><b>${Math.round(r.idx)}</b></td></tr>`;
+  });
+  document.getElementById('whiteTbl').innerHTML=h+'</tbody>';
+}
+
+/* ---- 4.5 COMPETENCIA ---- */
+function renderComp(){
+  const rows=activeRows().slice(0,12);
+  let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px">';
+  rows.forEach(r=>{
+    const sh=sharesFor(r.k);
+    h+=`<div class="card"><h3 style="display:flex;justify-content:space-between"><span>${esc(r.c.n)}</span>
+      <span class="mono" style="color:var(--mut);font-weight:400">${usd(r.tam)}</span></h3><div style="padding:12px 14px">`;
+    if(sh.list.length){
+      const top=sh.list.slice(0,6), other=Math.max(0,100-sh.list.reduce((a,b)=>a+b[1],0));
+      top.forEach(([id,v,cf])=>{ const mine=id===ST.company;
+        h+=`<div class="mrow"><span class="nm" style="${mine?'font-weight:700':''}">${esc(COS[id]?COS[id].n:id)}${mine?' (tú)':''}
+          <span class="conf" style="background:${cf==='A'?'#3CB878':cf==='B'?'#F2AF00':'#D9E1E8'}" title="Confianza ${cf}"></span></span>
+          <div class="bar"><i style="width:${Math.min(100,v)}%;background:${mine?'var(--deep)':famColor(r.c.f)}"></i></div>
+          <span class="vl mono">${v}%</span></div>`;});
+      if(other>2) h+=`<div class="mrow"><span class="nm" style="color:var(--mut)">Otros</span>
+        <div class="bar"><i style="width:${other}%;background:#DCE5EB"></i></div><span class="vl mono">${Math.round(other)}%</span></div>`;
+      h+=`<div class="note" style="margin-top:7px">HHI ${r.c.hhi.toFixed(2)} · ${r.c.hhi>.45?'concentrado':r.c.hhi>.25?'moderado':'fragmentado'} · fuente ${sh.src}</div>`;
+    } else {
+      h+=`<div class="note">Sin participaciones estimadas para esta geografía. Jugadores presentes:</div>
+        <div class="tagline" style="margin-top:6px">${Object.keys(COS).filter(id=>COS[id].cats.includes(r.k)&&coInRegion(id,ST.region))
+          .slice(0,10).map(id=>`<span class="tag${id===ST.company?' on':''}">${esc(COS[id].n)}</span>`).join('')||'<span class="note">—</span>'}</div>`;
+    }
+    h+=`</div></div>`;
+  });
+  document.getElementById('compWrap').innerHTML=h+'</div>';
+}
+function sharesFor(k){
+  const S=SHARES[k]; if(!S) return {list:[],src:'—'};
+  if(S[ST.region]) return {list:S[ST.region], src:REGIONS[ST.region].n};
+  if(ST.region!=='WORLD'&&ST.region!=='LATAM'&&S.LATAM) return {list:S.LATAM, src:'proxy LATAM'};
+  if(S.LATAM) return {list:S.LATAM, src:'LATAM'};
+  return {list:[],src:'—'};
+}
+
+/* ---- 4.6 PANEL DE DETALLE ---- */
+function select(k){ ST.sel=k; document.getElementById('detail').classList.add('on');
+  renderDetail(k); renderHive(); }
+function closeDetail(){ ST.sel=null; document.getElementById('detail').classList.remove('on'); renderHive(); }
+
+function renderDetail(k){
+  const r=R.rows.find(x=>x.k===k); if(!r) return;
+  const sh=sharesFor(k);
+  const leader = sh.list.length? sh.list[0] : null;
+  const peersIn = r.inCat.map(p=>COS[p].n);
+  const myShare = sh.list.find(x=>x[0]===ST.company);
+  let h=`<div class="dh"><button class="cl" onclick="closeDetail()">×</button>
+    <div class="fam">${esc(r.c.f)} · ${REGIONS[ST.region].n}</div>
+    <h2>${esc(r.c.n)}</h2>
+    <div style="font-size:11.5px;color:#8FB4C9">${r.isCore?'Categoría del core actual':'Adyacencia — '+(r.prox>=.42?'cercana':r.prox>=.20?'media':'lejana')}</div></div>`;
+
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="k">Tamaño de mercado</div><div class="v">${usd(r.tam)}</div><div class="n">valor retail, ${REGIONS[ST.region].n}</div></div>
+    <div class="kpi"><div class="k">Crecimiento</div><div class="v">${r.c.cagr.toFixed(1)}%</div><div class="n">CAGR a 5 años</div></div>
+    <div class="kpi"><div class="k">Margen EBIT típico</div><div class="v">${r.c.ebit}%</div><div class="n">benchmark de categoría</div></div>
+    <div class="kpi"><div class="k">Concentración</div><div class="v">${r.c.hhi.toFixed(2)}</div><div class="n">${r.c.hhi>.45?'concentrado':r.c.hhi>.25?'moderado':'fragmentado'}</div></div>
+  </div>`;
+
+  h+=`<section><h4>Veredicto</h4>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+      <div style="flex:1"><div class="k" style="font-size:10px;color:var(--mut)">ATRACTIVO</div>
+        <div class="bar" style="margin-top:3px"><i style="width:${r.A}%;background:var(--cyan)"></i></div>
+        <div class="mono" style="font-size:11px">${Math.round(r.A)}/100</div></div>
+      <div style="flex:1"><div class="k" style="font-size:10px;color:var(--mut)">FACTIBILIDAD</div>
+        <div class="bar" style="margin-top:3px"><i style="width:${r.F}%;background:var(--teal)"></i></div>
+        <div class="mono" style="font-size:11px">${Math.round(r.F)}/100</div></div>
+      <div style="flex:0 0 62px;text-align:center;background:${scoreColor(r.idx)};color:${textOn(r.idx)};border-radius:4px;padding:7px 0">
+        <div style="font-size:19px;font-weight:600" class="mono">${Math.round(r.idx)}</div>
+        <div style="font-size:9px;letter-spacing:.06em">ÍNDICE</div></div>
+    </div>
+    <div style="background:#F4F7F9;border-left:3px solid var(--blue);padding:9px 11px;border-radius:3px">
+      <b style="font-size:12px">${esc(r.entry.m)}</b>
+      <div class="note" style="margin-top:3px">${esc(r.entry.d)}</div></div></section>`;
+
+  h+=`<section><h4>Premio potencial</h4>
+    <div class="note" style="margin-bottom:8px">Share alcanzable estimado <b>${(r.reach*100).toFixed(1)}%</b> — función de tu factibilidad
+      (${Math.round(r.F)}) y de qué tan fragmentada está la categoría.</div>
+    <div class="kpis" style="border:1px solid var(--line)">
+      <div class="kpi"><div class="k">Ventas año 5</div><div class="v">${usd(r.prize)}</div><div class="n">sobre TAM ${usd(r.tam5)}</div></div>
+      <div class="kpi"><div class="k">EBIT año 5</div><div class="v">${usd(r.ebitP)}</div><div class="n">al margen de categoría</div></div>
+    </div>${myShare?`<div class="note" style="margin-top:7px">Ya tienes <b>${myShare[1]}%</b> aquí — el premio es incremental sobre esa base.</div>`:''}
+    </section>`;
+
+  h+=`<section><h4>Competencia y participación</h4>`;
+  if(sh.list.length){
+    const other=Math.max(0,100-sh.list.reduce((a,b)=>a+b[1],0));
+    sh.list.slice(0,7).forEach(([id,v,cf])=>{ const mine=id===ST.company;
+      h+=`<div class="mrow"><span class="nm" style="${mine?'font-weight:700':''}">${esc(COS[id]?COS[id].n:id)}${mine?' (tú)':''}
+        <span class="conf" style="background:${cf==='A'?'#3CB878':cf==='B'?'#F2AF00':'#D9E1E8'}"></span></span>
+        <div class="bar"><i style="width:${Math.min(100,v)}%;background:${mine?'var(--deep)':famColor(r.c.f)}"></i></div>
+        <span class="vl mono">${v}%</span></div>`;});
+    if(other>2)h+=`<div class="mrow"><span class="nm" style="color:var(--mut)">Otros</span>
+      <div class="bar"><i style="width:${other}%;background:#DCE5EB"></i></div><span class="vl mono">${Math.round(other)}%</span></div>`;
+    h+=`<div class="note" style="margin-top:7px">Fuente: ${sh.src}. <span class="conf" style="background:#3CB878"></span> dato público
+      · <span class="conf" style="background:#F2AF00"></span> triangulado · <span class="conf" style="background:#D9E1E8"></span> directional.
+      ${leader?`Líder: <b>${esc(COS[leader[0]]?COS[leader[0]].n:leader[0])}</b> con ${leader[1]}%.`:''}</div>`;
+  } else {
+    h+=`<div class="note">Sin estimación de share para esta geografía. Jugadores identificados:</div>
+      <div class="tagline" style="margin-top:6px">${Object.keys(COS).filter(id=>COS[id].cats.includes(k)&&coInRegion(id,ST.region))
+        .map(id=>`<span class="tag${id===ST.company?' on':''}">${esc(COS[id].n)}</span>`).join('')||'—'}</div>`;
+  }
+  h+=`</section>`;
+
+  h+=`<section><h4>Por qué es adyacente</h4>
+    <div class="note" style="margin-bottom:8px">Adyacencia revelada <b>${(r.prox*100).toFixed(0)}/100</b> —
+      <b>${r.inCat.length} de ${R.nPeers}</b> peers de tu set ya juegan en esta categoría.</div>
+    <div class="tagline">${peersIn.slice(0,14).map(n=>`<span class="tag">${esc(n)}</span>`).join('')||'<span class="note">Ningún peer está aquí — es un movimiento sin precedente en tu grupo comparable.</span>'}</div>
+    <div class="note" style="margin-top:9px">Puentes desde tu core:</div>
+    ${ST.core.map(c=>({c,v:(R.M[k]&&R.M[k][c])||0})).sort((a,b)=>b.v-a.v).slice(0,4).map(x=>
+      `<div class="gap"><span class="nm">${esc(CATS[x.c].n)}</span>
+        <div class="gapbar"><i style="width:${Math.min(100,x.v*160)}%;background:var(--blue)"></i></div>
+        <span class="mono" style="width:30px;text-align:right">${(x.v*100).toFixed(0)}</span></div>`).join('')}
+    </section>`;
+
+  const need=r.c.caps||{};
+  h+=`<section><h4>Capacidades — fit ${(r.fit*100).toFixed(0)}%</h4>
+    ${Object.keys(need).sort((a,b)=>need[b]-need[a]).map(c=>{
+      const hv=R.have[c]||0, nd=need[c], g=Math.max(0,nd-hv);
+      return `<div class="gap"><span class="nm">${esc(CAPS[c]||c)}</span>
+        <div class="gapbar">
+          <i style="width:${nd*100}%;background:#DCE5EB"></i>
+          <i style="width:${Math.min(hv,nd)*100}%;background:${g>.3?'var(--amber)':'var(--teal)'}"></i>
+        </div><span class="mono" style="width:38px;text-align:right;color:${g>.3?'var(--orange)':'var(--mut)'}">${g>.05?'−'+(g*100).toFixed(0):'ok'}</span></div>`;
+    }).join('')}
+    ${r.gaps.length?`<div class="note" style="margin-top:8px">Brecha principal: <b>${esc(CAPS[r.gaps[0].c]||r.gaps[0].c)}</b>.
+      Es lo que tendrías que comprar, construir o tercerizar.</div>`:
+      `<div class="note" style="margin-top:8px">Sin brechas de capacidad relevantes — el sistema de negocio actual cubre esta categoría.</div>`}
+    </section>`;
+
+  h+=`<section><h4>Preguntas para validar</h4><div class="note">
+    1. ¿El consumidor te da permiso de marca en <b>${esc(r.c.n.toLowerCase())}</b>, o necesitas una marca nueva?<br>
+    2. ¿Tu fuerza de venta y tus clientes clave (top 3 cadenas) te abren espacio de góndola?<br>
+    3. ${r.c.hhi>.45?`El líder tiene ${leader?leader[1]:'>40'}% — ¿qué te hace pensar que no responde con precio?`:'Categoría fragmentada — ¿cuál es el activo local que compras en vez de construir?'}<br>
+    4. ¿Cuál es el capital y el punto de equilibrio en volumen? (intensidad de capex ${(r.c.capex*100).toFixed(0)}/100)<br>
+    5. ¿Qué peer ya lo intentó y con qué resultado?</div></section>`;
+
+  document.getElementById('detailIn').innerHTML=h;
+}
+
+/* ==========================================================================
+   5. UI
+   ========================================================================== */
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2200); }
+
+function fillSelects(){
+  const cs=document.getElementById('company');
+  cs.innerHTML=Object.keys(COS).sort((a,b)=>COS[a].n.localeCompare(COS[b].n))
+    .map(id=>`<option value="${id}"${id===ST.company?' selected':''}>${esc(COS[id].n)}</option>`).join('');
+  const ac=document.getElementById('addCat');
+  ac.innerHTML=Object.keys(CATS).sort((a,b)=>CATS[a].n.localeCompare(CATS[b].n))
+    .map(k=>`<option value="${k}">${esc(CATS[k].n)}</option>`).join('');
+}
+function onCompany(){
+  ST.company=document.getElementById('company').value;
+  ST.core=[...(COS[ST.company].cats||[])].filter(c=>CATS[c]);
+  ST.sel=null; closeDetail(); run();
+}
+function addCore(){ const k=document.getElementById('addCat').value;
+  if(!ST.core.includes(k)) ST.core.push(k); run(); }
+function delCore(k){ ST.core=ST.core.filter(x=>x!==k); run(); }
+function togglePeer(id){ ST.peers.includes(id)? ST.peers=ST.peers.filter(x=>x!==id) : ST.peers.push(id);
+  document.getElementById('peerMode').value='manual'; run(); }
+function toggleFam(f){ ST.famOff[f]=!ST.famOff[f]; run(); }
+
+function renderChips(){
+  document.getElementById('coreChips').innerHTML = ST.core.length?
+    ST.core.map(k=>`<span class="chip core">${esc(CATS[k].n)}<span class="x" onclick="delCore('${k}')">×</span></span>`).join('')
+    : '<span class="note">Sin categorías core — selecciona una compañía o añade categorías.</span>';
+  const co=COS[ST.company];
+  document.getElementById('coHint').innerHTML = co?
+    `${esc(co.hq)} · ingresos ≈ ${usd(co.rev)} · ${co.cats.length} categorías · presente en ${co.geo.join(', ')}`:'';
+  const mode=document.getElementById('peerMode').value;
+  const el=document.getElementById('peerChips');
+  if(mode==='manual'){
+    el.innerHTML=Object.keys(COS).filter(id=>id!==ST.company)
+      .sort((a,b)=>COS[a].n.localeCompare(COS[b].n))
+      .map(id=>`<span class="chip${ST.peers.includes(id)?' core':''}" onclick="togglePeer('${id}')">${esc(COS[id].n)}</span>`).join('');
+  } else {
+    el.innerHTML=(R.peerIds||[]).slice(0,24).map(id=>`<span class="chip" onclick="togglePeer('${id}')">${esc(COS[id].n)}</span>`).join('');
+  }
+  document.getElementById('peerHint').textContent =
+    `${R.nPeers||0} peers definen el espacio de adyacencias. Haz clic en un peer para pasar a selección manual.`;
+  const fams=[...new Set(Object.values(CATS).map(c=>c.f))].sort();
+  document.getElementById('famChips').innerHTML=fams.map(f=>
+    `<span class="chip${ST.famOff[f]?'':' core'}" style="border-left:3px solid ${famColor(f)}" onclick="toggleFam('${esc(f)}')">${esc(f)}</span>`).join('');
+}
+
+function setView(v){ ST.view=v;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
+  document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v)); }
+
+function resetW(){ const d={wBal:50,wTam:35,wCagr:30,wMgn:20,wFrag:15,wProx:50,wFit:35,wCapex:15};
+  Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]); run(); }
+
+function addCategory(){
+  const n=document.getElementById('ncName').value.trim(); if(!n) return toast('Falta el nombre');
+  const f=document.getElementById('ncFam').value.trim()||'Nueva familia';
+  const tamReg=+document.getElementById('ncTam').value||500;
+  const id='u_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,24);
+  CATS[id]={n,f,tam:tamReg/regionCats(),cagr:+document.getElementById('ncCagr').value||4,
+    ebit:+document.getElementById('ncEbit').value||12,hhi:.25,capex:.45,caps:{marca:.6,dts:.5}};
+  fillSelects(); toast('Categoría creada: '+n); run();
+}
+function addCompany(){
+  const n=document.getElementById('ncoName').value.trim(); if(!n) return toast('Falta el nombre');
+  const id='u_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,24);
+  COS[id]={n,hq:'—',rev:0,geo:['CL','LATAM'],cats:[]};
+  fillSelects(); document.getElementById('company').value=id; onCompany(); toast('Compañía creada: '+n);
+}
+
+/* ---- modales ---- */
+function openModal(t,b,f){ document.getElementById('mTitle').textContent=t;
+  document.getElementById('mBody').innerHTML=b; document.getElementById('mFoot').innerHTML=f||
+  '<button class="btn" onclick="closeModal()">Cerrar</button>'; document.getElementById('modal').classList.add('on'); }
+function closeModal(){ document.getElementById('modal').classList.remove('on'); }
+
+function openMethod(){
+  openModal('Metodología', `
+  <p style="margin-top:0"><b>El problema.</b> Bain documentó que solo <b>1 de cada 4</b> movimientos de adyacencia
+  tiene éxito, y que las compañías con una fórmula repetible duplican esa tasa y crecen 3× más rápido.
+  Esta herramienta impone esa disciplina: en vez de un brainstorm, una parrilla comparable de todas las adyacencias posibles.</p>
+
+  <h4 style="margin:14px 0 6px">1 · Adyacencia revelada (el motor)</h4>
+  <p>Tomado del <i>product space</i> de Hidalgo &amp; Hausmann: si las compañías parecidas a ti que hacen A también hacen B,
+  entonces A y B comparten capacidades latentes y B es una adyacencia natural.<br>
+  <code>prox(A,B) = mín( P(A|B), P(B|A) )</code> sobre el set de peers.<br>
+  Es el mismo principio con el que se predice qué producto exportará un país. No opina: mide lo que el mercado ya hizo.</p>
+
+  <h4 style="margin:14px 0 6px">2 · Fit de capacidades</h4>
+  <p>Cada categoría exige un vector de 12 capacidades (horneo, confitería, cadena de frío, química, marca masiva,
+  distribución directa…). Tu portafolio genera el vector que <i>ya tienes</i> (máximo sobre tus categorías core).
+  El fit penaliza cada brecha ponderada por lo crítica que es en la categoría destino. El resultado no es solo un número:
+  te dice <b>qué capacidad concreta te falta comprar, construir o tercerizar</b>.</p>
+
+  <h4 style="margin:14px 0 6px">3 · Atractivo del mercado</h4>
+  <p>TAM (escala logarítmica), CAGR, margen EBIT típico y fragmentación (1−HHI). La fragmentación entra positiva a propósito:
+  un mercado grande con un líder de 70% es una trampa, no una oportunidad.</p>
+
+  <h4 style="margin:14px 0 6px">4 · Índice de prioridad</h4>
+  <p>Media geométrica ponderada de atractivo y factibilidad. Geométrica y no aritmética porque un cero en factibilidad
+  debe matar la idea, por atractivo que sea el mercado.</p>
+
+  <h4 style="margin:14px 0 6px">5 · Premio</h4>
+  <p>Share alcanzable = 1,5% + 16% × factibilidad × fragmentación (tope 22%). Se aplica al TAM proyectado a 5 años
+  y al margen de la categoría. Es un orden de magnitud para separar movimientos de US$50MM de los de US$5MM,
+  no un caso de negocio.</p>
+
+  <h4 style="margin:14px 0 6px">6 · Modo de entrada</h4>
+  <p>Se deriva de factibilidad, intensidad de capital y concentración: extensión de marca, capex dedicado,
+  M&amp;A bolt-on, licencia, JV o simplemente vigilar.</p>
+
+  <div class="warn" style="margin-top:14px"><b>Limitaciones que debes declarar en cualquier discusión.</b>
+  Los TAM y shares son estimaciones directionales de fuentes públicas y benchmarks, no data sindicada.
+  El modelo no ve: barreras regulatorias específicas, contratos de exclusividad, capacidad instalada ociosa,
+  disponibilidad real de targets de M&amp;A, ni la capacidad de ejecución de tu equipo. Úsalo para reducir 60 opciones
+  a 5, y luego haz el trabajo de verdad sobre esas 5.</div>`);
+}
+
+function openResearch(){
+  const co=COS[ST.company];
+  const p=`Necesito data de mercado para un análisis de adyacencias comerciales.
+
+COMPAÑÍA: ${co?co.n:'[nombre]'}
+GEOGRAFÍA: ${REGIONS[ST.region].n}
+CORE ACTUAL: ${ST.core.map(k=>CATS[k].n).join(', ')||'[categorías]'}
+
+Busca en internet y devuélveme SOLO un bloque JSON con este esquema exacto (sin texto alrededor):
+
+{
+  "categories": {
+    "id_categoria": {
+      "n": "Nombre de la categoría",
+      "f": "Familia",
+      "tam": <tamaño de mercado en ${REGIONS[ST.region].n} en US$ MM, valor retail>,
+      "cagr": <CAGR % a 5 años>,
+      "ebit": <margen EBIT típico %>,
+      "hhi": <0 a 1, concentración: 0.1 muy fragmentado, 0.7 duopolio>,
+      "capex": <0 a 1, intensidad de capital>,
+      "caps": {"horneo":0-1,"confit":0-1,"fritura":0-1,"lacteo":0-1,"liquidos":0-1,"molienda":0-1,"carnico":0-1,"quimica":0-1,"papel":0-1,"marca":0-1,"frio":0-1,"dts":0-1}
+    }
+  },
+  "companies": {
+    "id_empresa": {"n":"Nombre","hq":"CL","rev":<ingresos US$ MM>,"geo":["CL","PE"],"cats":["id_categoria", "..."]}
+  },
+  "shares": {
+    "id_categoria": {"${ST.region}": [["id_empresa", <share %>, "A|B|C"], ...]}
+  },
+  "regionFactor": <si "tam" está en una región distinta a LATAM, el factor vs LATAM>
+}
+
+Reglas:
+- 15 a 30 competidores relevantes en la geografía, incluyendo los globales que compiten ahí.
+- Para cada competidor, TODAS las categorías en que juega (eso es lo que genera las adyacencias).
+- Marca cada share con confianza: A = fuente pública reciente, B = triangulado, C = estimación directional.
+- Cita las fuentes al final, fuera del JSON.`;
+  openModal('Investigar una industria nueva', `
+    <p style="margin-top:0">Esta herramienta corre offline sobre una base curada de CPG LATAM. Para traer una industria o
+    geografía que no está aquí, copia este prompt, pégalo en Claude/ChatGPT con acceso web, y luego trae el JSON de vuelta
+    con <b>Importar datos</b>.</p>
+    <textarea id="rsp" rows="20" style="font-size:10.5px">${esc(p)}</textarea>`,
+    `<button class="btn" onclick="copyIt('rsp')">Copiar prompt</button><button class="btn dark" onclick="closeModal()">Listo</button>`);
+}
+function copyIt(id){ const t=document.getElementById(id); t.select();
+  navigator.clipboard.writeText(t.value).then(()=>toast('Copiado al portapapeles'),()=>toast('Selecciona y copia manualmente')); }
+
+function openImport(){
+  openModal('Importar datos', `
+    <p style="margin-top:0">Pega el JSON generado por la investigación (o un export previo de esta herramienta).
+    Se fusiona con la base existente: lo nuevo se agrega, lo repetido se sobrescribe.</p>
+    <textarea id="imp" rows="16" placeholder='{"categories":{...},"companies":{...},"shares":{...}}'></textarea>
+    <div class="warn" style="margin-top:10px">Si el JSON trae <code>regionFactor</code>, los TAM se reescalan a base LATAM automáticamente.</div>`,
+    `<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn dark" onclick="doImport()">Importar</button>`);
+}
+function doImport(){
+  let raw=document.getElementById('imp').value.trim();
+  const m=raw.match(/\{[\s\S]*\}/); if(m) raw=m[0];
+  let d; try{ d=JSON.parse(raw); }catch(e){ return toast('JSON inválido: '+e.message); }
+  const f = d.regionFactor || 1;
+  let nc=0, nco=0;
+  if(d.categories) Object.entries(d.categories).forEach(([k,v])=>{
+    CATS[k]={n:v.n||k, f:v.f||'Importado', tam:(v.tam||500)/f, cagr:v.cagr??4, ebit:v.ebit??12,
+      hhi:v.hhi??.25, capex:v.capex??.45, caps:v.caps||{marca:.6,dts:.5}}; nc++; });
+  if(d.companies) Object.entries(d.companies).forEach(([k,v])=>{
+    COS[k]={n:v.n||k, hq:v.hq||'—', rev:v.rev||0, geo:v.geo||['LATAM'],
+      cats:(v.cats||[]).filter(c=>CATS[c])}; nco++; });
+  if(d.shares) Object.entries(d.shares).forEach(([k,v])=>{ SHARES[k]=Object.assign(SHARES[k]||{}, v); });
+  if(d.state){ ST.company=d.state.company||ST.company; ST.core=d.state.core||ST.core;
+    ST.region=d.state.region||ST.region; document.getElementById('region').value=ST.region; }
+  fillSelects(); document.getElementById('company').value=ST.company;
+  closeModal(); toast(`Importado: ${nc} categorías, ${nco} compañías`); run();
+}
+
+function exportJSON(){
+  const cats={}; Object.entries(CATS).forEach(([k,v])=>cats[k]={...v});
+  const d={categories:cats, companies:COS, shares:SHARES,
+    state:{company:ST.company,core:ST.core,region:ST.region},
+    results:R.rows.map(r=>({categoria:r.c.n,familia:r.c.f,region:REGIONS[ST.region].n,
+      tam_mm:Math.round(r.tam),cagr:r.c.cagr,ebit:r.c.ebit,hhi:r.c.hhi,
+      adyacencia:+(r.prox*100).toFixed(0),fit_capacidades:+(r.fit*100).toFixed(0),
+      atractivo:Math.round(r.A),factibilidad:Math.round(r.F),indice:Math.round(r.idx),
+      share_alcanzable:+(r.reach*100).toFixed(1),ventas_a5_mm:Math.round(r.prize),
+      ebit_a5_mm:Math.round(r.ebitP),modo_entrada:r.entry.m,es_core:r.isCore,
+      peers_presentes:r.inCat.map(p=>COS[p].n)})),
+    exportado:new Date().toISOString()};
+  dl(JSON.stringify(d,null,2),'adyacencias_'+ST.company+'_'+ST.region+'.json','application/json');
+  // CSV además
+  const cols=['categoria','familia','tam_mm','cagr','ebit','hhi','adyacencia','fit_capacidades',
+    'atractivo','factibilidad','indice','share_alcanzable','ventas_a5_mm','ebit_a5_mm','modo_entrada','es_core'];
+  const csv=[cols.join(';')].concat(d.results.map(r=>cols.map(c=>r[c]).join(';'))).join('\n');
+  setTimeout(()=>dl('﻿'+csv,'adyacencias_'+ST.company+'_'+ST.region+'.csv','text/csv'),300);
+  toast('Exportado JSON + CSV');
+}
+function dl(txt,name,type){ const b=new Blob([txt],{type}); const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeDetail(); }});
+
+/* ---- boot ---- */
+fillSelects();
+ST.core=[...COS[ST.company].cats];
+run();
+</script>
