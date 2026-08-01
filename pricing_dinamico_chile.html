@@ -315,8 +315,17 @@
 <!-- ============ D. INFORME ============ -->
 <div class="panel" id="p-informe">
 
+<div class="card" id="informe-vacio">
+  <h2>Elige un producto primero</h2>
+  <div class="aviso">Este informe analiza <b>un SKU concreto</b>: su posición frente a cada cadena, el espacio que tienes
+  para mover el precio y qué pasa si lo mueves. Ve a <b>Buscador de SKU</b>, busca un producto y elige la variante en el
+  desplegable. Todo lo de esta pestaña se recalcula sobre ese producto.</div>
+  <div class="foot">Más abajo sí verás el índice de precios por categoría y la cobertura de la captura diaria, que no
+  dependen del SKU que elijas.</div>
+</div>
+
 <!-- ============ 1. SÍNTESIS ============ -->
-<div class="card">
+<div class="card sku-dep">
   <h2>Síntesis ejecutiva</h2>
   <div class="note">Posición competitiva del SKU foco medida a <b>precio efectivo por litro</b>, no a precio de góndola.</div>
   <div class="kpis" id="kpis"></div>
@@ -329,7 +338,7 @@
 </div>
 
 <!-- ============ 2. LISTA VS EFECTIVO ============ -->
-<div class="card">
+<div class="card sku-dep">
   <div class="two">
     <div>
       <h2 id="t-dumbbell">—</h2>
@@ -346,7 +355,7 @@
 </div>
 
 <!-- ============ 3. ESCALERA ============ -->
-<div class="card">
+<div class="card sku-dep">
   <h2>Escalera de precios: dónde queda el SKU dentro del set competitivo</h2>
   <div class="note">Normalizado a <b>$/litro efectivo</b> para comparar formatos distintos (0,5 L a 3 L y packs) en una sola escala. La barra destacada es el SKU foco.</div>
   <svg id="svg-ladder" viewBox="0 0 820 560"></svg>
@@ -354,7 +363,7 @@
 </div>
 
 <!-- ============ 4. ELASTICIDAD ============ -->
-<div class="card">
+<div class="card sku-dep">
   <div class="two">
     <div>
       <h2>Cuánto espacio hay para mover el precio</h2>
@@ -403,7 +412,7 @@
 </div>
 
 <!-- ============ 5. TABLA ============ -->
-<div class="card">
+<div class="card sku-dep">
   <h2>Set competitivo capturado</h2>
   <div class="note" id="note-tabla">—</div>
   <div style="overflow-x:auto"><table id="tabla"></table></div>
@@ -489,9 +498,14 @@ function inversionFormato(){
 
 /* ================= 1. SINTESIS ================= */
 function pintarSintesis(){
-$("h-title").textContent = SKU_FOCO + " — posición competitiva y espacio de pricing";
-$("h-sub").innerHTML = "Captura en vivo <b>" + META.capturado + "</b> · " +
-  listaEs(META.retailers_auto) + " · <b>" + META.n_skus + "</b> SKUs del set competitivo";
+$("h-title").textContent = SKU_ELEGIDO
+  ? SKU_FOCO + " — posición competitiva y espacio de pricing"
+  : "Pricing dinámico competitivo";
+$("h-sub").innerHTML = SKU_ELEGIDO
+  ? ("Captura en vivo <b>" + META.capturado + "</b> · " + listaEs(META.retailers_auto) +
+     " · <b>" + U.length + "</b> ofertas en el set competitivo")
+  : ("Busca un producto para analizarlo. Captura diaria al <b>" + META.capturado + "</b> · <b>" +
+     (META.n_catalogo || META.n_skus) + "</b> SKUs en " + (META.categorias ? META.categorias.length : 1) + " categorías");
 
 const precios = foco.map(f=>f.precio_por_litro);
 const spread = precios.length>1 ? (Math.max(...precios)/Math.min(...precios)-1)*100 : 0;
@@ -777,10 +791,35 @@ function fijarSku(ofertas, etiqueta, foto){
   SKU_ELEGIDO = true;
   FOTO_FOCO = foto || (foco.find(f=>f.imagen)||{}).imagen || null;
   pintarInforme();
+  alternarSecciones();
   return true;
 }
 
-pintarInforme();
+// Solo el encabezado, sin tocar las secciones que necesitan un SKU.
+function pintarSintesisEncabezado(){
+  $("h-title").textContent = SKU_ELEGIDO
+    ? SKU_FOCO + " — posición competitiva y espacio de pricing"
+    : "Pricing dinámico competitivo";
+  $("h-sub").innerHTML = SKU_ELEGIDO
+    ? ("Captura en vivo <b>" + META.capturado + "</b> · " + listaEs(META.retailers_auto) +
+       " · <b>" + U.length + "</b> ofertas en el set competitivo")
+    : ("Busca un producto para analizarlo. Captura diaria al <b>" + META.capturado + "</b> · <b>" +
+       (META.n_catalogo || META.n_skus) + "</b> SKUs en " + (META.categorias ? META.categorias.length : 1) + " categorías");
+  var caja = $("hero-img");
+  if(!SKU_ELEGIDO){ caja.innerHTML = ""; caja.style.display = "none"; }
+}
+
+/* Al cargar solo se pinta el encabezado neutro y las secciones que no
+   dependen del SKU. Antes se pintaba la captura de bebidas completa, asi que
+   la herramienta parecia ser de bebidas antes de que buscaras nada. */
+function alternarSecciones(){
+  document.querySelectorAll(".sku-dep").forEach(function(c){ c.style.display = SKU_ELEGIDO ? "" : "none"; });
+  var vacio = $("informe-vacio");
+  if(vacio) vacio.style.display = SKU_ELEGIDO ? "none" : "";
+}
+pintarSintesisEncabezado();
+alternarSecciones();
+
 document.addEventListener("pricing:datos", function(){
   const d = window.__DATOS_PRICING;
   if(d && d.ofertas && d.ofertas.length) fijarSku(d.ofertas, d.variante && d.variante.etiqueta, null);
