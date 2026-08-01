@@ -208,11 +208,48 @@
     };
   }
 
-  /* ═══════════════ MODELO COMPETITIVO (logit / Bertrand) ═══════════════ */
-  function logit(comps, beta) {
-    var att = comps.map(function (c) { return Math.exp(-beta * c.precio); });
+  /* ═══════════════ PARTICIPACION DE MERCADO ═══════════════
+     Prior nacional por cadena. Se busco en vivo y las cifras publicas NO
+     cuadran entre si: Walmart 48% (2021, Peru Retail/DF), Cencosud 33,5%
+     (2023, Humphreys) y SMU 18% (2021) suman 99,5% y no dejan espacio para
+     Tottus ni los regionales, ademas de mezclar anos y bases distintas.
+
+     Lo de abajo es un set normalizado y coherente, del orden de magnitud que
+     reportan la FNE y las memorias anuales, repartido de holding a cadena.
+     Es un SUPUESTO editable, no un dato: sirve para que el modelo no asuma
+     que todas las cadenas pesan igual, que es peor. Solo importan los pesos
+     relativos entre las cadenas presentes en el set, porque se renormalizan. */
+  var SHARE_NACIONAL = {
+    'lider': 33, 'express de lider': 4, 'acuenta': 5, 'central mayorista': 2,   // Walmart Chile
+    'santa isabel': 12, 'jumbo': 12,                                             // Cencosud
+    'unimarc': 16, 'alvi': 4, 'mayorista 10': 2,                                 // SMU
+    'tottus': 8,                                                                 // Falabella
+    'erbi': 1, 'montserrat': 1
+  };
+  function sharePrior(retailer) {
+    var r = String(retailer || '').toLowerCase();
+    var claves = Object.keys(SHARE_NACIONAL).sort(function (a, b) { return b.length - a.length; });
+    for (var i = 0; i < claves.length; i++) if (r.indexOf(claves[i]) >= 0) return SHARE_NACIONAL[claves[i]];
+    return 3;   // cadena menor o regional no listada
+  }
+
+  /* ═══════════════ MODELO COMPETITIVO (logit / Bertrand) ═══════════════
+     Modelo de atraccion: share_i = w_i·exp(-B·P_i) / sum_j w_j·exp(-B·P_j).
+     El peso w recoge todo lo que atrae al shopper y NO es precio: cobertura de
+     locales, cercania, fidelidad. Se calibra para que, a los precios
+     observados, las shares reproduzcan el prior nacional. Sin el, el modelo
+     daria que Alvi le gana a Lider por estar 2% mas barato, lo que es falso. */
+  function logit(comps, beta, pesos) {
+    var att = comps.map(function (c, i) {
+      var w = pesos ? pesos[i] : 1;
+      return w * Math.exp(-beta * c.precio);
+    });
     var tot = att.reduce(function (a, b) { return a + b; }, 0);
     return comps.map(function (c, i) { return { retailer: c.retailer, precio: c.precio, share: att[i] / tot }; });
+  }
+  // w tal que a los precios actuales las shares igualen el prior
+  function pesosDesdeShare(comps, beta, sharesPrior) {
+    return comps.map(function (c, i) { return sharesPrior[i] / Math.exp(-beta * c.precio); });
   }
   // B se calibra para que la elasticidad propia del jugador sea la triangulada
   function betaDesde(e, precio, share) {
@@ -395,6 +432,7 @@
       '<div><label>Mi costo unitario ($)</label><input type="number" id="m-c0" value="' + Math.round(pMerc * estado.costoPct) + '"></div>' +
       '<div><label>Volumen mensual (un)</label><input type="number" id="m-vol" step="100" value="' + estado.volumen + '"></div>' +
       '<div><label>Cambio de precio (%)</label><input type="number" id="m-d" step="1" value="5"></div>' +
+      '<div><label>Mi share en el set (%)</label><input type="number" id="m-share" step="1" value="15"></div>' +
       '</div><div id="m-out"></div></div>';
 
     h += '<div class="card"><h2>A quien se van si subes el precio</h2>' +
@@ -424,14 +462,21 @@
       var conmigo = [{ retailer: 'TÚ', precio: p }].concat(comps.map(function (x) {
         return { retailer: x.retailer, precio: x.precio };
       }));
-      var s0Igual = 1 / conmigo.length;                       // share de partida: reparto neutro
-      var beta = betaDesde(e, p, s0Igual);
-      var antes = logit(conmigo, beta);
+      // Shares de partida desde el prior nacional, renormalizado al set presente.
+      var miShare = parseFloat(document.getElementById('m-share').value) / 100;
+      if (!(miShare > 0 && miShare < 1)) miShare = 0.15;
+      var crudos = comps.map(function (x) { return sharePrior(x.retailer); });
+      var sumaC = crudos.reduce(function (a, b) { return a + b; }, 0);
+      var sharesPrior = [miShare].concat(crudos.map(function (v) { return (1 - miShare) * v / sumaC; }));
+
+      var beta = betaDesde(e, p, miShare);
+      var pesos = pesosDesdeShare(conmigo, beta, sharesPrior);
+      var antes = logit(conmigo, beta, pesos);
       var sYo = antes[0].share;
 
       var despues = logit([{ retailer: 'TÚ', precio: p * (1 + d) }].concat(comps.map(function (x) {
         return { retailer: x.retailer, precio: x.precio };
-      })), beta);
+      })), beta, pesos);
       var sYo2 = despues[0].share;
 
       // El mercado total se mantiene: lo que cambia es el reparto.
@@ -491,10 +536,13 @@
         (d > 0 && ganador
           ? 'Con este alza, quien mas capta tu fuga es <b>' + esc(ganador.r) + '</b>. '
           : '') +
-        'Las shares de partida suponen reparto neutro entre las cadenas del set, porque el barrido no trae ' +
-        'participacion de mercado real. Si conoces tu share, el modelo mejora mucho: es el supuesto mas fuerte de esta pestaña.';
+        'Las shares de las cadenas salen del prior nacional de participacion (Lider 33%, Unimarc 16%, Jumbo y Santa ' +
+        'Isabel 12% cada una, Tottus 8%, Alvi 4%), renormalizado a las cadenas presentes en este set. ' +
+        'Es un supuesto de orden de magnitud, editable: la busqueda en fuentes publicas devolvio cifras que no ' +
+        'cuadran entre si (sumaban 99,5% sin dejar espacio a Tottus y mezclando anos). ' +
+        '<b>Tu propio share es el input que mas mueve el resultado</b>: ajustalo arriba si lo conoces.';
     }
-    ['m-p0', 'm-c0', 'm-vol', 'm-d'].forEach(function (id) {
+    ['m-p0', 'm-c0', 'm-vol', 'm-d', 'm-share'].forEach(function (id) {
       document.getElementById(id).addEventListener('input', pintar);
     });
     pintar();
@@ -508,6 +556,7 @@
     _caminoPrior: caminoPrior, _caminoDispersion: caminoDispersion, _caminoPromo: caminoPromo,
     _caminoEquilibrio: caminoEquilibrio,
     _logit: logit, _betaDesde: betaDesde, _optimoBertrand: optimoBertrand,
+    _sharePrior: sharePrior, _pesosDesdeShare: pesosDesdeShare,
     _competidores: competidores, _mediana: mediana
   };
 })();
