@@ -839,7 +839,124 @@ function scoreColor(v){ // v 0..100
 function textOn(v){ return v>52?'#fff':'#0B1B26'; }
 
 function renderAll(){ renderHive(); renderMatrix(); renderRank(); renderWhite(); renderComp();
-  renderChips(); if(ST.sel) renderDetail(ST.sel); }
+  renderSim(); renderChips(); if(ST.sel) renderDetail(ST.sel); }
+
+/* ---- SIMULADOR DE PORTAFOLIO ---- */
+function inBasket(k){ return ST.basket.includes(k); }
+function toggleBasket(k){
+  if(inBasket(k)) ST.basket=ST.basket.filter(x=>x!==k);
+  else if(!ST.core.includes(k)) ST.basket.push(k);
+  renderSim(); renderRank(); if(ST.sel) renderDetail(ST.sel); updateBasketBadge();
+}
+function clearBasket(){ ST.basket=[]; renderSim(); renderRank(); updateBasketBadge(); if(ST.sel)renderDetail(ST.sel); }
+function moveBasket(i,d){ const j=i+d; if(j<0||j>=ST.basket.length) return;
+  const t=ST.basket[i]; ST.basket[i]=ST.basket[j]; ST.basket[j]=t; renderSim(); }
+function updateBasketBadge(){ const e=document.getElementById('basketN');
+  e.style.display = ST.basket.length? 'inline-block':'none'; e.textContent=ST.basket.length; }
+
+function renderSim(){
+  updateBasketBadge();
+  const el=document.getElementById('simWrap');
+  if(!ST.basket.length){
+    el.innerHTML=`<div class="card" style="padding:26px;max-width:640px">
+      <h3 style="border:none;padding:0;font-size:14px;margin-bottom:8px">Simulador de portafolio</h3>
+      <div class="note" style="font-size:12.5px;line-height:1.6">Añade 2 o 3 movimientos a la cesta y el modelo recalcula
+      tu core, las capacidades que acumulas y <b>cómo cambian todas las adyacencias futuras</b>.<br><br>
+      Es la diferencia entre elegir el mejor movimiento aislado y elegir la mejor <i>secuencia</i>:
+      un salto mediocre puede ser el que desbloquea los tres siguientes.<br><br>
+      Para añadir: abre una categoría en el panal y pulsa <b>“Añadir a la cesta”</b>, o usa la columna
+      <b>+</b> del ranking.</div></div>`;
+    return;
+  }
+  const ctx=R.ctx;
+  const after = computeRows(ST.core.concat(ST.basket), ctx);
+  optionValue(after.rows, ctx, ST.core.concat(ST.basket));
+  const beforeBy={}; R.rows.forEach(r=>beforeBy[r.k]=r);
+  const afterBy={};  after.rows.forEach(r=>afterBy[r.k]=r);
+
+  // secuencia: factibilidad de cada paso dado los anteriores
+  let acc=[...ST.core]; const seq=[];
+  ST.basket.forEach(k=>{
+    const rr = computeRows(acc, ctx).rows.find(r=>r.k===k);
+    seq.push({k, n:CATS[k].n, F:rr.F, idx:rr.idx, prize:rr.prize, bc:rr.bc,
+              entry:rr.entry, solo:beforeBy[k]});
+    acc = acc.concat([k]);
+  });
+
+  const totPrize=seq.reduce((a,s)=>a+s.prize,0);
+  const totNpv=seq.reduce((a,s)=>a+s.bc.npv,0);
+  const totCapex=seq.reduce((a,s)=>a+s.bc.capex,0);
+  const capBefore=portfolioCaps(ST.core), capAfter=portfolioCaps(ST.core.concat(ST.basket));
+  const newCaps=Object.keys(CAPS).filter(c=>capAfter[c]-capBefore[c]>0.15)
+    .sort((a,b)=>(capAfter[b]-capBefore[b])-(capAfter[a]-capBefore[a]));
+
+  // adyacencias que más se habilitan
+  const movers = after.rows.filter(r=>!r.isCore && !ST.basket.includes(r.k) && beforeBy[r.k])
+    .map(r=>({r, d:r.F-beforeBy[r.k].F}))
+    .filter(x=>x.d>1).sort((a,b)=>b.d-a.d).slice(0,10);
+
+  let h=`<div style="display:grid;grid-template-columns:minmax(380px,1.15fr) minmax(340px,1fr);gap:12px;align-items:start">`;
+
+  // --- secuencia
+  h+=`<div class="card"><h3 style="display:flex;justify-content:space-between">
+      <span>Secuencia de movimientos</span>
+      <button class="btn sm" style="border:none;color:var(--mut)" onclick="clearBasket()">Vaciar</button></h3>
+    <div style="padding:6px 0">`;
+  seq.forEach((s,i)=>{
+    const lift = s.F - (s.solo? s.solo.F : s.F);
+    h+=`<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--line2)">
+      <div style="flex:0 0 24px;height:24px;border-radius:99px;background:var(--deep);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600" class="mono">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600">${esc(s.n)}</div>
+        <div class="note">${esc(s.entry.m)}</div>
+        <div style="display:flex;gap:14px;margin-top:5px;font-size:11px" class="mono">
+          <span>Factib. <b>${Math.round(s.F)}</b>${lift>1.5?` <span style="color:var(--teal)">+${Math.round(lift)} por la secuencia</span>`:''}</span>
+          <span>Ventas a5 ${usd(s.prize)}</span>
+          <span>VAN ${usd(s.bc.npv)}</span>
+        </div></div>
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:2px">
+        <button class="btn sm" style="padding:1px 6px" onclick="moveBasket(${i},-1)">↑</button>
+        <button class="btn sm" style="padding:1px 6px" onclick="moveBasket(${i},1)">↓</button>
+        <button class="btn sm" style="padding:1px 6px" onclick="toggleBasket('${s.k}')">×</button>
+      </div></div>`;
+  });
+  h+=`</div><div class="kpis" style="border-top:1px solid var(--line)">
+    <div class="kpi"><div class="k">Ventas incrementales año 5</div><div class="v">${usd(totPrize)}</div>
+      <div class="n">${(totPrize/Math.max(1,COS[ST.company]?COS[ST.company].rev:1)*100).toFixed(0)}% de tus ingresos actuales</div></div>
+    <div class="kpi"><div class="k">VAN agregado</div><div class="v">${usd(totNpv)}</div><div class="n">WACC 12%, con valor terminal</div></div>
+    <div class="kpi"><div class="k">Capital requerido</div><div class="v">${usd(totCapex)}</div><div class="n">activos, años 1-2</div></div>
+    <div class="kpi"><div class="k">Capacidades nuevas</div><div class="v">${newCaps.length}</div><div class="n">${newCaps.length?esc(CAPS[newCaps[0]]):'ninguna'}</div></div>
+  </div>
+  <div class="note" style="padding:11px 14px;border-top:1px solid var(--line2)">
+    El orden importa: cada movimiento suma capacidades que suben la factibilidad del siguiente.
+    Reordena con las flechas y observa el <b>+ por la secuencia</b>.</div></div>`;
+
+  // --- efecto sobre el resto del tablero
+  h+=`<div class="card"><h3>Qué se abre después</h3><div style="padding:12px 14px">`;
+  if(newCaps.length){
+    h+=`<div class="glabel">Capacidades que incorporas</div><div class="tagline" style="margin-bottom:12px">
+      ${newCaps.map(c=>`<span class="tag on">${esc(CAPS[c])}</span>`).join('')}</div>`;
+  }
+  h+=`<div class="glabel">Adyacencias que pasan a ser factibles</div>`;
+  if(movers.length){
+    const mx=Math.max(...movers.map(m=>m.d));
+    movers.forEach(m=>{
+      h+=`<div class="mrow" onclick="select('${m.r.k}')" style="cursor:pointer">
+        <span class="nm">${esc(m.r.c.n)}</span>
+        <div class="bar" style="width:88px"><i style="width:${m.d/mx*100}%;background:var(--teal)"></i></div>
+        <span class="vl mono" style="color:var(--teal)">+${Math.round(m.d)}</span>
+        <span class="mono" style="width:30px;text-align:right;color:var(--mut)">${Math.round(m.r.F)}</span></div>`;
+    });
+    h+=`<div class="note" style="margin-top:8px">Ganancia de factibilidad de cada categoría <b>después</b> de ejecutar la
+      secuencia. Es el valor de opción hecho explícito: lo que hoy no puedes hacer y mañana sí.</div>`;
+  } else {
+    h+=`<div class="note">Esta secuencia no abre adyacencias nuevas relevantes — son movimientos terminales,
+      buenos por sí mismos pero sin efecto trampolín.</div>`;
+  }
+  h+=`</div></div></div>`;
+  el.innerHTML=h;
+}
 
 /* ---- 4.1 HONEYCOMB ---- */
 // Anillo hexagonal en coordenadas axiales (algoritmo estándar red-blob)
@@ -1160,13 +1277,81 @@ function renderDetail(k){
       <b style="font-size:12px">${esc(r.entry.m)}</b>
       <div class="note" style="margin-top:3px">${esc(r.entry.d)}</div></div></section>`;
 
-  h+=`<section><h4>Premio potencial</h4>
+  // --- valor de opción / trampolín
+  if(!r.isCore){
+    h+=`<section><h4>Valor de opción — efecto trampolín</h4>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="flex:1"><div class="bar"><i style="width:${r.opt||0}%;background:var(--purple)"></i></div></div>
+        <b class="mono" style="flex:0 0 44px;text-align:right">${Math.round(r.opt||0)}/100</b></div>`;
+    if(r.unlocks && r.unlocks.length){
+      h+=`<div class="note" style="margin-bottom:7px">Entrar aquí acerca a tu alcance estas categorías,
+        aunque hoy estén lejos. <b>Ese es el argumento para moverse aunque el caso aislado sea flojo.</b></div>`;
+      const mx=Math.max(...r.unlocks.map(u=>u.d));
+      r.unlocks.forEach(u=>{ h+=`<div class="mrow" onclick="select('${u.k}')" style="cursor:pointer">
+        <span class="nm">${esc(u.n)}</span>
+        <div class="bar" style="width:80px"><i style="width:${u.d/mx*100}%;background:var(--purple)"></i></div>
+        <span class="vl mono" style="color:var(--mut)">atr ${Math.round(u.A)}</span></div>`; });
+    } else {
+      h+=`<div class="note">Movimiento terminal: bueno o malo por sí mismo, pero no abre nada más.
+        Júzgalo solo por su propio caso.</div>`;
+    }
+    h+=`<button class="btn" style="margin-top:10px" onclick="toggleBasket('${k}')">
+      ${inBasket(k)?'Quitar de la cesta del simulador':'Añadir a la cesta del simulador'}</button></section>`;
+  }
+
+  // --- ruta por trampolines
+  if(!r.isCore && r.F<62){
+    const p = computePath(k, R.ctx);
+    h+=`<section><h4>Cómo llegar</h4>`;
+    if(p.path.length){
+      h+=`<div class="note" style="margin-bottom:9px">Hoy la factibilidad es <b>${Math.round(p.F0)}</b>. No vayas directo:
+        esta secuencia la lleva a <b style="color:var(--teal)">${Math.round(p.Ffinal)}</b> construyendo capacidades por el camino.</div>`;
+      p.path.forEach((s,i)=>{
+        h+=`<div style="display:flex;gap:9px;align-items:center;margin-bottom:6px">
+          <div style="flex:0 0 20px;height:20px;border-radius:99px;background:var(--line2);
+            display:flex;align-items:center;justify-content:center;font-size:10px" class="mono">${i+1}</div>
+          <div style="flex:1;min-width:0"><span style="cursor:pointer" onclick="select('${s.k}')">${esc(s.n)}</span>
+            <div class="note">factib. propia ${Math.round(s.F)} · sube el destino a ${Math.round(s.after)}</div></div>
+          <span class="mono" style="color:var(--teal);font-size:11px">+${Math.round(s.lift)}</span></div>`;
+      });
+      h+=`<div style="display:flex;gap:9px;align-items:center;margin-top:2px">
+        <div style="flex:0 0 20px;height:20px;border-radius:99px;background:var(--deep);color:#fff;
+          display:flex;align-items:center;justify-content:center;font-size:10px" class="mono">✓</div>
+        <div style="flex:1"><b>${esc(r.c.n)}</b></div></div>
+        <button class="btn" style="margin-top:10px" onclick="loadPath('${k}')">Cargar esta ruta en el simulador</button>`;
+    } else {
+      h+=`<div class="note">No hay trampolín útil en la base actual: ningún movimiento intermedio sube
+        materialmente la factibilidad de esta categoría. O entras directo asumiendo la brecha, o la descartas.</div>`;
+    }
+    h+=`</section>`;
+  }
+
+  const bc=r.bc, mc=mcNPV(r.tam, r.reach, r.c.ebit, r.c.capex, r.c.cagr);
+  const span=Math.max(1, mc.p90-mc.p10);
+  h+=`<section><h4>Caso de negocio</h4>
     <div class="note" style="margin-bottom:8px">Share alcanzable estimado <b>${(r.reach*100).toFixed(1)}%</b> — función de tu factibilidad
       (${Math.round(r.F)}) y de qué tan fragmentada está la categoría.</div>
     <div class="kpis" style="border:1px solid var(--line)">
       <div class="kpi"><div class="k">Ventas año 5</div><div class="v">${usd(r.prize)}</div><div class="n">sobre TAM ${usd(r.tam5)}</div></div>
       <div class="kpi"><div class="k">EBIT año 5</div><div class="v">${usd(r.ebitP)}</div><div class="n">al margen de categoría</div></div>
-    </div>${myShare?`<div class="note" style="margin-top:7px">Ya tienes <b>${myShare[1]}%</b> aquí — el premio es incremental sobre esa base.</div>`:''}
+      <div class="kpi"><div class="k">Capital requerido</div><div class="v">${usd(bc.capex)}</div><div class="n">activos, años 1-2</div></div>
+      <div class="kpi"><div class="k">Payback</div><div class="v">${bc.payback?bc.payback+' años':'>5 años'}</div><div class="n">flujo acumulado</div></div>
+    </div>
+    <div style="margin-top:12px"><div class="glabel">VAN — rango de 600 simulaciones</div>
+      <div style="position:relative;height:30px;margin:7px 0 3px">
+        <div style="position:absolute;left:0;right:0;top:13px;height:5px;background:var(--line2);border-radius:3px"></div>
+        <div style="position:absolute;left:${mc.p10<0?0:0}%;width:100%;top:13px;height:5px;border-radius:3px;
+          background:linear-gradient(90deg,${mc.p10<0?'var(--red)':'var(--teal)'} 0%, var(--blue) 50%, var(--teal) 100%);opacity:.85"></div>
+        <div style="position:absolute;left:${clamp((mc.p50-mc.p10)/span*100,0,100)}%;top:6px;width:2.5px;height:19px;background:var(--deep)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px" class="mono">
+        <span>P10 <b style="color:${mc.p10<0?'var(--red)':'inherit'}">${usd(mc.p10)}</b></span>
+        <span>P50 <b>${usd(mc.p50)}</b></span>
+        <span>P90 <b>${usd(mc.p90)}</b></span></div>
+      <div class="note" style="margin-top:6px">Probabilidad de destruir valor: <b style="color:${mc.pLoss>.3?'var(--red)':'var(--ink)'}">${(mc.pLoss*100).toFixed(0)}%</b>.
+      Se simulan share alcanzable, crecimiento y margen; no se simula el riesgo de ejecución, que suele ser el que mata.</div>
+    </div>
+    ${myShare?`<div class="note" style="margin-top:7px">Ya tienes <b>${myShare[1]}%</b> aquí — el premio es incremental sobre esa base.</div>`:''}
     </section>`;
 
   h+=`<section><h4>Competencia y participación</h4>`;
