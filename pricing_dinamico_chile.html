@@ -182,14 +182,97 @@
 </header>
 
 <div class="tabs" id="tabs">
-  <div class="tab on" data-p="buscador">Buscador de SKU</div>
+  <div class="tab on" data-p="metodo">Introducción y método</div>
+  <div class="tab" data-p="buscador">Buscador de SKU</div>
   <div class="tab" data-p="elast">Elasticidad</div>
   <div class="tab" data-p="mover">Movimiento de precio</div>
   <div class="tab" data-p="informe">Informe SKU foco</div>
 </div>
 
+<!-- ============ 0. METODOLOGIA ============ -->
+<div class="panel on" id="p-metodo">
+  <div class="card">
+    <h2>Qué hace esta herramienta</h2>
+    <p style="font-size:13px;line-height:1.7">Compara el precio de un producto entre las cadenas de supermercado chilenas y
+    estima <b>cuánto puedes mover tu precio antes de que el shopper se cambie a otra</b>. No es un comparador de precios:
+    el comparador es el insumo. Lo que decide es la pestaña de movimiento de precio.</p>
+    <p style="font-size:13px;line-height:1.7">La captura corre sola todos los días y queda versionada en el repositorio,
+    así que el histórico de precios se construye solo. Hoy lleva 12 días.</p>
+  </div>
+
+  <div class="card">
+    <h2>De dónde salen los precios</h2>
+    <table><thead><tr><th>Cadena</th><th>Vía</th><th>Qué entrega</th></tr></thead><tbody>
+      <tr><td><b>Unimarc</b>, <b>Alvi</b></td><td>Lectura directa del sitio (<code>__NEXT_DATA__</code> de SMU)</td>
+          <td>Lo más completo: precio lista, precio promocional, mecánica, EAN y precio Club</td></tr>
+      <tr><td><b>Jumbo</b></td><td>Directo, vía <code>ItemList</code> de schema.org</td>
+          <td>Sólo precio de venta. Tras migrar a React Server Components dejó de publicar mecánica promocional</td></tr>
+      <tr><td><b>Lider</b>, <b>Santa Isabel</b>, <b>Tottus</b>, <b>Acuenta</b></td><td>Google Shopping (SerpAPI)</td>
+          <td>Precio de góndola cuando Google lo indexa. Sin mecánica</td></tr>
+    </tbody></table>
+    <div class="foot">Lider bloquea el acceso automático con tres capas: PerimeterX, la sala de espera de Queue-it y Akamai.
+    Se verificó endpoint por endpoint. Por eso entra por Google, y cuando Google no lo trae, la herramienta deja el campo
+    en blanco para que lo cargues a mano en vez de inventarlo.</div>
+  </div>
+
+  <div class="card">
+    <h2>Cómo se calcula la elasticidad</h2>
+    <p style="font-size:13px;line-height:1.7"><b>Sin volumen de ventas propio la elasticidad no se mide: se infiere.</b>
+    Cualquier herramienta que te muestre un ε calculado sólo desde precios de competencia te está mintiendo. Lo que sí se
+    puede hacer, y es lo que hace la industria, es triangular varias inferencias independientes y ver si convergen.</p>
+    <table><thead><tr><th>Camino</th><th>Qué usa</th><th>Fundamento</th></tr></thead><tbody>
+      <tr><td><b>1 · Prior de categoría</b></td><td>Nada: sólo el tipo de producto</td>
+          <td>Meta-análisis de 1.851 elasticidades publicadas (Bijmolt, van Heerde &amp; Pieters, 2005)</td></tr>
+      <tr><td><b>2 · Dispersión de precios</b></td><td>El barrido</td>
+          <td>Precios comprimidos entre cadenas delatan alta sustituibilidad. Heurística, por eso pesa menos</td></tr>
+      <tr><td><b>3 · Promoción revelada</b></td><td>Descuentos observados</td>
+          <td>Un descuento sólo se paga si ε supera el break-even de Nagle &amp; Holden. Si las cadenas lo corren, ese es el piso que asumen</td></tr>
+      <tr><td><b>4 · Equilibrio de mercado</b></td><td>Precios y costo supuesto</td>
+          <td>En equilibrio de Bertrand el margen cumple (P−C)/P = 1/|ε|. El margen que el mercado sostiene revela la ε que asume</td></tr>
+    </tbody></table>
+    <div class="foot">Se promedian con pesos según cuánta evidencia real tiene cada uno, y el desacuerdo entre ellos es en
+    sí mismo información. Todos los supuestos son editables. Si algún día cargas ventas propias, la regresión log-log
+    reemplaza a los cuatro.</div>
+  </div>
+
+  <div class="card">
+    <h2>Cómo se recomienda el precio</h2>
+    <div class="aviso"><b>Por qué no se usa la fórmula de Lerner.</b> <code>P* = C·ε/(1+ε)</code> es el óptimo de un
+    <b>monopolio</b>: supone que al subir el precio nadie se cambia de marca. En supermercado eso es falso, y devuelve
+    óptimos por encima de toda la competencia. Con ε=−1,6 y costo al 62% da siempre ~1,65× tu precio, mires a quien mires.</div>
+    <p style="font-size:13px;line-height:1.7">En su lugar se usa un <b>modelo de atracción logit con equilibrio de Bertrand</b>,
+    el estándar en organización industrial empírica (Berry 1994; Berry, Levinsohn &amp; Pakes 1995) y el que hay detrás de
+    Competera y Quicklizard:</p>
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:#f6f7f8;padding:12px;border-radius:6px;line-height:1.9">
+      share<sub>i</sub> = w<sub>i</sub>·exp(−β·P<sub>i</sub>) / Σ<sub>j</sub> w<sub>j</sub>·exp(−β·P<sub>j</sub>)<br>
+      elasticidad propia&nbsp;&nbsp; ε<sub>ii</sub> = −β·P<sub>i</sub>·(1−s<sub>i</sub>)<br>
+      elasticidad cruzada&nbsp; ε<sub>ij</sub> = &nbsp;β·P<sub>j</sub>·s<sub>j</sub><br>
+      precio óptimo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P* = C + 1/(β·(1−s))
+    </div>
+    <div class="foot">El peso <b>w</b> recoge lo que atrae al shopper y no es precio: cobertura de locales, cercanía,
+    fidelidad. Se calibra con la participación de mercado de cada cadena, porque sin él el modelo concluye que Alvi le gana
+    a Lider por estar 2% más barato. La elasticidad cruzada es la que responde <b>a quién se van</b> si subes el precio.</div>
+  </div>
+
+  <div class="card">
+    <h2>Qué le falta frente a una herramienta profesional</h2>
+    <div class="note">Comparado con Revionics, Competera, Pricefx, Quicklizard y Eversight. Dicho para que sepas hasta
+    dónde llega esto.</div>
+    <table><thead><tr><th>Capacidad</th><th>Estado</th><th>Comentario</th></tr></thead><tbody>
+      <tr><td>Elasticidad cruzada y sustitución</td><td><span class="tag" style="border-color:#27853A;color:#27853A">Sí</span></td><td>Logit/MNL, el mismo método</td></tr>
+      <tr><td>Guardrails de precio</td><td><span class="tag" style="border-color:#27853A;color:#27853A">Sí</span></td><td>El óptimo se acota al rango de mercado observado</td></tr>
+      <tr><td>Histórico de precios</td><td><span class="tag" style="border-color:#E8A020;color:#8a5d00">Parcial</span></td><td>12 días y creciendo. Sin backfill posible: nadie publica precios pasados</td></tr>
+      <tr><td>Matching de productos entre cadenas</td><td><span class="tag" style="border-color:#E8A020;color:#8a5d00">Parcial</span></td><td>Heurística por nombre y formato. Las profesionales usan ML sobre descripción e imagen</td></tr>
+      <tr><td>KVI (Key Value Items)</td><td><span class="tag" style="border-color:#C0392B;color:#C0392B">No</span></td><td>Tratar distinto los SKU que definen la percepción de precio</td></tr>
+      <tr><td>Índice de precios competitivo</td><td><span class="tag" style="border-color:#C0392B;color:#C0392B">No</span></td><td>Métrica única de posición, ponderada por venta o tráfico</td></tr>
+      <tr><td>Zonas de precio y alertas</td><td><span class="tag" style="border-color:#C0392B;color:#C0392B">No</span></td><td>Requiere precio por tienda y un motor de notificaciones</td></tr>
+      <tr><td>Experimentación de precios</td><td><span class="tag" style="border-color:#C0392B;color:#C0392B">No</span></td><td>Eversight hace A/B en micro-mercados: es la única vía de medir ε de verdad sin histórico</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
 <!-- ============ A. BUSCADOR ============ -->
-<div class="panel on" id="p-buscador">
+<div class="panel" id="p-buscador">
   <div class="card">
     <h2>Barrer precios de un producto</h2>
     <div class="note">Escribe un producto y se capturan precios en vivo. Jumbo, Unimarc y Alvi se leen directo del sitio; Lider, Tottus, Santa Isabel y Acuenta entran vía Google Shopping porque bloquean el acceso directo.</div>

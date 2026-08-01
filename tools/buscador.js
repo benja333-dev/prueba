@@ -94,7 +94,7 @@
         '  ·  ' + CLP(v.min) + (v.min !== v.max ? ' a ' + CLP(v.max) : '') + '</option>';
     }).join('');
     $('card-variantes').style.display = '';
-    sel.onchange = function () { pintarComparativa(parseInt(this.value, 10)); };
+    sel.onchange = function () { manuales = {}; pintarComparativa(parseInt(this.value, 10)); pintarManual(ultimo.termino); };
     pintarComparativa(0);
   }
 
@@ -160,16 +160,65 @@
     document.dispatchEvent(new CustomEvent('pricing:datos'));
   }
 
+  /* Precios cargados a mano. Viven aparte del barrido y se inyectan al set del
+     SKU activo, para que las cadenas bloqueadas entren al modelo igual. */
+  var manuales = {};
+
   function pintarManual(q) {
-    $('links-manual').innerHTML = MANUALES.map(function (m) {
-      return '<a class="chip-link" href="' + m[1] + encodeURIComponent(q) + '" target="_blank" rel="noopener">' +
-        'Abrir ' + m[0] + ' &#8599;</a>';
-    }).join('');
+    var enSet = {};
+    (ultimo.filas || []).forEach(function (f) { enSet[f.retailer.toLowerCase().split('.')[0].trim()] = f.precio; });
+
+    var h = '<div class="campos">';
+    MANUALES.forEach(function (m) {
+      var clave = m[0].toLowerCase();
+      var hallado = Object.keys(enSet).filter(function (k) { return clave.indexOf(k) >= 0 || k.indexOf(clave) >= 0; })[0];
+      var valor = manuales[m[0]] != null ? manuales[m[0]] : '';
+      h += '<div><label>' + esc(m[0]) +
+        (hallado ? ' <span style="color:#27853A">· Google lo trajo: ' + CLP(enSet[hallado]) + '</span>'
+                 : ' <span style="color:#C0392B">· sin dato</span>') + '</label>' +
+        '<input type="number" data-cadena="' + esc(m[0]) + '" placeholder="' +
+        (hallado ? 'sobrescribir' : 'ingresa el precio') + '" value="' + valor + '">' +
+        '<div style="margin-top:5px"><a class="chip-link" style="padding:4px 9px;font-size:10.5px" href="' +
+        m[1] + encodeURIComponent(q) + '" target="_blank" rel="noopener">Abrir ' + m[0] + ' &#8599;</a></div></div>';
+    });
+    h += '</div>';
+    $('links-manual').innerHTML = h;
+
+    $('links-manual').querySelectorAll('input[data-cadena]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        var cad = this.getAttribute('data-cadena');
+        var v = parseFloat(this.value);
+        if (v > 0) manuales[cad] = v; else delete manuales[cad];
+        aplicarManuales();
+      });
+    });
+
     $('foot-bookmarklet').innerHTML =
-      'Estos botones abren la ficha en tu navegador, pero <b>la página no puede leer el contenido de otro sitio</b>: ' +
-      'la política de mismo origen del navegador lo impide, y no es algo que se pueda programar distinto. ' +
-      'Si necesitas el precio exacto de Lider dentro del modelo, cópialo a mano en la pestaña de movimiento de precio.';
+      'Los botones abren la ficha en tu navegador, pero <b>la página no puede leer el contenido de otro sitio</b>: ' +
+      'la política de mismo origen lo impide y no es algo que se pueda programar distinto. Copia el precio y cárgalo ' +
+      'arriba: entra al modelo como una cadena más y recalcula elasticidad y movimiento de precio. ' +
+      'Se deja en blanco a propósito en vez de rellenarlo con un supuesto.';
     $('card-manual').style.display = '';
+  }
+
+  /* Inyecta los precios manuales en la variante activa y repinta todo. */
+  function aplicarManuales() {
+    if (!ultimo.variantes.length) return;
+    var idx = parseInt($('sel-variante').value, 10) || 0;
+    var v = ultimo.variantes[idx];
+    if (!v) return;
+    v.ofertas = v.ofertas.filter(function (o) { return o.origen !== 'manual'; });
+    Object.keys(manuales).forEach(function (cad) {
+      var ref = v.ofertas[0] || {};
+      v.ofertas.push({
+        origen: 'manual', retailer: cad, nombre: v.etiqueta, marca: null,
+        precio_lista: null, precio: manuales[cad], mecanica: null, requiere_lealtad: null,
+        cantidad: v.cantidad, unidad: v.unidad,
+        precio_por_unidad: v.cantidad ? Math.round(manuales[cad] / v.cantidad) : null,
+        imagen: ref.imagen || null, url: null
+      });
+    });
+    pintarComparativa(idx);
   }
 
   function buscar(q) {
