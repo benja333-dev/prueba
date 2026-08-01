@@ -54,7 +54,8 @@
   var COL = { yo: '#2251FF', opt: '#27853A', mal: '#C0392B', gris: '#8FA3B0', linea: '#051C2C', suave: '#D8DEE2' };
 
   var st = {
-    comps: [], etiqueta: '', termino: '', foto: null, unidad: null,
+    comps: [], etiqueta: '', termino: '', foto: null, clave: null,
+    cantidad: null, unidad: null, eans: [],
     costo: null, volumen: 1000, miShare: 0.15,
     precio: null, precioBase: null, epsilon: -1.5, tri: null, listo: false
   };
@@ -395,6 +396,305 @@
       'El fundamento de cada camino está en la pestaña <b>Cómo se calcula</b>.</div>';
   }
 
+  /* ═════════════ Histórico de precios ═════════════
+     La captura diaria queda versionada, asi que el panel se construye solo.
+     Es lo unico de esta herramienta que se MIDE en vez de inferirse: no hace
+     falta conocer las ventas para observar como se mueve cada cadena.
+
+     Se carga una sola vez y se cachea; si el archivo no existe todavia (repo
+     recien clonado, captura sin correr) la seccion se explica en vez de fallar. */
+  var HIST = { datos: null, pedido: null };
+  var PAL = ['#2251FF', '#27853A', '#E8A020', '#00A9F4', '#C0392B', '#6b3fa0', '#8FA3B0'];
+
+  function cargarHistorico() {
+    if (HIST.pedido) return HIST.pedido;
+    HIST.pedido = fetch('tools/historico.json', { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { HIST.datos = j; return j; })
+      .catch(function () { HIST.datos = null; return null; });
+    return HIST.pedido;
+  }
+
+  /* Rellena hacia adelante: un precio vale hasta que se registra otro. El panel
+     guarda solo los cambios, asi que sin esto la linea saldria llena de huecos. */
+  function densa(puntos, n) {
+    var d = {}, salida = [], ultimo = null;
+    puntos.forEach(function (p) { d[p[0]] = p[1]; });
+    for (var i = 0; i < n; i++) {
+      if (d[i] != null) ultimo = d[i];
+      salida.push(ultimo);
+    }
+    return salida;
+  }
+
+  /* Palabras que no distinguen un producto de otro. Sin quitarlas, "Pack 6 un.
+     Bebida Coca-Cola Zero" y "Pack Bebida Coca-Cola 3 L" comparten sus primeras
+     palabras y el respaldo por similitud los daria por iguales. */
+  var VACIAS = /^(bebida|pack|botella|lata|unidad|uds|desechable|retornable|oferta|promo|formato|familiar|para|con|sin|del|los|las)$/;
+
+  function palabrasClave(nombre) {
+    return String(nombre || '').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+      .filter(function (p) { return p.length > 2 && !/^\d+$/.test(p) && !VACIAS.test(p); });
+  }
+
+  /* Tres formas de encontrar la serie del producto, de la mas estricta a la mas
+     laxa. La clave exacta falla apenas una cadena escribe el nombre distinto,
+     y quedarse solo con ella dejaba el grafico vacio con historico disponible. */
+  function seriesDelProducto(h) {
+    if (!h || !h.series) return [];
+    var eans = {};
+    st.eans.forEach(function (e) { if (e) eans[String(e)] = 1; });
+    var mias = palabrasClave(st.etiqueta);
+    var esCombo = function (k) { return String(k || '').indexOf('combo:') === 0; };
+    var miCombo = esCombo(st.clave);
+    var mismaMedida = function (s) {
+      if (!st.cantidad || !st.unidad) return false;
+      return String(s.u) === String(st.unidad) && Math.abs(parseFloat(s.c) - st.cantidad) < 1e-6;
+    };
+
+    var candidatas = [];
+    h.series.forEach(function (s) {
+      var puntaje = null;
+      if (st.clave && s.k === st.clave) puntaje = 100;
+      else if (s.e && eans[String(s.e)]) puntaje = 90;
+      else if (mismaMedida(s) && mias.length && esCombo(s.k) === miCombo) {
+        var suyas = palabrasClave(s.n);
+        var comunes = mias.filter(function (p) { return suyas.indexOf(p) >= 0; }).length;
+        /* Tres palabras distintivas en comun y la misma medida: es el mismo
+           producto escrito de otra forma. Con dos empezaban los falsos
+           positivos entre sabores de una misma marca.
+           El filtro de combo no es opcional: un pack de 2 x 1,5 L declara los
+           mismos 3 L que la botella de 3 L y comparte todas las palabras, asi
+           que sin el se colaba en el grafico con un precio del doble. */
+        if (comunes >= 3) puntaje = 50 + comunes;
+      }
+      if (puntaje != null) candidatas.push({ s: s, q: puntaje });
+    });
+
+    var porCadena = {};
+    candidatas.sort(function (a, b) { return b.q - a.q || b.s.p.length - a.s.p.length; });
+    candidatas.forEach(function (c) {
+      // Una cadena puede tener varios SKU parecidos: se queda el mejor calzado,
+      // y a igual calce, el que tenga mas historia.
+      if (!porCadena[c.s.r]) porCadena[c.s.r] = c.s;
+    });
+    return Object.keys(porCadena).map(function (k) { return porCadena[k]; });
+  }
+
+  function pintarHistoria() {
+    var est = $('hist-estado'), vivo = $('hist-vivo');
+    if (!est) return;
+    var h = HIST.datos;
+    if (!h) {
+      vivo.style.display = 'none';
+      est.innerHTML = '<div class="aviso">El histórico todavía no está publicado. Corre ' +
+        '<code>python3 tools/historico.py bootstrap</code> o espera a la próxima captura diaria.</div>';
+      $('hist-perfil').innerHTML = '';
+      return;
+    }
+
+    var series = seriesDelProducto(h);
+    pintarPerfiles(h, series);
+
+    if (!series.length) {
+      vivo.style.display = 'none';
+      est.innerHTML = '<div class="aviso"><b>Este producto todavía no tiene histórico.</b> ' +
+        'La captura diaria recorre un catálogo fijo y este SKU no está en él, o recién apareció. ' +
+        'Desde hoy se empieza a acumular: vuelve en unos días y la curva estará aquí.</div>';
+      return;
+    }
+    est.innerHTML = '';
+    vivo.style.display = '';
+
+    var F = h.fechas, n = F.length;
+    var lineas = series.map(function (s, i) {
+      return { r: s.r, v: densa(s.p, n), promo: (s.l || []).slice(), col: PAL[i % PAL.length] };
+    });
+    var todos = [];
+    lineas.forEach(function (l) { l.v.forEach(function (v) { if (v != null) todos.push(v); }); });
+    if (todos.length < 2) { vivo.style.display = 'none'; return; }
+
+    var W = 780, H = 300, L = 54, R = 128, T = 26, B = 46;
+    var lo = Math.min.apply(null, todos), hi = Math.max.apply(null, todos);
+    var pad = Math.max(1, (hi - lo)) * 0.15;
+    lo = Math.max(0, lo - pad); hi = hi + pad;
+    var x = function (i) { return L + (n === 1 ? 0.5 : i / (n - 1)) * (W - L - R); };
+    var y = function (v) { return H - B - ((v - lo) / (hi - lo || 1)) * (H - T - B); };
+
+    var s = '<g class="grid">';
+    for (var g = 0; g <= 4; g++) { var vv = lo + (hi - lo) * g / 4; s += '<line x1="' + L + '" y1="' + y(vv).toFixed(1) + '" x2="' + (W - R) + '" y2="' + y(vv).toFixed(1) + '"/>'; }
+    s += '</g>';
+    for (var g2 = 0; g2 <= 4; g2++) {
+      var v2 = lo + (hi - lo) * g2 / 4;
+      s += '<text class="ax" x="' + (L - 8) + '" y="' + (y(v2) + 3).toFixed(1) + '" text-anchor="end">' + CLP(v2) + '</text>';
+    }
+
+    // Fechas: sólo las que caben, siempre con la primera y la última.
+    var salto = Math.max(1, Math.ceil(n / 7));
+    for (var i2 = 0; i2 < n; i2 += salto) s += tickFecha(x(i2), H - B, F[i2]);
+    if ((n - 1) % salto !== 0) s += tickFecha(x(n - 1), H - B, F[n - 1]);
+
+    /* Etiquetas del extremo derecho, escalonadas para que no se pisen cuando
+       dos cadenas terminan al mismo precio. */
+    var finales = lineas.map(function (l) {
+      var ult = null;
+      for (var k = l.v.length - 1; k >= 0; k--) if (l.v[k] != null) { ult = l.v[k]; break; }
+      return { l: l, v: ult, y: ult == null ? null : y(ult) };
+    }).filter(function (f) { return f.v != null; }).sort(function (a, b) { return a.y - b.y; });
+    for (var f1 = 1; f1 < finales.length; f1++) {
+      if (finales[f1].y - finales[f1 - 1].y < 15) finales[f1].y = finales[f1 - 1].y + 15;
+    }
+
+    lineas.forEach(function (l) {
+      var d = '', abierto = false;
+      l.v.forEach(function (v, i) {
+        if (v == null) { abierto = false; return; }
+        d += (abierto ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(v).toFixed(1) + ' ';
+        abierto = true;
+      });
+      s += '<path d="' + d + '" fill="none" stroke="' + l.col + '" stroke-width="2.2" ' +
+        'stroke-linejoin="round" stroke-linecap="round"/>';
+      var conPromo = {};
+      l.promo.forEach(function (p) { conPromo[p[0]] = p[1]; });
+      l.v.forEach(function (v, i) {
+        if (v == null) return;
+        var esPromo = conPromo[i] && conPromo[i] > v;
+        s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="' + (esPromo ? 4 : 2.8) +
+          '" fill="' + (esPromo ? '#fff' : l.col) + '" stroke="' + l.col + '" stroke-width="' + (esPromo ? 2.2 : 0) + '"/>';
+      });
+    });
+
+    finales.forEach(function (f) {
+      s += '<text class="lbl" x="' + (W - R + 9) + '" y="' + (f.y + 4).toFixed(1) + '" style="fill:' + f.l.col + '">' +
+        esc(corta(f.l.r, 11)) + ' <tspan style="font-weight:700">' + CLP(f.v) + '</tspan></text>';
+    });
+    s += '<text class="axlab" x="0" y="14">Precio efectivo por día</text>';
+
+    var svg = $('svg-historia');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = s;
+
+    pintarLecturaHistoria(h, lineas, F);
+  }
+
+  function tickFecha(px, py, iso) {
+    var p = String(iso).split('-');
+    return '<text class="ax" x="' + px.toFixed(1) + '" y="' + (py + 16) + '" text-anchor="middle">' +
+      p[2] + '/' + p[1] + '</text>';
+  }
+
+  /* Lo accionable del histórico: donde está hoy cada cadena dentro de su propio
+     rango. "Jumbo está en su máximo de dos semanas" cambia una decisión; el
+     precio suelto, no. */
+  function pintarLecturaHistoria(h, lineas, F) {
+    var filas = lineas.map(function (l) {
+      var vals = l.v.filter(function (v) { return v != null; });
+      var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+      var hoy = vals[vals.length - 1];
+      var pos = max > min ? (hoy - min) / (max - min) : 0.5;
+      var cambios = 0;
+      for (var i = 1; i < l.v.length; i++) {
+        if (l.v[i] != null && l.v[i - 1] != null && Math.abs(l.v[i] - l.v[i - 1]) > l.v[i - 1] * 0.005) cambios++;
+      }
+      var donde = max === min ? 'No ha movido el precio en todo el período.'
+        : (pos > 0.85 ? 'Hoy está <b style="color:' + COL.mal + '">en lo más alto</b> de su propio rango.'
+          : (pos < 0.15 ? 'Hoy está <b style="color:' + COL.opt + '">en lo más bajo</b> de su propio rango.'
+            : 'Hoy está a media altura de su rango.'));
+      return '<tr><td><b style="color:' + l.col + '">' + esc(l.r) + '</b></td>' +
+        '<td class="num">' + CLP(hoy) + '</td>' +
+        '<td class="num">' + CLP(min) + ' – ' + CLP(max) + '</td>' +
+        '<td class="num">' + cambios + '</td>' +
+        '<td>' + donde + '</td></tr>';
+    }).join('');
+
+    var baratos = lineas.map(function (l) {
+      var vals = l.v.filter(function (v) { return v != null; });
+      return { r: l.r, hoy: vals[vals.length - 1], min: Math.min.apply(null, vals), max: Math.max.apply(null, vals) };
+    });
+    var enMinimo = baratos.filter(function (b) { return b.max > b.min && b.hoy <= b.min * 1.02; });
+    var enMaximo = baratos.filter(function (b) { return b.max > b.min && b.hoy >= b.max * 0.98; });
+
+    var aviso = '';
+    if (enMinimo.length) {
+      aviso += '<div class="aviso" style="margin-top:12px"><b>' +
+        enMinimo.map(function (b) { return esc(b.r); }).join(' y ') +
+        (enMinimo.length === 1 ? ' está' : ' están') + ' en su precio más bajo del período.</b> ' +
+        'Compararte contra un precio que probablemente sea promocional te hace parecer más caro de lo que eres. ' +
+        'Antes de bajar, mira si ese precio se sostiene o vuelve a subir.</div>';
+    }
+    if (enMaximo.length) {
+      aviso += '<div class="bien" style="margin-top:12px"><b>' +
+        enMaximo.map(function (b) { return esc(b.r); }).join(' y ') +
+        (enMaximo.length === 1 ? ' está' : ' están') + ' en su precio más alto del período.</b> ' +
+        'Es la ventana en la que subir cuesta menos: el mercado ya se movió hacia arriba.</div>';
+    }
+
+    $('hist-lectura').innerHTML =
+      '<div style="overflow-x:auto"><table style="margin-top:14px"><thead><tr><th>Cadena</th>' +
+      '<th class="num">Hoy</th><th class="num">Rango del período</th><th class="num">Veces que movió el precio</th>' +
+      '<th>Lectura</th></tr></thead><tbody>' + filas + '</tbody></table></div>' + aviso +
+      '<div class="foot">' + h.fechas.length + ' capturas entre el ' + fechaEs(F[0]) + ' y el ' + fechaEs(F[F.length - 1]) +
+      '. El círculo hueco marca los días con promoción declarada. ' +
+      'Esto <b>se mide</b>, no se supone: es lo único de la herramienta que no depende de un supuesto.</div>';
+  }
+
+  function fechaEs(iso) {
+    var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    var p = String(iso).split('-');
+    return parseInt(p[2], 10) + ' de ' + (MES[parseInt(p[1], 10) - 1] || p[1]);
+  }
+
+  /* Perfil de cada cadena y reaccion competitiva. No dependen del SKU: se
+     calculan sobre todo el panel, que es donde hay muestra suficiente. */
+  function pintarPerfiles(h, series) {
+    var presentes = {};
+    series.forEach(function (s) { presentes[s.r] = 1; });
+    var perf = (h.perfiles || []).filter(function (p) {
+      return !series.length || presentes[p.r];
+    });
+    if (!perf.length) perf = h.perfiles || [];
+
+    var EXPL = {
+      'Hi-Lo': ['#E8A020', 'Mueve el precio seguido y descuenta fuerte. Su precio de hoy puede no ser el de mañana.'],
+      'EDLP': ['#27853A', 'Precio bajo y estable, casi sin promociones. Es la referencia difícil de batir.'],
+      'promo permanente': ['#6b3fa0', 'Casi siempre muestra "descuento" sobre un precio lista que nunca cobra. El precio efectivo es su precio normal.'],
+      'mixta': ['#8FA3B0', 'Sin patrón claro en el período capturado.']
+    };
+    var filas = perf.map(function (p) {
+      var e = EXPL[p.estrategia] || ['#666', ''];
+      return '<tr><td><b>' + esc(p.r) + '</b></td>' +
+        '<td><span class="tag" style="border-color:' + e[0] + ';color:' + e[0] + '">' + esc(p.estrategia) + '</span></td>' +
+        '<td class="num">' + p.cambiosPorSku.toFixed(2).replace('.', ',') + '</td>' +
+        '<td class="num">' + p.pctPromo + '%</td>' +
+        '<td class="num">' + (p.profundidad != null ? p.profundidad + '%' : '—') + '</td>' +
+        '<td>' + e[1] + '</td></tr>';
+    }).join('');
+
+    var reac = (h.reaccion || []).slice(0, 4).map(function (x) {
+      return '<li>Cuando <b>' + esc(x.de) + '</b> baja el precio, <b>' + esc(x.a) + '</b> la sigue el <b>' +
+        x.pct + '%</b> de las veces' + (x.dias ? ', en unos <b>' + x.dias + ' día' + (x.dias === 1 ? '' : 's') + '</b>' : '') +
+        ' <span style="color:#999">(' + x.siguen + ' de ' + x.eventos + ' bajadas observadas)</span></li>';
+    }).join('');
+
+    $('hist-perfil').innerHTML =
+      '<div style="overflow-x:auto"><table style="margin-top:16px"><thead><tr><th>Cadena</th><th>Cómo juega</th>' +
+      '<th class="num">Cambios por SKU</th><th class="num">Días en promo</th><th class="num">Descuento típico</th>' +
+      '<th>Qué significa para ti</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
+      (reac
+        ? '<div class="lab-col" style="margin-top:16px;color:' + COL.linea + '">Reacción competitiva</div>' +
+          '<ul class="lista">' + reac + '</ul>' +
+          '<div class="foot">Si te siguen rápido, la ganancia de volumen por bajar el precio <b>es temporal</b> ' +
+          'y sólo queda el margen resignado. Si no te siguen, bajar sí compra participación. ' +
+          'Se mide sobre todo el panel, no sólo sobre este producto: es donde hay muestra suficiente.</div>'
+        : '<div class="foot" style="margin-top:14px"><b>Reacción competitiva: todavía sin muestra.</b> ' +
+          'Hacen falta al menos 8 bajadas de precio observadas por cada par de cadenas para decir algo, ' +
+          'porque con dos o tres un "0%" se lee como conclusión y es sólo falta de datos. ' +
+          'El panel lleva ' + h.dias + ' días y crece solo: con unas semanas más esta sección responde ' +
+          'si la competencia te sigue cuando bajas, y en cuántos días.</div>');
+  }
+
   /* ═════════════ Triangulación dibujada, para la pestaña explicativa ═════════════
      Los cuatro caminos sobre la misma recta. Lo que hay que ver de un vistazo no
      es el promedio sino si los puntos caen juntos: cuatro metodos que no
@@ -536,6 +836,12 @@
     st.comps = M._competidores(ofertas);
     st.termino = termino || st.termino;
     st.etiqueta = etiqueta || termino || '';
+    var dp = window.__DATOS_PRICING;
+    var v = dp && dp.variante;
+    st.clave = (v && v.clave) || null;
+    st.cantidad = v && v.cantidad ? parseFloat(v.cantidad) : null;
+    st.unidad = (v && v.unidad) || null;
+    st.eans = ofertas.map(function (o) { return o.ean || null; }).filter(Boolean);
     st.foto = (ofertas.filter(function (o) { return o.imagen; })[0] || {}).imagen || null;
 
     if (st.comps.length < 1) {
@@ -583,6 +889,7 @@
     pintarSupuestos();
     pintarTriangulacion();
     repintar();
+    cargarHistorico().then(pintarHistoria);
   }
 
   function enlazar() {
@@ -612,5 +919,5 @@
   }
 
   window.Decidir = { enlazar: enlazar, activar: activar, _st: st, _modelo: modelo,
-                     pintarTriangulacion: pintarTriangulacion };
+                     pintarTriangulacion: pintarTriangulacion, pintarHistoria: pintarHistoria };
 })();

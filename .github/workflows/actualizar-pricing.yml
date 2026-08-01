@@ -25,14 +25,17 @@ jobs:
       - name: Capturar precios y regenerar el informe
         run: python3 tools/actualizar_pricing.py
 
-      - name: Publicar si cambiaron los precios
+      # El panel historico se versiona aunque el informe no cambie: que un precio
+      # siga igual es informacion, y sin este commit la serie se perderia.
+      - name: Publicar lo que haya cambiado
         run: |
-          if git diff --quiet -- pricing_dinamico_chile.html; then
-            echo "Sin cambios de precio: no se commitea nada."
+          ARCHIVOS="pricing_dinamico_chile.html datos/historico_precios.csv tools/historico.json"
+          if git diff --quiet -- $ARCHIVOS; then
+            echo "Sin cambios: no se commitea nada."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pricing_dinamico_chile.html
+          git add $ARCHIVOS
           git commit -m "Actualizar captura de precios ($(date -u '+%Y-%m-%d %H:%M UTC'))"
           git push

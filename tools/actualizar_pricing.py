@@ -26,6 +26,8 @@ Uso:  python3 tools/actualizar_pricing.py [--diagnostico]
 """
 import concurrent.futures, html as html_mod, json, re, subprocess, sys, datetime, pathlib
 
+import historico
+
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 SALIDA = RAIZ / "pricing_dinamico_chile.html"
 
@@ -437,6 +439,19 @@ def main():
     if diagnostico:
         print("\n(--diagnostico: no se reescribe el informe)")
         return 0
+
+    # El panel historico se alimenta con el catalogo COMPLETO, no con la
+    # categoria foco que embebe el HTML: es la unica forma de que las 8
+    # categorias acumulen serie. Va antes del corte por "sin cambios" a
+    # proposito, porque el latido del panel es informacion aunque el precio
+    # no se haya movido.
+    fecha = payload["meta"]["capturado"][:10]
+    try:
+        nuevas = historico.registrar(catalogo, fecha)
+        historico.publicar()
+        print(f"\nHistorico: {nuevas} filas nuevas para {fecha}")
+    except Exception as e:                       # nunca tumbar la captura por esto
+        print(f"\nAVISO: no se pudo actualizar el historico: {e}", file=sys.stderr)
 
     html = SALIDA.read_text(encoding="utf-8")
     if "__END_DATA__" not in html:

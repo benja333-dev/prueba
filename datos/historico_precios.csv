@@ -1,0 +1,538 @@
+fecha,retailer,sku,ean,nombre,cantidad,unidad,precio_lista,precio_efectivo,mecanica
+2026-07-20,Jumbo,500,,Bebida Coca-Cola Zero 1.5 L,,,2290,1495,2 x $2.990
+2026-07-20,Jumbo,503,,Bebida Coca-Cola Zero 3 L,,,3450,3450,
+2026-07-20,Jumbo,53052,,Pack 6 un. Bebida Coca-Cola Zero Mini Lata 220 cc,,,5190,3248,4 x $12.990
+2026-07-20,Jumbo,167200,,Pack 24 un. Bebida Coca-Cola Zero Lata 220 cc,,,17690,12990,
+2026-07-20,Jumbo,43762,,Pack 6 un. Bebida Coca-Cola Zero Lata 350 cc,,,5990,4190,
+2026-07-20,Jumbo,505,,Bebida Coca-Coca Zero 591 ml,,,1350,995,2 x $1.990
+2026-07-20,Jumbo,494,,Bebida Coca-Cola Light 1.5 L,,,2290,1495,2 x $2.990
+2026-07-20,Jumbo,141141,,Pack Bebida Coca-Cola Zero 3 L + Sprite Zero 3 L,,,5490,4690,
+2026-07-20,Jumbo,153768,,Pack 4 un. Bebida Coca-Cola Zero Azúcar Vidrio No Retornable 300 ml,,,4990,4990,
+2026-07-20,Jumbo,497,,Bebida Coca-Cola Light 3 L,,,3450,3450,
+2026-07-20,Jumbo,135276,,Bebida Coca-Cola Zero Lata 473 cc,,,1250,1000,
+2026-07-20,Jumbo,135247,,Pack 6 un. Bebida Coca-Cola Zero Lata 473 cc,,,5990,5990,
+2026-07-20,Jumbo,141139,,Pack Bebida Coca-Cola Zero 3 L + Fanta Sin Azúcar 3 L,,,5490,4690,
+2026-07-20,Jumbo,141140,,Pack Bebida Coca-Cola Zero 3 L + Nordic Ginger Ale Sin Azúcar 3 L,,,5490,4690,
+2026-07-20,Unimarc,57399,7801610350904,Bebida Coca Cola zero 1 L,,,1690,1000,2 x $2.000
+2026-07-20,Unimarc,655,7801610355534,Bebida Coca Cola zero desechable 3 L,,,3290,2550,$2.550
+2026-07-20,Unimarc,9944,7801620006891,Bebida Pepsi zero no retornable 3 L,,,3190,2450,$2.450
+2026-07-20,Unimarc,6434,7801610284339,Bebida Sprite zero desechable 3 L,,,3290,2400,3 x $7.200
+2026-07-20,Unimarc,4147,7801610356357,Pack Bebida Coca Cola zero lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-20,Unimarc,1502,7801610671313,Bebida Fanta sin azúcar desechable 3 L,,,3290,2400,3 x $7.200
+2026-07-20,Unimarc,569,7801610650103,Bebida Coca Cola light 1 L,,,1690,1000,2 x $2.000
+2026-07-20,Unimarc,93194,7801620010935,Bebida Pepsi zero desechable 1.25 L,,,1890,1000,2 x $2.000
+2026-07-20,Unimarc,6011,7801620006938,Pack bebida Pepsi zero lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-20,Unimarc,578,7801610352151,Bebida Coca Cola light desechable 3 L,,,3290,2550,$2.550
+2026-07-20,Unimarc,5871,7801610000601,Bebida Coca Cola zero botella 591 ml,,,1350,995,2 x $1.990
+2026-07-20,Unimarc,96681,7801610002612,Pack bebida Coca Cola + Sprite sin azúcar 2 un 3 L,,,5890,5190,$5.190
+2026-07-20,Unimarc,3365,7801610022894,Pack Bebida Coca Cola light lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-20,Unimarc,55295,7801620008079,Bebida Canada Dry ginger ale zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-20,Unimarc,91708,7801610473023,Bebida Coca Cola zero lata 473 ml (diseño aleatorio),,,1350,1000,$1.000
+2026-07-20,Unimarc,5869,7801610000595,Bebida Coca Cola light botella 591 ml,,,1350,995,2 x $1.990
+2026-07-20,Unimarc,12589,7801620002794,Bebida Limón Soda zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-20,Unimarc,1722,7801610591888,Bebida Sprite zero botella 591 ml,,,1350,995,2 x $1.990
+2026-07-20,Unimarc,14276,7801610591123,Bebida Fanta sin azúcar botella 591 ml,,,1350,995,2 x $1.990
+2026-07-20,Unimarc,6345,7801620005290,Bebida Kem zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-20,Unimarc,14032,7801620007034,Bebida Orange Crush zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-20,Unimarc,6325,7801620005085,Bebida Bilz zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-20,Unimarc,3560,7801610223048,Pack bebida Sprite zero lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-20,Unimarc,6324,7801620005078,Bebida Pap zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-20,Unimarc,4642,7801610066621,Pack Bebida Fanta sin azúcar lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-20,Unimarc,96680,7801610002599,Pack bebida Coca Cola + Fanta sin azúcar 2 un de 3 L,,,5890,5190,$5.190
+2026-07-20,Unimarc,659,7801610350409,Bebida Coca Cola zero 1.5 L,,,2290,2290,
+2026-07-20,Unimarc,82350,7801620009342,Bebida Pepsi zero 600 ml,,,1290,1070,$1.070
+2026-07-20,Unimarc,98036,9990000000136,Bebida Coca Cola Zero Azúcar Retornable 2 L (Incluye envase),,,2090,1790,$1.790
+2026-07-20,Unimarc,98037,9990000000137,Bebida Sprite Zero Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-20,Unimarc,97684,9990000000036,Bebida Fanta Zero Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-20,Unimarc,96679,7801610002377,Pack bebida Coca Cola + Nordic sin azúcar 2 un de 3 L,,,5890,5190,$5.190
+2026-07-20,Unimarc,86614,7801620009410,Bebida Kem zero 600 ml,,,1290,1070,$1.070
+2026-07-20,Unimarc,86463,7801620009397,Bebida Limón soda zero sin azúcar 600 cc,,,1290,1070,$1.070
+2026-07-20,Unimarc,82358,7801620009427,Bebida Kem Xtreme sugar free 600 ml,,,1290,1070,$1.070
+2026-07-20,Unimarc,98038,9990000000138,Bebida Coca Cola Light Retornable 2 L (Incluye envase),,,2090,1790,$1.790
+2026-07-20,Unimarc,96829,7808707003651,Bebida Point sin azúcar papaya desechable 3 L,,,1090,1090,
+2026-07-20,Unimarc,232,7801610022726,Bebida Coca Cola light 1.5 L,,,2290,2290,
+2026-07-20,Unimarc,441,7801610023723,Bebida Sprite zero 1.5 L,,,2290,2290,
+2026-07-20,Unimarc,843,7801610066225,Bebida Fanta sin azúcar 1.5 L,,,2290,2290,
+2026-07-20,Unimarc,55293,7801620008048,Bebida Canada Dry ginger ale zero no retornable 1.5 L,,,2090,2090,
+2026-07-20,Unimarc,14082,7801620007171,Bebida Canada Dry agua tónica zero desechable 1.5 L,,,2090,2090,
+2026-07-20,Unimarc,13988,7801620006860,Bebida Pepsi zero no retornable 1.5 L,,,2090,2090,
+2026-07-20,Unimarc,6179,7801620004910,Bebida Pap zero no retornable 1.5 L,,,2090,2090,
+2026-07-21,Jumbo,62524,,Bebida Pepsi Zero 1.75 L,,,2390,1590,
+2026-07-21,Jumbo,54039,,Pack 6 un. Bebida Pepsi Zero 350 ml,,,5850,2998,4 x $11.990
+2026-07-21,Jumbo,122281,,Bebida Canada Dry Zero 1.75 L,,,2390,1590,
+2026-07-21,Jumbo,53051,,Pack 6 un. Bebida Coca-Cola Light 220 cc,,,5190,3248,4 x $12.990
+2026-07-21,Jumbo,391,,Bebida Coca-Cola Original 1.5 L,,,2290,1495,2 x $2.990
+2026-07-21,Jumbo,53050,,Pack 6 un. Bebida Coca-Cola Original 220 cc,,,5190,3248,4 x $12.990
+2026-07-21,Jumbo,532,,Bebida Sprite Sin Azúcar 1.5 L,,,2290,1495,2 x $2.990
+2026-07-21,Jumbo,55210,,Bebida Pepsi Desechable 1.75 L,,,2390,1590,
+2026-07-21,Jumbo,17485,,Bebida Pepsi Zero 3 L,,,3250,2000,2 x $4.000
+2026-07-21,Jumbo,167201,,Pack 24 un. Bebida Coca-Cola Original Lata 220 cc,,,17690,12990,
+2026-07-21,Jumbo,43763,,Pack 6 un. Bebida Coca-Cola Original 350 cc,,,5990,4190,
+2026-07-21,Jumbo,510,,Bebida Fanta Sin Azúcar 1.5 L,,,2290,1495,2 x $2.990
+2026-07-21,Jumbo,43764,,Pack 6 un. Bebida Coca-Cola Light 350 cc,,,5990,4190,
+2026-07-21,Jumbo,432,,Bebida Sprite 1.5 L,,,2290,1495,2 x $2.990
+2026-07-21,Jumbo,394,,Bebida Coca-Cola Original 3 L,,,3450,3450,
+2026-07-21,Jumbo,46448,,Bebida Kem Zero 1.75 L,,,2390,1590,
+2026-07-21,Jumbo,396,,Bebida Coca-Cola Original 591 ml,,,1350,995,2 x $1.990
+2026-07-21,Jumbo,72506,,Pack 6 un. Bebida Canada Dry Ginger Ale Lata 350 ml,,,5850,2998,4 x $11.990
+2026-07-21,Jumbo,431,,Bebida Pepsi 3 L,,,3250,2000,2 x $4.000
+2026-07-21,Jumbo,17483,,Bebida Pepsi Zero 1.5 L,,,2150,2150,
+2026-07-21,Jumbo,53996,,Pack 6 un. Bebida Kem Piña Lata 350 cc,,,5850,2998,4 x $11.990
+2026-07-21,Jumbo,44021,,Pack 6 un. Bebida Fanta Naranja Sin Azúcar 350 ml,,,5990,4190,
+2026-07-21,Jumbo,46447,,Bebida Kem 1.75 L,,,2390,1590,
+2026-07-21,Jumbo,166170,,Pack Bebida Coca-Cola Original 3 L + Fanta Original 3 L,,,5450,4690,
+2026-07-21,Jumbo,499,,Bebida Coca-Cola Light 591 ml,,,1350,995,2 x $1.990
+2026-07-21,Jumbo,65768,,Bebida Canada Dry Ginger Ale Zero 1.5 L,,,2150,2150,
+2026-07-21,Jumbo,43832,,Pack 6 un. Bebida Pepsi 350 ml,,,5850,2998,4 x $11.990
+2026-07-21,Jumbo,44218,,Pack 6 un. Bebida Sprite Sin Azúcar Lata 350 ml,,,5990,4190,
+2026-07-21,Unimarc,3819,7801610001974,Bebida Coca Cola original 1 L,,,1690,1000,2 x $2.000
+2026-07-21,Unimarc,484,7801610001653,Bebida Coca Cola original desechable 3 L,,,3290,2550,$2.550
+2026-07-21,Unimarc,3269,7801610001660,Pack Bebida Coca Cola original lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-21,Unimarc,3723,7801610005651,Bebida Sprite desechable 3 L,,,3290,2400,3 x $7.200
+2026-07-21,Unimarc,3801,7801620017552,Bebida Pepsi no retornable 3 L,,,3190,2450,$2.450
+2026-07-21,Unimarc,3781,7801620001223,Bebida Kem piña no retornable 3 L,,,3190,2490,$2.490
+2026-07-21,Unimarc,90382,7801610003084,FANTA NARANJA FULL SUGAR 3 LT PET,,,3290,2400,3 x $7.200
+2026-07-21,Unimarc,3816,7801620001643,Bebida Limón Soda no retornable 3 L,,,3190,2490,$2.490
+2026-07-21,Unimarc,5867,7801610000571,Bebida Coca Cola original botella 591 ml,,,1350,995,2 x $1.990
+2026-07-21,Unimarc,3783,7801620001216,Bebida Pap no retornable 3 L,,,3190,2490,$2.490
+2026-07-21,Unimarc,93193,7801620010928,Bebida Pepsi desechable 1.25 L,,,1890,1000,2 x $2.000
+2026-07-21,Unimarc,3782,7801620001193,Bebida Bilz no retornable 3 L,,,3190,2490,$2.490
+2026-07-21,Unimarc,3876,7801620001896,Bebida Canada Dry ginger ale no retornable 3 L,,,3190,2490,$2.490
+2026-07-21,Unimarc,3276,7801620000233,Pack bebida Pepsi lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,3261,7801620000196,Pack bebida Limón Soda lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,3585,7801620000349,Pack bebida Kem piña lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,3280,7801620000325,Pack bebida Bilz lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,96682,7801610003398,Pack bebida Coca Cola + Fanta 2 un de 3 L,,,5790,5190,$5.190
+2026-07-21,Unimarc,3811,7801620001599,Bebida Orange Crush no retornable 3 L,,,3190,2490,$2.490
+2026-07-21,Unimarc,6677,7801610591994,Bebida Sprite botella 591 ml,,,1350,995,2 x $1.990
+2026-07-21,Unimarc,3263,7801620000332,Pack bebida Pap lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,3278,7801620852726,Pack bebida Orange Crush lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,90391,7801610002926,FANTA NARANJA FULL SUGAR 591 ML PET,,,1350,995,2 x $1.990
+2026-07-21,Unimarc,3287,7802100370105,Bebida Canada Dry agua tónica no retornable 1.5 L,,,1990,1590,$1.590
+2026-07-21,Unimarc,3267,7801610005965,Pack Bebida Sprite lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-21,Unimarc,3265,7801620000226,Pack bebida Canada Dry agua tónica lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,90384,7801610003114,Pack bebida sabor original Fanta lata 6un de  350 ml,,,5990,4290,$4.290
+2026-07-21,Unimarc,12770,7801620001988,Bebida Kem Xtreme no retornable 1.5 L,,,1990,1590,$1.590
+2026-07-21,Unimarc,3259,7801620000219,Pack bebida Canada Dry ginger ale lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-21,Unimarc,97634,9990000000135,Bebida Coca Cola Original Retornable 2 L (Incluye envase),,,2090,1790,$1.790
+2026-07-21,Unimarc,91789,7801610002544,Bebida Fanta sabor pomelo lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-21,Unimarc,97654,9990000000081,Bebida Pap retornable 2 L (Incluye envase),,,2290,1690,$1.690
+2026-07-21,Unimarc,97653,9990000000128,Bebida Sprite Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-21,Unimarc,98026,9990000000080,Bebida Limón Soda retornable 2 L (Incluye envase),,,2290,1690,$1.690
+2026-07-21,Unimarc,98046,9990000000079,Bebida Kem Piña Retornable 2 L (Incluye envase),,,2290,1690,$1.690
+2026-07-21,Unimarc,86456,7801620009403,Bebida Limón soda 600 cc,,,1290,1070,$1.070
+2026-07-21,Unimarc,86459,7801620009502,Bebida Bilz 600 cc,,,1290,1070,$1.070
+2026-07-21,Unimarc,86455,7801620009380,Bebida gaseosa pap 600ml,,,1290,1070,$1.070
+2026-07-21,Unimarc,82351,7801620009373,Bebida Pepsi 600 ml,,,1290,1070,$1.070
+2026-07-21,Unimarc,98035,9990000000129,Bebida Fanta Naranja Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-21,Unimarc,82352,7801620009434,Bebida Kem Xtreme 600 ml,,,1290,1070,$1.070
+2026-07-21,Unimarc,86457,7801620009441,Bebida Kem 600 cc,,,1290,1070,$1.070
+2026-07-21,Unimarc,86458,7801620009489,Bebida Crush 600 cc,,,1290,1070,$1.070
+2026-07-21,Unimarc,3274,7801610001264,Bebida Coca Cola original 1.5 L,,,2290,2290,
+2026-07-21,Unimarc,12571,7802100360182,Bebida Canada Dry ginger ale no retornable 1.5 L,,,2090,2090,
+2026-07-21,Unimarc,455,7801610005262,Bebida Sprite 1.5 L,,,2290,2290,
+2026-07-21,Alvi,1310,7801610000571,Bebida Coca Cola original botella 591 ml Bebida original botella,,,1040,1040,
+2026-07-21,Alvi,1224,7801610323236,Bebida Coca Cola original desechable 3 L Bebida original desechable,,,2960,2960,
+2026-07-21,Alvi,1261,7801610350355,Bebida Coca Cola sin azúcar lata 350 ml Bebida sin azúcar lata,,,870,870,
+2026-07-21,Alvi,1189,7801610011195,"Bebida Coca Cola, lata 350 ml Bebida lata",,,870,870,
+2026-07-21,Alvi,1312,7801610000601,Bebida Coca Cola zero botella 591 ml Bebida coca cola sin azúcar botella,,,1040,1040,
+2026-07-21,Alvi,1259,7801610355534,Bebida Coca Cola zero desechable 3 L Bebida sin azúcar desechable,,,2960,2960,
+2026-07-21,Alvi,1190,7801610001264,Bebida Coca Cola original 1.5 L Bebida original desechable,,,2130,2130,
+2026-07-21,Alvi,1262,7801610350409,Bebida Coca Cola zero 1.5 L Bebida sin azúcar,,,2130,2130,
+2026-07-21,Alvi,1192,7801620852689,Bebida Pepsi lata 350 ml Bebida lata,,,950,950,
+2026-07-21,Alvi,1188,7801610005194,Bebida Sprite lata 350 ml Bebida lata,,,870,870,
+2026-07-21,Alvi,1220,7801620852580,Bebida Kem piña lata 350 ml Bebida lata,,,950,950,
+2026-07-21,Alvi,1320,7801620006891,Bebida zero desechable,,,3270,3270,
+2026-07-21,Alvi,1317,7801620006846,"Bebida Pepsi zero, lata 350 ml Bebida zero lata",,,950,950,
+2026-07-21,Alvi,6456,7801620009373,Bebida desechable,,,1160,1160,
+2026-07-21,Alvi,1195,7802100290182,"Bebida Bilz, lata 350 ml Bebida lata",,,950,950,
+2026-07-21,Alvi,1228,7801610005651,Bebida Sprite desechable 3 L Bebida desechable,,,2960,2960,
+2026-07-21,Alvi,1232,7801620017552,Bebida Pepsi no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-21,Alvi,1229,7801620001223,Bebida Kem piña no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-21,Alvi,1194,7802100330185,Bebida Orange Crush Pepsi lata 350 ml Bebida lata,,,950,950,
+2026-07-21,Alvi,1230,7801620001193,Bebida Bilz no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-21,Alvi,1210,7801610022122,Bebida Coca Cola Light lata 350 ml Bebida lata,,,870,870,
+2026-07-21,Alvi,1235,7801620001643,Bebida Limón Soda no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-21,Alvi,1231,7801620001216,Bebida Pap no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-21,Alvi,1186,7801620300203,"Beb. Pap, Lata 6 U X 350 Ml Bebida lata",,,950,950,
+2026-07-21,Alvi,1185,7801620340155,"Beb. Limón Soda, lata 6 u x 350 ml Bebida lata",,,950,950,
+2026-07-21,Alvi,9257,7801610350904,Bebida sin azúcar,,,1360,1360,
+2026-07-21,Alvi,9256,7801610001974,Bebida botella,,,1360,1360,
+2026-07-21,Alvi,11088,7801610003084,Bebida naranja full sugar Fanta botella pet 3L Bebida naranja full sugar botella pet 3L,,,2960,2960,
+2026-07-21,Alvi,14239,7801610284339,Bebida Sprite zero desechable 3 L,,,2960,2960,
+2026-07-21,Alvi,6712,7801620007041,"Bebida Limón Soda zero, lata 350 ml Bebida zero lata",,,950,950,
+2026-07-21,Alvi,6416,7801620852597,"Bebida Canada Dry agua tónica lata, 350 ml Agua tónica lata",,,950,950,
+2026-07-21,Alvi,5573,7801620853181,Bebida Orange Crush light lata 350 ml Bebida zero lata,,,950,950,
+2026-07-21,Alvi,1237,7801620001704,Bebida Kem Piña Xtreme lata 350 ml Bebida lata,,,950,950,
+2026-07-21,Alvi,1184,7801620360153,Bebida Ginger Ale Canada Dry Lata 350 Ml Bebida lata,,,950,950,
+2026-07-21,Alvi,14459,7801620011000,Bebida Limón Soda desechable 1.25 L,,,1690,1690,
+2026-07-21,Alvi,14457,7801620010966,Bebida Bilz desechable 1.25 L,,,1690,1690,
+2026-07-21,Alvi,14454,7801620010928,Bebida Pepsi desechable 1.25 L,,,1690,1690,
+2026-07-21,Alvi,14458,7801620010980,Bebida Pap desechable 1.25 L,,,1690,1690,
+2026-07-21,Alvi,14456,7801620010942,Bebida Kem piña desechable 1.25 L,,,1690,1690,
+2026-07-21,Alvi,14455,7801620010935,Bebida Pepsi zero desechable 1.25 L,,,1690,1690,
+2026-07-21,Alvi,9583,7801620009502,Bebida desechable,,,1160,1160,
+2026-07-21,Alvi,9582,7801620009441,Bebida desechable,,,1160,1160,
+2026-07-21,Alvi,6700,7801610220108,Bebida Coca Cola sin azúcar lata mini 220 ml Bebida sin azúcar lata,,,690,690,
+2026-07-22,Jumbo,167200,,Pack 24 un. Bebida Coca-Cola Zero Lata 220 cc,,,17690,12490,
+2026-07-22,Jumbo,167201,,Pack 24 un. Bebida Coca-Cola Original Lata 220 cc,,,17690,12490,
+2026-07-22,Jumbo,53054,,Pack 6 un. Bebida Sprite Sin Azúcar 220 ml,,,5190,3248,4 x $12.990
+2026-07-22,Alvi,1192,7801620852689,Bebida Pepsi lata 350 ml Bebida lata,,,1000,1000,
+2026-07-22,Alvi,1220,7801620852580,Bebida Kem piña lata 350 ml Bebida lata,,,1000,1000,
+2026-07-22,Alvi,1317,7801620006846,"Bebida Pepsi zero, lata 350 ml Bebida zero lata",,,1000,1000,
+2026-07-22,Alvi,1195,7802100290182,"Bebida Bilz, lata 350 ml Bebida lata",,,1000,1000,
+2026-07-22,Alvi,1194,7802100330185,Bebida Orange Crush Pepsi lata 350 ml Bebida lata,,,1000,1000,
+2026-07-22,Alvi,1186,7801620300203,"Beb. Pap, Lata 6 U X 350 Ml Bebida lata",,,1000,1000,
+2026-07-22,Alvi,1185,7801620340155,"Beb. Limón Soda, lata 6 u x 350 ml Bebida lata",,,1000,1000,
+2026-07-22,Alvi,9581,7801620009403,Bebida desechable,,,1160,1160,
+2026-07-22,Alvi,9580,7801620009397,Bebida zero desechable,,,1160,1160,
+2026-07-22,Alvi,9579,7801620009380,Bebida desechable,,,1160,1160,
+2026-07-22,Alvi,9257,7801610350904,Bebida sin azúcar,,,1530,1530,
+2026-07-22,Alvi,9256,7801610001974,Bebida botella,,,1530,1530,
+2026-07-23,Jumbo,44391,,Pack 6 un. Bebida Pap 350 ml,,,5850,2998,4 x $11.990
+2026-07-23,Jumbo,46450,,Bebida Pap 1.75 L,,,2390,1590,
+2026-07-23,Jumbo,44181,,Pack 6 un. Bebida Crush Light 350 ml,,,5850,2998,4 x $11.990
+2026-07-23,Jumbo,43831,,Pack 6 un. Bebida Bilz Lata 350 ml,,,5850,2998,4 x $11.990
+2026-07-23,Unimarc,97684,9990000000036,Bebida Fanta Zero Retornable 2 L (Incluye envase),,,1990,1690,$1.690
+2026-07-24,Jumbo,53052,,Pack 6 un. Bebida Coca-Cola Zero Mini Lata 220 cc,,,5190,3122,4 x $12.490
+2026-07-24,Jumbo,53051,,Pack 6 un. Bebida Coca-Cola Light 220 cc,,,5190,3122,4 x $12.490
+2026-07-24,Jumbo,53050,,Pack 6 un. Bebida Coca-Cola Original 220 cc,,,5190,3122,4 x $12.490
+2026-07-25,Jumbo,506,,Bebida Crush Zero 1.5 L,,,2150,1490,
+2026-07-25,Jumbo,53054,,Pack 6 un. Bebida Sprite Sin Azúcar 220 ml,,,5190,3145,2 x $6.290
+2026-07-25,Alvi,1334,7801620005078,Bebida zero desechable,,,3270,3270,
+2026-07-25,Alvi,1238,7801620001896,Bebida Canada Dry ginger ale no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-25,Alvi,1234,7801620001599,Bebida Orange Crush no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-26,Jumbo,144365,,Bebida Fanta Naranja 1.5 L,,,2290,1495,2 x $2.990
+2026-07-27,Jumbo,500,,Bebida Coca-Cola Zero 1.5 L,,,2290,1495,2 x $2.990
+2026-07-27,Jumbo,494,,Bebida Coca-Cola Light 1.5 L,,,2290,1495,2 x $2.990
+2026-07-27,Jumbo,43762,,Pack 6 un. Bebida Coca-Cola Zero Lata 350 cc,,,5990,4190,
+2026-07-27,Jumbo,141141,,Pack Bebida Coca-Cola Zero 3 L + Sprite Zero 3 L,,,5490,4690,
+2026-07-27,Jumbo,503,,Bebida Coca-Cola Zero 3 L,,,3450,3450,
+2026-07-27,Jumbo,505,,Bebida Coca-Coca Zero 591 ml,,,1350,995,2 x $1.990
+2026-07-27,Jumbo,141139,,Pack Bebida Coca-Cola Zero 3 L + Fanta Sin Azúcar 3 L,,,5490,4690,
+2026-07-27,Jumbo,153768,,Pack 4 un. Bebida Coca-Cola Zero Azúcar Vidrio No Retornable 300 ml,,,4990,4990,
+2026-07-27,Jumbo,497,,Bebida Coca-Cola Light 3 L,,,3450,3450,
+2026-07-27,Jumbo,135276,,Bebida Coca-Cola Zero Lata 473 cc,,,1250,1000,
+2026-07-27,Jumbo,135247,,Pack 6 un. Bebida Coca-Cola Zero Lata 473 cc,,,5990,5990,
+2026-07-27,Jumbo,141140,,Pack Bebida Coca-Cola Zero 3 L + Nordic Ginger Ale Sin Azúcar 3 L,,,5490,4690,
+2026-07-27,Unimarc,57399,7801610350904,Bebida Coca Cola zero 1 L,,,1690,1000,2 x $2.000
+2026-07-27,Unimarc,655,7801610355534,Bebida Coca Cola zero desechable 3 L,,,3290,2550,$2.550
+2026-07-27,Unimarc,9944,7801620006891,Bebida Pepsi zero no retornable 3 L,,,3190,2450,$2.450
+2026-07-27,Unimarc,6434,7801610284339,Bebida Sprite zero desechable 3 L,,,3290,2400,3 x $7.200
+2026-07-27,Unimarc,4147,7801610356357,Pack Bebida Coca Cola zero lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-27,Unimarc,1502,7801610671313,Bebida Fanta sin azúcar desechable 3 L,,,3290,2400,3 x $7.200
+2026-07-27,Unimarc,93194,7801620010935,Bebida Pepsi zero desechable 1.25 L,,,1890,1000,2 x $2.000
+2026-07-27,Unimarc,569,7801610650103,Bebida Coca Cola light 1 L,,,1690,1000,2 x $2.000
+2026-07-27,Unimarc,6011,7801620006938,Pack bebida Pepsi zero lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-27,Unimarc,578,7801610352151,Bebida Coca Cola light desechable 3 L,,,3290,2550,$2.550
+2026-07-27,Unimarc,5871,7801610000601,Bebida Coca Cola zero botella 591 ml,,,1350,995,2 x $1.990
+2026-07-27,Unimarc,96681,7801610002612,Pack bebida Coca Cola + Sprite sin azúcar 2 un 3 L,,,5890,5190,$5.190
+2026-07-27,Unimarc,3365,7801610022894,Pack Bebida Coca Cola light lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-27,Unimarc,55295,7801620008079,Bebida Canada Dry ginger ale zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-27,Unimarc,91708,7801610473023,Bebida Coca Cola zero lata 473 ml (diseño aleatorio),,,1350,1000,$1.000
+2026-07-27,Unimarc,5869,7801610000595,Bebida Coca Cola light botella 591 ml,,,1350,995,2 x $1.990
+2026-07-27,Unimarc,12589,7801620002794,Bebida Limón Soda zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-27,Unimarc,1722,7801610591888,Bebida Sprite zero botella 591 ml,,,1350,995,2 x $1.990
+2026-07-27,Unimarc,14276,7801610591123,Bebida Fanta sin azúcar botella 591 ml,,,1350,995,2 x $1.990
+2026-07-27,Unimarc,6345,7801620005290,Bebida Kem zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-27,Unimarc,14032,7801620007034,Bebida Orange Crush zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-27,Unimarc,6325,7801620005085,Bebida Bilz zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-27,Unimarc,3560,7801610223048,Pack bebida Sprite zero lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-27,Unimarc,6324,7801620005078,Bebida Pap zero no retornable 3 L,,,3190,2490,$2.490
+2026-07-27,Unimarc,4642,7801610066621,Pack Bebida Fanta sin azúcar lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-27,Unimarc,96680,7801610002599,Pack bebida Coca Cola + Fanta sin azúcar 2 un de 3 L,,,5890,5190,$5.190
+2026-07-27,Unimarc,98036,9990000000136,Bebida Coca Cola Zero Azúcar Retornable 2 L (Incluye envase),,,2090,1790,$1.790
+2026-07-27,Unimarc,659,7801610350409,Bebida Coca Cola zero 1.5 L,,,2290,2290,
+2026-07-27,Unimarc,98037,9990000000137,Bebida Sprite Zero Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-27,Unimarc,82350,7801620009342,Bebida Pepsi zero 600 ml,,,1290,1070,$1.070
+2026-07-27,Unimarc,96679,7801610002377,Pack bebida Coca Cola + Nordic sin azúcar 2 un de 3 L,,,5890,5190,$5.190
+2026-07-27,Unimarc,86614,7801620009410,Bebida Kem zero 600 ml,,,1290,1070,$1.070
+2026-07-27,Unimarc,86463,7801620009397,Bebida Limón soda zero sin azúcar 600 cc,,,1290,1070,$1.070
+2026-07-27,Unimarc,82358,7801620009427,Bebida Kem Xtreme sugar free 600 ml,,,1290,1070,$1.070
+2026-07-27,Unimarc,98038,9990000000138,Bebida Coca Cola Light Retornable 2 L (Incluye envase),,,2090,1790,$1.790
+2026-07-27,Unimarc,232,7801610022726,Bebida Coca Cola light 1.5 L,,,2290,2290,
+2026-07-27,Unimarc,441,7801610023723,Bebida Sprite zero 1.5 L,,,2290,2290,
+2026-07-27,Unimarc,14082,7801620007171,Bebida Canada Dry agua tónica zero desechable 1.5 L,,,2090,2090,
+2026-07-27,Unimarc,55293,7801620008048,Bebida Canada Dry ginger ale zero no retornable 1.5 L,,,2090,2090,
+2026-07-27,Unimarc,843,7801610066225,Bebida Fanta sin azúcar 1.5 L,,,2290,2290,
+2026-07-27,Unimarc,13988,7801620006860,Bebida Pepsi zero no retornable 1.5 L,,,2090,2090,
+2026-07-27,Unimarc,6179,7801620004910,Bebida Pap zero no retornable 1.5 L,,,2090,2090,
+2026-07-28,Unimarc,3819,7801610001974,Bebida Coca Cola original 1 L,,,1690,1000,2 x $2.000
+2026-07-28,Unimarc,484,7801610001653,Bebida Coca Cola original desechable 3 L,,,3290,2550,$2.550
+2026-07-28,Unimarc,3269,7801610001660,Pack Bebida Coca Cola original lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-28,Unimarc,3723,7801610005651,Bebida Sprite desechable 3 L,,,3290,2400,3 x $7.200
+2026-07-28,Unimarc,3801,7801620017552,Bebida Pepsi no retornable 3 L,,,3190,2450,$2.450
+2026-07-28,Unimarc,3781,7801620001223,Bebida Kem piña no retornable 3 L,,,3190,2490,$2.490
+2026-07-28,Unimarc,90382,7801610003084,FANTA NARANJA FULL SUGAR 3 LT PET,,,3290,2400,3 x $7.200
+2026-07-28,Unimarc,3816,7801620001643,Bebida Limón Soda no retornable 3 L,,,3190,2490,$2.490
+2026-07-28,Unimarc,93193,7801620010928,Bebida Pepsi desechable 1.25 L,,,1890,1000,2 x $2.000
+2026-07-28,Unimarc,5867,7801610000571,Bebida Coca Cola original botella 591 ml,,,1350,995,2 x $1.990
+2026-07-28,Unimarc,3783,7801620001216,Bebida Pap no retornable 3 L,,,3190,2490,$2.490
+2026-07-28,Unimarc,3782,7801620001193,Bebida Bilz no retornable 3 L,,,3190,2490,$2.490
+2026-07-28,Unimarc,3876,7801620001896,Bebida Canada Dry ginger ale no retornable 3 L,,,3190,2490,$2.490
+2026-07-28,Unimarc,3276,7801620000233,Pack bebida Pepsi lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,3585,7801620000349,Pack bebida Kem piña lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,3261,7801620000196,Pack bebida Limón Soda lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,3280,7801620000325,Pack bebida Bilz lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,6677,7801610591994,Bebida Sprite botella 591 ml,,,1350,995,2 x $1.990
+2026-07-28,Unimarc,3263,7801620000332,Pack bebida Pap lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,3278,7801620852726,Pack bebida Orange Crush lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,3811,7801620001599,Bebida Orange Crush no retornable 3 L,,,3190,2490,$2.490
+2026-07-28,Unimarc,90391,7801610002926,FANTA NARANJA FULL SUGAR 591 ML PET,,,1350,995,2 x $1.990
+2026-07-28,Unimarc,96682,7801610003398,Pack bebida Coca Cola + Fanta 2 un de 3 L,,,5790,5190,$5.190
+2026-07-28,Unimarc,3267,7801610005965,Pack Bebida Sprite lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-28,Unimarc,3287,7802100370105,Bebida Canada Dry agua tónica no retornable 1.5 L,,,1990,1590,$1.590
+2026-07-28,Unimarc,3265,7801620000226,Pack bebida Canada Dry agua tónica lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,97634,9990000000135,Bebida Coca Cola Original Retornable 2 L (Incluye envase),,,2090,1790,$1.790
+2026-07-28,Unimarc,90384,7801610003114,Pack bebida sabor original Fanta lata 6un de  350 ml,,,5990,4290,$4.290
+2026-07-28,Unimarc,12770,7801620001988,Bebida Kem Xtreme no retornable 1.5 L,,,1990,1590,$1.590
+2026-07-28,Unimarc,3259,7801620000219,Pack bebida Canada Dry ginger ale lata 6 un de 350 ml,,,5890,4000,$4.000
+2026-07-28,Unimarc,91789,7801610002544,Bebida Fanta sabor pomelo lata 6 un de 350 ml,,,5990,4290,$4.290
+2026-07-28,Unimarc,97653,9990000000128,Bebida Sprite Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-28,Unimarc,97654,9990000000081,Bebida Pap retornable 2 L (Incluye envase),,,2290,1690,$1.690
+2026-07-28,Unimarc,98026,9990000000080,Bebida Limón Soda retornable 2 L (Incluye envase),,,2290,1690,$1.690
+2026-07-28,Unimarc,98046,9990000000079,Bebida Kem Piña Retornable 2 L (Incluye envase),,,2290,1690,$1.690
+2026-07-28,Unimarc,86456,7801620009403,Bebida Limón soda 600 cc,,,1290,1070,$1.070
+2026-07-28,Unimarc,86459,7801620009502,Bebida Bilz 600 cc,,,1290,1070,$1.070
+2026-07-28,Unimarc,86455,7801620009380,Bebida gaseosa pap 600ml,,,1290,1070,$1.070
+2026-07-28,Unimarc,82351,7801620009373,Bebida Pepsi 600 ml,,,1290,1070,$1.070
+2026-07-28,Unimarc,98035,9990000000129,Bebida Fanta Naranja Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-28,Unimarc,82352,7801620009434,Bebida Kem Xtreme 600 ml,,,1290,1070,$1.070
+2026-07-28,Unimarc,86457,7801620009441,Bebida Kem 600 cc,,,1290,1070,$1.070
+2026-07-28,Unimarc,86458,7801620009489,Bebida Crush 600 cc,,,1290,1070,$1.070
+2026-07-28,Unimarc,3274,7801610001264,Bebida Coca Cola original 1.5 L,,,2290,2290,
+2026-07-28,Unimarc,12571,7802100360182,Bebida Canada Dry ginger ale no retornable 1.5 L,,,2090,2090,
+2026-07-28,Alvi,1310,7801610000571,Bebida Coca Cola original botella 591 ml Bebida original botella,,,1040,1040,
+2026-07-28,Alvi,1224,7801610323236,Bebida Coca Cola original desechable 3 L Bebida original desechable,,,2960,2960,
+2026-07-28,Alvi,1261,7801610350355,Bebida Coca Cola sin azúcar lata 350 ml Bebida sin azúcar lata,,,870,870,
+2026-07-28,Alvi,1189,7801610011195,"Bebida Coca Cola, lata 350 ml Bebida lata",,,870,870,
+2026-07-28,Alvi,1312,7801610000601,Bebida Coca Cola zero botella 591 ml Bebida coca cola sin azúcar botella,,,1040,1040,
+2026-07-28,Alvi,1259,7801610355534,Bebida Coca Cola zero desechable 3 L Bebida sin azúcar desechable,,,2960,2960,
+2026-07-28,Alvi,1190,7801610001264,Bebida Coca Cola original 1.5 L Bebida original desechable,,,2130,2130,
+2026-07-28,Alvi,1262,7801610350409,Bebida Coca Cola zero 1.5 L Bebida sin azúcar,,,2130,2130,
+2026-07-28,Alvi,1188,7801610005194,Bebida Sprite lata 350 ml Bebida lata,,,870,870,
+2026-07-28,Alvi,1320,7801620006891,Bebida zero desechable,,,3270,3270,
+2026-07-28,Alvi,6456,7801620009373,Bebida desechable,,,1160,1160,
+2026-07-28,Alvi,1228,7801610005651,Bebida Sprite desechable 3 L Bebida desechable,,,2960,2960,
+2026-07-28,Alvi,1232,7801620017552,Bebida Pepsi no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-28,Alvi,1229,7801620001223,Bebida Kem piña no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-28,Alvi,1230,7801620001193,Bebida Bilz no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-28,Alvi,1210,7801610022122,Bebida Coca Cola Light lata 350 ml Bebida lata,,,870,870,
+2026-07-28,Alvi,1235,7801620001643,Bebida Limón Soda no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-28,Alvi,1231,7801620001216,Bebida Pap no retornable 3 L Bebida desechable,,,3270,3270,
+2026-07-28,Alvi,9583,7801620009502,Bebida desechable,,,1160,1160,
+2026-07-28,Alvi,9582,7801620009441,Bebida desechable,,,1160,1160,
+2026-07-28,Alvi,6700,7801610220108,Bebida Coca Cola sin azúcar lata mini 220 ml Bebida sin azúcar lata,,,690,690,
+2026-07-29,Unimarc,97684,9990000000036,Bebida Fanta Zero Retornable 2 L (Incluye envase),,,2090,1690,$1.690
+2026-07-29,Alvi,1192,7801620852689,Bebida Pepsi lata 350 ml Bebida lata,,,1000,1000,
+2026-07-29,Alvi,1220,7801620852580,Bebida Kem piña lata 350 ml Bebida lata,,,1000,1000,
+2026-07-29,Alvi,1317,7801620006846,"Bebida Pepsi zero, lata 350 ml Bebida zero lata",,,1000,1000,
+2026-07-29,Alvi,1195,7802100290182,"Bebida Bilz, lata 350 ml Bebida lata",,,1000,1000,
+2026-07-29,Alvi,1194,7802100330185,Bebida Orange Crush Pepsi lata 350 ml Bebida lata,,,1000,1000,
+2026-07-29,Alvi,1186,7801620300203,"Beb. Pap, Lata 6 U X 350 Ml Bebida lata",,,1000,1000,
+2026-07-29,Alvi,1185,7801620340155,"Beb. Limón Soda, lata 6 u x 350 ml Bebida lata",,,1000,1000,
+2026-07-29,Alvi,9581,7801620009403,Bebida desechable,,,1160,1160,
+2026-07-29,Alvi,9580,7801620009397,Bebida zero desechable,,,1160,1160,
+2026-07-29,Alvi,9579,7801620009380,Bebida desechable,,,1160,1160,
+2026-07-29,Alvi,9257,7801610350904,Bebida sin azúcar,,,1530,1530,
+2026-07-29,Alvi,9256,7801610001974,Bebida botella,,,1530,1530,
+2026-07-31,Unimarc,3801,7801620017552,Bebida Pepsi no retornable 3 L,3,L,3190,2233,$2.233
+2026-07-31,Unimarc,9838,7801620014513,Bebida Pepsi no retornable 1.5 L,1.5,L,2090,1463,$1.463
+2026-07-31,Unimarc,82351,7801620009373,Bebida Pepsi 600 ml,0.6,L,1290,903,$903
+2026-07-31,Unimarc,93195,7801620010942,Bebida Kem piña desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,93197,7801620010966,Bebida Bilz desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,93199,7801620010980,Bebida Pap desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,3782,7801620001193,Bebida Bilz no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,3876,7801620001896,Bebida Canada Dry ginger ale no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,3781,7801620001223,Bebida Kem piña no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,3816,7801620001643,Bebida Limón Soda no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,3783,7801620001216,Bebida Pap no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,93201,7801620011000,Bebida Limón Soda desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,96682,7801610003398,Pack bebida Coca Cola + Fanta 2 un de 3 L,6,L,5750,5190,$5.190
+2026-07-31,Unimarc,455,7801610005262,Bebida Sprite 1.5 L,1.5,L,2290,2290,
+2026-07-31,Unimarc,3286,7802100340184,Bebida Limón Soda no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,3285,7802100350183,Bebida Kem piña no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,3283,7802100300188,Bebida Pap no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,3282,7802100290168,Bebida Bilz no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,90392,7801610003046,FANTA NARANJA FULL SUGAR 1.5 LT PET,1.5,L,2290,2290,
+2026-07-31,Unimarc,90383,7801610002452,Bebida Fanta sabor pomelo desechable 1.5 L,1.5,L,2290,2290,
+2026-07-31,Unimarc,98025,9990000000083,Bebida Bilz retornable  2 L (Incluye envase),2,L,2290,1690,$1.690
+2026-07-31,Unimarc,3284,7802100330215,Bebida Orange Crush no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,90385,7801610002858,FANTA NARANJA FULL SUGAR 350ML LATA,0.35,L,1090,1090,
+2026-07-31,Unimarc,9944,7801620006891,Bebida Pepsi zero no retornable 3 L,3,L,3190,2233,$2.233
+2026-07-31,Unimarc,13988,7801620006860,Bebida Pepsi zero no retornable 1.5 L,1.5,L,2090,1463,$1.463
+2026-07-31,Unimarc,82350,7801620009342,Bebida Pepsi zero 600 ml,0.6,L,1290,903,$903
+2026-07-31,Unimarc,6011,7801620006938,Pack bebida Pepsi zero lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-07-31,Unimarc,93196,7801620010959,Bebida Kem zero desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,93198,7801620010973,Bebida Bilz zero desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,93200,7801620010997,Bebida Pap zero desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,6325,7801620005085,Bebida Bilz zero no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,55295,7801620008079,Bebida Canada Dry ginger ale zero no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,6345,7801620005290,Bebida Kem zero no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,12589,7801620002794,Bebida Limón Soda zero no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,6324,7801620005078,Bebida Pap zero no retornable 3 L,3,L,3190,2195,2 x $4.390
+2026-07-31,Unimarc,96681,7801610002612,Pack bebida Coca Cola + Sprite sin azúcar 2 un 3 L,6,L,5850,5190,$5.190
+2026-07-31,Unimarc,93202,7801620011017,Bebida Limón Soda zero desechable 1.25 L,1.25,L,1890,1000,2 x $2.000
+2026-07-31,Unimarc,96680,7801610002599,Pack bebida Coca Cola + Fanta sin azúcar 2 un de 3 L,6,L,5850,5190,$5.190
+2026-07-31,Unimarc,96679,7801610002377,Pack bebida Coca Cola + Nordic sin azúcar 2 un de 3 L,6,L,5850,5190,$5.190
+2026-07-31,Unimarc,633,7801620002787,Bebida Limón Soda light no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,3960,7801620151058,Bebida Canada Dry ginger ale light no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,6346,7801620005306,Bebida Kem zero no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,83640,7801610285831,Bebida Fanta sabor pomelo zero azúcar 1.5 L,1.5,L,2290,2290,
+2026-07-31,Unimarc,3626,7801620853204,Bebida Orange Crush light no retornable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,6433,7801610271032,Bebida Nordic Mist ginger ale zero desechable 3 L,3,L,3290,3290,
+2026-07-31,Unimarc,6177,7801620004958,Bebida Bilz zero no retronable 1.5 L,1.5,L,2090,2090,
+2026-07-31,Unimarc,55976,7801620008109,Bebida Canada Dry ginger ale zero lata 6 un de 350 ml,2.1,L,5850,5850,
+2026-07-31,Alvi,1311,7801610000595,Bebida botella,0.591,L,1040,1040,
+2026-07-31,Alvi,1352,7801610591994,Bebida botella,0.591,L,1040,1040,
+2026-07-31,Alvi,1221,7801610005262,Bebida Sprite 1.5 L Bebida desechable,1.5,L,2130,2130,
+2026-07-31,Alvi,1217,7801610223727,Bebida Sprite zero 1.5 L Bebida zero,1.5,L,2130,2130,
+2026-07-31,Alvi,11114,7801610002858,Bebida naranja full sugar Fanta lata 350 ml Bebida naranja full sugar lata 350 ml,0.35,L,870,870,
+2026-07-31,Alvi,11087,7801610003046,Bebida naranja full sugar Fanta botellla pet 1.5 L Bebida naranja full sugar botellla pet 1.5 L,1.5,L,2130,2130,
+2026-07-31,Alvi,11086,7801610002926,FANTA NARANJA FULL SUGAR 591 ML PET Bebida naranja full sugar botella pet 591 ml,0.591,L,1040,1040,
+2026-07-31,Alvi,6697,7801610220016,Bebida Coca Cola lata mini 220 ml Bebida lata,0.22,L,690,690,
+2026-07-31,Jumbo,156484,,Bebida Pepsi Zero 1.25 L,1.25,L,1000,1000,
+2026-07-31,Jumbo,62524,,Bebida Pepsi Zero 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,17485,,Bebida Pepsi Zero 3 L,3.0,L,3250,3250,
+2026-07-31,Jumbo,54039,,Pack 6 un. Bebida Pepsi Zero 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,431,,Bebida Pepsi 3 L,3.0,L,3250,3250,
+2026-07-31,Jumbo,500,,Bebida Coca-Cola Zero 1.5 L,1.5,L,2290,2290,
+2026-07-31,Jumbo,391,,Bebida Coca-Cola Original 1.5 L,1.5,L,2290,2290,
+2026-07-31,Jumbo,494,,Bebida Coca-Cola Light 1.5 L,1.5,L,2290,2290,
+2026-07-31,Jumbo,43832,,Pack 6 un. Bebida Pepsi 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,532,,Bebida Sprite Sin Azúcar 1.5 L,1.5,L,1490,1490,
+2026-07-31,Jumbo,43762,,Pack 6 un. Bebida Coca-Cola Zero Lata 350 cc,2.1,L,4390,4390,
+2026-07-31,Jumbo,141141,,Pack Bebida Coca-Cola Zero 3 L + Sprite Zero 3 L,3.0,L,5490,5490,
+2026-07-31,Jumbo,156483,,Bebida Pepsi 1.25 L,1.25,L,1000,1000,
+2026-07-31,Jumbo,167200,,Pack 24 un. Bebida Coca-Cola Zero Lata 220 cc,5.28,L,11990,11990,
+2026-07-31,Jumbo,510,,Bebida Fanta Sin Azúcar 1.5 L,1.5,L,1490,1490,
+2026-07-31,Jumbo,432,,Bebida Sprite 1.5 L,1.5,L,1490,1490,
+2026-07-31,Jumbo,43763,,Pack 6 un. Bebida Coca-Cola Original 350 cc,2.1,L,4390,4390,
+2026-07-31,Jumbo,53052,,Pack 6 un. Bebida Coca-Cola Zero Mini Lata 220 cc,1.32,L,5190,5190,
+2026-07-31,Jumbo,43764,,Pack 6 un. Bebida Coca-Cola Light 350 cc,2.1,L,4390,4390,
+2026-07-31,Jumbo,122281,,Bebida Canada Dry Zero 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,65768,,Bebida Canada Dry Ginger Ale Zero 1.5 L,1.5,L,1590,1590,
+2026-07-31,Jumbo,144365,,Bebida Fanta Naranja 1.5 L,1.5,L,1490,1490,
+2026-07-31,Jumbo,394,,Bebida Coca-Cola Original 3 L,3.0,L,3450,3450,
+2026-07-31,Jumbo,53996,,Pack 6 un. Bebida Kem Piña Lata 350 cc,2.1,L,5850,5850,
+2026-07-31,Jumbo,72506,,Pack 6 un. Bebida Canada Dry Ginger Ale Lata 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,505,,Bebida Coca-Coca Zero 591 ml,0.591,L,1350,1350,
+2026-07-31,Jumbo,141139,,Pack Bebida Coca-Cola Zero 3 L + Fanta Sin Azúcar 3 L,3.0,L,5490,5490,
+2026-07-31,Jumbo,17483,,Bebida Pepsi Zero 1.5 L,1.5,L,2150,2150,
+2026-07-31,Jumbo,46448,,Bebida Kem Zero 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,166170,,Pack Bebida Coca-Cola Original 3 L + Fanta Original 3 L,3.0,L,5450,5450,
+2026-07-31,Jumbo,53051,,Pack 6 un. Bebida Coca-Cola Light 220 cc,1.32,L,5190,5190,
+2026-07-31,Jumbo,489,,Bebida Canada Dry Ginger Ale Light 1.5 L,1.5,L,1590,1590,
+2026-07-31,Jumbo,44391,,Pack 6 un. Bebida Pap 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,55210,,Bebida Pepsi Desechable 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,43831,,Pack 6 un. Bebida Bilz Lata 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,44021,,Pack 6 un. Bebida Fanta Naranja Sin Azúcar 350 ml,2.1,L,4390,4390,
+2026-07-31,Jumbo,46452,,Bebida Bilz Zero 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,44181,,Pack 6 un. Bebida Crush Light 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,43830,,Pack 6 un. Bebida Crush Lata 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,53054,,Pack 6 un. Bebida Sprite Sin Azúcar 220 ml,1.32,L,5190,5190,
+2026-07-31,Jumbo,383,,Bebida Canada Dry Ginger Ale 1.5 L,1.5,L,1590,1590,
+2026-07-31,Jumbo,531,,Bebida Sprite Sin Azúcar 3 L,3.0,L,3350,3350,
+2026-07-31,Jumbo,44218,,Pack 6 un. Bebida Sprite Sin Azúcar Lata 350 ml,2.1,L,4390,4390,
+2026-07-31,Jumbo,43836,,Pack 6 un. Bebida Sprite Lata 350 ml,2.1,L,4390,4390,
+2026-07-31,Jumbo,144368,,Bebida Fanta Pomelo 1.5 L,1.5,L,1490,1490,
+2026-07-31,Jumbo,438,,Bebida Sprite Sin Azúcar 591 ml,0.591,L,1350,1350,
+2026-07-31,Jumbo,436,,Bebida Sprite 591 ml,0.591,L,1350,1350,
+2026-07-31,Jumbo,43978,,Pack 6 un. Bebida Canada Dry Ginger Ale Lata 350 ml,2.1,L,5850,5850,
+2026-07-31,Jumbo,429,,Bebida Pepsi 1.5 L,1.5,L,2150,2150,
+2026-07-31,Jumbo,509,,Bebida Fanta Sin Azúcar 3 L,3.0,L,3350,3350,
+2026-07-31,Jumbo,434,,Bebida Sprite 3 L,3.0,L,3350,3350,
+2026-07-31,Jumbo,396,,Bebida Coca-Cola Original 591 ml,0.591,L,1350,1350,
+2026-07-31,Jumbo,413,,Bebida Kem 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,506,,Bebida Crush Zero 1.5 L,1.5,L,2150,2150,
+2026-07-31,Jumbo,518,,Bebida Pap Zero 1.5 L,1.5,L,2140,2140,
+2026-07-31,Jumbo,499,,Bebida Coca-Cola Light 591 ml,0.591,L,1350,1350,
+2026-07-31,Jumbo,46447,,Bebida Kem 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,155818,,Pack 4 un. Bebida Coca-Cola Sabor Original Vidrio No Retornable 300 ml,1.2,L,4990,4990,
+2026-07-31,Jumbo,144506,,Pack 6 un. Bebida Fanta Lata 220 cc,1.32,L,5190,5190,
+2026-07-31,Jumbo,428,,Bebida Pap 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,156477,,Bebida Kem Zero 1.25 L,1.25,L,1750,1750,
+2026-07-31,Jumbo,512,,Bebida Kem Zero 1.5 L,1.5,L,2140,2140,
+2026-07-31,Jumbo,132198,,Bebida Crush Zero 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,385,,Bebida Canada Dry Ginger Ale 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,46446,,Bebida Bilz 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,122399,,Pack 6 un. Bebida Fanta Pomelo Lata 350 ml,2.1,L,4390,4390,
+2026-07-31,Jumbo,380,,Bebida Bilz 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,156480,,Bebida Bilz 1.25 L,1.25,L,1750,1750,
+2026-07-31,Jumbo,17445,,Bebida Kem Xtreme 1.5 L,1.5,L,2190,2190,
+2026-07-31,Jumbo,53053,,Pack 6 un. Bebida Sprite 220 ml,1.32,L,5190,5190,
+2026-07-31,Jumbo,513,,Bebida Kem Zero 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,46454,,Bebida Canada Dry Ginger Ale 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,520,,Bebida Pap Zero 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,115805,,Bebida Pepsi Zero 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,397,,Bebida Crush 1.5 L,1.5,L,2150,2150,
+2026-07-31,Jumbo,132204,,Bebida Pap 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,114159,,Gaseosa Kem Xtreme 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,486,,Bebida Bilz Zero 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,132182,,Bebida Kem 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,484,,Bebida Bilz Zero 1.5 L,1.5,L,2140,2140,
+2026-07-31,Jumbo,134750,,Bebida Coca Cola sin Azúcar retornable 3 L + Envase,3.0,L,2690,2690,
+2026-07-31,Jumbo,144367,,Bebida Fanta Naranja 591 ml,0.591,L,1390,1390,
+2026-07-31,Jumbo,156481,,Bebida Pap 1.25 L,1.25,L,1750,1750,
+2026-07-31,Jumbo,134753,,Bebida Coca Cola retornable 3 L + Envase,3.0,L,2690,2690,
+2026-07-31,Jumbo,135276,,Bebida Coca-Cola Zero Lata 473 cc,0.473,L,1000,1000,
+2026-07-31,Jumbo,156476,,Bebida Kem 1.25 L,1.25,L,1750,1750,
+2026-07-31,Jumbo,156474,,Bebida Bilz Zero 1.25 L,1.25,L,1750,1750,
+2026-07-31,Jumbo,409,,Bebida Fanta Sin Azúcar 591 ml,0.591,L,1370,1370,
+2026-07-31,Jumbo,399,,Bebida Crush 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,156482,,Bebida Pap Zero 1.25 L,1.25,L,1750,1750,
+2026-07-31,Jumbo,144508,,Pack 6 un. Bebida Fanta Lata 350 cc,2.1,L,4390,4390,
+2026-07-31,Jumbo,118929,,Bebida Coca-Cola sin azúcar retornable 2 L + Envase,2.0,L,2050,2050,
+2026-07-31,Jumbo,144366,,Bebida Fanta 3 L,3.0,L,3350,3350,
+2026-07-31,Jumbo,115793,,Bebida Pepsi 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,378,,Bebida Bilz 1.5 L,1.5,L,2140,2140,
+2026-07-31,Jumbo,134745,,Bebida Coca Cola retornable 2 L + Envase,2.0,L,2050,2050,
+2026-07-31,Jumbo,144505,,Pack 6 un. Bebida Fanta Pomelo Lata 350 ml,2.1,L,4390,4390,
+2026-07-31,Jumbo,411,,Bebida Kem 1.5 L,1.5,L,2140,2140,
+2026-07-31,Jumbo,132221,,Bebida Bilz 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,426,,Bebida Pap 1.5 L,1.5,L,2140,2140,
+2026-07-31,Jumbo,132197,,Bebida Crush 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,132203,,Bebida Kem Zero 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,132185,,Bebida Bilz Zero 600 ml,0.6,L,1350,1350,
+2026-07-31,Jumbo,132202,,Bebida Pap Zero Pet 600 cc,0.6,L,1350,1350,
+2026-07-31,Jumbo,134737,,Bebida Pap retornable 2.5 L + Envase,2.5,L,2190,2190,
+2026-07-31,Jumbo,134746,,Bebida Cola Cola Light retornable 2 L + Envase,2.0,L,2050,2050,
+2026-07-31,Jumbo,134724,,Bebida Sprite Zero retornable 2 L + Envase,2.0,L,1890,1890,
+2026-07-31,Jumbo,134752,,Bebida Sprite retornable 3 L + Envase,3.0,L,2690,2690,
+2026-07-31,Jumbo,134748,,Bebida Bilz retornable 2.5 L + Envase,2.5,L,2190,2190,
+2026-07-31,Jumbo,134740,,Bebida Kem retornable 2.5 L + Envase,2.5,L,2190,2190,
+2026-07-31,Jumbo,134721,,Bebida Pepsi Zero retornable 2.5 L + Envase,2.5,L,2190,2190,
+2026-07-31,Jumbo,122392,,Bebida Fanta Pomelo Sin Azúcar 1.5 L,1.5,L,1490,1490,
+2026-07-31,Jumbo,65769,,Bebida Canada Dry Ginger Ale Zero 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,53050,,Pack 6 un. Bebida Coca-Cola Original 220 cc,1.32,L,5190,5190,
+2026-07-31,Jumbo,424,,Bebida Nordic Mist Ginger Ale Zero 3 L,3.0,L,3350,3350,
+2026-07-31,Jumbo,17486,,Bebida Crush Zero 3 L,3.0,L,3290,3290,
+2026-07-31,Jumbo,43833,,Pack 6 un. Bebida Gaseosa Kem Xtreme Lata 350 ml,2.1,L,5690,5690,
+2026-07-31,Jumbo,46451,,Bebida Pap Zero 1.75 L,1.75,L,1490,1490,
+2026-07-31,Jumbo,135238,,Bebida Fanta Original 1.25 L,1.25,L,1790,1790,
+2026-07-31,Jumbo,135256,,Bebida Sprite Sin Azucar 1.25 L,1.25,L,1790,1790,
+2026-07-31,Jumbo,135270,,Bebida Fanta Sin Azucar 1.25 L,1.25,L,1790,1790,
+2026-07-31,Jumbo,135259,,Bebida Fanta Pomelo Sin Azúcar 1.25 L,1.25,L,1790,1790,
+2026-07-31,Jumbo,146726,,Bebida Pepsi Zero Lata 473 cc,0.473,L,1250,1250,
+2026-07-31,Jumbo,146794,,Pack 6 un. Bebida Pepsi Zero Lata 473 cc,2.838,L,6990,6990,
+2026-07-31,Jumbo,141140,,Pack Bebida Coca-Cola Zero 3 L + Nordic Ginger Ale Sin Azúcar 3 L,3.0,L,5490,5490,
+2026-07-31,Jumbo,62522,,Bebida Crush Zero 1.75 L,1.75,L,2390,2390,
+2026-07-31,Jumbo,158067,,Bebida Fanta Pomelo 250 ml,0.25,L,750,750,
+2026-07-31,Jumbo,158066,,Bebida Fanta Naranja 250 ml,0.25,L,750,750,
+2026-07-31,Jumbo,160180,,Pack 6 un. Bebida Fanta 250 cc,1.5,L,3990,3990,
+2026-07-31,Jumbo,168114,,Bebida Gaseosa Pop Pepsi Zero 500 cc,0.5,L,1250,1250,
+2026-07-31,Jumbo,46450,,Bebida Pap 1.75 L,1.75,L,1490,1490,
+2026-08-01,Unimarc,3276,7801620000233,Pack bebida Pepsi lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-08-01,Unimarc,3585,7801620000349,Pack bebida Kem piña lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-08-01,Unimarc,3261,7801620000196,Pack bebida Limón Soda lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-08-01,Unimarc,3280,7801620000325,Pack bebida Bilz lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-08-01,Unimarc,3263,7801620000332,Pack bebida Pap lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-08-01,Unimarc,3278,7801620852726,Pack bebida Orange Crush lata 6 un de 350 ml,2.1,L,5850,4000,$4.000
+2026-08-01,Unimarc,3287,7802100370105,Bebida Canada Dry agua tónica no retornable 1.5 L,1.5,L,2090,1590,$1.590
+2026-08-01,Unimarc,12770,7801620001988,Bebida Kem Xtreme no retornable 1.5 L,1.5,L,2090,1590,$1.590
+2026-08-01,Alvi,1334,7801620005078,Bebida zero desechable,3,L,3270,3270,
+2026-08-01,Alvi,1238,7801620001896,Bebida Canada Dry ginger ale no retornable 3 L Bebida desechable,3,L,3270,3270,
+2026-08-01,Alvi,1234,7801620001599,Bebida Orange Crush no retornable 3 L Bebida desechable,3,L,3270,3270,
+2026-08-01,Jumbo,152839,,Bebida Coca-Cola Zero 2 L,2.0,L,2590,2590,
+2026-08-01,Jumbo,152590,,Bebida Coca-Cola Original 2 L,2.0,L,2590,2590,
+2026-08-01,Jumbo,152702,,Bebida Coca-Cola Light 2 L,2.0,L,2590,2590,

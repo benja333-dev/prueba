@@ -234,6 +234,19 @@
           <svg id="svg-espacio" viewBox="0 0 780 320"></svg>
           <div class="foot" id="pie-espacio"></div>
         </div>
+
+        <div class="card" id="card-historia">
+          <h2>Cómo se ha movido el precio</h2>
+          <div class="note">Lo que cada cadena viene cobrando por este producto, capturado todos los días.
+          Dice si hoy están caras o baratas <b>respecto de sí mismas</b>, y si el precio que ves es su precio
+          de siempre o una promoción que se va a ir.</div>
+          <div id="hist-estado"></div>
+          <div id="hist-vivo" style="display:none">
+            <svg id="svg-historia" viewBox="0 0 780 300"></svg>
+            <div id="hist-lectura"></div>
+          </div>
+          <div id="hist-perfil"></div>
+        </div>
       </div>
 
       <!-- ── Columna 2: la decisión ── -->
@@ -622,6 +635,28 @@
   </div>
 
   <div class="card">
+    <h2>El histórico: lo único que se mide</h2>
+    <p class="prosa">Todo lo demás en esta herramienta se infiere. El histórico no: la captura corre todos los días y
+    cada corrida queda guardada, así que el movimiento de precios de cada cadena es <b>observación directa</b>.</p>
+    <table><thead><tr><th>Pieza</th><th>Qué es</th></tr></thead><tbody>
+      <tr><td><code>datos/historico_precios.csv</code></td><td>El panel crudo. Se escribe una fila sólo cuando el
+        precio de un SKU cambia, más un latido semanal para distinguir "no se movió" de "dejó de existir"</td></tr>
+      <tr><td><code>tools/historico.json</code></td><td>La versión compacta que lee esta página: series por SKU,
+        perfil de cada cadena y reacción competitiva</td></tr>
+      <tr><td><code>tools/historico.py</code></td><td>Lo construye. <code>bootstrap</code> lo reconstruye desde el
+        historial de git; el actualizador diario le agrega la captura del día</td></tr>
+    </tbody></table>
+    <div class="foot"><b>Una limitación honesta sobre el arranque.</b> El histórico reconstruido desde git alcanza sólo
+    a la categoría foco, porque es lo único que quedaba embebido en esta página: el resto del catálogo se capturaba pero
+    no se guardaba. Desde ahora se guardan las 8 categorías completas, así que la cobertura del histórico se amplía sola
+    con cada corrida. Lo perdido no es recuperable — nadie publica precios pasados.</div>
+    <div class="src"><b>Por qué la reacción competitiva importa más de lo que parece.</b> Si al bajar tu precio la
+    competencia te sigue en dos días, la ganancia de volumen se evapora y sólo queda el margen que resignaste: bajar
+    fue gratis para ellos y caro para ti. Si no te siguen, bajar sí compra participación. Es la diferencia entre una
+    guerra de precios y una ganancia real, y es medible sin conocer las ventas de nadie — sólo hace falta tiempo.</div>
+  </div>
+
+  <div class="card">
     <h2>Participación de mercado supuesta</h2>
     <div class="note">Calibra el peso <b>w</b> de cada cadena. Las cifras públicas chilenas no cuadran entre sí
     (Walmart 48% en 2021, Cencosud 33,5% en 2023 y SMU 18% en 2021 suman 99,5% y no dejan espacio para Tottus),
@@ -660,7 +695,8 @@
     <table><thead><tr><th>Capacidad</th><th>Estado</th><th>Comentario</th></tr></thead><tbody>
       <tr><td>Elasticidad cruzada y sustitución</td><td><span class="tag" style="border-color:#27853A;color:#27853A">Sí</span></td><td>Logit/MNL, el mismo método</td></tr>
       <tr><td>Guardrails de precio</td><td><span class="tag" style="border-color:#27853A;color:#27853A">Sí</span></td><td>El recomendado se acota al rango de mercado observado</td></tr>
-      <tr><td>Histórico de precios</td><td><span class="tag" style="border-color:#E8A020;color:#8a5d00">Parcial</span></td><td>Se acumula desde la primera corrida. Sin backfill posible: nadie publica precios pasados</td></tr>
+      <tr><td>Histórico de precios</td><td><span class="tag" style="border-color:#27853A;color:#27853A">Sí</span></td><td>Panel diario versionado. Sin backfill posible: nadie publica precios pasados, así que empieza el día que empezó a correr</td></tr>
+      <tr><td>Reacción competitiva</td><td><span class="tag" style="border-color:#E8A020;color:#8a5d00">Parcial</span></td><td>Se mide sobre el panel; necesita más semanas para tener muestra. Ni Revionics ni Competera lo entregan de fábrica</td></tr>
       <tr><td>Matching de productos entre cadenas</td><td><span class="tag" style="border-color:#E8A020;color:#8a5d00">Parcial</span></td><td>Heurística por nombre y formato. Las profesionales usan ML sobre descripción e imagen</td></tr>
       <tr><td>KVI (Key Value Items)</td><td><span class="tag" style="border-color:#C0392B;color:#C0392B">No</span></td><td>Tratar distinto los SKU que definen la percepción de precio</td></tr>
       <tr><td>Índice de precios competitivo</td><td><span class="tag" style="border-color:#C0392B;color:#C0392B">No</span></td><td>Métrica única de posición, ponderada por venta o tráfico</td></tr>
