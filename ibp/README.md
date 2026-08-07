@@ -9,6 +9,8 @@ de la Red de Chocolates (100 SKUs, 6 familias, 2 plantas, horizonte 6 meses, CLP
 | --- | --- | --- |
 | `IBP · 8 · Portal IBP (Dashboard)` | `ap4DTqlLG2OyfOxn` | `GET /webhook/ibp-portal?run_id=…` |
 | `IBP · 9 · Chatbot Analista (Q&A)` | `ofG62y7g1ygIX4G2` | `POST /webhook/ibp-chat` |
+| `IBP · 10 · Runner en vivo` | `x9AerSfBuSexg4Lt` | `POST /webhook/ibp-run-start` · `GET /webhook/ibp-run-status?run_id=…` |
+| `IBP · 0 · Orquestador S&OP` | `b4ZG75k35bUKRBo4` | sub-workflow (acepta `run_id` externo) |
 
 Host: `https://n8n-production-121a.up.railway.app`. Sin `run_id` el portal muestra el último run.
 
@@ -54,7 +56,26 @@ Modelo: `models/gemini-3.1-flash-lite` (credencial `Google Gemini(PaLM) Api acco
 Para análisis más profundo se puede cambiar a `models/gemini-3.1-pro-preview` en el nodo
 `Gemini Analista`.
 
-### 3. Rendimiento del portal
+### 3. Tab «Agentes en vivo»
+
+Explica visualmente el proceso: al apretar play se lanza un **ciclo S&OP real** en n8n y la
+página muestra en vivo cómo los 6 agentes se van entregando el trabajo uno a otro.
+
+- `POST /webhook/ibp-run-start` genera el `run_id`, **responde de inmediato** y recién después
+  lanza el orquestador como sub-workflow. Por eso el navegador conoce el `run_id` en
+  milisegundos aunque el ciclo tarde minutos.
+- La página consulta `GET /webhook/ibp-run-status?run_id=…` cada 3 s. El progreso **no es una
+  animación falsa**: sale de las filas que cada reunión escribe en `IBP_Minutas`, así que las
+  tarjetas se encienden cuando el agente realmente cerró su etapa, y las decisiones que se
+  muestran son las que tomó el motor.
+- Al terminar aparece un botón que recarga el portal con `?run_id=<nuevo>` para ver los
+  resultados de ese ciclo en los demás tabs.
+
+Para que esto fuera posible, el orquestador (workflow 0) recibió un *Execute Sub-workflow
+Trigger* y `Generar Run ID` ahora respeta un `run_id` externo si se lo pasan (si no, lo genera
+como antes). El trigger manual sigue funcionando igual.
+
+### 4. Rendimiento del portal
 
 Todas las lecturas de Data Table quedaron con `executeOnce: true`. Antes cada tabla se releía
 una vez por fila de la tabla anterior; ahora el portal completo responde en ~1 s.
@@ -70,6 +91,7 @@ una vez por fila de la tabla anterior; ahora el portal completo responde en ~1 s
 | `ibp9_formatear_respuesta.js` | Formateo de la respuesta (tolerante a fallos del LLM) |
 | `ibp9_chatbot_analista.workflow.ts` | Fuente SDK del workflow 9 |
 | `ibp9_chatbot_analista.workflow.json` | Export del workflow 9 |
+| `ibp10_calcular_progreso.js` | Code node que traduce `IBP_Minutas` en el estado de las 6 etapas |
 | `ejemplo_portal_generado.html` | Salida real del portal para el run `RUN-20260705-201200` |
 
 ## Verificación

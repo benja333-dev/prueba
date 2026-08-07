@@ -138,6 +138,52 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 #chatsend { background: #2251FF; color: #fff; border: 0; border-radius: 4px; padding: 0 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
 #chatsend:disabled { background: #99A3AD; cursor: default; }
 .thinking { color: #5b6770; font-style: italic; font-size: 12.5px; }
+.flujo-ctrl { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 12px; }
+button.play { background: #12805C; color: #fff; border: 0; border-radius: 4px; padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; }
+button.play:hover { background: #0d6347; }
+button.play:disabled { background: #99A3AD; cursor: default; }
+.flujo-bar-wrap { background: #EDF0F3; border-radius: 3px; height: 10px; overflow: hidden; }
+.flujo-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #2251FF, #12805C); transition: width 0.6s ease; }
+.pipeline { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 4px 2px 10px; }
+.ag-card { flex: 0 0 214px; background: #fff; border: 1px solid #e3e7ec; border-top: 3px solid #c9d1d9; border-radius: 4px; padding: 12px 13px; opacity: 0.62; transition: opacity 0.4s, box-shadow 0.4s, border-color 0.4s; }
+.ag-card.trabajando { opacity: 1; border-top-color: var(--c); box-shadow: 0 0 0 2px rgba(34,81,255,0.16), 0 6px 18px rgba(5,28,44,0.10); animation: pulso 1.9s ease-in-out infinite; }
+.ag-card.listo { opacity: 1; border-top-color: #12805C; }
+@keyframes pulso { 0%,100% { box-shadow: 0 0 0 2px rgba(34,81,255,0.14), 0 6px 18px rgba(5,28,44,0.08); } 50% { box-shadow: 0 0 0 5px rgba(34,81,255,0.07), 0 6px 22px rgba(5,28,44,0.14); } }
+.ag-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+.ag-num { background: var(--c); color: #fff; width: 21px; height: 21px; border-radius: 50%; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.ag-head b { font-size: 12.8px; color: #051C2C; display: block; line-height: 1.25; }
+.ag-wf { font-size: 10.5px; color: #8a9096; margin-top: 1px; }
+.ag-badge { margin-left: auto; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; padding: 2px 6px; border-radius: 9px; background: #EDF0F3; color: #5b6770; flex: 0 0 auto; }
+.ag-card.trabajando .ag-badge { background: #E7EDFF; color: #2251FF; }
+.ag-card.listo .ag-badge { background: #DFF3EC; color: #0B5D44; }
+.ag-rol { font-size: 11.5px; color: #40474e; line-height: 1.45; margin-bottom: 6px; }
+.ag-entrega { font-size: 10.8px; color: #5b6770; border-top: 1px dashed #e3e7ec; padding-top: 6px; margin-bottom: 7px; line-height: 1.4; }
+.ag-wait { font-size: 11px; color: #99A3AD; font-style: italic; }
+.ag-task { font-size: 11.3px; color: #2251FF; font-weight: 600; line-height: 1.4; display: flex; align-items: flex-start; gap: 6px; min-height: 32px; }
+.ag-ok { font-size: 11.5px; color: #0B5D44; font-weight: 700; margin-bottom: 5px; }
+.ag-dec { font-size: 10.8px; color: #40474e; line-height: 1.4; border-left: 2px solid #DFF3EC; padding-left: 6px; margin-bottom: 4px; }
+.ag-dec span { color: #8a9096; }
+.ag-spin { width: 11px; height: 11px; border: 2px solid rgba(34,81,255,0.25); border-top-color: #2251FF; border-radius: 50%; display: inline-block; animation: gira 0.8s linear infinite; flex: 0 0 auto; margin-top: 2px; }
+button.play .ag-spin { border-color: rgba(255,255,255,0.4); border-top-color: #fff; margin: 0 8px 0 0; }
+@keyframes gira { to { transform: rotate(360deg); } }
+.ag-arrow { flex: 0 0 42px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ag-arrow-l { width: 100%; height: 2px; background: #dfe3e8; position: relative; }
+.ag-arrow-l:after { content: ''; position: absolute; right: 0; top: -4px; border-left: 7px solid #dfe3e8; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.ag-arrow.on .ag-arrow-l { background: #12805C; }
+.ag-arrow.on .ag-arrow-l:after { border-left-color: #12805C; }
+.ag-arrow-t { font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; color: #12805C; margin-top: 4px; height: 11px; font-weight: 700; }
+.logbox { max-height: 260px; overflow-y: auto; background: #f7f8fa; border: 1px solid #e3e7ec; border-radius: 4px; padding: 10px 12px; }
+.lg-row { display: flex; align-items: flex-start; gap: 9px; font-size: 12.3px; line-height: 1.5; padding: 3px 0; }
+.lg-t { font-variant-numeric: tabular-nums; color: #99A3AD; font-size: 11px; flex: 0 0 34px; padding-top: 2px; }
+.lg-p { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; margin-top: 6px; background: #99A3AD; }
+.lg-p.ok { background: #12805C; } .lg-p.work { background: #2251FF; } .lg-p.pass { background: #00A9F4; } .lg-p.err { background: #C00000; }
+.lg-m { color: #1a1f24; }
+.fin { display: none; background: #DFF3EC; border: 1px solid #a9ddc9; border-left: 4px solid #12805C; border-radius: 4px; padding: 16px 18px; margin: 0 0 18px; }
+.fin-t { font-size: 16px; font-weight: 700; color: #0B5D44; }
+.fin-s { font-size: 13px; color: #0B5D44; margin: 4px 0 12px; }
+.fin-b { background: #12805C; color: #fff; border: 0; border-radius: 4px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.fin-b:hover { background: #0d6347; }
+@media (max-width: 820px) { .pipeline { flex-direction: column; } .ag-card { flex: 1 1 auto; } .ag-arrow { flex: 0 0 26px; width: 100%; transform: rotate(90deg); } }
 @media (max-width: 620px) { #chatpanel { width: 100vw; } main { padding: 18px 14px 80px; } }
 </style>
 </head>
@@ -171,7 +217,7 @@ const FAMCOLOR = { 'BAR-LECHE': '#2251FF', 'BAR-OSCURO': '#051C2C', 'BAR-BLANCO'
 const FAMS = Object.keys(FAMCOLOR);
 const NORMA_COB = 45;
 const POLFILL = { A: 98, B: 95, C: 90 };
-const TABS = [['r360', 'Resumen 360'], ['res', 'Resumen ejecutivo'], ['dem', '1 · Demanda'], ['sup', '2 · Supply'], ['sch', '3 · Scheduling'], ['pro', '4 · Procurement'], ['fin', '5 · Finanzas'], ['mbr', '6 · Conciliacion']];
+const TABS = [['r360', 'Resumen 360'], ['flujo', 'Agentes en vivo'], ['res', 'Resumen ejecutivo'], ['dem', '1 · Demanda'], ['sup', '2 · Supply'], ['sch', '3 · Scheduling'], ['pro', '4 · Procurement'], ['fin', '5 · Finanzas'], ['mbr', '6 · Conciliacion']];
 const skuMap = {};
 D.skus.forEach(s => { skuMap[s.sku_id] = s; });
 const famDe = id => (skuMap[id] || {}).familia || 'SIN-FAMILIA';
@@ -736,12 +782,228 @@ document.getElementById('tab-mbr').innerHTML =
   '</div>' + optHtml(6) +
   '<div class=panel><h3>Decisiones consolidadas del comite</h3><ul style="font-size:13px;line-height:1.7">' + String(resumen.decisiones || '').split('|').map(x => '<li>' + esc(x.trim()) + '</li>').join('') + '</ul></div>';
 
-const CHAT_URLS = (function () {
+const AGENTES = [
+  { paso: 1, nom: 'Demand Planning', corto: 'Demanda', wf: 'IBP · 1', tabla: 'IBP_Forecast', color: '#2251FF',
+    rol: 'Proyecta cuanto se va a vender por SKU y mes',
+    entrega: 'Forecast consenso por SKU-mes',
+    tareas: ['Leyendo 24 meses de historia de 100 SKUs', 'Ajustando regresion lineal y estacionalidad por SKU', 'Consultando a Gemini para el demand shaping', 'Desagregando el ajuste de familia a cada SKU', 'Guardando el forecast consenso'] },
+  { paso: 2, nom: 'Supply Planning', corto: 'Supply', wf: 'IBP · 2', tabla: 'IBP_Plan_Produccion', color: '#00A9F4',
+    rol: 'Decide cuanto producir y cuanto inventario mantener',
+    entrega: 'Plan de produccion factible e inventarios proyectados',
+    tareas: ['Calculando stock de seguridad por clase ABC', 'Neteando demanda contra inventario inicial', 'Evaluando capacidad por familia (RCCP)', 'Haciendo pre-build hacia los meses deficitarios', 'Guardando el plan de produccion'] },
+  { paso: 3, nom: 'Scheduling Plantas', corto: 'Scheduling', wf: 'IBP · 6', tabla: 'IBP_Schedule', color: '#6B5AED',
+    rol: 'Programa las lineas dia a dia minimizando cambios',
+    entrega: 'Programa por linea con campanas y changeovers',
+    tareas: ['Armando campanas por familia', 'Asignando lineas por costo unitario efectivo', 'Secuenciando con product wheel (claro a oscuro)', 'Calculando changeovers y turnos necesarios', 'Guardando el programa por linea'] },
+  { paso: 4, nom: 'Procurement', corto: 'Compras', wf: 'IBP · 3', tabla: 'IBP_Plan_Compras', color: '#12805C',
+    rol: 'Compra la materia prima a tiempo y al lote correcto',
+    entrega: 'Plan de compras MRP con lotes y fechas de orden',
+    tareas: ['Explotando el BOM por familia', 'Corriendo el MRP contra el stock actual', 'Loteando por MOQ y EOQ', 'Retrocediendo fechas por lead time', 'Guardando el plan de compras'] },
+  { paso: 5, nom: 'Finanzas', corto: 'Finanzas', wf: 'IBP · 4', tabla: 'IBP_PL_Financiero', color: '#E8A33D',
+    rol: 'Valoriza el plan y mide si cumple el margen objetivo',
+    entrega: 'P&L proyectado y venta perdida valorizada',
+    tareas: ['Valorizando ingresos y COGS por familia', 'Costeando el programa de plantas', 'Cuantificando la venta perdida por quiebre', 'Comparando contra el margen objetivo de 45%', 'Guardando el P&L proyectado'] },
+  { paso: 6, nom: 'Conciliacion Ejecutiva', corto: 'Comite', wf: 'IBP · 5', tabla: 'IBP_Resumen_Ejecutivo', color: '#051C2C',
+    rol: 'Concilia todo y deja las decisiones para el comite',
+    entrega: 'Plan conciliado, decisiones y alertas',
+    tareas: ['Contrastando demanda, supply y finanzas', 'Midiendo gaps contra la politica de servicio', 'Priorizando decisiones para el comite', 'Redactando las alertas del ciclo', 'Guardando el resumen ejecutivo'] }
+];
+
+function rutas(slug) {
   const list = [];
-  try { if (location.pathname.indexOf('ibp-portal') >= 0) list.push(location.origin + location.pathname.split('ibp-portal').join('ibp-chat')); } catch (e) {}
-  if (D.chat_url) list.push(D.chat_url);
+  try { if (location.pathname.indexOf('ibp-portal') >= 0) list.push(location.origin + location.pathname.split('ibp-portal').join(slug)); } catch (e) {}
+  list.push('https://n8n-production-121a.up.railway.app/webhook/' + slug);
   return list.filter((x, i, a) => x && a.indexOf(x) === i);
-})();
+}
+async function pedir(slug, opts) {
+  let ultimo = null;
+  for (const url of rutas(slug)) {
+    try {
+      const r = await fetch(url, opts);
+      if (r.ok) return await r.json();
+      ultimo = new Error('HTTP ' + r.status);
+    } catch (e) { ultimo = e; }
+  }
+  throw (ultimo || new Error('sin endpoint disponible'));
+}
+
+let flujoEstado = 'inicial';
+let flujoRun = '';
+let flujoT0 = 0;
+let flujoTimer = null;
+let flujoTareaTimer = null;
+let flujoEtapas = AGENTES.map(a => ({ paso: a.paso, estado: 'pendiente' }));
+let flujoLog = [];
+let flujoTareaIdx = 0;
+
+function flujoPintar() {
+  const cont = document.getElementById('flujo-pipeline');
+  if (!cont) return;
+  cont.innerHTML = AGENTES.map((a, i) => {
+    const e = flujoEtapas[i] || { estado: 'pendiente' };
+    const st = e.estado;
+    const nDec = (e.decisiones || []).length;
+    let cuerpo = '';
+    if (st === 'trabajando') {
+      cuerpo = '<div class=ag-task><span class=ag-spin></span>' + esc(a.tareas[flujoTareaIdx % a.tareas.length]) + '</div>';
+    } else if (st === 'listo') {
+      cuerpo = '<div class=ag-ok>' + nDec + ' decision' + (nDec === 1 ? '' : 'es') + ' automatica' + (nDec === 1 ? '' : 's') + '</div>' +
+        (e.decisiones || []).slice(0, 3).map(d => '<div class=ag-dec><b>' + esc(d.decision || '') + '</b>' + (d.impacto ? '<span> ' + esc(d.impacto) + '</span>' : '') + '</div>').join('');
+    } else {
+      cuerpo = '<div class=ag-wait>En espera</div>';
+    }
+    const flecha = i < AGENTES.length - 1
+      ? '<div class="ag-arrow' + (st === 'listo' ? ' on' : '') + '"><div class=ag-arrow-l></div><div class=ag-arrow-t>' + (st === 'listo' ? 'entrega' : '') + '</div></div>'
+      : '';
+    return '<div class="ag-card ' + st + '" data-i="' + i + '" style="--c:' + a.color + '">' +
+      '<div class=ag-head><span class=ag-num>' + a.paso + '</span><div><b>' + a.nom + '</b><div class=ag-wf>' + a.wf + ' &middot; ' + a.tabla + '</div></div>' +
+      '<span class=ag-badge>' + (st === 'listo' ? 'listo' : (st === 'trabajando' ? 'trabajando' : 'pendiente')) + '</span></div>' +
+      '<div class=ag-rol>' + esc(a.rol) + '</div>' +
+      '<div class=ag-entrega>Entrega: <b>' + esc(a.entrega) + '</b></div>' +
+      cuerpo +
+      '</div>' + flecha;
+  }).join('');
+  const act = flujoEtapas.findIndex(e => e.estado === 'trabajando');
+  const idx = act >= 0 ? act : flujoEtapas.filter(e => e.estado === 'listo').length - 1;
+  if (idx >= 0) {
+    const card = cont.querySelector('.ag-card[data-i="' + idx + '"]');
+    if (card && cont.scrollWidth > cont.clientWidth) {
+      cont.scrollTo({ left: Math.max(0, card.offsetLeft - cont.clientWidth / 2 + card.clientWidth / 2), behavior: 'smooth' });
+    }
+  }
+}
+
+function flujoLogPintar() {
+  const el = document.getElementById('flujo-log');
+  if (!el) return;
+  el.innerHTML = flujoLog.map(l => '<div class=lg-row><span class=lg-t>' + l.t + '</span><span class="lg-p ' + l.tipo + '"></span><span class=lg-m>' + l.msg + '</span></div>').join('');
+  el.scrollTop = el.scrollHeight;
+}
+function flujoAnotar(msg, tipo) {
+  const s = Math.round((Date.now() - flujoT0) / 1000);
+  const mm = String(Math.floor(s / 60)).padStart(2, '0');
+  const ss = String(s % 60).padStart(2, '0');
+  flujoLog.push({ t: mm + ':' + ss, msg: msg, tipo: tipo || 'info' });
+  flujoLogPintar();
+}
+function flujoBarra() {
+  const listos = flujoEtapas.filter(e => e.estado === 'listo').length;
+  const pct = Math.round(listos / AGENTES.length * 100);
+  const b = document.getElementById('flujo-bar');
+  const t = document.getElementById('flujo-bar-txt');
+  if (b) b.style.width = pct + '%';
+  const s = Math.round((Date.now() - flujoT0) / 1000);
+  if (t) t.textContent = listos + ' de ' + AGENTES.length + ' etapas &middot; ' + pct + '% &middot; ' + s + 's';
+  if (t) t.innerHTML = listos + ' de ' + AGENTES.length + ' etapas &middot; ' + pct + '% &middot; ' + s + 's transcurridos';
+}
+function flujoBoton(txt, disabled) {
+  const b = document.getElementById('flujo-play');
+  if (!b) return;
+  b.innerHTML = txt;
+  b.disabled = !!disabled;
+}
+function flujoFin(okMsg) {
+  clearInterval(flujoTimer); clearInterval(flujoTareaTimer);
+  flujoTimer = null; flujoTareaTimer = null;
+  const banner = document.getElementById('flujo-final');
+  if (banner) {
+    banner.style.display = 'block';
+    banner.innerHTML = '<div class=fin-t>Ciclo IBP completado</div>' +
+      '<div class=fin-s>' + okMsg + '</div>' +
+      '<button class=fin-b id=fin-ir>Ver los resultados de este ciclo en los otros tabs &rarr;</button>';
+    const bi = document.getElementById('fin-ir');
+    if (bi) bi.onclick = function () { location.search = '?run_id=' + flujoRun; };
+  }
+  flujoBoton('Correr otro ciclo', false);
+  flujoEstado = 'listo';
+}
+
+async function flujoPoll() {
+  try {
+    const j = await pedir('ibp-run-status?run_id=' + encodeURIComponent(flujoRun), { method: 'GET' });
+    const previas = flujoEtapas.map(e => e.estado);
+    flujoEtapas = (j.etapas && j.etapas.length) ? j.etapas : flujoEtapas;
+    flujoEtapas.forEach((e, i) => {
+      if (e.estado === 'listo' && previas[i] !== 'listo') {
+        const a = AGENTES[i];
+        flujoAnotar('<b>' + a.nom + '</b> cerro su etapa con ' + ((e.decisiones || []).length) + ' decisiones', 'ok');
+        if (e.handoff) flujoAnotar('Traspaso a ' + (AGENTES[i + 1] ? AGENTES[i + 1].nom : 'el comite') + ': <i>' + esc(String(e.handoff).slice(0, 180)) + '</i>', 'pass');
+        flujoTareaIdx = 0;
+      }
+      if (e.estado === 'trabajando' && previas[i] !== 'trabajando') {
+        flujoAnotar('<b>' + AGENTES[i].nom + '</b> tomo el control', 'work');
+      }
+    });
+    flujoPintar(); flujoBarra();
+    if (j.finalizado) {
+      flujoAnotar('Ciclo conciliado y publicado. Se envio la minuta ejecutiva por correo.', 'ok');
+      flujoFin('Run <b>' + flujoRun + '</b> &middot; ' + (j.decisiones_acumuladas || 0) + ' decisiones automaticas en 6 etapas');
+    }
+  } catch (e) {
+    flujoAnotar('Sin respuesta del runner (' + esc(e.message) + '). Reintentando...', 'err');
+  }
+}
+
+async function flujoPlay() {
+  if (flujoEstado === 'corriendo') return;
+  flujoEstado = 'corriendo';
+  flujoRun = '';
+  flujoLog = [];
+  flujoTareaIdx = 0;
+  flujoEtapas = AGENTES.map(a => ({ paso: a.paso, estado: 'pendiente' }));
+  flujoT0 = Date.now();
+  const banner = document.getElementById('flujo-final');
+  if (banner) banner.style.display = 'none';
+  flujoBoton('<span class=ag-spin></span> Ciclo en curso...', true);
+  flujoPintar(); flujoBarra();
+  flujoAnotar('Lanzando el orquestador S&OP en n8n...', 'info');
+  try {
+    const j = await pedir('ibp-run-start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ horizonte_meses: 6 })
+    });
+    flujoRun = j.run_id || '';
+    if (!flujoRun) throw new Error('el runner no devolvio run_id');
+    flujoAnotar('Ciclo <b>' + flujoRun + '</b> iniciado. Los 6 agentes corren en cadena, cada uno alimenta al siguiente.', 'ok');
+    const rid = document.getElementById('flujo-runid');
+    if (rid) rid.innerHTML = 'Run en curso: <b>' + flujoRun + '</b>';
+    flujoEtapas[0].estado = 'trabajando';
+    flujoPintar();
+    flujoAnotar('<b>' + AGENTES[0].nom + '</b> tomo el control', 'work');
+    flujoTareaTimer = setInterval(() => { flujoTareaIdx++; flujoPintar(); flujoBarra(); }, 2600);
+    flujoTimer = setInterval(flujoPoll, 3000);
+    flujoPoll();
+  } catch (e) {
+    flujoAnotar('No pude lanzar el ciclo: ' + esc(e.message), 'err');
+    flujoBoton('Reintentar', false);
+    flujoEstado = 'inicial';
+  }
+}
+
+document.getElementById('tab-flujo').innerHTML =
+  '<div class=panel><h3>Como trabajan los agentes del ciclo IBP <small>aprieta play y sigue el traspaso en vivo</small></h3>' +
+  '<p style="font-size:13.5px;line-height:1.6;margin:0 0 14px">El ciclo S&OP no lo corre una persona: lo corren <b>seis agentes autonomos encadenados</b> en n8n. ' +
+  'Cada uno resuelve su problema de optimizacion, escribe su resultado en una tabla y se lo <b>entrega al siguiente</b>, que parte de ahi. ' +
+  'Al final, el comite recibe un plan ya conciliado con las decisiones tomadas y justificadas. Aprieta play para lanzar un ciclo real y verlo ocurrir.</p>' +
+  '<div class=flujo-ctrl>' +
+  '<button id=flujo-play class=play onclick="flujoPlay()">&#9654;&nbsp; Correr el ciclo IBP completo</button>' +
+  '<span id=flujo-runid class=razon></span>' +
+  '</div>' +
+  '<div class=flujo-bar-wrap><div id=flujo-bar class=flujo-bar></div></div>' +
+  '<div id=flujo-bar-txt class=razon style="margin-top:6px">Sin ejecutar</div>' +
+  '</div>' +
+  '<div id=flujo-final class=fin></div>' +
+  '<div class=panel><h3>Cadena de agentes</h3><div id=flujo-pipeline class=pipeline></div></div>' +
+  '<div class=panel><h3>Bitacora del ciclo <small>lo que va ocurriendo en n8n, en tiempo real</small></h3>' +
+  '<div id=flujo-log class=logbox><div class=razon>Aun no has lanzado un ciclo. Aprieta play arriba.</div></div></div>' +
+  '<div class=panel><h3>Que hace cada agente</h3>' +
+  tabla([['#', 1], ['Agente', 0], ['Workflow', 0], ['Que resuelve', 0], ['Que entrega', 0], ['Tabla que escribe', 0]],
+    AGENTES.map(a => [a.paso, '<b>' + a.nom + '</b>', a.wf, esc(a.rol), esc(a.entrega), '<code style="font-size:11.5px">' + a.tabla + '</code>'])) +
+  '<p class=razon style="margin-top:8px">Entre agente y agente corre ademas el agente de gobernanza (IBP &middot; 7), que documenta la etapa: la logica que aplico el motor, las decisiones automaticas con su justificacion, los riesgos y el traspaso formal a la etapa siguiente. Eso es lo que ves en la bitacora y en las minutas de cada tab.</p></div>';
+flujoPintar();
+
+
 const SESSION = 'portal-' + D.run + '-' + Math.random().toString(36).slice(2, 10);
 const SUGERENCIAS = [
   'Que SKUs tienen el nivel de inventario mas bajo y por que?',
@@ -827,17 +1089,11 @@ async function enviarChat(ev) {
   const pend = addMsg('bot', 'Analizando el ciclo...', false);
   pend.querySelector('.txt').className = 'txt thinking';
   try {
-    const cuerpo = JSON.stringify({ pregunta: pregunta, run_id: D.run, session_id: SESSION });
-    let res = null, ultimoError = null;
-    for (const url of CHAT_URLS) {
-      try {
-        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: cuerpo });
-        if (r.ok) { res = r; break; }
-        ultimoError = new Error('HTTP ' + r.status);
-      } catch (e) { ultimoError = e; }
-    }
-    if (!res) throw (ultimoError || new Error('sin endpoint disponible'));
-    const j = await res.json();
+    const j = await pedir('ibp-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pregunta: pregunta, run_id: D.run, session_id: SESSION })
+    });
     const txt = (j && (j.respuesta || j.answer)) || 'No recibi respuesta del analista.';
     pend.querySelector('.txt').className = 'txt';
     pend.querySelector('.txt').innerHTML = mdToHtml(txt);
