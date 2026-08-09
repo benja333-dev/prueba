@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culture & Agility Diagnostic — Grupo Andes</title>
+<style>
+:root{
+  --navy:#051c2c; --navy2:#0a2e44; --blue:#2251ff; --cyan:#00a9f4; --teal:#00b8a2;
+  --bg:#f4f6f8; --card:#ffffff; --ink:#051c2c; --muted:#5b6a75; --line:#e1e7ec;
+  --good:#00b8a2; --bad:#e5546c; --warn:#f5a623;
+  --s1:#c73050; --s2:#e5546c; --s3:#f5a623; --s4:#5bc4b4; --s5:#00806f;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif}
+body{background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:20px;font-weight:600}
+header h1 span{color:var(--cyan)}
+header .sub{font-size:12.5px;color:#9fb3c0;margin-top:4px;max-width:640px;line-height:1.5}
+.kpi-strip{display:flex;gap:12px;flex-wrap:wrap}
+.kpi{background:var(--navy2);border-radius:8px;padding:9px 15px;min-width:124px}
+.kpi .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#8fa5b3}
+.kpi .val{font-size:19px;font-weight:700;margin-top:2px}
+.kpi .val.good{color:var(--teal)} .kpi .val.bad{color:#ff7d92} .kpi .val.warn{color:#ffc760}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 32px;display:flex;gap:2px;overflow-x:auto;position:sticky;top:0;z-index:20}
+nav button{background:none;border:none;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:24px 32px 60px;max-width:1400px;margin:0 auto}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+.card .hint{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:8px 9px;background:var(--navy);color:#fff;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;vertical-align:bottom}
+td{padding:7px 9px;border-bottom:1px solid var(--line)}
+td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
+tbody tr:hover{background:#f7fafc}
+.scroll{overflow-x:auto}
+.cell{text-align:center;font-weight:700;color:#fff;border-radius:4px;padding:6px 0;font-size:12.5px;cursor:default}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.good{background:#d9f4ef;color:#00806f}.pill.bad{background:#fde3e8;color:#c73050}.pill.warn{background:#fdf0d8;color:#b57900}.pill.neu{background:#eef2f6;color:#5b6a75}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.btn.sm{padding:7px 13px;font-size:12px}
+.field{margin-bottom:12px}
+.field label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px;gap:8px}
+.field label .v{color:var(--blue);font-weight:700}
+.field input[type=range]{width:100%;accent-color:var(--blue)}
+select{padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-size:13px;background:#fff;font-weight:600;color:var(--ink)}
+svg text{font-family:'Helvetica Neue',Arial,sans-serif}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px;align-items:center}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:11px;height:11px;border-radius:2px;display:inline-block}
+.callout{border-left:4px solid var(--cyan);background:#eef7fd;padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.6;margin-bottom:14px}
+.callout.warn{border-left-color:var(--warn);background:#fdf7e9}
+.callout.good{border-left-color:var(--teal);background:#e9f8f5}
+.callout.bad{border-left-color:var(--bad);background:#fdeef1}
+.hero{background:linear-gradient(120deg,var(--navy),#123a56);color:#fff;border-radius:12px;padding:28px 30px;margin-bottom:20px}
+.hero h2{font-size:20px;margin-bottom:8px}
+.hero p{font-size:13.5px;color:#c3d2dc;line-height:1.65;max-width:900px}
+h3.sec{font-size:13.5px;margin:22px 0 10px;border-bottom:2px solid var(--navy);padding-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.dim-card{border:1px solid var(--line);border-radius:9px;padding:15px 17px;background:#fff}
+.dim-card .tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--cyan)}
+.dim-card h4{font-size:14px;margin:5px 0 6px}
+.dim-card p{font-size:12px;color:var(--muted);line-height:1.55}
+.dim-card .src{font-size:11px;color:#8797a3;margin-top:8px;font-style:italic}
+.rub{margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+.rub div{font-size:11.5px;line-height:1.5;margin-bottom:4px;display:flex;gap:7px}
+.rub b{flex:0 0 18px;height:18px;border-radius:4px;color:#fff;text-align:center;font-size:10.5px;line-height:18px}
+.arch{border:2px solid var(--line);border-radius:11px;padding:17px 19px;background:#fff;cursor:pointer;transition:.15s;position:relative}
+.arch:hover{border-color:var(--cyan)}
+.arch.on{border-color:var(--blue);box-shadow:0 4px 18px rgba(34,81,255,.13)}
+.arch .badge{position:absolute;top:13px;right:15px;font-size:10px;font-weight:700;background:var(--blue);color:#fff;padding:3px 9px;border-radius:20px;display:none}
+.arch.on .badge{display:block}
+.arch h4{font-size:15.5px;margin-bottom:3px}
+.arch .tl{font-size:12px;color:var(--blue);font-weight:700;margin-bottom:9px}
+.arch p{font-size:12.2px;color:var(--muted);line-height:1.55;margin-bottom:8px}
+.arch .row{font-size:11.5px;line-height:1.5;margin-bottom:5px}
+.arch .row b{color:var(--ink)}
+.mini{display:flex;gap:3px;margin-top:10px;align-items:flex-end;height:38px}
+.mini i{flex:1;background:var(--blue);border-radius:2px 2px 0 0;opacity:.85}
+.action{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:0 9px 9px 0;padding:13px 16px;margin-bottom:10px;background:#fff}
+.action h4{font-size:13.5px;margin-bottom:5px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.action p{font-size:12.2px;color:var(--muted);line-height:1.55}
+.action .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tagx{font-size:10.5px;background:#eef2f6;border-radius:5px;padding:3px 8px;color:var(--muted)}
+.tagx b{color:var(--ink)}
+.bar{height:9px;background:#eef2f6;border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue)}
+.sl{display:grid;grid-template-columns:1fr 130px 34px;gap:9px;align-items:center;padding:5px 0;border-bottom:1px solid #f0f3f6}
+.sl .n{font-size:12px}
+.sl .v{font-weight:700;text-align:center;color:#fff;border-radius:4px;font-size:12px;padding:3px 0}
+.sl input{width:100%;accent-color:var(--blue)}
+.foot{font-size:11.5px;color:var(--muted);line-height:1.6}
+.foot a{color:var(--blue)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Culture &amp; Agility <span>Diagnostic</span></h1>
+    <div class="sub">Grupo Andes — 10 dimensiones culturales evaluadas por unidad de negocio y por sub-unidad, cada BU contra el arquetipo que su agenda exige. Cadena completa: diagnóstico → brechas priorizadas → iniciativas macro → sub-iniciativas → Gantt de acciones → seguimiento PMO → banca directiva.</div>
+  </div>
+  <div class="kpi-strip" id="kpiStrip"></div>
+</header>
+
+<nav>
+  <button class="active" data-t="marco">1 · Marco</button>
+  <button data-t="arquetipos">2 · Arquetipos</button>
+  <button data-t="macro">3 · Diagnóstico macro</button>
+  <button data-t="micro">4 · Drill-down BU</button>
+  <button data-t="gaps">5 · Gaps &amp; priorización</button>
+  <button data-t="plan">6 · Plan e iniciativas</button>
+  <button data-t="gantt">7 · Carta Gantt</button>
+  <button data-t="pmo">8 · Seguimiento PMO</button>
+  <button data-t="team">9 · Equipo directivo 360</button>
+  <button data-t="metodo">10 · Método y fuentes</button>
+</nav>
+
+<main>
+
+<!-- ============ TAB 1: MARCO ============ -->
+<section class="tab active" id="t-marco">
+  <div class="hero">
+    <h2>El problema: la estrategia pide velocidad, la cultura entrega proceso</h2>
+    <p>La mayoría de las compañías no fracasa por falta de estrategia sino por incapacidad de moverse a la velocidad que la estrategia exige. La agilidad no es un método (no es "hacer Scrum"): es un conjunto de <b>rasgos organizacionales medibles</b>. Este diagnóstico los descompone en 10 dimensiones evaluables de 1 a 5, las mide por unidad de negocio <i>y</i> por función, y contrasta el resultado contra el arquetipo que la compañía decide perseguir. El output no es un score: es una lista priorizada de actividades ejecutables.</p>
+  </div>
+
+  <div class="card">
+    <h2>Las 10 dimensiones</h2>
+    <p class="hint">Sintetizadas desde cuatro cuerpos de evidencia convergentes: <b>Organizational Health Index</b> de McKinsey (9 outcomes, 43 prácticas), los <b>5 trademarks of agile organizations</b> (McKinsey, 2018), el <b>modelo Denison</b> (4 traits × 3 índices, validado contra desempeño financiero) y el <b>Competing Values Framework</b> de Cameron &amp; Quinn. Se agrupan en 4 bloques: qué perseguimos, cómo decidimos, cómo somos, cómo entregamos.</p>
+    <div class="grid g2" id="dimGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>La empresa del caso: Grupo Andes</h2>
+    <p class="hint">Grupo consumo masivo LATAM, USD 1.180M de ingresos, 5 unidades de negocio en estados de madurez deliberadamente distintos — el punto es que <b>no todas necesitan el mismo arquetipo cultural</b>. Cada BU se evalúa en 6 funciones (Comercial, Operaciones, Cadena de Suministro, Personas, Finanzas, Tecnología/Digital), lo que da 5 × 6 × 10 = 300 puntos de evaluación.</p>
+    <div class="scroll"><table id="buTable"></table></div>
+  </div>
+</section>
+
+<!-- ============ TAB 2: ARQUETIPOS ============ -->
+<section class="tab" id="t-arquetipos">
+  <div class="card">
+    <h2>Asignación de arquetipo por unidad de negocio</h2>
+    <p class="hint">Cada unidad se compara contra el arquetipo que corresponde a <b>su</b> agenda, no a la del grupo. Esta asignación gobierna todo el diagnóstico, las brechas y el plan. El modo "arquetipo único" existe solo para el ejercicio de contraste — sirve para mostrarle al directorio qué pasaría si se impusiera una sola cultura.</p>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Modo:</span>
+      <select id="modeSel">
+        <option value="own">Arquetipo propio por unidad (recomendado)</option>
+        <option value="single">Un solo arquetipo para todo el grupo</option>
+      </select>
+      <span id="singleWrap" style="display:none;gap:8px;align-items:center">
+        <span style="font-size:12.5px;font-weight:600">Arquetipo del grupo:</span>
+        <select id="archSel"></select>
+      </span>
+      <button class="btn ghost sm" id="sugBtn">Volver a la asignación sugerida</button>
+    </div>
+    <div class="scroll"><table id="assignTable"></table></div>
+    <div id="assignRead" style="margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <h2>Los cinco arquetipos</h2>
+    <p class="hint">No existe una cultura "buena". Existe una cultura <b>coherente con la agenda</b>. Cameron &amp; Quinn lo demostraron con el Competing Values Framework: ningún cuadrante gana siempre; lo que gana es el ajuste entre perfil cultural y estrategia. Cada arquetipo define un <b>perfil objetivo</b> (nota esperada 1-5 por dimensión) y un <b>peso</b> (cuánto pesa esa dimensión en el ajuste). Elige uno: todo el resto de la herramienta se recalcula contra él.</p>
+    <div class="grid g2" id="archGrid"></div>
+    <div class="callout warn" style="margin-top:16px"><b>Trampa clásica:</b> aplicar el mismo arquetipo a todo el grupo. Foodservice en pérdidas y Nutrición en fase de exploración necesitan culturas opuestas — la primera necesita disciplina y velocidad de decisión, la segunda necesita tolerancia al error y ciclos de aprendizaje. Forzar una cultura única mata el negocio nuevo o desangra el negocio enfermo. Usa la pestaña 4 para asignar un arquetipo distinto por BU.</div>
+  </div>
+</section>
+
+<!-- ============ TAB 3: MACRO ============ -->
+<section class="tab" id="t-macro">
+  <div class="card">
+    <h2>Mapa de calor: unidades de negocio × dimensiones</h2>
+    <p class="hint">Nota promedio ponderada de las 6 funciones. La fila <b>Δ vs objetivo</b> muestra la brecha contra el arquetipo seleccionado. Rojo = brecha crítica.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Agrupar por:</span>
+      <select id="groupSel">
+        <option value="bu">Unidad de negocio</option>
+        <option value="fn">División funcional (transversal)</option>
+      </select>
+      <span style="font-size:12.5px;font-weight:600;margin-left:10px">Vista:</span>
+      <select id="viewSel">
+        <option value="score">Nota absoluta (1-5)</option>
+        <option value="gap">Brecha vs objetivo</option>
+      </select>
+      <span id="macroArchNote" style="font-size:12px;color:var(--muted);margin-left:6px"></span>
+    </div>
+    <div class="scroll"><table id="heatMacro"></table></div>
+    <div class="legend" id="heatLegend"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Ajuste al arquetipo por unidad de negocio</h2>
+      <p class="hint">Fit = 100% menos la brecha ponderada por la importancia de cada dimensión en el arquetipo. Solo penaliza estar <i>por debajo</i> del objetivo.</p>
+      <div id="fitList"></div>
+    </div>
+    <div class="card">
+      <h2>Perfil comparado</h2>
+      <p class="hint">Radar de todas las BU contra el perfil objetivo (línea punteada).</p>
+      <div id="radarAll"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Lectura del diagnóstico</h2>
+    <div id="macroRead"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 4: MICRO ============ -->
+<section class="tab" id="t-micro">
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Analizar:</span>
+      <select id="scopeSel">
+        <option value="bu">Una unidad de negocio (con sus 6 sub-unidades)</option>
+        <option value="fn">Una división funcional a través de todas las BU</option>
+      </select>
+      <span id="buWrap"><select id="buSel"></select></span>
+      <span id="fnWrap" style="display:none"><select id="fnSel"></select></span>
+      <button class="btn ghost sm" id="resetBtn" style="margin-left:auto">Restaurar notas originales</button>
+    </div>
+    <div id="buCtx"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Perfil de la unidad vs. objetivo</h2>
+      <div id="radarBU"></div>
+    </div>
+    <div class="card">
+      <h2>Dónde duele: brecha por dimensión</h2>
+      <p class="hint">Ordenado por impacto = brecha × peso de la dimensión en el arquetipo.</p>
+      <div id="buGapList"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Del macro al micro: funciones × dimensiones</h2>
+    <p class="hint">El promedio de la BU esconde la variación interna. Aquí se ve qué función arrastra la nota — normalmente el problema no es "la cultura de la BU", es una función específica con un modelo de gestión distinto.</p>
+    <div class="scroll"><table id="heatMicro"></table></div>
+    <div class="legend" id="heatLegend2"></div>
+  </div>
+
+  <div class="card">
+    <h2>Recalibrar la evaluación</h2>
+    <p class="hint">Ajusta las notas de una función (por ejemplo, después del taller de calibración con el equipo directivo). Todo el diagnóstico, los gaps y el plan se recalculan en vivo.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Sub-unidad:</span>
+      <select id="slBuSel"></select>
+      <select id="funcSel"></select>
+    </div>
+    <div id="slCtx" style="font-size:12.5px;color:var(--muted);margin-bottom:10px"></div>
+    <div id="sliders"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 5: GAPS ============ -->
+<section class="tab" id="t-gaps">
+  <div class="card">
+    <h2>Priorización de brechas — todo el grupo</h2>
+    <p class="hint">Cada celda BU × dimensión ordenada por <b>impacto</b> = brecha × peso del arquetipo. Es la cola de trabajo del programa de cultura: no se atacan 10 dimensiones en 5 BU (50 frentes), se atacan los 8-10 puntos de arriba.</p>
+    <div class="scroll"><table id="gapTable"></table></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Matriz brecha × peso</h2>
+      <p class="hint">Eje X: qué tan importante es la dimensión para el arquetipo. Eje Y: qué tan grande es la brecha. Arriba a la derecha = mover ahora.</p>
+      <div id="scatter"></div>
+    </div>
+    <div class="card">
+      <h2>Concentración del problema</h2>
+      <p class="hint">Brecha ponderada total agregada por dimensión (¿es un problema del grupo?) y por función (¿es un problema de una capa?).</p>
+      <div id="concentration"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 6: PLAN ============ -->
+<section class="tab" id="t-plan">
+  <div class="card">
+    <h2>Actividades a ejecutar</h2>
+    <p class="hint">Generado desde las brechas priorizadas de la BU y el arquetipo seleccionados. Cada actividad es un <b>mecanismo</b>, no un enunciado: algo que cambia quién decide, qué se mide, cómo se reúne la gente o cómo se asignan recursos. La cultura no se cambia con comunicación, se cambia con mecanismos — el <i>Influence Model</i> (McKinsey) exige los cuatro frentes en paralelo: modelaje de líderes, comprensión y convicción, mecanismos formales y capacidades.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Unidad:</span>
+      <select id="buSel2"></select>
+      <span style="font-size:12.5px;font-weight:600;margin-left:10px">Horizonte:</span>
+      <select id="horSel">
+        <option value="all">Todos</option>
+        <option value="0-3">0-3 meses</option>
+        <option value="3-9">3-9 meses</option>
+        <option value="9-18">9-18 meses</option>
+      </select>
+      <span id="planArchNote" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+  </div>
+  <div id="planOut"></div>
+</section>
+
+<!-- ============ TAB 7: GANTT ============ -->
+<section class="tab" id="t-gantt">
+  <div class="card">
+    <h2>Carta Gantt de ejecución</h2>
+    <p class="hint">Tercer nivel del plan: las acciones concretas de cada sub-iniciativa, con mes de inicio, duración, responsable y entregable. Elige la iniciativa macro para acotar la vista — el Gantt completo de una unidad tiene demasiadas barras para leerse en una lámina.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Unidad:</span>
+      <select id="buSel3"></select>
+      <span style="font-size:12.5px;font-weight:600;margin-left:10px">Iniciativa macro:</span>
+      <select id="macroSel"></select>
+    </div>
+  </div>
+  <div id="ganttOut"></div>
+</section>
+
+<!-- ============ TAB 8: PMO ============ -->
+<section class="tab" id="t-pmo">
+  <div class="card">
+    <h2>Seguimiento de ejecución (PMO)</h2>
+    <p class="hint">El mismo Gantt, pero contra la realidad. Cada acción tiene avance planificado (según su mes de inicio y duración) y avance real reportado. La diferencia es lo que la PMO gestiona. Mueve el corte para ver el estado en cualquier mes del programa; edita el avance real de una acción para simular una recuperación o un atraso.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Unidad:</span>
+      <select id="pmoBuSel"></select>
+      <span style="font-size:12.5px;font-weight:600;margin-left:10px">Mes de corte:</span>
+      <input type="range" id="pmoCut" min="1" max="18" step="1" style="width:220px;accent-color:var(--blue)">
+      <b id="pmoCutLbl" style="color:var(--blue);font-size:13px"></b>
+      <span style="font-size:12.5px;font-weight:600;margin-left:10px">Estado:</span>
+      <select id="pmoFilter">
+        <option value="all">Todos</option>
+        <option value="Atrasada">Solo atrasadas</option>
+        <option value="En riesgo">Solo en riesgo</option>
+        <option value="En curso">En curso</option>
+        <option value="Completada">Completadas</option>
+      </select>
+      <button class="btn ghost sm" id="pmoReset">Restaurar avances</button>
+    </div>
+    <div class="grid g4" id="pmoKpi"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Curva S: avance plan vs. real</h2>
+      <p class="hint">Acumulado de acciones ponderadas por duración. La brecha entre curvas es el atraso del programa en meses de trabajo.</p>
+      <div id="pmoCurve"></div></div>
+    <div class="card"><h2>Avance por iniciativa macro</h2>
+      <p class="hint">Dónde se está perdiendo el programa. Una iniciativa macro atrasada arrastra la brecha cultural que iba a cerrar.</p>
+      <div id="pmoByMacro"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Alertas: lo que la PMO debe destrabar esta semana</h2>
+    <div id="pmoAlerts"></div>
+  </div>
+
+  <div class="card">
+    <h2>Registro de acciones</h2>
+    <p class="hint">Avance real editable. Al modificarlo se recalculan el estado, la curva S y las alertas.</p>
+    <div class="scroll"><table id="pmoTable"></table></div>
+  </div>
+</section>
+
+<!-- ============ TAB 9: EQUIPO DIRECTIVO ============ -->
+<section class="tab" id="t-team">
+  <div class="card">
+    <h2>Gerente general y primera línea: ¿el equipo que hay es el que la agenda exige?</h2>
+    <p class="hint">La cultura de una unidad no supera por mucho a la conducta de quien la dirige. Aquí cada líder se evalúa en 6 comportamientos observables mediante 360° (equipo, pares y jefatura), contra el <b>nivel requerido por el arquetipo de su unidad</b> — no contra un estándar genérico. Se muestra además la <b>brecha de autoconciencia</b>: la distancia entre cómo se evalúa la persona y cómo la evalúa su equipo, que es el mejor predictor de si el desarrollo va a funcionar.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:12.5px;font-weight:600">Equipo:</span>
+      <select id="teamSel"></select>
+    </div>
+    <div class="grid g4" id="teamKpi"></div>
+  </div>
+  <div class="card">
+    <h2>Perfil del líder de la unidad</h2>
+    <div id="teamLead"></div>
+  </div>
+  <div class="card">
+    <h2>Primera línea: 360° por comportamiento vs. nivel requerido</h2>
+    <p class="hint">Verde = cumple el nivel que exige el arquetipo. La última columna es el veredicto de banca: qué hacer con cada persona.</p>
+    <div class="scroll"><table id="teamTable"></table></div>
+    <div class="legend" id="teamLegend"></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h2>Matriz resultado vs. comportamiento</h2>
+      <p class="hint">El cuadrante difícil es abajo a la derecha: entrega el número pero no el comportamiento. Es donde la organización aprende qué se premia de verdad.</p>
+      <div id="teamMatrix"></div></div>
+    <div class="card"><h2>Brecha de autoconciencia</h2>
+      <p class="hint">Autoevaluación menos evaluación del equipo. Sobre +0,7 puntos, el desarrollo no prende hasta que la persona vea la brecha.</p>
+      <div id="teamAware"></div></div>
+  </div>
+  <div class="card"><h2>Implicancias para la agenda</h2><div id="teamRead"></div></div>
+</section>
+
+<!-- ============ TAB 10: MÉTODO ============ -->
+<section class="tab" id="t-metodo">
+  <div class="card">
+    <h2>Cómo se construyó el modelo</h2>
+    <div class="callout"><b>Regla de diseño:</b> toda dimensión incluida cumple tres criterios — (1) tiene evidencia publicada de correlación con desempeño, (2) es observable mediante una señal dura además de la encuesta, y (3) es accionable por un gerente de unidad en menos de 18 meses. Dimensiones populares que no pasan el filtro (ej. "innovación" como concepto genérico) se descomponen en las que sí.</p></div>
+    <div class="grid g2" id="srcGrid"></div>
+  </div>
+  <div class="card">
+    <h2>Cómo levantar las notas en la práctica</h2>
+    <div id="howto"></div>
+  </div>
+  <div class="card">
+    <h2>Fuentes</h2>
+    <div class="foot" id="refs"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ============================================================
+   MODELO DE DATOS
+   ============================================================ */
+
+const BLOCKS = {
+  A:{n:'Dirección',  c:'#2251ff'},
+  B:{n:'Decisión y estructura', c:'#00a9f4'},
+  C:{n:'Personas y cultura', c:'#00b8a2'},
+  D:{n:'Ejecución y habilitadores', c:'#7b61ff'}
+};
+
+const DIMS = [
+ {id:'norte', b:'A', n:'Norte estratégico compartido',
+  d:'Existe una dirección clara, traducida a prioridades concretas, y la gente en la línea puede explicarla con sus palabras y conectarla con su trabajo diario.',
+  senal:'Test de 5 minutos: pregunta a 10 personas de distintos niveles cuáles son las 3 prioridades del año. Si hay más de 5 respuestas distintas, la nota es ≤2.',
+  src:'OHI "Direction" · Denison "Mission" · Trademark 1 (North Star)',
+  r:['Cada área tiene su propia agenda; no hay prioridades declaradas','Hay estrategia en PPT pero no baja de la primera línea','Prioridades claras en el comité; difusas en la línea','La línea las conoce y las usa para decir que no a cosas','Cualquier persona explica el norte y muestra cómo su semana lo sirve']},
+
+ {id:'clientes', b:'A', n:'Obsesión con el cliente y foco externo',
+  d:'Decisiones ancladas en evidencia de cliente y de mercado, no en opinión interna. Incluye velocidad de reacción a movimientos de competencia.',
+  senal:'% de decisiones del comité con dato de cliente adjunto; horas de contacto directo de ejecutivos con clientes al mes; días para responder a un movimiento de precio de la competencia.',
+  src:'OHI "External orientation" · Denison "Adaptability" · CVF Market',
+  r:['El cliente aparece en el discurso, nunca en la data','Se mide NPS pero no cambia decisiones','Insight de cliente en decisiones grandes, no en las diarias','Rituales estables de contacto y cierre de loop con cliente','El cliente es el árbitro por defecto de cualquier disputa interna']},
+
+ {id:'decision', b:'B', n:'Velocidad y calidad de decisión',
+  d:'Claridad sobre quién decide qué, decisiones delegadas al nivel más bajo con información suficiente, y ciclos cortos entre problema y resolución.',
+  senal:'Días desde que se identifica un tema hasta que se decide; número de firmas para aprobar un gasto de USD 50k; % de decisiones que suben al CEO pudiendo resolverse dos niveles abajo.',
+  src:'Trademark 3 (rapid decision & learning cycles) · OHI "Coordination & control" · Bezos type-1/type-2',
+  r:['Todo escala al top; semanas o meses por decisión','Existen comités pero deciden por consenso lento','Derechos de decisión escritos, se respetan a medias','Decisiones reversibles se toman en el nivel de trabajo, en días','Ciclo de decisión en horas para lo reversible; el top solo ve lo irreversible']},
+
+ {id:'estructura', b:'B', n:'Equipos empoderados y red',
+  d:'Equipos estables, multifuncionales, con dueño claro de resultado end-to-end y recursos propios; en vez de silos funcionales que se pasan el trabajo.',
+  senal:'% de la gente en equipos con misión y KPI propios; número de traspasos entre áreas para llevar un producto de idea a mercado; permanencia media de un equipo.',
+  src:'Trademark 2 (network of empowered teams) · Spotify squads/tribes · Haier RenDanHeYi',
+  r:['Silos funcionales puros; nadie es dueño del resultado end-to-end','Proyectos multifuncionales ad-hoc, sin dedicación','Algunos equipos dedicados en iniciativas clave','Mayoría del valor entregado por equipos estables y multifuncionales','Red de equipos con backlog, presupuesto y autoridad propios']},
+
+ {id:'seguridad', b:'C', n:'Seguridad psicológica y debate',
+  d:'Se puede reportar un problema, discrepar con el jefe y admitir un error sin castigo. Sin esto no hay velocidad: los problemas se esconden y aparecen tarde.',
+  senal:'Tiempo promedio entre que alguien detecta una mala noticia y que llega al comité; % de reuniones con desacuerdo explícito registrado; rotación voluntaria de alto desempeño.',
+  src:'Edmondson (1999) · Google Project Aristotle · OHI "Work environment"',
+  r:['Se mata al mensajero; las malas noticias llegan tarde y maquilladas','Se puede hablar en privado, nunca frente al jefe','Depende del líder: unos equipos sí, otros no','Norma explícita y modelada por líderes; se reportan errores','Los problemas se levantan en horas y quien los levanta gana reputación']},
+
+ {id:'talento', b:'C', n:'Talento móvil y modelo de personas dinámico',
+  d:'La gente se mueve rápido hacia donde está el valor; el talento crítico está en las prioridades críticas; se contrata y se sale con estándar.',
+  senal:'% del top 20% de talento asignado al top 20% de iniciativas de valor; días para reasignar a una persona; % de posiciones críticas con sucesor listo.',
+  src:'Trademark 4 (dynamic people model) · Netflix culture deck · OHI "Capabilities"',
+  r:['La gente pertenece a su jefe; moverse toma un año y una pelea','Movilidad formal existe pero es lenta y política','Se mueve talento en momentos de crisis','Reasignación trimestral abierta y transparente','El talento se asigna al valor con la misma frecuencia que el presupuesto']},
+
+ {id:'liderazgo', b:'C', n:'Liderazgo y modelaje',
+  d:'Los líderes hacen lo que piden. Dedican tiempo a desarrollar gente, dan feedback duro y no protegen su feudo por sobre el resultado del grupo.',
+  senal:'% del tiempo del líder en coaching vs. reporting; resultados de 360°; ¿cuántos líderes fueron movidos el último año por comportamiento y no por resultado?',
+  src:'OHI "Leadership" · Influence Model (role modeling) · Denison "Involvement"',
+  r:['Liderazgo de control; el ejemplo contradice el discurso','Discurso correcto, agenda 100% en reporting','Un grupo de líderes modela; el resto observa','Comportamientos definidos, medidos en 360° y con consecuencias','Se promueve y se despide por comportamiento tanto como por número']},
+
+ {id:'accountability', b:'D', n:'Accountability y consecuencias',
+  d:'Metas claras y personales, transparencia de resultados y consecuencias reales — positivas y negativas — asociadas al desempeño.',
+  senal:'Dispersión del bono entre alto y bajo desempeño; % de metas con dueño único nombrado; % de iniciativas del año pasado con impacto verificado en el P&L.',
+  src:'OHI "Accountability" · Denison "Consistency" · CVF Market',
+  r:['Metas difusas y compartidas; nadie responde por el resultado','Metas existen; sin consecuencia diferenciada','Consecuencias para el resultado extremo, no para el promedio','Meta personal, transparente y con consecuencia real','Curva de consecuencias clara y aceptada como justa por la organización']},
+
+ {id:'ejecucion', b:'D', n:'Disciplina de ejecución y mejora continua',
+  d:'Sistema de gestión operativo: cadencia de reuniones que resuelve, seguimiento visual, resolución de causa raíz y estándares que se mantienen.',
+  senal:'% de acciones de la reunión de desempeño cerradas en plazo; existencia de tablero visual único; ¿los problemas resueltos vuelven a aparecer?',
+  src:'OHI "Coordination & control" · Lean/TPS · Denison "Consistency"',
+  r:['Apagar incendios; sin cadencia ni seguimiento','Reuniones de reporte que no generan decisiones','Cadencia formal; seguimiento inconsistente','Sistema de gestión en cascada, con acciones cerradas y causa raíz','Mejora continua distribuida: la línea resuelve sin escalar y el estándar se sostiene']},
+
+ {id:'aprendizaje', b:'D', n:'Experimentación, datos y tecnología',
+  d:'Ciclos cortos de prueba y aprendizaje, decisiones basadas en datos accesibles y tecnología que no es un cuello de botella para el negocio.',
+  senal:'Número de experimentos vivos por trimestre y % que se apaga; tiempo desde pregunta de negocio hasta dato disponible; frecuencia de release de sistemas de cara al cliente.',
+  src:'Trademark 5 (next-gen enabling technology) · OHI "Innovation & learning" · Amazon "Day 1"',
+  r:['Sin experimentos; el dato se pide por correo y llega en semanas','Pilotos anuales grandes; se evalúan tarde o nunca','Se experimenta en marketing/digital, no en el core','Cadencia de experimentos con criterio de matar/escalar y dato self-service','Aprendizaje continuo: se prueba barato, se mata rápido y se escala lo que gana']}
+];
+const DIX = Object.fromEntries(DIMS.map((d,i)=>[d.id,i]));
+
+/* ---------- Arquetipos ---------- */
+const ARCHS = [
+ {id:'turn', n:'Turnaround disciplinado', tl:'Salir de números rojos',
+  cuando:'La unidad pierde caja o margen y el reloj corre. Horizonte 6-12 meses. Sobrevivir antes que innovar.',
+  logica:'La evidencia de recuperaciones exitosas es consistente: primero se instala accountability y velocidad de decisión, no cultura de innovación. Se centraliza lo financiero, se descentraliza la ejecución, y se acepta deliberadamente una nota baja en experimentación durante la fase aguda.',
+  riesgo:'Si se queda en este modo más de 18 meses, quema al talento y destruye la capacidad de crecer. Es un puente, no un destino.',
+  ej:'Fiat/Marchionne, Best Buy/Joly, LEGO 2004-2008',
+  t:{norte:5,clientes:4,decision:5,estructura:3,seguridad:4,talento:4,liderazgo:5,accountability:5,ejecucion:5,aprendizaje:3},
+  w:{norte:3,clientes:2,decision:3,estructura:1,seguridad:2,talento:2,liderazgo:3,accountability:3,ejecucion:3,aprendizaje:1}},
+
+ {id:'growth', n:'Máquina comercial', tl:'Escalar con rentabilidad',
+  cuando:'Producto probado, mercado disponible, la restricción es la capacidad de vender y servir a escala sin romper el margen.',
+  logica:'Corresponde al cuadrante Market del Competing Values Framework: foco externo + control. Alto peso en foco de cliente, accountability y disciplina de ejecución; la estructura en red importa menos que la claridad de metas y la cobertura.',
+  riesgo:'Cultura de número puro sin seguridad psicológica genera sandbagging, ventas de mala calidad y fuga de talento comercial.',
+  ej:'Salesforce en fase de escalamiento, AB InBev, Danaher',
+  t:{norte:4,clientes:5,decision:4,estructura:3,seguridad:4,talento:5,liderazgo:4,accountability:5,ejecucion:5,aprendizaje:4},
+  w:{norte:2,clientes:3,decision:2,estructura:1,seguridad:2,talento:3,liderazgo:2,accountability:3,ejecucion:3,aprendizaje:2}},
+
+ {id:'explore', n:'Motor de exploración', tl:'Construir negocios nuevos',
+  cuando:'La unidad debe crear valor donde hoy no hay ingreso: nuevas categorías, nuevos modelos, D2C, plataformas.',
+  logica:'Cuadrante Adhocracy: foco externo + flexibilidad. El activo es la tasa de aprendizaje por unidad de tiempo y de capital. Exige seguridad psicológica alta (sin ella no hay reporte honesto de fracaso) y ciclos de decisión rápidos con inversión escalonada tipo venture.',
+  riesgo:'Sin accountability sobre hitos de aprendizaje se convierte en un zoológico de pilotos eternos que nadie mata.',
+  ej:'Amazon "Day 1", Google X, Bosch Accelerator',
+  t:{norte:4,clientes:5,decision:5,estructura:5,seguridad:5,talento:4,liderazgo:4,accountability:4,ejecucion:3,aprendizaje:5},
+  w:{norte:2,clientes:3,decision:3,estructura:3,seguridad:3,talento:2,liderazgo:2,accountability:2,ejecucion:1,aprendizaje:3}},
+
+ {id:'reliab', n:'Reloj suizo', tl:'Excelencia operacional y confiabilidad',
+  cuando:'El valor está en costo unitario, calidad, servicio y seguridad. Fallar es caro; sorprender no es una virtud.',
+  logica:'Cuadrante Hierarchy del CVF, pero en su versión sana: estandarización + mejora continua distribuida (TPS). La agilidad aquí se ve como resolución de problemas en la línea, no como experimentación de negocio.',
+  riesgo:'Deriva fácil a burocracia defensiva. El antídoto es que el estándar lo mejore quien lo ejecuta, no un área de excelencia central.',
+  ej:'Toyota, Alcoa bajo O\'Neill, Southwest Airlines',
+  t:{norte:4,clientes:4,decision:4,estructura:4,seguridad:5,talento:4,liderazgo:4,accountability:5,ejecucion:5,aprendizaje:4},
+  w:{norte:2,clientes:2,decision:2,estructura:2,seguridad:3,talento:2,liderazgo:2,accountability:3,ejecucion:3,aprendizaje:2}},
+
+ {id:'agile', n:'Red ágil end-to-end', tl:'Agilidad organizacional plena',
+  cuando:'Mercado volátil, ciclos de producto cortos, competencia digital. La ventaja está en reconfigurarse más rápido que el entorno.',
+  logica:'Los 5 trademarks de McKinsey en su forma completa: norte compartido, red de equipos empoderados, ciclos rápidos de decisión y aprendizaje, modelo de personas dinámico y tecnología habilitante. Es el arquetipo más exigente: requiere notas altas y balanceadas — un solo 2 rompe el sistema.',
+  riesgo:'Adoptar los rituales sin mover los derechos de decisión ni el presupuesto produce "agile teatro": más ceremonias, misma velocidad.',
+  ej:'ING, Spotify, Haier, Bosch',
+  t:{norte:5,clientes:5,decision:5,estructura:5,seguridad:5,talento:5,liderazgo:5,accountability:4,ejecucion:4,aprendizaje:5},
+  w:{norte:3,clientes:3,decision:3,estructura:3,seguridad:3,talento:3,liderazgo:3,accountability:2,ejecucion:2,aprendizaje:3}}
+];
+const AIX = Object.fromEntries(ARCHS.map((a,i)=>[a.id,i]));
+
+/* ---------- Empresa ficticia ---------- */
+const FUNCS = [
+ {id:'com', n:'Comercial y Marketing', ab:'Comercial'},
+ {id:'ops', n:'Operaciones / Manufactura', ab:'Operaciones'},
+ {id:'sc',  n:'Cadena de Suministro', ab:'Supply Chain'},
+ {id:'ppl', n:'Personas y Cultura (HR)', ab:'HR'},
+ {id:'fin', n:'Finanzas y Control', ab:'Finanzas'},
+ {id:'tec', n:'Tecnología y Digital', ab:'Tecnología'}
+];
+
+/* Sub-unidades: [peso en el resultado de la BU, dotación]. El peso no es la dotación:
+   en D2C, Tecnología pesa 30% del resultado con 26% de la gente; en Bebidas, Operaciones manda. */
+const SUB = {
+ beb:{com:[.22,520],ops:[.28,1080],sc:[.18,300],ppl:[.10,45],fin:[.11,105],tec:[.11,90]},
+ sna:{com:[.26,340],ops:[.24,520],sc:[.17,175],ppl:[.11,32],fin:[.11,63],tec:[.11,50]},
+ nut:{com:[.30,34], ops:[.14,18],  sc:[.12,10], ppl:[.10,5],  fin:[.12,9],  tec:[.22,20]},
+ fsv:{com:[.28,210],ops:[.20,168], sc:[.22,152],ppl:[.09,18], fin:[.12,52], tec:[.09,40]},
+ d2c:{com:[.28,74], ops:[.10,22],  sc:[.14,30], ppl:[.08,9],  fin:[.10,20], tec:[.30,55]}
+};
+const subW=(bu,f)=>SUB[bu][f][0], subHC=(bu,f)=>SUB[bu][f][1];
+
+const BUS = [
+ {id:'beb', n:'Bebidas Chile', desc:'Negocio core, 42% de los ingresos, líder de categoría hace 15 años. Margen sano pero plano; el retail le está quitando espacio con marca propia.',
+  ing:496, mg:'21,4%', cagr:'+1,2%', hc:2140, est:'Madurez / defensa', sug:'reliab', agenda:'Defender participación frente a la marca propia y sostener margen sin perder volumen.',
+  base:{norte:3.6,clientes:2.9,decision:2.4,estructura:2.3,seguridad:2.8,talento:2.6,liderazgo:3.2,accountability:3.6,ejecucion:4.0,aprendizaje:2.5}},
+
+ {id:'sna', n:'Snacks Andina', desc:'Segundo negocio del grupo, creciendo doble dígito tras la adquisición de 2023. La restricción hoy es capacidad comercial y de servicio, no demanda.',
+  ing:288, mg:'17,8%', cagr:'+13,6%', hc:1180, est:'Crecimiento', sug:'growth', agenda:'Escalar cobertura y capacidad de servicio sin romper el margen ni la calidad.',
+  base:{norte:3.9,clientes:3.8,decision:3.4,estructura:3.2,seguridad:3.5,talento:3.3,liderazgo:3.7,accountability:3.4,ejecucion:3.1,aprendizaje:3.3}},
+
+ {id:'nut', n:'Nutrición &amp; Wellness', desc:'Apuesta de nueva categoría lanzada en 2025. Aún sin punto de equilibrio; la tesis es capturar el shift a proteína y bajo azúcar antes que las multinacionales.',
+  ing:41, mg:'-9,1%', cagr:'+64%', hc:96, est:'Exploración', sug:'explore', agenda:'Validar unit economics y llegar a punto de equilibrio antes que entren las multinacionales.',
+  base:{norte:3.1,clientes:4.2,decision:4.0,estructura:4.1,seguridad:4.0,talento:3.6,liderazgo:3.5,accountability:2.6,ejecucion:2.4,aprendizaje:4.3}},
+
+ {id:'fsv', n:'Foodservice B2B', desc:'Unidad en pérdidas por tercer año. Sobre-costo de servir, cartera de clientes no rentables y precios erosionados. El directorio pidió plan de recuperación a 12 meses.',
+  ing:214, mg:'-3,4%', cagr:'-4,8%', hc:640, est:'Números rojos', sug:'turn', agenda:'Volver a caja positiva en 12 meses: precio, cartera de clientes y costo de servir.',
+  base:{norte:2.1,clientes:2.6,decision:1.9,estructura:2.2,seguridad:2.2,talento:2.3,liderazgo:2.2,accountability:1.8,ejecucion:2.3,aprendizaje:2.1}},
+
+ {id:'d2c', n:'Canal Digital / D2C', desc:'E-commerce propio y marketplaces. Crece rápido pero opera como isla: usa la marca del grupo sin coordinarse con la fuerza de venta tradicional.',
+  ing:141, mg:'8,2%', cagr:'+28%', hc:210, est:'Escalamiento', sug:'agile', agenda:'Crecer integrado al resto del grupo en vez de canibalizar al canal tradicional.',
+  base:{norte:2.9,clientes:4.0,decision:3.8,estructura:3.6,seguridad:3.4,talento:3.5,liderazgo:3.0,accountability:3.1,ejecucion:2.9,aprendizaje:4.0}}
+];
+const BIX = Object.fromEntries(BUS.map((b,i)=>[b.id,i]));
+
+/* Deltas por función: cada función tiene un sesgo estructural consistente */
+const FDELTA = {
+ com:{norte:0,clientes:.9,decision:.3,estructura:.1,seguridad:-.1,talento:.2,liderazgo:.1,accountability:.4,ejecucion:-.5,aprendizaje:.3},
+ ops:{norte:-.2,clientes:-.9,decision:-.4,estructura:-.3,seguridad:-.4,talento:-.4,liderazgo:-.1,accountability:.3,ejecucion:.9,aprendizaje:-.5},
+ sc: {norte:-.1,clientes:-.4,decision:-.3,estructura:.2,seguridad:-.2,talento:-.2,liderazgo:-.2,accountability:.1,ejecucion:.5,aprendizaje:-.2},
+ ppl:{norte:.3,clientes:-.6,decision:-.2,estructura:.2,seguridad:.7,talento:.8,liderazgo:.4,accountability:-.5,ejecucion:-.4,aprendizaje:-.1},
+ fin:{norte:.4,clientes:-.7,decision:-.6,estructura:-.5,seguridad:-.3,talento:-.3,liderazgo:.1,accountability:.8,ejecucion:.4,aprendizaje:-.3},
+ tec:{norte:-.4,clientes:.2,decision:.2,estructura:.5,seguridad:.2,talento:.1,liderazgo:-.3,accountability:-.3,ejecucion:-.2,aprendizaje:1.0}
+};
+/* jitter determinístico para que no se vea sintético */
+function jit(b,f,d){ let h=0,s=b+f+d; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return ((h%7)-3)*0.08; }
+
+let S = {};           // S[bu][func][dim]
+let S0 = {};          // copia original
+function buildScores(){
+  S={};
+  BUS.forEach(b=>{ S[b.id]={};
+    FUNCS.forEach(f=>{ S[b.id][f.id]={};
+      DIMS.forEach(d=>{
+        let v = b.base[d.id] + (FDELTA[f.id][d.id]||0) + jit(b.id,f.id,d.id);
+        S[b.id][f.id][d.id] = Math.round(Math.max(1,Math.min(5,v))*10)/10;
+      });
+    });
+  });
+  S0 = JSON.parse(JSON.stringify(S));
+}
+buildScores();
+
+/* ---------- Biblioteca de actividades ---------- */
+const ACTS = {
+ norte:[
+  {t:'Cascada de 3 prioridades en una página',d:'El comité define máximo 3 prioridades del año con métrica y dueño. Cada nivel las traduce a su propia página en 2 semanas, en cascada, y se publica en un tablero visible. Regla dura: si algo no sirve a una de las 3, se detiene o se declara explícitamente como "mantención".',h:'0-3',o:'Gerente General',k:'% de personas que nombran correctamente las 3 prioridades (encuesta pulso trimestral)',a:['turn','growth','reliab','agile']},
+  {t:'Lista de "qué dejamos de hacer"',d:'Junto con las prioridades se publica la lista de iniciativas que se detienen y los recursos que liberan. Sin esto, el norte es aditivo y no cambia nada.',h:'0-3',o:'Comité ejecutivo',k:'N° de iniciativas detenidas y FTE/USD liberados',a:['turn','reliab','growth','agile','explore']},
+  {t:'Narrativa de cambio y "por qué ahora"',d:'Construir el change story con la línea, no para la línea: 8-10 conversaciones de dos vías por nivel donde los equipos traducen el norte a implicancias en su trabajo. El Influence Model muestra que la convicción no se transmite por mail.',h:'3-9',o:'GG + Personas',k:'% de acuerdo con "entiendo por qué estamos cambiando" en pulso',a:['turn','agile','explore','growth','reliab']}
+ ],
+ clientes:[
+  {t:'Rito de contacto directo con cliente',d:'Cada miembro del comité pasa medio día al mes en punto de venta, planta de cliente o llamada de servicio, sin comitiva. Se abre el comité siguiente con 10 minutos de lo que vieron.',h:'0-3',o:'Comercial',k:'Horas/mes de ejecutivos en contacto directo; N° de decisiones originadas ahí',a:['turn','growth','explore','agile','reliab']},
+  {t:'Cierre de loop de voz de cliente en 48h',d:'Todo detractor de NPS recibe llamada de un responsable en 48 horas y la causa raíz se clasifica. Semanalmente se revisan las 3 causas top y se asigna dueño de solución.',h:'0-3',o:'Comercial + Servicio',k:'% de detractores contactados <48h; recurrencia de causa raíz',a:['growth','reliab','agile']},
+  {t:'Panel de rentabilidad por cliente en la mesa comercial',d:'Nadie negocia sin ver el margen real de servir a ese cliente (cost-to-serve, no margen bruto). Cambia la conversación de volumen a valor.',h:'3-9',o:'Comercial + Finanzas',k:'% de negociaciones con panel de CTS a la vista; margen de cola larga',a:['turn','growth','reliab']},
+  {t:'Consejo de clientes trimestral',d:'6-8 clientes representativos revisan el roadmap del año antes de que se apruebe presupuesto.',h:'3-9',o:'Comercial',k:'% del roadmap modificado por input del consejo',a:['explore','growth','agile']}
+ ],
+ decision:[
+  {t:'Mapa de derechos de decisión (RAPID/DARE)',d:'Listar las 20 decisiones que más frenan la operación y asignar para cada una quién recomienda, quién decide, quién debe estar de acuerdo y quién ejecuta. Publicarlo. La mayoría de las organizaciones descubre que 12 de las 20 no necesitan al CEO.',h:'0-3',o:'Gerente General',k:'Días promedio de ciclo de decisión en las 20 críticas',a:['turn','growth','explore','reliab','agile']},
+  {t:'Regla de puerta de dos vías',d:'Clasificar decisiones en reversibles e irreversibles (Bezos type-1/type-2). Las reversibles las toma el nivel de trabajo, en el día, con obligación de informar — no de pedir permiso.',h:'0-3',o:'Comité ejecutivo',k:'% de decisiones tomadas bajo el nivel N-2',a:['agile','explore','growth','turn']},
+  {t:'Rediseño de umbrales de aprobación',d:'Subir el umbral de gasto delegado y reducir firmas. Si un gasto de USD 20k pasa por 5 firmas, la organización dice "no confío" más fuerte que cualquier discurso de empoderamiento.',h:'3-9',o:'Finanzas',k:'N° de firmas por rango de gasto; tiempo de aprobación',a:['turn','agile','explore']},
+  {t:'Sala de guerra semanal con decisiones en la sala',d:'Reunión de 60 min con dueños presentes y mandato de cerrar los temas ahí; nada se difiere sin fecha y dueño. Aplicada en turnarounds reduce el ciclo de semanas a días.',h:'0-3',o:'Gerente de la unidad',k:'% de temas cerrados en la sesión; antigüedad media de temas abiertos',a:['turn','reliab','growth']}
+ ],
+ estructura:[
+  {t:'Equipos end-to-end por flujo de valor',d:'Convertir 3-5 iniciativas críticas en equipos dedicados (no matriciales por 20%) con dueño de resultado, presupuesto y KPI propios. Se mide el resultado del flujo, no la eficiencia de cada área.',h:'3-9',o:'GG + Personas',k:'% del valor entregado por equipos dedicados; N° de traspasos entre áreas',a:['agile','explore','growth']},
+  {t:'Eliminar la capa que no decide',d:'Auditar los tramos de control: toda capa que solo consolida información y no decide se elimina o se le devuelve autoridad. Menos capas = ciclo más corto sin ningún cambio cultural adicional.',h:'3-9',o:'Personas + GG',k:'N° de capas del CEO a la línea; span of control promedio',a:['turn','agile','reliab']},
+  {t:'Presupuesto trimestral por equipo (venture funding)',d:'Reemplazar el presupuesto anual congelado por asignación trimestral contra hitos. Sin mover el dinero, la red de equipos es cosmética.',h:'9-18',o:'Finanzas',k:'% del presupuesto reasignado trimestralmente',a:['agile','explore']},
+  {t:'Chapter/guild para mantener el estándar técnico',d:'Al pasar a equipos por misión, la profundidad funcional se cuida con comunidades de práctica que fijan estándar y desarrollo de carrera.',h:'9-18',o:'Personas',k:'Retención de talento técnico; adherencia a estándares',a:['agile','explore','reliab']}
+ ],
+ seguridad:[
+  {t:'Apertura de reunión con "mala noticia primero"',d:'Toda reunión de desempeño parte con los problemas, no con los logros. El líder pregunta primero y opina último. Es el mecanismo más barato y de mayor efecto sobre seguridad psicológica.',h:'0-3',o:'Todos los líderes',k:'Tiempo entre detección y escalamiento de un problema',a:['turn','reliab','agile','explore','growth']},
+  {t:'Andon: derecho a detener',d:'Cualquier persona puede detener un proceso ante un problema de calidad o seguridad, sin pedir permiso, y el líder debe acudir en minutos — no cuestionar la detención. Trasladable a comercial y servicio, no solo a planta.',h:'3-9',o:'Operaciones',k:'N° de detenciones/mes (subir es buena señal al inicio); tiempo de respuesta del líder',a:['reliab','agile','turn']},
+  {t:'Post-mortem sin culpables',d:'Formato fijo de análisis de fallas centrado en el sistema y no en la persona, publicado abiertamente. Reglas: sin nombres, con causa raíz, con acción y dueño.',h:'0-3',o:'Líder de la unidad',k:'N° de post-mortem publicados; % de recurrencia del mismo fallo',a:['explore','agile','reliab','turn']},
+  {t:'Feedback ascendente con consecuencia visible',d:'Encuesta corta de equipo a líder cada trimestre, resultado compartido con el equipo y compromiso público de 1-2 cambios. Lo que cambia la cultura no es la encuesta, es la respuesta visible.',h:'3-9',o:'Personas',k:'Score de seguridad psicológica por líder; % de líderes con plan de mejora cerrado',a:['agile','growth','explore','reliab']}
+ ],
+ talento:[
+  {t:'Mapear top 20% de talento contra top 20% de valor',d:'Sesión de un día donde el comité cruza la lista de talento crítico con la lista de iniciativas de mayor valor. Típicamente menos del 40% está alineado. Reasignar en el trimestre.',h:'0-3',o:'GG + Personas',k:'% del talento crítico asignado a las prioridades críticas',a:['turn','growth','agile','explore']},
+  {t:'Mercado interno de talento trimestral',d:'Roles abiertos publicados internamente primero, con regla de que ningún jefe puede bloquear un movimiento aprobado. Sin esa regla, la movilidad es teoría.',h:'3-9',o:'Personas',k:'Días para reasignar; % de vacantes cubiertas internamente',a:['agile','growth','explore']},
+  {t:'Plan de capacidades por rol crítico',d:'Definir las 4-5 capacidades que la estrategia exige y construir ruta de aprendizaje con práctica en el trabajo real, no con e-learning. El Influence Model exige capacidades como uno de los cuatro frentes.',h:'3-9',o:'Personas',k:'% de roles críticos con nivel objetivo alcanzado',a:['turn','reliab','growth','agile','explore']},
+  {t:'Decisión de talento en los cargos del turnaround',d:'En recuperación, los 20 cargos que mueven el 80% del resultado se revisan uno a uno en 60 días: se confirma, se mueve o se sale. Es la palanca más rápida y la más evitada.',h:'0-3',o:'GG',k:'% de cargos críticos con titular confirmado en 60 días',a:['turn']}
+ ],
+ liderazgo:[
+  {t:'Contrato de comportamientos del equipo directivo',d:'5-6 comportamientos observables definidos por el propio comité, con ejemplos de qué es y qué no es. Se evalúan en 360° y pesan en la compensación.',h:'3-9',o:'GG + Personas',k:'Score 360° de comportamientos; % del bono ligado a ellos',a:['turn','agile','reliab','growth','explore']},
+  {t:'Rebalancear la agenda del líder',d:'Auditar el calendario del comité: típicamente 70% reporting, 10% coaching. Meta: mover 20 puntos de reporting a tiempo en terreno y desarrollo de gente.',h:'0-3',o:'Comité ejecutivo',k:'% de horas de agenda en terreno/coaching vs. reporting',a:['reliab','agile','turn','growth']},
+  {t:'Gemba semanal de líderes',d:'Los líderes van al lugar donde ocurre el trabajo con una pauta de observación, y el resultado alimenta la agenda de mejora — no es una visita protocolar.',h:'0-3',o:'Operaciones + GG',k:'N° de gembas/mes; acciones generadas y cerradas',a:['reliab','turn','agile']},
+  {t:'Un acto simbólico irreversible',d:'Una decisión visible que demuestre que las reglas cambiaron (eliminar un privilegio jerárquico, salir de un cliente no rentable, mover a un líder de alto resultado y mal comportamiento). Vale más que 6 meses de comunicación.',h:'0-3',o:'GG',k:'Reconocimiento del acto en pulso cualitativo',a:['turn','agile','growth','reliab','explore']}
+ ],
+ accountability:[
+  {t:'Una meta, un dueño, un nombre',d:'Cada iniciativa y cada KPI tienen un dueño único nombrado — no un área. Las metas compartidas al 50% no se cumplen al 50%: no se cumplen.',h:'0-3',o:'Finanzas + GG',k:'% de KPI con dueño único nombrado',a:['turn','growth','reliab','agile']},
+  {t:'Transparencia de resultados a nivel individual',d:'Ranking visible de desempeño por vendedor, planta, célula. Cuando el resultado es público, la corrección ocurre sin intervención del jefe.',h:'0-3',o:'Comercial + Operaciones',k:'Dispersión de desempeño entre cuartiles; movimiento del cuartil inferior',a:['growth','turn','reliab']},
+  {t:'Diferenciar la consecuencia',d:'Ampliar la curva del bono entre alto y bajo desempeño y aplicar consecuencia real al desempeño sostenido bajo. Un sistema donde todos reciben lo mismo enseña que el desempeño no importa.',h:'3-9',o:'Personas + Finanzas',k:'Ratio bono alto/bajo desempeño; % de bajo desempeño gestionado',a:['turn','growth','reliab']},
+  {t:'Verificación de impacto en el P&L por Finanzas',d:'Ninguna iniciativa se declara cerrada sin que Control verifique el impacto en la línea del P&L. Corta de raíz el "impacto en PPT".',h:'3-9',o:'Finanzas',k:'% de impacto declarado que Finanzas valida',a:['turn','growth','reliab','agile']},
+  {t:'Hitos de aprendizaje en vez de metas de resultado',d:'En negocios nuevos, la accountability es sobre hitos de validación (unit economics, retención, costo de adquisición) con criterio explícito de matar o escalar.',h:'0-3',o:'Líder del negocio nuevo',k:'% de apuestas con criterio de kill definido antes de invertir',a:['explore']}
+ ],
+ ejecucion:[
+  {t:'Sistema de gestión en cascada (diaria/semanal/mensual)',d:'Cadencia definida: 15 min diarios en la línea, 60 min semanales por unidad, mensual de negocio. Cada nivel resuelve lo suyo y solo escala lo que no puede. Con pauta fija, tablero único y acciones con dueño y fecha.',h:'0-3',o:'Operaciones + GG',k:'% de acciones cerradas en plazo; % de temas resueltos sin escalar',a:['turn','reliab','growth','agile']},
+  {t:'Resolución estructurada de causa raíz',d:'Formato A3/5-porqués obligatorio para todo problema recurrente, entrenado en la línea. Si el mismo problema vuelve dos veces, se audita el análisis, no a la persona.',h:'3-9',o:'Excelencia Operacional',k:'% de recurrencia de problemas cerrados',a:['reliab','turn','agile']},
+  {t:'Tablero visual único de la unidad',d:'Una sola fuente de verdad, visible físicamente y en digital, con máximo 10 indicadores. Elimina la industria interna de reportes paralelos.',h:'0-3',o:'Finanzas + Operaciones',k:'Horas/mes dedicadas a preparar reportes',a:['turn','reliab','growth','agile']},
+  {t:'Estándar mejorado por quien lo ejecuta',d:'El operador o el vendedor propone y actualiza el estándar; el área central solo valida. Es lo que separa mejora continua de burocracia.',h:'9-18',o:'Operaciones',k:'N° de mejoras propuestas por persona/año e implementadas',a:['reliab','agile']}
+ ],
+ aprendizaje:[
+  {t:'Cadencia de experimentos con criterio de kill',d:'Portafolio visible de experimentos con hipótesis, costo, plazo y criterio explícito de matar o escalar definido antes de empezar. Revisión mensual: matar sin drama es la competencia clave.',h:'0-3',o:'Líder de la unidad',k:'N° de experimentos/trimestre; % apagados a tiempo; costo medio por aprendizaje',a:['explore','agile','growth']},
+  {t:'Dato self-service para las 10 preguntas frecuentes',d:'Identificar las 10 preguntas que el negocio hace todas las semanas y resolverlas con un tablero autoservicio. Reduce el ciclo pregunta-respuesta de días a minutos y libera al equipo de datos para lo difícil.',h:'3-9',o:'Tecnología + Finanzas',k:'Tiempo desde pregunta de negocio a dato; % de consultas resueltas sin pedir ayuda',a:['agile','growth','explore','reliab','turn']},
+  {t:'Producto en vez de proyecto en tecnología',d:'Equipos permanentes por producto digital con roadmap y presupuesto propios, en vez de proyectos que se arman y se disuelven. Es el trademark de tecnología habilitante.',h:'9-18',o:'Tecnología',k:'Frecuencia de release; lead time de cambio',a:['agile','explore']},
+  {t:'Deuda técnica y de datos en el comité de negocio',d:'La deuda técnica se presenta con impacto de negocio (velocidad perdida, riesgo) y se le asigna capacidad fija por trimestre. Si no entra al comité, no se paga nunca.',h:'9-18',o:'Tecnología + GG',k:'% de capacidad asignada a deuda; disponibilidad de sistemas críticos',a:['agile','reliab','growth']}
+ ]
+};
+
+/* ---------- NIVEL 1: iniciativas macro ---------- */
+const MACRO = [
+ {id:'M1', n:'Sistema de decisión y gobierno', dims:['decision','estructura'], c:'#2251ff',
+  obj:'Acortar el ciclo de decisión y devolver autoridad al nivel donde está la información.',
+  res:'Las decisiones reversibles se resuelven en el nivel de trabajo en días; el comité solo ve lo irreversible.',
+  o:'Gerente General', k:'Días de ciclo en las 20 decisiones críticas · % de decisiones tomadas bajo N-2'},
+ {id:'M2', n:'Norte estratégico y foco en el cliente', dims:['norte','clientes'], c:'#00a9f4',
+  obj:'Alinear a toda la unidad detrás de 3 prioridades y anclar las decisiones en evidencia de cliente.',
+  res:'Cualquier persona nombra las 3 prioridades y el cliente es el árbitro por defecto de las disputas internas.',
+  o:'Gerente General + Comercial', k:'% de la línea que nombra las 3 prioridades · horas de contacto directo con cliente'},
+ {id:'M3', n:'Accountability y sistema de gestión', dims:['accountability','ejecucion'], c:'#00b8a2',
+  obj:'Instalar dueño único, transparencia de resultado y una cadencia de gestión que cierre acciones.',
+  res:'Cada meta tiene nombre, el resultado es público y los problemas se resuelven sin escalar.',
+  o:'Gerente de la unidad + Finanzas', k:'% de KPI con dueño único · % de acciones cerradas en plazo'},
+ {id:'M4', n:'Contrato de liderazgo y seguridad para hablar', dims:['liderazgo','seguridad'], c:'#7b61ff',
+  obj:'Que los líderes modelen los comportamientos que piden y que reportar un problema deje de costar caro.',
+  res:'Las malas noticias llegan en horas y quien las levanta gana reputación en vez de perderla.',
+  o:'Gerente General + HR', k:'Tiempo entre detección y escalamiento · score de seguridad psicológica por líder'},
+ {id:'M5', n:'Talento al valor', dims:['talento'], c:'#f5a623',
+  obj:'Mover el talento crítico a las prioridades críticas con la misma frecuencia con que se mueve el presupuesto.',
+  res:'El top 20% de talento está en el top 20% de valor y reasignar toma semanas, no un año.',
+  o:'HR + Gerente General', k:'% de talento crítico en prioridades críticas · días para reasignar'},
+ {id:'M6', n:'Motor de aprendizaje, datos y tecnología', dims:['aprendizaje'], c:'#e5546c',
+  obj:'Probar barato, matar rápido y que el dato deje de ser un cuello de botella.',
+  res:'Cadencia estable de experimentos con criterio de kill y respuestas de negocio en minutos, no en semanas.',
+  o:'Líder de la unidad + Tecnología', k:'N° de experimentos y % apagados a tiempo · tiempo de pregunta a dato'}
+];
+const macroOf = dimId => MACRO.find(m=>m.dims.includes(dimId));
+
+/* ---------- NIVEL 3: acciones detalladas [nombre, mes inicio, duración (meses), responsable, entregable] ---------- */
+const STEPS = {
+ 'Cascada de 3 prioridades en una página':[
+  ['Taller de comité: definir las 3 prioridades y su métrica',0,.5,'Gerente General','Una página con 3 prioridades, métrica y dueño'],
+  ['Cascada a N-1 y N-2: cada equipo traduce a su propia página',.5,1,'Gerentes de área','Página de prioridades por equipo'],
+  ['Publicar tablero visible e instalar revisión mensual',1.5,.5,'Oficina de transformación','Tablero único publicado'],
+  ['Pulso de verificación: ¿la línea las nombra?',3,.5,'HR','Resultado del pulso con % de acierto']],
+ 'Lista de "qué dejamos de hacer"':[
+  ['Inventario de iniciativas vivas con FTE y presupuesto asociado',0,.75,'Finanzas','Inventario completo de iniciativas'],
+  ['Sesión de corte: detener, fusionar o mantener cada una',.75,.5,'Comité ejecutivo','Lista de iniciativas detenidas'],
+  ['Reasignar los recursos liberados a las 3 prioridades',1.25,.75,'Finanzas','Recursos reasignados en el presupuesto']],
+ 'Narrativa de cambio y "por qué ahora"':[
+  ['Construir el change story con 20 personas de la línea',3,1,'GG + HR','Narrativa de cambio en una página'],
+  ['Cascada de conversaciones de dos vías por nivel',4,2.5,'Todos los líderes','8-10 conversaciones por nivel documentadas'],
+  ['Medir convicción en el pulso y ajustar el mensaje',6.5,.5,'HR','Score de "entiendo por qué estamos cambiando"']],
+
+ 'Rito de contacto directo con cliente':[
+  ['Bloquear medio día al mes en la agenda de cada miembro del comité',0,.25,'Gerente General','Agenda bloqueada a 12 meses'],
+  ['Diseñar pauta de observación y ejecutar la primera ronda',.25,1,'Comercial','Pauta y primera ronda completa'],
+  ['Abrir cada comité con 10 minutos de hallazgos de terreno',1,11,'Comité ejecutivo','Punto fijo en la tabla del comité']],
+ 'Cierre de loop de voz de cliente en 48h':[
+  ['Definir el flujo de detractores y el responsable por segmento',0,.5,'Servicio al cliente','Flujo documentado con dueños'],
+  ['Piloto en un segmento y ajuste del flujo',.5,1.5,'Servicio al cliente','Piloto con 100% de detractores contactados'],
+  ['Escalar a toda la cartera con taxonomía de causa raíz',2,2,'Comercial + Servicio','Taxonomía y reporte semanal de causas'],
+  ['Comité semanal de las 3 causas top con dueño de solución',4,8,'Comercial','Actas con acciones cerradas']],
+ 'Panel de rentabilidad por cliente en la mesa comercial':[
+  ['Construir el modelo de cost-to-serve por cliente y canal',3,2,'Finanzas','Modelo CTS validado'],
+  ['Integrar el margen real a la herramienta de negociación',5,1.5,'Finanzas + Tecnología','Panel disponible en la mesa comercial'],
+  ['Entrenar a la fuerza de venta en negociación por valor',6.5,1.5,'Comercial','Fuerza de venta certificada'],
+  ['Decidir cliente por cliente sobre la cola no rentable',8,1,'Comercial','Decisión tomada y plan de salida o renegociación']],
+ 'Consejo de clientes trimestral':[
+  ['Seleccionar e invitar 6-8 clientes representativos',3,1,'Comercial','Consejo constituido'],
+  ['Primera sesión sobre el roadmap del año',4,.5,'Comercial + Marketing','Roadmap ajustado con input de clientes'],
+  ['Cadencia trimestral y cierre de loop de compromisos',4.5,7.5,'Comercial','Actas y compromisos cumplidos']],
+
+ 'Mapa de derechos de decisión (RAPID/DARE)':[
+  ['Levantar las 20 decisiones que más frenan la operación',0,.5,'Oficina de transformación','Lista priorizada de 20 decisiones'],
+  ['Asignar RAPID por decisión en taller de comité',.5,.5,'Gerente General','Matriz RAPID firmada'],
+  ['Publicar, comunicar y ajustar los umbrales asociados',1,.5,'GG + Finanzas','Matriz publicada y vigente'],
+  ['Auditar adherencia y corregir desviaciones',2.5,2,'Oficina de transformación','Informe de adherencia']],
+ 'Regla de puerta de dos vías':[
+  ['Clasificar las decisiones en tipo 1 e tipo 2 con el comité',.5,.5,'Comité ejecutivo','Criterio de clasificación publicado'],
+  ['Entrenar a N-1 y N-2 con casos reales de la unidad',1,1,'HR','Líderes entrenados'],
+  ['Aplicar "informar, no pedir permiso" en las tipo 2',2,3,'Todos los líderes','Registro de decisiones tomadas en la línea']],
+ 'Rediseño de umbrales de aprobación':[
+  ['Diagnóstico de firmas y tiempos por rango de gasto',3,1,'Finanzas','Mapa de firmas actual'],
+  ['Rediseñar la matriz de delegación de autoridad',4,1,'Finanzas + Legal','Nueva matriz aprobada por directorio'],
+  ['Parametrizar en el ERP y medir tiempo de aprobación',5,1.5,'Tecnología','Flujo configurado y medido']],
+ 'Sala de guerra semanal con decisiones en la sala':[
+  ['Diseñar pauta, tablero y lista de asistentes',0,.25,'Gerente de la unidad','Pauta y tablero listos'],
+  ['Primeras 8 sesiones con facilitación externa',.25,2,'Oficina de transformación','8 sesiones con temas cerrados'],
+  ['Transferir la facilitación al equipo de la unidad',2.25,1,'Gerente de la unidad','Equipo facilitando sin apoyo'],
+  ['Sostener la cadencia midiendo % de cierre en sala',3.25,8,'Gerente de la unidad','Cierre en sala sobre 70%']],
+
+ 'Equipos end-to-end por flujo de valor':[
+  ['Elegir 3 flujos de valor y definir misión y KPI de cada equipo',3,1,'GG + HR','Carta de misión por equipo'],
+  ['Dedicar personas al 100% y liberarlas de su rol anterior',4,1.5,'HR','Equipos con dedicación confirmada'],
+  ['Instalar cadencia de trabajo y tablero propio',5.5,1,'Líderes de equipo','Cadencia operando'],
+  ['Revisar resultados y decidir si se escala el modelo',8,1,'Comité ejecutivo','Decisión de escalamiento documentada']],
+ 'Eliminar la capa que no decide':[
+  ['Analizar tramos de control y decisiones reales por capa',3,1.5,'HR','Mapa organizacional con diagnóstico'],
+  ['Diseñar el organigrama objetivo y el plan de transición',4.5,1.5,'HR + GG','Organigrama objetivo aprobado'],
+  ['Ejecutar con conversaciones individuales',6,2,'HR','Transición completada']],
+ 'Presupuesto trimestral por equipo (venture funding)':[
+  ['Diseñar el proceso de asignación contra hitos',9,2,'Finanzas','Proceso y criterios definidos'],
+  ['Piloto con el 20% del presupuesto de iniciativas',11,3,'Finanzas','Primer ciclo trimestral ejecutado'],
+  ['Escalar y ligar al ciclo de planificación anual',14,4,'Finanzas','Modelo incorporado al presupuesto']],
+ 'Chapter/guild para mantener el estándar técnico':[
+  ['Definir los chapters críticos y su rol frente a los equipos',9,1.5,'HR','Modelo de chapters definido'],
+  ['Nombrar chapter leads y fijar estándar por disciplina',10.5,2,'Líderes funcionales','Estándares publicados'],
+  ['Ligar carrera y evaluación al chapter',12.5,3,'HR','Modelo de carrera actualizado']],
+
+ 'Apertura de reunión con "mala noticia primero"':[
+  ['Rediseñar la pauta de las reuniones de desempeño',0,.25,'Oficina de transformación','Pauta nueva distribuida'],
+  ['Entrenar a líderes: preguntar primero, opinar último',.25,1,'HR','Líderes entrenados con práctica'],
+  ['Observación en sala y feedback individual al líder',1.25,2,'HR','Informe de observación por líder']],
+ 'Andon: derecho a detener':[
+  ['Definir criterios de detención y protocolo de respuesta',3,1,'Operaciones','Protocolo publicado'],
+  ['Piloto en una línea o en un equipo de servicio',4,1.5,'Operaciones','Piloto con tiempos de respuesta medidos'],
+  ['Escalar y hacer visible el conteo de detenciones',5.5,2.5,'Operaciones','Tablero de detenciones y respuesta']],
+ 'Post-mortem sin culpables':[
+  ['Definir el formato y la regla de publicación',0,.5,'Líder de la unidad','Formato A3 de post-mortem'],
+  ['Facilitar y publicar los primeros 3 casos',.5,1.5,'Oficina de transformación','3 post-mortem publicados'],
+  ['Revisión trimestral de recurrencia de fallas',3,9,'Excelencia Operacional','Informe de recurrencia']],
+ 'Feedback ascendente con consecuencia visible':[
+  ['Diseñar la encuesta corta de equipo a líder',3,.75,'HR','Instrumento validado'],
+  ['Primera aplicación y devolución a cada líder',3.75,1,'HR','Reportes individuales entregados'],
+  ['Compromiso público de 1-2 cambios por líder',4.75,.5,'Todos los líderes','Compromisos publicados al equipo'],
+  ['Segunda medición y consecuencia para el rezago',8,1,'HR + GG','Comparativo y plan para líderes en rojo']],
+
+ 'Mapear top 20% de talento contra top 20% de valor':[
+  ['Consolidar y calibrar el mapa de talento crítico',0,1,'HR','Mapa de talento calibrado por el comité'],
+  ['Sesión de cruce talento-valor de un día completo',1,.25,'GG + HR','Matriz de asignación con brechas'],
+  ['Ejecutar los movimientos acordados',1.5,1.5,'HR','Movimientos ejecutados']],
+ 'Mercado interno de talento trimestral':[
+  ['Definir reglas, incluida la cláusula de no bloqueo',3,1,'HR','Política publicada'],
+  ['Primera ventana de postulación interna',4,1,'HR','Vacantes publicadas y cubiertas'],
+  ['Cadencia trimestral y reporte de movilidad',5,7,'HR','Indicador de movilidad interna']],
+ 'Plan de capacidades por rol crítico':[
+  ['Definir las 4-5 capacidades que exige la estrategia',3,1,'HR + GG','Modelo de capacidades'],
+  ['Evaluar la brecha por rol crítico',4,1.5,'HR','Mapa de brechas por rol'],
+  ['Ruta de aprendizaje con práctica en el trabajo real',5.5,3.5,'HR','Programa en ejecución']],
+ 'Decisión de talento en los cargos del turnaround':[
+  ['Definir los 20 cargos que mueven el 80% del resultado',0,.5,'GG','Lista de cargos críticos'],
+  ['Evaluación individual: confirmar, mover o salir',.5,1.5,'GG + HR','Decisión tomada cargo por cargo'],
+  ['Ejecutar movimientos y cubrir vacantes',2,2,'HR','Cargos críticos con titular confirmado']],
+
+ 'Contrato de comportamientos del equipo directivo':[
+  ['Taller del comité para definir 5-6 comportamientos',3,.5,'Comité ejecutivo','Comportamientos con ejemplos de qué es y qué no es'],
+  ['Bajar a ejemplos observables por nivel',3.5,1,'HR','Guía de comportamientos por nivel'],
+  ['Instalar el 360° y calibrar resultados',5,2,'HR','Primer ciclo 360° cerrado'],
+  ['Ligar a compensación variable y a promoción',8,1,'HR + Finanzas','Política de compensación actualizada']],
+ 'Rebalancear la agenda del líder':[
+  ['Auditar el calendario real del comité (8 semanas)',0,.5,'Oficina de transformación','Análisis de uso del tiempo'],
+  ['Rediseñar la cartera de reuniones: eliminar y fusionar',.5,.75,'Gerente General','Nueva cartera de reuniones'],
+  ['Bloquear tiempo de terreno y coaching en la agenda',1.25,.5,'Comité ejecutivo','Agendas con bloques protegidos'],
+  ['Re-auditar y ajustar',4,.5,'Oficina de transformación','Segundo análisis comparado']],
+ 'Gemba semanal de líderes':[
+  ['Definir la pauta de observación y la ruta',0,.25,'Operaciones','Pauta de gemba'],
+  ['Primeras rondas acompañadas',.25,1.5,'Operaciones + GG','Rondas ejecutadas con hallazgos'],
+  ['Ciclo continuo de acciones derivadas del gemba',1.75,10,'Operaciones','Acciones cerradas por ronda']],
+ 'Un acto simbólico irreversible':[
+  ['Identificar y evaluar 3 candidatos de acto simbólico',0,.5,'GG + HR','Opciones evaluadas con impacto y riesgo'],
+  ['Ejecutar el acto y comunicarlo sin adornos',.5,.5,'Gerente General','Acto ejecutado y comunicado'],
+  ['Medir cómo lo leyó la organización',2,.5,'HR','Lectura cualitativa del pulso']],
+
+ 'Una meta, un dueño, un nombre':[
+  ['Revisar el árbol de KPI y eliminar metas compartidas',0,1,'Finanzas','Árbol de KPI con dueño único'],
+  ['Conversación de compromiso con cada dueño',1,1,'Gerente de la unidad','Compromisos firmados'],
+  ['Publicar el mapa de dueños',2,.25,'Finanzas','Mapa de dueños publicado']],
+ 'Transparencia de resultados a nivel individual':[
+  ['Diseñar el ranking y su periodicidad por área',0,.5,'Comercial + Operaciones','Diseño del ranking'],
+  ['Auditar la calidad del dato antes de publicar',.5,1,'Finanzas','Dato auditado'],
+  ['Publicar y sostener la cadencia',1.5,10,'Comercial + Operaciones','Ranking publicado periódicamente']],
+ 'Diferenciar la consecuencia':[
+  ['Rediseñar la curva de bono y su distribución',3,1.5,'HR + Finanzas','Política de compensación variable'],
+  ['Calibración de desempeño con el comité',4.5,1,'HR','Calibración documentada'],
+  ['Gestionar el desempeño sostenido bajo',5.5,3.5,'HR + líderes','Planes de mejora o salidas ejecutadas']],
+ 'Verificación de impacto en el P&L por Finanzas':[
+  ['Definir el protocolo de verificación de impacto',3,1,'Finanzas','Protocolo y plantilla'],
+  ['Aplicar a toda la cartera de iniciativas en curso',4,2,'Finanzas','Cartera con impacto validado'],
+  ['Ligar el cierre de cada iniciativa a la validación',6,3,'Finanzas + PMO','Ninguna iniciativa cierra sin validación']],
+ 'Hitos de aprendizaje en vez de metas de resultado':[
+  ['Definir métricas de validación por apuesta',0,1,'Líder del negocio nuevo','Panel de unit economics por apuesta'],
+  ['Fijar criterio de matar o escalar antes de invertir',1,.5,'Comité de inversión','Criterios firmados'],
+  ['Revisión mensual de portafolio con decisiones explícitas',1.5,10,'Comité de inversión','Actas con decisiones de kill o escalamiento']],
+
+ 'Sistema de gestión en cascada (diaria/semanal/mensual)':[
+  ['Diseñar la cadencia y las pautas por nivel',0,.75,'Excelencia Operacional','Manual de cadencia'],
+  ['Implantar la reunión diaria en la línea',.75,1.5,'Operaciones','Reunión diaria operando en todas las áreas'],
+  ['Implantar la semanal de unidad y la mensual de negocio',1.5,1.5,'Gerente de la unidad','Cadencia completa operando'],
+  ['Auditoría de calidad de la cadencia y coaching a líderes',3,3,'Excelencia Operacional','Informe de madurez de la cadencia']],
+ 'Resolución estructurada de causa raíz':[
+  ['Entrenar a supervisores en A3 y 5 porqués',3,1.5,'Excelencia Operacional','Supervisores certificados'],
+  ['Aplicar a los 10 problemas recurrentes principales',4.5,3,'Operaciones','10 A3 cerrados con contramedidas'],
+  ['Auditoría de recurrencia y refuerzo',7.5,1.5,'Excelencia Operacional','Informe de recurrencia']],
+ 'Tablero visual único de la unidad':[
+  ['Acordar los 10 indicadores y su definición',0,.5,'Finanzas + Operaciones','Diccionario de indicadores'],
+  ['Construir el tablero digital y el físico',.5,1.5,'Tecnología','Tablero en producción'],
+  ['Apagar los reportes paralelos',2,1,'Finanzas','Lista de reportes eliminados']],
+ 'Estándar mejorado por quien lo ejecuta':[
+  ['Definir el proceso de propuesta y validación de mejoras',9,1.5,'Operaciones','Proceso de mejora definido'],
+  ['Piloto en dos áreas con meta de propuestas',10.5,3,'Operaciones','Propuestas implementadas en el piloto'],
+  ['Escalar con reconocimiento y seguimiento',13.5,4.5,'Operaciones + HR','Indicador de mejoras por persona/año']],
+
+ 'Cadencia de experimentos con criterio de kill':[
+  ['Inventariar experimentos vivos y matar los zombis',0,.75,'Líder de la unidad','Portafolio depurado'],
+  ['Formato de hipótesis, costo, plazo y criterio de kill',.75,.75,'Líder de la unidad','Plantilla y portafolio cargado'],
+  ['Revisión mensual con decisiones explícitas',1.5,10,'Comité de la unidad','Actas con decisiones de matar o escalar']],
+ 'Dato self-service para las 10 preguntas frecuentes':[
+  ['Identificar las 10 preguntas frecuentes del negocio',3,.75,'Finanzas + Tecnología','Lista priorizada de preguntas'],
+  ['Modelar los datos y construir los tableros',3.75,3,'Tecnología','Tableros en producción'],
+  ['Entrenar a los usuarios y medir autonomía',6.75,1.5,'Tecnología','% de consultas resueltas sin apoyo']],
+ 'Producto en vez de proyecto en tecnología':[
+  ['Definir el catálogo de productos digitales y sus dueños',9,1.5,'Tecnología','Catálogo con product owners'],
+  ['Constituir equipos permanentes con roadmap propio',10.5,2.5,'Tecnología + HR','Equipos operando'],
+  ['Migrar el financiamiento de proyecto a producto',13,4,'Finanzas + Tecnología','Presupuesto asignado por producto']],
+ 'Deuda técnica y de datos en el comité de negocio':[
+  ['Inventariar y cuantificar la deuda en impacto de negocio',9,1.5,'Tecnología','Inventario con impacto y riesgo'],
+  ['Asignar capacidad fija trimestral',10.5,1,'Tecnología + GG','Capacidad comprometida'],
+  ['Reporte trimestral de avance al comité',11.5,6.5,'Tecnología','Punto fijo en la tabla del comité']]
+};
+
+/* ============================================================
+   ESTADO Y UTILIDADES
+   ============================================================ */
+let ST = {
+  mode:'own',                 // 'own' = cada BU con su arquetipo | 'single' = todos contra uno
+  arch:'turn',                // arquetipo único cuando mode==='single'
+  archBy:Object.fromEntries(BUS.map(b=>[b.id,b.sug])),   // arquetipo asignado por BU
+  bu:'fsv', func:'com', scope:'bu',                       // scope: 'bu' | 'fn'
+  slBu:'fsv', slFn:'com',                                 // sub-unidad en edición
+  pmoBu:'fsv', pmoCut:4,                                  // seguimiento PMO
+  teamBu:'corp',                                          // revisión de equipo directivo
+  view:'score', group:'bu',   // agrupación del heatmap macro: 'bu' | 'fn'
+  hor:'all', planBu:'fsv', planMacro:null
+};
+const archOf = bu => ST.mode==='single' ? ST.arch : ST.archBy[bu];
+const archObj = bu => ARCHS[AIX[archOf(bu)]];
+
+const SC = ['#c73050','#e5546c','#f5a623','#5bc4b4','#00806f'];
+function colScore(v){
+  if(v==null) return '#e1e7ec';
+  const t=Math.max(1,Math.min(5,v));
+  const stops=[[1,[199,48,80]],[2,[229,84,108]],[3,[245,166,35]],[4,[91,196,180]],[5,[0,128,111]]];
+  for(let i=0;i<stops.length-1;i++){
+    if(t>=stops[i][0]&&t<=stops[i+1][0]){
+      const f=(t-stops[i][0])/(stops[i+1][0]-stops[i][0]);
+      const c=stops[i][1].map((x,j)=>Math.round(x+(stops[i+1][1][j]-x)*f));
+      return `rgb(${c[0]},${c[1]},${c[2]})`;
+    }
+  }
+  return '#00806f';
+}
+function colGap(g){ // g = target - actual (positivo = falta)
+  if(g<=0) return '#00806f';
+  if(g<.5) return '#5bc4b4';
+  if(g<1) return '#f5a623';
+  if(g<1.75) return '#e5546c';
+  return '#c73050';
+}
+const f1=v=>v.toFixed(1).replace('.',',');
+
+function buScore(bu,dim){
+  let s=0,w=0;
+  FUNCS.forEach(f=>{ const k=subW(bu,f.id); s+=S[bu][f.id][dim]*k; w+=k; });
+  return s/w;
+}
+function buAvg(bu){ return DIMS.reduce((a,d)=>a+buScore(bu,d.id),0)/DIMS.length; }
+
+/* --- Vista funcional transversal: una división a través de todas las BU --- */
+function fnScore(fn,dim){            // ponderado por dotación de esa sub-unidad en cada BU
+  let s=0,w=0;
+  BUS.forEach(b=>{ const k=subHC(b.id,fn); s+=S[b.id][fn][dim]*k; w+=k; });
+  return s/w;
+}
+function fnAvg(fn){ return DIMS.reduce((a,d)=>a+fnScore(fn,d.id),0)/DIMS.length; }
+function fnTarget(fn,dim){           // objetivo mezclado: cada BU aporta el target de SU arquetipo
+  let s=0,w=0;
+  BUS.forEach(b=>{ const k=subHC(b.id,fn); s+=archObj(b.id).t[dim]*k; w+=k; });
+  return s/w;
+}
+function fnWeight(fn,dim){
+  let s=0,w=0;
+  BUS.forEach(b=>{ const k=subHC(b.id,fn); s+=archObj(b.id).w[dim]*k; w+=k; });
+  return s/w;
+}
+function fnFit(fn){
+  let pen=0,max=0;
+  DIMS.forEach(d=>{
+    const w=fnWeight(fn,d.id), t=fnTarget(fn,d.id);
+    pen+=Math.max(0,t-fnScore(fn,d.id))*w; max+=(t-1)*w;
+  });
+  return Math.max(0,100*(1-pen/max));
+}
+function fnGaps(fn){
+  return DIMS.map(d=>{
+    const act=fnScore(fn,d.id), t=fnTarget(fn,d.id), w=fnWeight(fn,d.id);
+    return {dim:d,act,tgt:t,gap:t-act,w,imp:Math.max(0,t-act)*w};
+  }).sort((a,b)=>b.imp-a.imp);
+}
+
+function fit(bu,archId){
+  const A=ARCHS[AIX[archId||archOf(bu)]];
+  // penalización = brecha ponderada / brecha máxima posible (estar en 1 en todas las dimensiones)
+  let pen=0,max=0;
+  DIMS.forEach(d=>{
+    const w=A.w[d.id], g=Math.max(0,A.t[d.id]-buScore(bu,d.id));
+    pen+=g*w; max+=(A.t[d.id]-1)*w;
+  });
+  return Math.max(0,100*(1-pen/max));
+}
+function gapsFor(bu,archId){
+  const A=ARCHS[AIX[archId||archOf(bu)]];
+  return DIMS.map(d=>{
+    const act=buScore(bu,d.id), g=A.t[d.id]-act;
+    return {dim:d, act, tgt:A.t[d.id], gap:g, w:A.w[d.id], imp:Math.max(0,g)*A.w[d.id]};
+  }).sort((a,b)=>b.imp-a.imp);
+}
+
+/* ============================================================
+   RENDER: TAB 1 MARCO
+   ============================================================ */
+function renderMarco(){
+  document.getElementById('dimGrid').innerHTML = DIMS.map((d,i)=>`
+   <div class="dim-card">
+     <div class="tag" style="color:${BLOCKS[d.b].c}">${BLOCKS[d.b].n} · dimensión ${i+1}</div>
+     <h4>${d.n}</h4>
+     <p>${d.d}</p>
+     <p style="font-size:11.5px;margin-top:7px;color:#0a2e44"><b>Señal dura:</b> ${d.senal}</p>
+     <div class="rub">
+       ${d.r.map((t,j)=>`<div><b style="background:${SC[j]}">${j+1}</b><span>${t}</span></div>`).join('')}
+     </div>
+     <div class="src">${d.src}</div>
+   </div>`).join('');
+
+  document.getElementById('buTable').innerHTML = `
+   <thead><tr><th>Unidad de negocio</th><th>Estado</th><th class="num">Ingresos (USDm)</th><th class="num">Margen op.</th><th class="num">CAGR</th><th class="num">Dotación</th><th class="num">Nota cultura</th><th>Arquetipo sugerido</th></tr></thead>
+   <tbody>${BUS.map(b=>{
+     const av=buAvg(b.id);
+     return `<tr><td><b>${b.n}</b><div style="font-size:11.5px;color:var(--muted);white-space:normal;max-width:420px;line-height:1.45;margin-top:3px">${b.desc}</div></td>
+      <td><span class="pill ${b.est==='Números rojos'?'bad':b.est==='Exploración'?'warn':'neu'}">${b.est}</span></td>
+      <td class="num">${b.ing}</td><td class="num">${b.mg}</td><td class="num">${b.cagr}</td><td class="num">${b.hc.toLocaleString('es-CL')}</td>
+      <td class="num"><span class="cell" style="background:${colScore(av)};display:inline-block;width:44px">${f1(av)}</span></td>
+      <td><b style="color:var(--blue)">${ARCHS[AIX[b.sug]].n}</b></td></tr>`;
+   }).join('')}</tbody>`;
+}
+
+/* ============================================================
+   RENDER: TAB 2 ARQUETIPOS
+   ============================================================ */
+function renderArch(){
+  // panel de asignación por BU
+  document.getElementById('assignTable').innerHTML=`
+   <thead><tr><th>Unidad de negocio</th><th>Estado</th><th>Agenda que enfrenta</th><th style="min-width:230px">Arquetipo asignado</th><th class="num">Fit</th><th>Diagnóstico del calce</th></tr></thead>
+   <tbody>${BUS.map(b=>{
+     const cur=archOf(b.id), ft=fit(b.id,cur), sug=b.sug;
+     const ok=cur===sug;
+     return `<tr><td><b>${b.n}</b></td>
+       <td><span class="pill ${b.est==='Números rojos'?'bad':b.est==='Exploración'?'warn':'neu'}">${b.est}</span></td>
+       <td style="font-size:11.5px;color:var(--muted);white-space:normal;max-width:260px;line-height:1.45">${b.agenda}</td>
+       <td><select class="assignSel" data-b="${b.id}" ${ST.mode==='single'?'disabled':''} style="width:100%;font-size:12px;padding:6px 8px">${ARCHS.map(a=>`<option value="${a.id}" ${a.id===cur?'selected':''}>${a.n}</option>`).join('')}</select></td>
+       <td class="num"><span class="pill ${ft>70?'good':ft>50?'warn':'bad'}">${Math.round(ft)}%</span></td>
+       <td style="font-size:11.5px;white-space:normal;max-width:280px;line-height:1.45">${ok?'<span style="color:var(--good);font-weight:700">Coherente</span> con su etapa.':`<span style="color:var(--warn);font-weight:700">Difiere del sugerido</span> (${ARCHS[AIX[sug]].n}). ${ARCHS[AIX[cur]].riesgo.split('.')[0]}.`}</td></tr>`;
+   }).join('')}</tbody>`;
+  document.querySelectorAll('.assignSel').forEach(s=>s.onchange=()=>{ ST.archBy[s.dataset.b]=s.value; renderAll(); });
+  document.getElementById('singleWrap').style.display = ST.mode==='single'?'flex':'none';
+
+  const distintos=new Set(BUS.map(b=>archOf(b.id))).size;
+  document.getElementById('assignRead').innerHTML = ST.mode==='single'
+   ? `<div class="callout warn"><b>Modo arquetipo único.</b> Todo el grupo se compara contra "${ARCHS[AIX[ST.arch]].n}". Útil para mostrar el costo de imponer una sola cultura: fíjate en cómo cae el fit de las unidades cuya agenda es distinta. No lo uses para construir el plan.</div>`
+   : `<div class="callout good"><b>${distintos} arquetipos distintos</b> operando en paralelo en ${BUS.length} unidades. Esto es lo correcto y también lo difícil: exige que el centro corporativo tolere que Foodservice se gestione con disciplina de turnaround mientras Nutrición se gestiona con tolerancia al error. La coherencia se sostiene en el <i>cómo se conversa con el centro</i>, no en homogeneizar la cultura.</div>`;
+
+  document.getElementById('archGrid').innerHTML = ARCHS.map(a=>`
+   <div class="arch ${(ST.mode==='single'?ST.arch===a.id:BUS.some(b=>archOf(b.id)===a.id))?'on':''}" data-a="${a.id}">
+     <div class="badge">${ST.mode==='single'?'SELECCIONADO':'EN USO: '+BUS.filter(b=>archOf(b.id)===a.id).map(b=>b.n).join(', ')}</div>
+     <h4>${a.n}</h4><div class="tl">${a.tl}</div>
+     <div class="row"><b>Cuándo usarlo:</b> ${a.cuando}</div>
+     <p style="margin-top:8px">${a.logica}</p>
+     <div class="row" style="color:var(--bad)"><b style="color:var(--bad)">Riesgo:</b> ${a.riesgo}</div>
+     <div class="row" style="color:var(--muted)"><b>Referencias:</b> ${a.ej}</div>
+     <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:12px">Perfil objetivo por dimensión</div>
+     <div class="mini">${DIMS.map(d=>`<i title="${d.n}: ${a.t[d.id]}" style="height:${a.t[d.id]/5*100}%;background:${colScore(a.t[d.id])}"></i>`).join('')}</div>
+     <div style="font-size:10px;color:var(--muted);margin-top:4px">${DIMS.map(d=>d.n.split(' ')[0]).join(' · ')}</div>
+   </div>`).join('');
+  document.querySelectorAll('.arch').forEach(el=>el.onclick=()=>{
+    if(ST.mode==='single'){ ST.arch=el.dataset.a; syncSelects(); renderAll(); }
+  });
+}
+
+/* ============================================================
+   RENDER: TAB 3 MACRO
+   ============================================================ */
+function renderMacro(){
+  const gapView = ST.view==='gap', byFn = ST.group==='fn';
+  document.getElementById('macroArchNote').innerHTML = ST.mode==='single'
+    ? `Todos contra <b>${ARCHS[AIX[ST.arch]].n}</b>` : `Cada unidad contra <b>su propio arquetipo</b>`;
+
+  const cols = byFn ? FUNCS.map(f=>({id:f.id,n:f.n})) : BUS.map(b=>({id:b.id,n:b.n}));
+  const val = (c,dim)=> byFn ? fnScore(c,dim) : buScore(c,dim);
+  const tgt = (c,dim)=> byFn ? fnTarget(c,dim) : archObj(c).t[dim];
+  const wgt = (c,dim)=> byFn ? fnWeight(c,dim) : archObj(c).w[dim];
+  const ft  = c => byFn ? fnFit(c) : fit(c);
+  const avg = c => byFn ? fnAvg(c) : buAvg(c);
+
+  let h=`<thead><tr><th style="min-width:150px">Dimensión</th>${cols.map(c=>`<th class="num" style="min-width:92px">${c.n}</th>`).join('')}<th class="num" style="background:#0a2e44">${byFn?'Obj. medio':'Peso'}</th></tr></thead><tbody>`;
+  DIMS.forEach(d=>{
+    h+=`<tr><td><b style="font-size:12px">${d.n}</b><div style="font-size:10.5px;color:${BLOCKS[d.b].c};font-weight:700">${BLOCKS[d.b].n}</div></td>`;
+    cols.forEach(c=>{
+      const v=val(c.id,d.id), t=tgt(c.id,d.id), g=t-v;
+      h+=`<td class="num"><div class="cell" style="background:${gapView?colGap(g):colScore(v)}" title="${c.n} · ${d.n}: ${f1(v)} (objetivo ${f1(t)})">${gapView?(g>0?'−'+f1(g):'ok'):f1(v)}</div></td>`;
+    });
+    const mt = byFn ? f1(BUS.reduce((a,b)=>a+archObj(b.id).t[d.id],0)/BUS.length)
+                    : '●'.repeat(Math.round(BUS.reduce((a,b)=>a+archObj(b.id).w[d.id],0)/BUS.length));
+    h+=`<td class="num">${mt}</td></tr>`;
+  });
+  h+=`<tr style="background:#eef2f6"><td><b>Promedio ponderado</b></td>${cols.map(c=>`<td class="num"><b>${f1(avg(c.id))}</b></td>`).join('')}<td class="num">—</td></tr>`;
+  h+=`<tr style="background:#eef2f6"><td><b>Fit al objetivo</b></td>${cols.map(c=>{
+    const x=ft(c.id); return `<td class="num"><span class="pill ${x>70?'good':x>50?'warn':'bad'}">${Math.round(x)}%</span></td>`;}).join('')}<td class="num">100%</td></tr>`;
+  if(!byFn) h+=`<tr><td><b>Arquetipo objetivo</b></td>${BUS.map(b=>`<td class="num" style="font-size:11px;font-weight:700;color:var(--blue)">${archObj(b.id).n}</td>`).join('')}<td></td></tr>`;
+  else h+=`<tr><td><b>Dotación total</b></td>${FUNCS.map(f=>`<td class="num" style="font-size:11.5px">${BUS.reduce((a,b)=>a+subHC(b.id,f.id),0).toLocaleString('es-CL')}</td>`).join('')}<td></td></tr>`;
+  h+='</tbody>';
+  document.getElementById('heatMacro').innerHTML=h;
+
+  const leg = gapView
+   ? `<span><i class="dot" style="background:#00806f"></i>En objetivo</span><span><i class="dot" style="background:#5bc4b4"></i>&lt;0,5</span><span><i class="dot" style="background:#f5a623"></i>0,5-1,0</span><span><i class="dot" style="background:#e5546c"></i>1,0-1,75</span><span><i class="dot" style="background:#c73050"></i>&gt;1,75 (crítico)</span>`
+   : SC.map((c,i)=>`<span><i class="dot" style="background:${c}"></i>${i+1}</span>`).join('') + `<span style="margin-left:10px">Peso: ● bajo · ●● medio · ●●● alto en este arquetipo</span>`;
+  document.getElementById('heatLegend').innerHTML=leg;
+  document.getElementById('heatLegend2').innerHTML=SC.map((c,i)=>`<span><i class="dot" style="background:${c}"></i>${i+1}</span>`).join('');
+
+  // fit list (respeta la agrupación elegida)
+  const flRows = byFn
+    ? FUNCS.map(f=>({n:f.n, sub:BUS.reduce((a,b)=>a+subHC(b.id,f.id),0).toLocaleString('es-CL')+' personas', ft:fnFit(f.id), g:fnGaps(f.id)}))
+    : BUS.map(b=>({n:b.n, sub:b.est+' · '+archObj(b.id).n, ft:fit(b.id), g:gapsFor(b.id)}));
+  flRows.sort((x,y)=>y.ft-x.ft);
+  document.getElementById('fitList').innerHTML=flRows.map(r=>`
+   <div style="margin-bottom:14px">
+     <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px">
+       <span>${r.n} <span style="color:var(--muted);font-weight:400">· ${r.sub}</span></span>
+       <span style="color:${r.ft>70?'var(--good)':r.ft>50?'var(--warn)':'var(--bad)'}">${Math.round(r.ft)}%</span></div>
+     <div class="bar"><i style="width:${r.ft}%;background:${r.ft>70?'var(--good)':r.ft>50?'var(--warn)':'var(--bad)'}"></i></div>
+     <div style="font-size:11.5px;color:var(--muted);margin-top:4px">Brechas top: ${r.g.filter(x=>x.imp>0).slice(0,3).map(x=>x.dim.n.toLowerCase()).join(', ')||'ninguna material'}</div>
+   </div>`).join('');
+
+  const pal=['#2251ff','#00a9f4','#00b8a2','#e5546c','#7b61ff','#f5a623'];
+  document.getElementById('radarAll').innerHTML = byFn
+    ? radar(FUNCS.map((f,i)=>({n:f.ab, c:pal[i], v:DIMS.map(d=>fnScore(f.id,d.id))})), DIMS.map(d=>fnTarget('com',d.id)), 420)
+    : radar(BUS.map((b,i)=>({n:b.n, c:pal[i], v:DIMS.map(d=>buScore(b.id,d.id))})),
+            DIMS.map(d=>BUS.reduce((a,b)=>a+archObj(b.id).t[d.id],0)/BUS.length), 420);
+
+  // lectura del diagnóstico
+  const worst=[...BUS].sort((a,b)=>fit(a.id)-fit(b.id))[0];
+  const best=[...BUS].sort((a,b)=>fit(b.id)-fit(a.id))[0];
+  const dimAgg=DIMS.map(d=>({d,v:BUS.reduce((a,b)=>a+Math.max(0,archObj(b.id).t[d.id]-buScore(b.id,d.id))*archObj(b.id).w[d.id],0)})).sort((a,b)=>b.v-a.v);
+  const sisDim=dimAgg.slice(0,2).map(x=>x.d.n.toLowerCase());
+  const spread=Math.max(...BUS.map(b=>buAvg(b.id)))-Math.min(...BUS.map(b=>buAvg(b.id)));
+  const fnRank=FUNCS.map(f=>({f,ft:fnFit(f.id)})).sort((a,b)=>a.ft-b.ft);
+  document.getElementById('macroRead').innerHTML=`
+   <div class="callout">El grupo promedia ${f1(BUS.reduce((a,b)=>a+buAvg(b.id),0)/BUS.length)} de 5 y un fit de ${Math.round(BUS.reduce((a,b)=>a+fit(b.id),0)/BUS.length)}% contra ${ST.mode==='single'?'el arquetipo único "'+ARCHS[AIX[ST.arch]].n+'"':'el arquetipo asignado a cada unidad'}. La dispersión entre la mejor y la peor unidad es de ${f1(spread)} puntos — ${spread>1?'demasiado alta para una intervención única de grupo':'suficientemente baja para una agenda común'}.</div>
+   <div class="callout bad"><b>${worst.n}</b> es la unidad más lejos de su objetivo (${Math.round(fit(worst.id))}%). ${worst.est==='Números rojos'?'Coherente con su situación financiera: la cultura no es la consecuencia del mal resultado, es una de sus causas — decisión lenta y accountability difusa impiden corregir a tiempo.':'Revisar si el arquetipo asignado es el correcto para su etapa antes de lanzar el programa.'}</div>
+   <div class="callout good"><b>${best.n}</b> es la más cercana (${Math.round(fit(best.id))}%). Úsala como fuente de mecanismos y de líderes para el resto: mover prácticas entre unidades es más rápido y creíble que traerlas de afuera.</div>
+   <div class="callout warn"><b>Problema sistémico del grupo:</b> ${sisDim.join(' y ')} muestran brecha en todas las unidades, y la división funcional más rezagada transversalmente es <b>${fnRank[0].f.n}</b> (${Math.round(fnRank[0].ft)}%). Cuando la brecha se concentra en una dimensión o en una función a través de todas las BU, la causa es corporativa — una política, un sistema o el comportamiento del centro — y atacarla unidad por unidad desperdicia el esfuerzo.</div>`;
+}
+
+/* ============================================================
+   RADAR
+   ============================================================ */
+function radar(series, target, size){
+  const cx=size/2, cy=size/2+8, R=size/2-72, N=DIMS.length;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/N,r=R*(v-0.5)/4.5;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  let g='';
+  [1,2,3,4,5].forEach(l=>{
+    const p=DIMS.map((_,i)=>pt(i,l).join(',')).join(' ');
+    g+=`<polygon points="${p}" fill="none" stroke="#e1e7ec" stroke-width="1"/>`;
+  });
+  DIMS.forEach((d,i)=>{
+    const[x,y]=pt(i,5); g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#e1e7ec"/>`;
+    const[lx,ly]=pt(i,5.85);
+    const anchor= Math.abs(lx-cx)<12?'middle':(lx>cx?'start':'end');
+    const words=d.n.split(' '); let lines=[],cur='';
+    words.forEach(w=>{ if((cur+' '+w).trim().length>13){lines.push(cur.trim());cur=w;} else cur+=' '+w; });
+    lines.push(cur.trim());
+    g+=`<text x="${lx}" y="${ly-(lines.length-1)*5}" text-anchor="${anchor}" font-size="9.5" fill="#5b6a75">${lines.map((l,k)=>`<tspan x="${lx}" dy="${k?10:0}">${l}</tspan>`).join('')}</text>`;
+  });
+  if(target){
+    const p=target.map((v,i)=>pt(i,v).join(',')).join(' ');
+    g+=`<polygon points="${p}" fill="none" stroke="#051c2c" stroke-width="2" stroke-dasharray="5 4"/>`;
+  }
+  series.forEach(s=>{
+    const p=s.v.map((v,i)=>pt(i,v).join(',')).join(' ');
+    g+=`<polygon points="${p}" fill="${s.c}" fill-opacity="${series.length>1?0.06:0.16}" stroke="${s.c}" stroke-width="2"/>`;
+    if(series.length===1) s.v.forEach((v,i)=>{const[x,y]=pt(i,v);g+=`<circle cx="${x}" cy="${y}" r="3.5" fill="${s.c}"/>`;});
+  });
+  const leg=`<div class="legend">${series.map(s=>`<span><i class="dot" style="background:${s.c}"></i>${s.n}</span>`).join('')}<span><i class="dot" style="background:#051c2c"></i>Perfil objetivo</span></div>`;
+  return `<svg viewBox="0 0 ${size} ${size+10}" style="width:100%;max-width:${size}px;display:block;margin:0 auto">${g}</svg>${leg}`;
+}
+
+/* ============================================================
+   RENDER: TAB 4 MICRO
+   ============================================================ */
+function renderMicro(){
+  const byFn = ST.scope==='fn';
+  document.getElementById('buWrap').style.display = byFn?'none':'inline';
+  document.getElementById('fnWrap').style.display = byFn?'inline':'none';
+
+  if(byFn) return renderMicroFn();
+
+  const b=BUS[BIX[ST.bu]], A=archObj(ST.bu);
+  const g=gapsFor(ST.bu);
+  document.getElementById('buCtx').innerHTML=`
+   <div class="grid g4" style="margin-bottom:6px">
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Ingresos</div><div style="font-size:20px;font-weight:700">USD ${b.ing}M</div></div>
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Margen operacional</div><div style="font-size:20px;font-weight:700;color:${b.mg.startsWith('-')?'var(--bad)':'var(--good)'}">${b.mg}</div></div>
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Nota cultura</div><div style="font-size:20px;font-weight:700">${f1(buAvg(ST.bu))} <span style="font-size:13px;color:var(--muted)">/ 5</span></div></div>
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Fit a "${A.n}"</div><div style="font-size:20px;font-weight:700;color:${fit(ST.bu)>70?'var(--good)':'var(--bad)'}">${Math.round(fit(ST.bu))}%</div></div>
+   </div>
+   <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px">${b.desc} <b>Agenda:</b> ${b.agenda} ${archOf(b.id)!==b.sug?`<b style="color:var(--warn)">Ojo: el arquetipo sugerido para esta unidad es "${ARCHS[AIX[b.sug]].n}", no el asignado.</b>`:''}</p>`;
+
+  document.getElementById('radarBU').innerHTML=radar([{n:b.n,c:'#2251ff',v:DIMS.map(d=>buScore(ST.bu,d.id))}],DIMS.map(d=>A.t[d.id]),420);
+  document.getElementById('buGapList').innerHTML=gapList(g);
+
+  // heat de sub-unidades
+  let h=`<thead><tr><th style="min-width:150px">Dimensión</th>${FUNCS.map(f=>`<th class="num" style="min-width:88px">${f.n}<div style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9.5px;color:#9fb3c0">${subHC(ST.bu,f.id)} pers · peso ${Math.round(subW(ST.bu,f.id)*100)}%</div></th>`).join('')}<th class="num" style="background:#0a2e44">BU</th><th class="num" style="background:#0a2e44">Obj.</th></tr></thead><tbody>`;
+  DIMS.forEach(d=>{
+    const vals=FUNCS.map(f=>S[ST.bu][f.id][d.id]);
+    const mn=Math.min(...vals),mx=Math.max(...vals);
+    h+=`<tr><td><b style="font-size:12px">${d.n}</b>${mx-mn>1.4?' <span class="pill warn" style="font-size:9.5px">disperso</span>':''}</td>`;
+    FUNCS.forEach(f=>{const v=S[ST.bu][f.id][d.id];h+=`<td class="num"><div class="cell" style="background:${colScore(v)}">${f1(v)}</div></td>`;});
+    h+=`<td class="num"><b>${f1(buScore(ST.bu,d.id))}</b></td><td class="num">${A.t[d.id]}</td></tr>`;
+  });
+  h+=`<tr style="background:#eef2f6"><td><b>Promedio sub-unidad</b></td>${FUNCS.map(f=>`<td class="num"><b>${f1(DIMS.reduce((a,d)=>a+S[ST.bu][f.id][d.id],0)/DIMS.length)}</b></td>`).join('')}<td class="num"><b>${f1(buAvg(ST.bu))}</b></td><td></td></tr></tbody>`;
+  document.getElementById('heatMicro').innerHTML=h;
+  renderSliders();
+}
+
+function gapList(g){
+  return g.map(x=>`
+   <div style="display:grid;grid-template-columns:1fr 46px 46px 60px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #f0f3f6">
+     <div><div style="font-size:12.3px;font-weight:600">${x.dim.n}</div>
+       <div style="font-size:10.5px;color:var(--muted)">peso ${'●'.repeat(Math.round(x.w))} · ${BLOCKS[x.dim.b].n}</div></div>
+     <div class="cell" style="background:${colScore(x.act)}">${f1(x.act)}</div>
+     <div class="cell" style="background:#eef2f6;color:var(--ink)">${f1(x.tgt)}</div>
+     <div style="text-align:right"><span class="pill ${x.gap<=0?'good':x.imp>=2?'bad':'warn'}">${x.gap<=0?'en meta':'−'+f1(x.gap)}</span></div>
+   </div>`).join('') + `<div style="font-size:11px;color:var(--muted);margin-top:8px">Columnas: actual · objetivo · brecha</div>`;
+}
+
+/* Vista transversal: una división funcional a través de las 5 BU */
+function renderMicroFn(){
+  const fn=FUNCS.find(f=>f.id===ST.func), hc=BUS.reduce((a,b)=>a+subHC(b.id,fn.id),0);
+  const worst=BUS.map(b=>({b,v:DIMS.reduce((a,d)=>a+S[b.id][fn.id][d.id],0)/DIMS.length})).sort((a,c)=>a.v-c.v);
+  document.getElementById('buCtx').innerHTML=`
+   <div class="grid g4" style="margin-bottom:6px">
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Dotación total</div><div style="font-size:20px;font-weight:700">${hc.toLocaleString('es-CL')}</div></div>
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Nota transversal</div><div style="font-size:20px;font-weight:700">${f1(fnAvg(fn.id))} <span style="font-size:13px;color:var(--muted)">/ 5</span></div></div>
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Fit al objetivo mixto</div><div style="font-size:20px;font-weight:700;color:${fnFit(fn.id)>70?'var(--good)':'var(--bad)'}">${Math.round(fnFit(fn.id))}%</div></div>
+     <div><div style="font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Dispersión entre BU</div><div style="font-size:20px;font-weight:700">${f1(worst[worst.length-1].v-worst[0].v)}</div></div>
+   </div>
+   <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px">Vista transversal de <b>${fn.n}</b> en las ${BUS.length} unidades. El objetivo es una mezcla ponderada: cada BU aporta el target de <i>su</i> arquetipo según la dotación que esta división tiene ahí — por eso el objetivo no es un número redondo. Sirve para responder si el problema es de la función (mismo patrón en todas las BU) o del contexto de cada negocio.</p>`;
+
+  document.getElementById('radarBU').innerHTML=radar([{n:fn.n,c:'#00b8a2',v:DIMS.map(d=>fnScore(fn.id,d.id))}],DIMS.map(d=>fnTarget(fn.id,d.id)),420);
+  document.getElementById('buGapList').innerHTML=gapList(fnGaps(fn.id));
+
+  let h=`<thead><tr><th style="min-width:150px">Dimensión</th>${BUS.map(b=>`<th class="num" style="min-width:88px">${b.n}<div style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9.5px;color:#9fb3c0">${subHC(b.id,fn.id)} pers · ${archObj(b.id).tl}</div></th>`).join('')}<th class="num" style="background:#0a2e44">Función</th><th class="num" style="background:#0a2e44">Obj.</th></tr></thead><tbody>`;
+  DIMS.forEach(d=>{
+    const vals=BUS.map(b=>S[b.id][fn.id][d.id]);
+    const disp=Math.max(...vals)-Math.min(...vals);
+    h+=`<tr><td><b style="font-size:12px">${d.n}</b>${disp>1.4?' <span class="pill warn" style="font-size:9.5px">depende de la BU</span>':disp<0.6?' <span class="pill neu" style="font-size:9.5px">patrón de función</span>':''}</td>`;
+    BUS.forEach(b=>{const v=S[b.id][fn.id][d.id];h+=`<td class="num"><div class="cell" style="background:${colScore(v)}">${f1(v)}</div></td>`;});
+    h+=`<td class="num"><b>${f1(fnScore(fn.id,d.id))}</b></td><td class="num">${f1(fnTarget(fn.id,d.id))}</td></tr>`;
+  });
+  h+=`<tr style="background:#eef2f6"><td><b>Promedio</b></td>${BUS.map(b=>`<td class="num"><b>${f1(DIMS.reduce((a,d)=>a+S[b.id][fn.id][d.id],0)/DIMS.length)}</b></td>`).join('')}<td class="num"><b>${f1(fnAvg(fn.id))}</b></td><td></td></tr></tbody>`;
+  document.getElementById('heatMicro').innerHTML=h;
+  renderSliders();
+}
+
+function renderSliders(){
+  const bu = ST.slBu, fnId = ST.slFn;
+  document.getElementById('slCtx').innerHTML = `Editando <b>${FUNCS.find(f=>f.id===fnId).n}</b> de <b>${BUS[BIX[bu]].n}</b>`;
+  document.getElementById('sliders').innerHTML=DIMS.map(d=>{
+    const v=S[bu][fnId][d.id];
+    return `<div class="sl"><div class="n"><b>${d.n}</b><div style="font-size:10.5px;color:var(--muted)">${d.r[Math.round(v)-1]}</div></div>
+      <input type="range" min="1" max="5" step="0.1" value="${v}" data-d="${d.id}">
+      <div class="v" style="background:${colScore(v)}">${f1(v)}</div></div>`;
+  }).join('');
+  document.querySelectorAll('#sliders input').forEach(inp=>{
+    inp.oninput=()=>{ S[bu][fnId][inp.dataset.d]=+inp.value; renderAll(); };
+  });
+}
+
+/* ============================================================
+   RENDER: TAB 5 GAPS
+   ============================================================ */
+function renderGaps(){
+  const all=[];
+  BUS.forEach(b=>gapsFor(b.id).forEach(x=>{ if(x.gap>0) all.push({b,...x}); }));
+  all.sort((x,y)=>y.imp-x.imp);
+  const top=all.slice(0,18);
+  let h=`<thead><tr><th class="num">#</th><th>Unidad</th><th>Dimensión</th><th class="num">Actual</th><th class="num">Objetivo</th><th class="num">Brecha</th><th class="num">Peso</th><th class="num">Impacto</th><th>Prioridad</th><th>Función más rezagada</th></tr></thead><tbody>`;
+  top.forEach((x,i)=>{
+    const fw=FUNCS.map(f=>({f,v:S[x.b.id][f.id][x.dim.id]})).sort((a,c)=>a.v-c.v)[0];
+    const pr=i<6?'Ola 1':i<12?'Ola 2':'Ola 3';
+    h+=`<tr><td class="num">${i+1}</td><td><b>${x.b.n}</b></td><td>${x.dim.n}</td>
+      <td class="num"><div class="cell" style="background:${colScore(x.act)};width:44px;margin:0 auto">${f1(x.act)}</div></td>
+      <td class="num">${f1(x.tgt)}<div style="font-size:9.5px;color:var(--muted)">${archObj(x.b.id).tl}</div></td><td class="num"><b style="color:var(--bad)">−${f1(x.gap)}</b></td>
+      <td class="num">${'●'.repeat(x.w)}</td><td class="num"><b>${x.imp.toFixed(1)}</b></td>
+      <td><span class="pill ${pr==='Ola 1'?'bad':pr==='Ola 2'?'warn':'neu'}">${pr}</span></td>
+      <td style="font-size:11.5px;color:var(--muted)">${fw.f.n} (${f1(fw.v)})</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('gapTable').innerHTML=h;
+
+  // scatter
+  const W=460,H=340,pad=48;
+  const xs=v=>pad+(v-0.5)/3*(W-pad-24), ys=v=>H-pad-(v/3)*(H-pad-24);
+  let s=`<rect x="${pad}" y="${ys(3)}" width="${W-pad-24}" height="${H-pad-ys(3)}" fill="#fafbfc"/>`;
+  s+=`<rect x="${xs(2.5)}" y="20" width="${W-24-xs(2.5)}" height="${ys(1.5)-20}" fill="#fdeef1" opacity=".5"/>`;
+  s+=`<line x1="${pad}" y1="${H-pad}" x2="${W-16}" y2="${H-pad}" stroke="#051c2c"/><line x1="${pad}" y1="16" x2="${pad}" y2="${H-pad}" stroke="#051c2c"/>`;
+  [1,2,3].forEach(v=>{ s+=`<text x="${xs(v)}" y="${H-pad+15}" font-size="10" text-anchor="middle" fill="#5b6a75">${'●'.repeat(v)}</text>`;
+    s+=`<text x="${pad-8}" y="${ys(v)+3}" font-size="10" text-anchor="end" fill="#5b6a75">${v},0</text>`;
+    s+=`<line x1="${pad}" y1="${ys(v)}" x2="${W-16}" y2="${ys(v)}" stroke="#eef2f6"/>`;});
+  s+=`<text x="${(W+pad)/2}" y="${H-10}" font-size="10.5" text-anchor="middle" fill="#5b6a75">Peso de la dimensión en el arquetipo</text>`;
+  s+=`<text x="14" y="${H/2}" font-size="10.5" text-anchor="middle" fill="#5b6a75" transform="rotate(-90 14 ${H/2})">Brecha (puntos)</text>`;
+  s+=`<text x="${W-20}" y="30" font-size="10" text-anchor="end" fill="#c73050" font-weight="700">MOVER AHORA</text>`;
+  const cols={beb:'#2251ff',sna:'#00a9f4',nut:'#00b8a2',fsv:'#e5546c',d2c:'#7b61ff'};
+  all.forEach(x=>{ const jx=(x.b.id.charCodeAt(0)%5-2)*3.2;
+    s+=`<circle cx="${xs(x.w)+jx}" cy="${ys(Math.min(3,x.gap))}" r="6" fill="${cols[x.b.id]}" fill-opacity=".75" stroke="#fff"><title>${x.b.n} — ${x.dim.n}: brecha ${f1(x.gap)}</title></circle>`;});
+  document.getElementById('scatter').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%">${s}</svg>
+   <div class="legend">${BUS.map(b=>`<span><i class="dot" style="background:${cols[b.id]};border-radius:50%"></i>${b.n}</span>`).join('')}</div>`;
+
+  // concentración
+  const byDim=DIMS.map(d=>({n:d.n,v:BUS.reduce((a,b)=>a+Math.max(0,archObj(b.id).t[d.id]-buScore(b.id,d.id))*archObj(b.id).w[d.id],0)})).sort((a,b)=>b.v-a.v);
+  const byFun=FUNCS.map(f=>({n:f.n,v:BUS.reduce((a,b)=>a+DIMS.reduce((c,d)=>c+Math.max(0,archObj(b.id).t[d.id]-S[b.id][f.id][d.id])*archObj(b.id).w[d.id],0),0)})).sort((a,b)=>b.v-a.v);
+  const bar=(arr,c)=>{const mx=Math.max(...arr.map(x=>x.v))||1;return arr.map(x=>`
+    <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11.8px;margin-bottom:3px"><span>${x.n}</span><span style="font-weight:700">${x.v.toFixed(1)}</span></div>
+    <div class="bar"><i style="width:${x.v/mx*100}%;background:${c}"></i></div></div>`).join('');};
+  document.getElementById('concentration').innerHTML=`
+   <h3 class="sec" style="margin-top:0">Por dimensión (¿problema del grupo?)</h3>${bar(byDim,'#2251ff')}
+   <h3 class="sec">Por función (¿problema de una capa?)</h3>${bar(byFun,'#00b8a2')}
+   <div class="callout" style="margin-top:12px;margin-bottom:0"><b>Cómo leerlo:</b> si una dimensión concentra brecha en todas las BU, la causa es corporativa y la solución es una política, no un taller. Si una función concentra brecha en todas las BU, la causa es el modelo de gestión de esa función — se arregla con su líder funcional, no con el gerente de la unidad.</div>`;
+}
+
+/* ============================================================
+   RENDER: TAB 6 PLAN
+   ============================================================ */
+/* Devuelve la estructura de 3 niveles para una BU: macro -> sub-iniciativas -> acciones */
+function planFor(bu){
+  const g=gapsFor(bu).filter(x=>x.gap>0.15);
+  const arch=archOf(bu);
+  const out=[];
+  MACRO.forEach(m=>{
+    const dims=g.filter(x=>m.dims.includes(x.dim.id));
+    if(!dims.length) return;
+    const subs=[];
+    dims.forEach(x=>{
+      const pool=(ACTS[x.dim.id]||[]).filter(a=>a.a.includes(arch));
+      (pool.length?pool:ACTS[x.dim.id]).forEach(a=>subs.push({...a, dim:x.dim, imp:x.imp, steps:STEPS[a.t]||[]}));
+    });
+    out.push({m, dims, subs, imp:dims.reduce((a,x)=>a+x.imp,0),
+      gapMax:Math.max(...dims.map(x=>x.gap))});
+  });
+  out.sort((a,b)=>b.imp-a.imp);
+  out.forEach((o,i)=>o.ola = i<2?1:i<4?2:3);
+  return out;
+}
+
+function renderPlan(){
+  const b=BUS[BIX[ST.planBu]], A=archObj(ST.planBu);
+  const plan=planFor(ST.planBu);
+  const totImp=plan.reduce((a,o)=>a+o.imp,0)||1;
+  document.getElementById('planArchNote').innerHTML=`Arquetipo asignado: <b style="color:var(--blue)">${A.n}</b> (se cambia en la pestaña 2)`;
+
+  let out=`<div class="card"><h2>${b.n} → arquetipo "${A.n}"</h2>
+    <p class="hint">${plan.length} iniciativas macro, ${plan.reduce((a,o)=>a+o.subs.length,0)} sub-iniciativas y ${plan.reduce((a,o)=>a+o.subs.reduce((c,s)=>c+s.steps.length,0),0)} acciones detalladas. Fit actual ${Math.round(fit(ST.planBu))}%.</p>
+    <div class="callout ${b.est==='Números rojos'?'bad':'good'}"><b>Secuencia recomendada:</b> ${
+      archOf(ST.planBu)==='turn'?'Semanas 1-4: derechos de decisión, sala de guerra y dueño único por meta. Mes 2-3: decisiones de talento en los 20 cargos críticos y acto simbólico. Mes 4-12: sistema de gestión y consecuencias diferenciadas. No abrir el frente de innovación hasta estabilizar caja.':
+      archOf(ST.planBu)==='explore'?'Primero seguridad psicológica y criterio de kill; después equipos dedicados y financiamiento por hitos. Accountability sobre aprendizaje, no sobre EBITDA, durante los primeros 4 trimestres.':
+      archOf(ST.planBu)==='reliab'?'Primero cadencia de gestión y tablero único (dan visibilidad en 30 días); después causa raíz y derecho a detener; al final, mejora del estándar por la línea, que es lo que sostiene el sistema.':
+      archOf(ST.planBu)==='growth'?'Primero transparencia de resultados y dueño único; en paralelo, rentabilidad por cliente en la mesa comercial. Después talento al valor y consecuencias diferenciadas.':
+      'Los 5 trademarks son un sistema: mover rituales sin mover derechos de decisión y presupuesto produce agile teatro. Empezar por derechos de decisión y equipos end-to-end en 2-3 flujos de valor, no en toda la organización.'}</div>
+    <div class="scroll"><table><thead><tr><th class="num">Ola</th><th>Iniciativa macro (nivel 1)</th><th>Dimensiones que cierra</th><th class="num">Impacto</th><th class="num">% del total</th><th class="num">Sub-inic.</th><th class="num">Acciones</th><th>Dueño</th></tr></thead><tbody>
+    ${plan.map(o=>`<tr><td class="num"><span class="pill ${o.ola===1?'bad':o.ola===2?'warn':'neu'}">Ola ${o.ola}</span></td>
+      <td><b style="color:${o.m.c}">${o.m.n}</b><div style="font-size:11px;color:var(--muted);white-space:normal;max-width:300px;line-height:1.45">${o.m.obj}</div></td>
+      <td style="font-size:11.5px;white-space:normal;max-width:190px">${o.dims.map(x=>x.dim.n+' ('+f1(x.act)+'→'+x.tgt+')').join('<br>')}</td>
+      <td class="num"><b>${o.imp.toFixed(1)}</b></td><td class="num">${Math.round(o.imp/totImp*100)}%</td>
+      <td class="num">${o.subs.length}</td><td class="num">${o.subs.reduce((a,s)=>a+s.steps.length,0)}</td>
+      <td style="font-size:11.5px">${o.m.o}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+
+  plan.forEach((o,i)=>{
+    const subs=o.subs.filter(s=>ST.hor==='all'||s.h===ST.hor);
+    out+=`<div class="card" style="border-left:5px solid ${o.m.c}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <h2 style="font-size:16.5px">Iniciativa macro ${i+1} · ${o.m.n}</h2>
+        <span class="pill ${o.ola===1?'bad':o.ola===2?'warn':'neu'}">Ola ${o.ola} · impacto ${o.imp.toFixed(1)}</span></div>
+      <p class="hint" style="margin-bottom:10px">${o.m.obj}</p>
+      <div class="grid g3" style="margin-bottom:14px">
+        <div class="dim-card" style="padding:11px 13px"><div class="tag">Resultado esperado</div><p style="margin-top:4px">${o.m.res}</p></div>
+        <div class="dim-card" style="padding:11px 13px"><div class="tag">Dueño de la iniciativa</div><p style="margin-top:4px"><b>${o.m.o}</b></p></div>
+        <div class="dim-card" style="padding:11px 13px"><div class="tag">Métrica de la iniciativa</div><p style="margin-top:4px">${o.m.k}</p></div>
+      </div>
+      <h3 class="sec" style="margin-top:6px">Sub-iniciativas (nivel 2)${ST.hor!=='all'?' — filtradas a '+ST.hor+' meses':''}</h3>
+      ${subs.length?subs.map(sb=>`
+        <div class="action" style="border-left-color:${o.m.c}">
+          <h4><span>${sb.t}</span><span class="pill ${sb.h==='0-3'?'bad':sb.h==='3-9'?'warn':'neu'}">${sb.h} meses</span></h4>
+          <p>${sb.d}</p>
+          <div class="meta"><span class="tagx">Dimensión: <b>${sb.dim.n}</b></span><span class="tagx">Dueño: <b>${sb.o}</b></span><span class="tagx">Métrica: <b>${sb.k}</b></span></div>
+          ${sb.steps.length?`<div style="margin-top:10px;border-top:1px dashed var(--line);padding-top:9px">
+            <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Acciones detalladas (nivel 3)</div>
+            <div class="scroll"><table style="font-size:11.8px"><thead><tr><th>Acción</th><th class="num">Inicio</th><th class="num">Duración</th><th>Responsable</th><th>Entregable</th></tr></thead><tbody>
+            ${sb.steps.map(st=>`<tr><td style="white-space:normal;max-width:290px">${st[0]}</td><td class="num">M${fmtM(st[1])}</td><td class="num">${fmtDur(st[2])}</td><td style="white-space:normal">${st[3]}</td><td style="white-space:normal;max-width:230px;color:var(--muted)">${st[4]}</td></tr>`).join('')}
+            </tbody></table></div></div>`:''}
+        </div>`).join(''):`<div class="callout">Sin sub-iniciativas en el horizonte seleccionado.</div>`}
+    </div>`;
+  });
+  if(!plan.length) out+=`<div class="card"><div class="callout good">Esta unidad ya cumple el perfil objetivo de su arquetipo en todas las dimensiones materiales. El riesgo aquí no es la brecha, es la erosión: define los 3 mecanismos que sostienen el nivel actual y ponles dueño.</div></div>`;
+  document.getElementById('planOut').innerHTML=out;
+}
+const fmtM = m => m===Math.floor(m)? (m+1) : (Math.floor(m)+1)+'½';
+const fmtDur = d => d>=1 ? (d===Math.floor(d)?d+' m':d+' m') : Math.round(d*4)+' sem';
+
+/* ============================================================
+   RENDER: TAB 7 GANTT
+   ============================================================ */
+const HORIZON=18;
+function renderGantt(){
+  const plan=planFor(ST.planBu2||ST.planBu);
+  const bu=ST.planBu2||ST.planBu;
+  const sel=ST.planMacro && plan.find(o=>o.m.id===ST.planMacro) ? ST.planMacro : (plan[0]?plan[0].m.id:null);
+  const ms=document.getElementById('macroSel');
+  ms.innerHTML=`<option value="all">Todas las iniciativas macro</option>`+plan.map(o=>`<option value="${o.m.id}" ${o.m.id===sel&&ST.planMacro!=='all'?'selected':''}>${o.m.n}</option>`).join('');
+  if(ST.planMacro) ms.value=ST.planMacro; else ms.value=sel||'all';
+  const shown = ms.value==='all' ? plan : plan.filter(o=>o.m.id===ms.value);
+
+  if(!shown.length){ document.getElementById('ganttOut').innerHTML='<div class="card"><div class="callout good">Sin brechas materiales: no hay Gantt que construir para esta unidad.</div></div>'; return; }
+
+  let out='';
+  shown.forEach(o=>{
+    const rows=[];
+    o.subs.forEach(sb=>{ sb.steps.forEach(st=>rows.push({sb,st})); });
+    out+=`<div class="card" style="border-left:5px solid ${o.m.c}">
+      <h2>${o.m.n} <span style="font-size:12px;font-weight:600;color:var(--muted)">· Ola ${o.ola} · ${rows.length} acciones · dueño ${o.m.o}</span></h2>
+      <p class="hint">${o.m.res}</p>
+      ${gantt(rows,o.m.c)}</div>`;
+  });
+  document.getElementById('ganttOut').innerHTML=out;
+}
+
+function gantt(rows,color){
+  const W=1080, L=430, R=W-L-16, rowH=24, subH=17, top=24, bottom=26;
+  // pasada 1: layout
+  let y=top, lastSub=null; const lay=[];
+  rows.forEach(r=>{
+    const isNew=r.sb.t!==lastSub; lastSub=r.sb.t;
+    if(isNew) y+=subH;
+    lay.push({r,isNew,y});
+    y+=rowH;
+  });
+  const H=y+bottom;
+  const x=m=>L+(m/HORIZON)*R;
+  // pasada 2: dibujo
+  let g=`<rect x="${L}" y="16" width="${R}" height="${H-16-bottom+8}" fill="#fafbfc"/>`;
+  for(let m=0;m<=HORIZON;m++){
+    const q=m%3===0;
+    g+=`<line x1="${x(m)}" y1="16" x2="${x(m)}" y2="${H-bottom+8}" stroke="${q?'#c9d4dd':'#eef2f6'}" stroke-width="${q?1.2:1}"/>`;
+    if(q&&m<HORIZON) g+=`<text x="${x(m)+4}" y="12" font-size="10" fill="#5b6a75" font-weight="700">T${m/3+1}</text>`;
+    if(m<HORIZON) g+=`<text x="${x(m)+(R/HORIZON)/2}" y="${H-6}" font-size="8.5" fill="#8797a3" text-anchor="middle">M${m+1}</text>`;
+  }
+  lay.forEach(({r,isNew,y})=>{
+    if(isNew){
+      g+=`<line x1="0" y1="${y-subH+2}" x2="${W}" y2="${y-subH+2}" stroke="#e1e7ec"/>`;
+      g+=`<text x="4" y="${y-4}" font-size="10.5" font-weight="700" fill="#051c2c">${esc(cut(r.sb.t,54))}</text>`;
+    }
+    g+=`<text x="14" y="${y+11}" font-size="9.8" fill="#5b6a75">· ${esc(cut(r.st[0],60))}</text>`;
+    const bx=x(r.st[1]), bw=Math.max(6,(r.st[2]/HORIZON)*R), by=y+2;
+    g+=`<rect x="${bx}" y="${by}" width="${bw}" height="13" rx="3" fill="${color}" fill-opacity=".82"><title>${esc(r.st[0])} — inicio mes ${fmtM(r.st[1])}, duración ${fmtDur(r.st[2])}, responsable: ${esc(r.st[3])} · entregable: ${esc(r.st[4])}</title></rect>`;
+    if(bx+bw+6+r.st[3].length*4.6 < W-4)
+      g+=`<text x="${bx+bw+5}" y="${by+10}" font-size="8.8" fill="#8797a3">${esc(r.st[3])}</text>`;
+  });
+  return `<div class="scroll"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:900px">${g}</svg></div>
+   <div class="legend"><span><i class="dot" style="background:${color}"></i>Acción detallada (nivel 3)</span><span>En negrita, la sub-iniciativa que agrupa las acciones · a la derecha de cada barra, el responsable</span></div>`;
+}
+const cut=(t,n)=>t.length>n?t.slice(0,n-1)+'…':t;
+const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ============================================================
+   RENDER: TAB 8 — SEGUIMIENTO PMO
+   ============================================================ */
+let PROG = {};   // avance real por acción: key -> 0..1
+const pkey=(bu,sub,i)=>bu+'|'+sub+'|'+i;
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967295;}
+
+function pmoRows(bu){
+  const rows=[];
+  planFor(bu).forEach(o=>o.subs.forEach(sb=>sb.steps.forEach((st,i)=>{
+    const k=pkey(bu,sb.t,i);
+    const plan=Math.max(0,Math.min(1,(ST.pmoCut-st[1])/Math.max(.25,st[2])));
+    const real=PROG[k]!==undefined?PROG[k]:defProg(k,plan);
+    const d=real-plan;
+    const est = plan===0 ? (real>0?'Adelantada':'No iniciada')
+              : real>=1 ? 'Completada'
+              : d>=-.15 ? 'En curso'
+              : d>=-.40 ? 'En riesgo' : 'Atrasada';
+    rows.push({k,bu,macro:o.m,ola:o.ola,sub:sb,st,plan,real,d,est,peso:st[2]});
+  })));
+  return rows;
+}
+function defProg(k,plan){
+  if(plan<=0) return 0;
+  const f=0.55+hash(k)*0.75;                       // desempeño de ejecución del dueño
+  return Math.max(0,Math.min(1, plan*f + (f>1.05?0.05:0)));
+}
+const EST_COL={'Completada':'#00806f','En curso':'#5bc4b4','Adelantada':'#00a9f4','En riesgo':'#f5a623','Atrasada':'#c73050','No iniciada':'#b8c4cd'};
+
+function renderPMO(){
+  const bu=ST.pmoBu, rows=pmoRows(bu), b=BUS[BIX[bu]];
+  document.getElementById('pmoCutLbl').textContent='Mes '+ST.pmoCut;
+  const wsum=rows.reduce((a,r)=>a+r.peso,0)||1;
+  const planPct=rows.reduce((a,r)=>a+r.plan*r.peso,0)/wsum;
+  const realPct=rows.reduce((a,r)=>a+r.real*r.peso,0)/wsum;
+  const nAtr=rows.filter(r=>r.est==='Atrasada').length, nRie=rows.filter(r=>r.est==='En riesgo').length;
+  const nCom=rows.filter(r=>r.est==='Completada').length;
+  const desv=(realPct-planPct)*100;
+
+  document.getElementById('pmoKpi').innerHTML=`
+   <div class="dim-card"><div class="tag">Avance real</div><div style="font-size:26px;font-weight:700">${Math.round(realPct*100)}%</div>
+     <div class="bar" style="margin-top:6px"><i style="width:${realPct*100}%;background:${desv<-8?'var(--bad)':desv<-3?'var(--warn)':'var(--good)'}"></i></div>
+     <p style="margin-top:5px">Plan a la fecha: ${Math.round(planPct*100)}% · desviación <b style="color:${desv<-3?'var(--bad)':'var(--good)'}">${desv>0?'+':''}${desv.toFixed(0)} pp</b></p></div>
+   <div class="dim-card"><div class="tag">Acciones completadas</div><div style="font-size:26px;font-weight:700">${nCom}<span style="font-size:14px;color:var(--muted)"> / ${rows.length}</span></div>
+     <p style="margin-top:5px">${rows.filter(r=>r.est==='En curso'||r.est==='Adelantada').length} en curso · ${rows.filter(r=>r.est==='No iniciada').length} no iniciadas</p></div>
+   <div class="dim-card"><div class="tag">Atrasadas</div><div style="font-size:26px;font-weight:700;color:${nAtr?'var(--bad)':'var(--good)'}">${nAtr}</div>
+     <p style="margin-top:5px">Requieren decisión del comité, no seguimiento</p></div>
+   <div class="dim-card"><div class="tag">En riesgo</div><div style="font-size:26px;font-weight:700;color:${nRie?'var(--warn)':'var(--good)'}">${nRie}</div>
+     <p style="margin-top:5px">Recuperables dentro del mes con apoyo del dueño</p></div>`;
+
+  // curva S
+  const W=470,H=280,pad=42;
+  const xs=m=>pad+(m/HORIZON)*(W-pad-16), ys=v=>H-34-v*(H-34-16);
+  let g=`<line x1="${pad}" y1="${H-34}" x2="${W-10}" y2="${H-34}" stroke="#051c2c"/><line x1="${pad}" y1="12" x2="${pad}" y2="${H-34}" stroke="#051c2c"/>`;
+  [0,.25,.5,.75,1].forEach(v=>{g+=`<line x1="${pad}" y1="${ys(v)}" x2="${W-10}" y2="${ys(v)}" stroke="#eef2f6"/><text x="${pad-6}" y="${ys(v)+3}" font-size="9.5" text-anchor="end" fill="#5b6a75">${v*100}%</text>`;});
+  for(let m=0;m<=HORIZON;m+=3) g+=`<text x="${xs(m)}" y="${H-20}" font-size="9.5" text-anchor="middle" fill="#5b6a75">M${m+1}</text>`;
+  const curveP=[],curveR=[];
+  for(let m=0;m<=HORIZON;m++){
+    let pv=0,rv=0;
+    rows.forEach(r=>{
+      const pl=Math.max(0,Math.min(1,(m-r.st[1])/Math.max(.25,r.st[2])));
+      pv+=pl*r.peso;
+      if(m<=ST.pmoCut){ const ratio=r.plan>0?r.real/r.plan:0; rv+=Math.min(1,pl*ratio)*r.peso; }
+    });
+    curveP.push([xs(m),ys(pv/wsum)]);
+    if(m<=ST.pmoCut) curveR.push([xs(m),ys(rv/wsum)]);
+  }
+  g+=`<polyline points="${curveP.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#051c2c" stroke-width="2" stroke-dasharray="5 4"/>`;
+  g+=`<polyline points="${curveR.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${desv<-8?'#c73050':'#2251ff'}" stroke-width="2.6"/>`;
+  g+=`<line x1="${xs(ST.pmoCut)}" y1="12" x2="${xs(ST.pmoCut)}" y2="${H-34}" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+  g+=`<text x="${xs(ST.pmoCut)+4}" y="22" font-size="9.5" fill="#b57900" font-weight="700">corte M${ST.pmoCut}</text>`;
+  g+=`<circle cx="${xs(ST.pmoCut)}" cy="${ys(realPct)}" r="4.5" fill="${desv<-8?'#c73050':'#2251ff'}"/>`;
+  document.getElementById('pmoCurve').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%">${g}</svg>
+   <div class="legend"><span><i class="dot" style="background:#051c2c"></i>Plan</span><span><i class="dot" style="background:${desv<-8?'#c73050':'#2251ff'}"></i>Real</span></div>`;
+
+  // por iniciativa macro
+  const byM={};
+  rows.forEach(r=>{ const m=byM[r.macro.id]=byM[r.macro.id]||{m:r.macro,ola:r.ola,p:0,rl:0,w:0,atr:0};
+    m.p+=r.plan*r.peso; m.rl+=r.real*r.peso; m.w+=r.peso; if(r.est==='Atrasada')m.atr++; });
+  document.getElementById('pmoByMacro').innerHTML=Object.values(byM).sort((a,b)=>a.ola-b.ola).map(m=>{
+    const pr=m.rl/m.w, pp=m.p/m.w, dd=(pr-pp)*100;
+    return `<div style="margin-bottom:13px">
+      <div style="display:flex;justify-content:space-between;font-size:12.3px;font-weight:600;margin-bottom:4px">
+        <span><span class="pill ${m.ola===1?'bad':m.ola===2?'warn':'neu'}" style="font-size:9.5px">Ola ${m.ola}</span> ${m.m.n}</span>
+        <span>${Math.round(pr*100)}% <span style="color:${dd<-3?'var(--bad)':'var(--good)'};font-size:11px">(${dd>0?'+':''}${dd.toFixed(0)} pp)</span></span></div>
+      <div class="bar" style="height:12px;position:relative">
+        <i style="width:${pr*100}%;background:${dd<-8?'var(--bad)':dd<-3?'var(--warn)':'var(--good)'}"></i>
+        <span style="position:absolute;left:${pp*100}%;top:-2px;height:16px;width:2px;background:#051c2c"></span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Dueño: ${m.m.o}${m.atr?` · <b style="color:var(--bad)">${m.atr} acción(es) atrasada(s)</b>`:''}</div>
+    </div>`;}).join('')+`<div style="font-size:11px;color:var(--muted);margin-top:6px">La marca vertical negra es el avance planificado a la fecha de corte.</div>`;
+
+  // alertas
+  const al=rows.filter(r=>r.est==='Atrasada').sort((a,b)=>a.d-b.d).slice(0,6);
+  document.getElementById('pmoAlerts').innerHTML = al.length? al.map(r=>`
+   <div class="action" style="border-left-color:var(--bad)">
+     <h4><span>${r.st[0]}</span><span class="pill bad">${Math.round(r.real*100)}% vs ${Math.round(r.plan*100)}% plan</span></h4>
+     <p><b>${r.macro.n}</b> · sub-iniciativa: ${r.sub.t}. Entregable comprometido: ${r.st[4]}.</p>
+     <div class="meta"><span class="tagx">Responsable: <b>${r.st[3]}</b></span><span class="tagx">Debió partir: <b>M${fmtM(r.st[1])}</b></span><span class="tagx">Escalar a: <b>${r.macro.o}</b></span>
+       <span class="tagx">Riesgo: <b>${r.macro.dims.map(x=>DIMS[DIX[x]]?DIMS[DIX[x]].n:x).join(', ')}</b> no cierra su brecha</span></div>
+   </div>`).join('') : `<div class="callout good">Sin acciones atrasadas al mes ${ST.pmoCut}. Con el programa al día, la conversación del comité debe pasar de avance a impacto: ¿se movieron las señales duras de las dimensiones intervenidas?</div>`;
+
+  // tabla
+  const flt=ST.pmoFilter||'all';
+  const show=rows.filter(r=>flt==='all'||r.est===flt);
+  document.getElementById('pmoTable').innerHTML=`
+   <thead><tr><th class="num">Ola</th><th>Iniciativa macro</th><th>Sub-iniciativa</th><th>Acción</th><th class="num">Inicio</th><th class="num">Dur.</th><th>Responsable</th><th class="num">Plan</th><th class="num" style="min-width:150px">Avance real</th><th>Estado</th></tr></thead>
+   <tbody>${show.map(r=>`<tr>
+     <td class="num">${r.ola}</td>
+     <td style="font-size:11.5px;color:${r.macro.c};font-weight:700;white-space:normal;max-width:150px">${r.macro.n}</td>
+     <td style="font-size:11.5px;white-space:normal;max-width:190px;color:var(--muted)">${r.sub.t}</td>
+     <td style="white-space:normal;max-width:260px">${r.st[0]}</td>
+     <td class="num">M${fmtM(r.st[1])}</td><td class="num">${fmtDur(r.st[2])}</td>
+     <td style="font-size:11.5px;white-space:normal">${r.st[3]}</td>
+     <td class="num">${Math.round(r.plan*100)}%</td>
+     <td><div style="display:flex;gap:7px;align-items:center"><input type="range" min="0" max="100" step="5" value="${Math.round(r.real*100)}" data-k="${r.k}" style="width:92px;accent-color:${EST_COL[r.est]}"><b style="font-size:11.5px;min-width:34px">${Math.round(r.real*100)}%</b></div></td>
+     <td><span class="pill" style="background:${EST_COL[r.est]}22;color:${EST_COL[r.est]}">${r.est}</span></td></tr>`).join('')}</tbody>`;
+  document.querySelectorAll('#pmoTable input').forEach(inp=>inp.oninput=()=>{ PROG[inp.dataset.k]=+inp.value/100; renderPMO(); });
+}
+
+/* ============================================================
+   RENDER: TAB 9 — EQUIPO DIRECTIVO Y 360°
+   ============================================================ */
+const BEH=[
+ {id:'b1', n:'Fija dirección y prioriza', dim:'norte',  d:'Traduce la estrategia a 3 prioridades y sostiene el no a lo demás.'},
+ {id:'b2', n:'Decide rápido y delega',    dim:'decision', d:'Resuelve con información incompleta y empuja la decisión hacia abajo.'},
+ {id:'b3', n:'Trae la mirada del cliente',dim:'clientes', d:'Ancla las discusiones en evidencia externa y no en opinión interna.'},
+ {id:'b4', n:'Desarrolla y mueve talento',dim:'talento',  d:'Da feedback duro, promueve y libera gente hacia donde está el valor.'},
+ {id:'b5', n:'Crea seguridad para hablar',dim:'seguridad',d:'Pregunta primero, opina último y agradece la mala noticia.'},
+ {id:'b6', n:'Sostiene disciplina y consecuencia', dim:'accountability', d:'Cierra el ciclo: compromiso, seguimiento y consecuencia real.'}
+];
+
+const NAMES={
+ corp:{gm:['Rodrigo Valdivieso','Gerente General Corporativo',22],
+  team:[['Camila Errázuriz','Gerente General · Bebidas Chile','beb'],
+        ['Matías Ossandón','Gerente General · Snacks Andina','sna'],
+        ['Javiera Illanes','Gerente General · Nutrición & Wellness','nut'],
+        ['Cristián Marambio','Gerente General · Foodservice B2B','fsv'],
+        ['Antonia Larraín','Gerente General · Canal Digital / D2C','d2c'],
+        ['Felipe Undurraga','CFO Corporativo','fin'],
+        ['Soledad Bustos','Chief People Officer','ppl'],
+        ['Ignacio Peralta','Chief Technology Officer','tec']]},
+ beb:{gm:['Camila Errázuriz','Gerente General · Bebidas Chile',16],
+  team:[['Andrés Cifuentes','Gerente Comercial','com'],['Paula Riquelme','Gerente de Operaciones','ops'],
+        ['Tomás Vergara','Gerente de Supply Chain','sc'],['Daniela Fuenzalida','Gerente de Personas','ppl'],
+        ['Sebastián Court','Gerente de Administración y Finanzas','fin'],['Valentina Ríos','Gerente de Tecnología','tec']]},
+ sna:{gm:['Matías Ossandón','Gerente General · Snacks Andina',11],
+  team:[['Francisca Donoso','Gerente Comercial','com'],['Rodolfo Sepúlveda','Gerente de Planta','ops'],
+        ['Karina Molina','Gerente de Supply Chain','sc'],['Álvaro Pinto','Gerente de Personas','ppl'],
+        ['Constanza Vial','Gerente de Finanzas','fin'],['Nicolás Ahumada','Gerente de Sistemas','tec']]},
+ nut:{gm:['Javiera Illanes','Gerente General · Nutrición & Wellness',6],
+  team:[['Martín Escobar','Head of Growth','com'],['Bárbara Quiroz','Head of Producción','ops'],
+        ['Diego Salinas','Head of Supply','sc'],['Renata Cornejo','Head of People','ppl'],
+        ['Joaquín Bravo','Head of Finance','fin'],['Elisa Tapia','Head of Data & Producto','tec']]},
+ fsv:{gm:['Cristián Marambio','Gerente General · Foodservice B2B',19],
+  team:[['Gonzalo Arriagada','Gerente Comercial','com'],['Mónica Leiva','Gerente de Operaciones','ops'],
+        ['Patricio Zúñiga','Gerente de Distribución','sc'],['Carolina Mena','Jefa de Personas','ppl'],
+        ['Esteban Farías','Gerente de Finanzas','fin'],['Rocío Alcaíno','Jefa de Sistemas','tec']]},
+ d2c:{gm:['Antonia Larraín','Gerente General · Canal Digital / D2C',8],
+  team:[['Benjamín Soto','Head of E-commerce','com'],['Isidora Gálvez','Head of Fulfillment','ops'],
+        ['Emilio Navarrete','Head of Logística','sc'],['Trinidad Cáceres','People Partner','ppl'],
+        ['Maximiliano Rojas','Head of Finance','fin'],['Fernanda Aguirre','Head of Tecnología','tec']]}
+};
+
+/* El 360° de un líder se ancla en la cultura de la unidad que dirige (coherencia con el diagnóstico)
+   más una desviación personal determinística: hay líderes mejores y peores que su contexto. */
+function person360(name, buId, fnId){
+  const h=hash(name);
+  const pers=(h-0.5)*2.4;                       // desviación personal −1,2..+1,2
+  const LIFT=0.45;                              // un líder está algo sobre la cultura media que dirige
+  const b={};
+  BEH.forEach((x,i)=>{
+    const base = buId==='corp'
+      ? BUS.reduce((a,bb)=>a+buScore(bb.id,x.dim),0)/BUS.length
+      : (fnId? S[buId][fnId][x.dim] : buScore(buId,x.dim));
+    const jitter=(hash(name+x.id)-0.5)*1.1;
+    b[x.id]=Math.max(1,Math.min(5, base+LIFT+pers+jitter));
+  });
+  const selfGap = 0.15 + hash(name+'self')*1.25;   // casi todos se sobre-evalúan
+  const perf = Math.max(1,Math.min(5, 3 + pers*1.15 + (hash(name+'perf')-0.5)*1.3));
+  return {b, selfGap, perf};
+}
+function reqLevel(buId, behId){
+  const dim=BEH.find(x=>x.id===behId).dim;
+  return buId==='corp'
+    ? BUS.reduce((a,b)=>a+archObj(b.id).t[dim],0)/BUS.length
+    : archObj(buId).t[dim];
+}
+function teamData(scope){
+  const cfg=NAMES[scope];
+  const rows=cfg.team.map(t=>{
+    const buId = scope==='corp' ? (BIX[t[2]]!==undefined?t[2]:'corp') : scope;
+    const fnId = scope==='corp' ? null : t[2];
+    const p=person360(t[0], buId, fnId);
+    const avg=BEH.reduce((a,x)=>a+p.b[x.id],0)/BEH.length;
+    const reqBu = scope==='corp' ? (BIX[t[2]]!==undefined?t[2]:'corp') : scope;
+    const fitPct=100*BEH.reduce((a,x)=>a+Math.min(1,p.b[x.id]/reqLevel(reqBu,x.id)),0)/BEH.length;
+    return {n:t[0], rol:t[1], key:t[2], buId:reqBu, ...p, avg, fitPct};
+  });
+  const g=cfg.gm; const pg=person360(g[0], scope==='corp'?'corp':scope, null);
+  const gavg=BEH.reduce((a,x)=>a+pg.b[x.id],0)/BEH.length;
+  const gfit=100*BEH.reduce((a,x)=>a+Math.min(1,pg.b[x.id]/reqLevel(scope,x.id)),0)/BEH.length;
+  return {gm:{n:g[0],rol:g[1],ant:g[2],...pg,avg:gavg,fitPct:gfit}, rows};
+}
+function verdict(r){
+  if(r.fitPct>=90 && r.perf>=3.4) return {t:'Refuerza el arquetipo',c:'good',d:'Usar como modelo y como fuente de mecanismos para otras unidades.'};
+  if(r.fitPct>=90 && r.perf<3.4)  return {t:'Comportamiento sí, resultado no',c:'warn',d:'Revisar si el problema es la persona o el mandato y los recursos que tiene.'};
+  if(r.fitPct>=76)                return {t:'Desarrollar con plan',c:'warn',d:'Brecha cerrable en 2-3 trimestres con coaching y un mecanismo que fuerce la práctica.'};
+  if(r.perf>=3.6)                 return {t:'Resultado sí, comportamiento no',c:'bad',d:'El caso que define la cultura: si se tolera, todo el discurso pierde credibilidad.'};
+  return {t:'Decisión de rol',c:'bad',d:'Ni resultado ni comportamiento. Confirmar, mover o salir dentro de 60 días.'};
+}
+
+function renderTeam(){
+  const scope=ST.teamBu, d=teamData(scope);
+  const label = scope==='corp' ? 'Comité corporativo' : BUS[BIX[scope]].n;
+  const arch = scope==='corp' ? null : archObj(scope);
+  const listos=d.rows.filter(r=>r.fitPct>=90).length, criticos=d.rows.filter(r=>verdict(r).c==='bad').length;
+  const awGap=d.rows.reduce((a,r)=>a+r.selfGap,0)/d.rows.length;
+
+  document.getElementById('teamKpi').innerHTML=`
+   <div class="dim-card"><div class="tag">Equipo</div><div style="font-size:19px;font-weight:700;line-height:1.35;margin-top:3px">${label}</div>
+     <p style="margin-top:5px">${d.rows.length} reportes directos${arch?` · arquetipo <b>${arch.n}</b>`:' · 5 gerentes generales + 3 corporativos'}</p></div>
+   <div class="dim-card"><div class="tag">Dan el perfil requerido</div><div style="font-size:26px;font-weight:700;color:${listos>=d.rows.length/2?'var(--good)':'var(--bad)'}">${listos}<span style="font-size:14px;color:var(--muted)"> / ${d.rows.length}</span></div>
+     <p style="margin-top:5px">Cumplen el nivel que exige el arquetipo en los 6 comportamientos</p></div>
+   <div class="dim-card"><div class="tag">Casos críticos</div><div style="font-size:26px;font-weight:700;color:${criticos?'var(--bad)':'var(--good)'}">${criticos}</div>
+     <p style="margin-top:5px">Requieren decisión de rol o son el caso "resultado sí, comportamiento no"</p></div>
+   <div class="dim-card"><div class="tag">Brecha de autoconciencia media</div><div style="font-size:26px;font-weight:700;color:${awGap>.7?'var(--warn)':'var(--good)'}">+${awGap.toFixed(1)}</div>
+     <p style="margin-top:5px">Cuánto se evalúan por encima de lo que los evalúa su equipo</p></div>`;
+
+  // líder
+  const gv=verdict(d.gm);
+  document.getElementById('teamLead').innerHTML=`
+   <div class="grid g2">
+     <div>
+       <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
+         <div style="width:52px;height:52px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700">${d.gm.n.split(' ').map(x=>x[0]).slice(0,2).join('')}</div>
+         <div><div style="font-size:17px;font-weight:700">${d.gm.n}</div>
+           <div style="font-size:12.5px;color:var(--muted)">${d.gm.rol} · ${d.gm.ant} años en el grupo</div></div>
+       </div>
+       <div class="grid g3" style="gap:10px">
+         <div class="dim-card" style="padding:10px 12px"><div class="tag">360° promedio</div><div style="font-size:20px;font-weight:700">${f1(d.gm.avg)}</div></div>
+         <div class="dim-card" style="padding:10px 12px"><div class="tag">Fit al perfil requerido</div><div style="font-size:20px;font-weight:700;color:${d.gm.fitPct>85?'var(--good)':'var(--bad)'}">${Math.round(d.gm.fitPct)}%</div></div>
+         <div class="dim-card" style="padding:10px 12px"><div class="tag">Autoconciencia</div><div style="font-size:20px;font-weight:700;color:${d.gm.selfGap>.7?'var(--warn)':'var(--good)'}">+${d.gm.selfGap.toFixed(1)}</div></div>
+       </div>
+       <div class="callout ${gv.c==='good'?'good':gv.c==='warn'?'warn':'bad'}" style="margin-top:14px"><b>${gv.t}.</b> ${gv.d} ${d.gm.selfGap>.8?'La brecha de autoconciencia es alta: la devolución del 360° debe hacerla alguien con autoridad para que el dato no se descarte.':''}</div>
+     </div>
+     <div>${radarBeh(d.gm, scope)}</div>
+   </div>`;
+
+  // tabla primera línea
+  document.getElementById('teamTable').innerHTML=`
+   <thead><tr><th>Nombre</th><th>Rol</th>${BEH.map(x=>`<th class="num" style="min-width:76px" title="${x.d}">${x.n}</th>`).join('')}<th class="num">360°</th><th class="num">Fit</th><th class="num">Result.</th><th>Veredicto de banca</th></tr></thead>
+   <tbody>${d.rows.map(r=>{const v=verdict(r);return `<tr>
+     <td><b>${r.n}</b></td><td style="font-size:11.5px;color:var(--muted);white-space:normal;max-width:190px">${r.rol}</td>
+     ${BEH.map(x=>{const req=reqLevel(r.buId,x.id), val=r.b[x.id], ok=val>=req-0.05;
+       return `<td class="num"><div class="cell" style="background:${ok?'#00806f':colGap(req-val)}" title="Requerido ${f1(req)} · 360° ${f1(val)} · brecha ${f1(Math.max(0,req-val))}">${f1(val)}</div>
+         <div style="font-size:9px;color:var(--muted);margin-top:2px">req ${f1(req)}</div></td>`;}).join('')}
+     <td class="num"><b>${f1(r.avg)}</b></td>
+     <td class="num"><span class="pill ${r.fitPct>=90?'good':r.fitPct>=76?'warn':'bad'}">${Math.round(r.fitPct)}%</span></td>
+     <td class="num">${f1(r.perf)}</td>
+     <td style="white-space:normal;max-width:230px"><span class="pill ${v.c}">${v.t}</span><div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4">${v.d}</div></td></tr>`;}).join('')}</tbody>`;
+  document.getElementById('teamLegend').innerHTML=`<span><i class="dot" style="background:#00806f"></i>Cumple el requerido</span><span><i class="dot" style="background:#5bc4b4"></i>brecha &lt;0,5</span><span><i class="dot" style="background:#f5a623"></i>0,5-1,0</span><span><i class="dot" style="background:#e5546c"></i>1,0-1,75</span><span><i class="dot" style="background:#c73050"></i>&gt;1,75</span><span>"req" = nivel que exige el arquetipo de esa unidad en ese comportamiento</span>`;
+
+  // matriz resultado vs comportamiento
+  const W=430,H=350,pad=48;
+  const xs=v=>pad+((v-1)/4)*(W-pad-20), ys=v=>H-pad-((v-1)/4)*(H-pad-22);
+  let g=`<rect x="${xs(3.4)}" y="${ys(5)}" width="${W-20-xs(3.4)}" height="${ys(3.4)-ys(5)}" fill="#e9f8f5"/>`;
+  g+=`<rect x="${xs(3.4)}" y="${ys(3.4)}" width="${W-20-xs(3.4)}" height="${ys(1)-ys(3.4)}" fill="#fdeef1"/>`;
+  g+=`<text x="${W-24}" y="${ys(4.85)}" font-size="9.5" text-anchor="end" fill="#00806f" font-weight="700">MODELO A REPLICAR</text>`;
+  g+=`<text x="${W-24}" y="${ys(1.15)}" font-size="9.5" text-anchor="end" fill="#c73050" font-weight="700">RESULTADO SÍ, CONDUCTA NO</text>`;
+  g+=`<line x1="${pad}" y1="${H-pad}" x2="${W-14}" y2="${H-pad}" stroke="#051c2c"/><line x1="${pad}" y1="14" x2="${pad}" y2="${H-pad}" stroke="#051c2c"/>`;
+  [1,2,3,4,5].forEach(v=>{g+=`<text x="${xs(v)}" y="${H-pad+15}" font-size="9.5" text-anchor="middle" fill="#5b6a75">${v}</text><text x="${pad-7}" y="${ys(v)+3}" font-size="9.5" text-anchor="end" fill="#5b6a75">${v}</text>`;});
+  g+=`<text x="${(W+pad)/2}" y="${H-12}" font-size="10.5" text-anchor="middle" fill="#5b6a75">Desempeño de negocio</text>`;
+  g+=`<text x="13" y="${H/2}" font-size="10.5" text-anchor="middle" fill="#5b6a75" transform="rotate(-90 13 ${H/2})">Comportamientos (360°)</text>`;
+  d.rows.forEach(r=>{const v=verdict(r);
+    g+=`<circle cx="${xs(r.perf)}" cy="${ys(r.avg)}" r="7" fill="${v.c==='good'?'#00806f':v.c==='warn'?'#f5a623':'#c73050'}" fill-opacity=".8" stroke="#fff"><title>${esc(r.n)} — ${esc(r.rol)}: 360° ${f1(r.avg)}, desempeño ${f1(r.perf)}</title></circle>
+      <text x="${xs(r.perf)}" y="${ys(r.avg)-11}" font-size="8.8" text-anchor="middle" fill="#051c2c">${esc(r.n.split(' ')[0])}</text>`;});
+  document.getElementById('teamMatrix').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%">${g}</svg>`;
+
+  // autoconciencia
+  const aw=[...d.rows].sort((a,b)=>b.selfGap-a.selfGap);
+  const mx=Math.max(...aw.map(r=>r.selfGap));
+  document.getElementById('teamAware').innerHTML=aw.map(r=>`
+   <div style="margin-bottom:9px">
+     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+       <span><b>${r.n}</b> <span style="color:var(--muted)">· auto ${f1(Math.min(5,r.avg+r.selfGap))} vs equipo ${f1(r.avg)}</span></span>
+       <span style="font-weight:700;color:${r.selfGap>.7?'var(--warn)':'var(--good)'}">+${r.selfGap.toFixed(1)}</span></div>
+     <div class="bar"><i style="width:${r.selfGap/mx*100}%;background:${r.selfGap>.7?'var(--warn)':'var(--teal)'}"></i></div>
+   </div>`).join('')+`<div class="callout warn" style="margin-top:12px;margin-bottom:0">Los líderes sobre la línea de +0,7 no necesitan otro curso: necesitan ver el dato. La devolución del 360° con nombre y con ejemplos concretos es la intervención, no el paso previo a la intervención.</div>`;
+
+  const peor=[...d.rows].sort((a,b)=>a.fitPct-b.fitPct)[0];
+  const behGap=BEH.map(x=>({x,g:d.rows.reduce((a,r)=>a+Math.max(0,reqLevel(r.buId,x.id)-r.b[x.id]),0)/d.rows.length})).sort((a,b)=>b.g-a.g);
+  document.getElementById('teamRead').innerHTML=`
+   <div class="callout ${listos>=d.rows.length*0.6?'good':'bad'}"><b>${listos} de ${d.rows.length}</b> integrantes de la primera línea dan hoy el perfil que exige ${arch?`el arquetipo "${arch.n}"`:'la agenda de cada unidad'}. ${listos<d.rows.length*0.5?'Con menos de la mitad del equipo en nivel, el programa cultural no se sostiene: los mecanismos se instalan y se erosionan en dos trimestres porque quien los debe modelar no los modela.':'La masa crítica existe. La palanca es hacer visible el estándar y actuar sobre las excepciones.'}</div>
+   <div class="callout warn"><b>Comportamiento más débil del equipo:</b> ${behGap[0].x.n.toLowerCase()} (brecha media de ${behGap[0].g.toFixed(1)} puntos), seguido de ${behGap[1].x.n.toLowerCase()}. Cuando una brecha de conducta es común a todo el comité, no es un problema de selección: es lo que el sistema de gestión premió durante años. Cambiar la conducta exige cambiar antes lo que se mide y se paga.</div>
+   <div class="callout bad"><b>Caso a resolver primero:</b> ${peor.n} (${peor.rol}) — fit ${Math.round(peor.fitPct)}%, desempeño ${f1(peor.perf)}. ${verdict(peor).d} Este es el caso que la organización está mirando para decidir si el discurso va en serio.</div>
+   <div class="callout"><b>Regla de secuencia:</b> la revisión de banca va <i>antes</i> del lanzamiento del programa, no después. Instalar mecanismos con la primera línea equivocada consume el capital político del gerente general y quema la credibilidad del siguiente intento.</div>`;
+}
+
+function radarBeh(p, scope){
+  const size=340, cx=size/2, cy=size/2+6, R=size/2-64, N=BEH.length;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/N,r=R*(v-0.5)/4.5;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  let g='';
+  [1,2,3,4,5].forEach(l=>{g+=`<polygon points="${BEH.map((_,i)=>pt(i,l).join(',')).join(' ')}" fill="none" stroke="#e1e7ec"/>`;});
+  BEH.forEach((x,i)=>{
+    const[lx,ly]=pt(i,5.75), anchor=Math.abs(lx-cx)<12?'middle':(lx>cx?'start':'end');
+    const w=x.n.split(' '); let lines=[],cur='';
+    w.forEach(t=>{ if((cur+' '+t).trim().length>14){lines.push(cur.trim());cur=t;} else cur+=' '+t; });
+    lines.push(cur.trim());
+    g+=`<line x1="${cx}" y1="${cy}" x2="${pt(i,5)[0]}" y2="${pt(i,5)[1]}" stroke="#e1e7ec"/>`;
+    g+=`<text x="${lx}" y="${ly-(lines.length-1)*5}" text-anchor="${anchor}" font-size="9.3" fill="#5b6a75">${lines.map((l,k)=>`<tspan x="${lx}" dy="${k?10:0}">${l}</tspan>`).join('')}</text>`;
+  });
+  g+=`<polygon points="${BEH.map((x,i)=>pt(i,reqLevel(scope,x.id)).join(',')).join(' ')}" fill="none" stroke="#051c2c" stroke-width="2" stroke-dasharray="5 4"/>`;
+  g+=`<polygon points="${BEH.map((x,i)=>pt(i,p.b[x.id]).join(',')).join(' ')}" fill="#2251ff" fill-opacity=".15" stroke="#2251ff" stroke-width="2"/>`;
+  g+=`<polygon points="${BEH.map((x,i)=>pt(i,Math.min(5,p.b[x.id]+p.selfGap)).join(',')).join(' ')}" fill="none" stroke="#00a9f4" stroke-width="1.6" stroke-dasharray="2 3"/>`;
+  return `<svg viewBox="0 0 ${size} ${size+6}" style="width:100%;max-width:${size}px;display:block;margin:0 auto">${g}</svg>
+   <div class="legend"><span><i class="dot" style="background:#2251ff"></i>360° del equipo</span><span><i class="dot" style="background:#00a9f4"></i>Autoevaluación</span><span><i class="dot" style="background:#051c2c"></i>Nivel requerido</span></div>`;
+}
+
+/* ============================================================
+   RENDER: TAB 7 MÉTODO
+   ============================================================ */
+function renderMetodo(){
+  const src=[
+   {n:'McKinsey — Organizational Health Index (OHI)',d:'9 outcomes (dirección, liderazgo, ambiente de trabajo, accountability, coordinación y control, capacidades, motivación, innovación y aprendizaje, orientación externa) y 43 prácticas medidas. Aporta la estructura de outcomes y el concepto de "recipes": combinaciones de prácticas que se refuerzan entre sí, en vez de mejorar todo un poco.',u:'https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/organizational-health-a-fast-track-to-performance-improvement'},
+   {n:'McKinsey — The five trademarks of agile organizations (2018)',d:'Norte estratégico compartido, red de equipos empoderados, ciclos rápidos de decisión y aprendizaje, modelo de personas dinámico y tecnología habilitante. Es la columna vertebral del arquetipo "Red ágil" y de las dimensiones 3, 4, 6 y 10.',u:'https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/the-five-trademarks-of-agile-organizations'},
+   {n:'Cameron &amp; Quinn — Competing Values Framework / OCAI',d:'Cuatro arquetipos (Clan, Adhocracy, Market, Hierarchy) sobre dos ejes: flexibilidad vs. control, foco interno vs. externo. Aporta la tesis central de esta herramienta: ningún cuadrante es mejor; lo que importa es el ajuste con la estrategia, y el ajuste puede ser distinto por unidad.',u:'https://umbrex.com/resources/frameworks/organization-frameworks/competing-values-framework-cameron-quinn/'},
+   {n:'Denison — Culture &amp; Effectiveness Model',d:'Cuatro traits (Mission, Adaptability, Involvement, Consistency) con 3 índices cada uno, validados contra desempeño financiero. Aporta el equilibrio entre integración interna y adaptación externa, y el argumento de la "cultura balanceada".',u:'https://denisonconsulting.com/the-denison-model-diagnosing-and-building-cultural-alignment/'},
+   {n:'Edmondson — Psychological Safety / Google Project Aristotle',d:'La seguridad psicológica es el predictor más fuerte de efectividad de equipo en el estudio de Google, y la condición previa de la velocidad: sin ella los problemas se reportan tarde y las decisiones se toman con información maquillada.',u:'https://rework.withgoogle.com/print/guides/5721312655835136/'},
+   {n:'McKinsey — Influence Model',d:'Cuatro condiciones simultáneas para que un cambio de comportamiento pegue: modelaje de líderes, comprensión y convicción, mecanismos formales (métricas, procesos, incentivos) y capacidades. Es el criterio de diseño de la biblioteca de actividades: toda acción del plan pertenece a uno de los cuatro frentes.',u:'https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/the-four-building-blocks--of-change'}
+  ];
+  document.getElementById('srcGrid').innerHTML=src.map(s=>`<div class="dim-card"><h4>${s.n}</h4><p>${s.d}</p><div class="src"><a href="${s.u}" target="_blank" style="color:var(--blue)">Fuente ↗</a></div></div>`).join('');
+
+  document.getElementById('howto').innerHTML=`
+   <div class="grid g3">
+    <div class="dim-card"><h4>1 · Triangular, no encuestar</h4><p>Cada nota se levanta con tres inputs: encuesta de pulso (percepción), entrevistas de 45 min a una muestra por nivel (contexto) y <b>señales duras</b> (las de cada ficha de dimensión). Cuando la encuesta dice 4 y la señal dura dice 2, gana la señal dura — es la diferencia entre medir cultura y medir cortesía.</p></div>
+    <div class="dim-card"><h4>2 · Calibrar en sala</h4><p>Las notas preliminares se calibran en una sesión de 3 horas con el comité de la unidad, con la rúbrica proyectada. La discusión sobre por qué una función se pone 4 y el resto la ve en 2 genera más valor que el número final.</p></div>
+    <div class="dim-card"><h4>3 · Evaluar función por función</h4><p>Nunca promediar directo a nivel de BU. El promedio esconde la variación y la variación es donde está la palanca: casi siempre hay una función con un modelo de gestión distinto que arrastra o salva a la unidad.</p></div>
+    <div class="dim-card"><h4>4 · Elegir arquetipo antes de ver los gaps</h4><p>Si se elige después, la organización elige el arquetipo que la deja mejor parada. El arquetipo se define desde la agenda estratégica de la unidad y lo firma el gerente general.</p></div>
+    <div class="dim-card"><h4>5 · Máximo 3 dimensiones por ola</h4><p>Atacar 10 dimensiones equivale a no atacar ninguna. Tres dimensiones por ola de 6 meses, con 2-3 mecanismos cada una y dueño nombrado.</p></div>
+    <div class="dim-card"><h4>6 · Revisar la banca antes de lanzar</h4><p>La evaluación 360° de la primera línea (pestaña 9) va <b>antes</b> del programa, no después. El nivel requerido de cada comportamiento sale del arquetipo de esa unidad, no de un estándar corporativo único. Instalar mecanismos con la primera línea equivocada quema el capital político del gerente general.</p></div>
+    <div class="dim-card"><h4>7 · Gobernar por desviación, no por avance</h4><p>El seguimiento PMO (pestaña 8) compara avance real contra plan por acción. La conversación del comité es sobre las acciones atrasadas y quién las destraba — no un recorrido por las 90 que van bien. Cada atraso se conecta con la brecha cultural que iba a cerrar.</p></div>
+    <div class="dim-card"><h4>8 · Re-medir cada 6 meses</h4><p>Con la misma rúbrica y el mismo panel de señales duras. Lo que se mueve primero son las señales duras (días de ciclo de decisión, firmas, acciones cerradas); la percepción se mueve entre 2 y 4 trimestres después.</p></div>
+   </div>`;
+
+  document.getElementById('refs').innerHTML=src.map(s=>`<div style="margin-bottom:6px">· <a href="${s.u}" target="_blank">${s.n}</a></div>`).join('')+
+   `<div style="margin-top:10px;color:#8797a3">Datos financieros y de dotación de Grupo Andes son ficticios, construidos para ilustrar cinco etapas de madurez simultáneas dentro de un mismo grupo. Las dimensiones, rúbricas, arquetipos y actividades sí se derivan de las fuentes citadas.</div>`;
+}
+
+/* ============================================================
+   KPI STRIP + ORQUESTACIÓN
+   ============================================================ */
+function renderKPI(){
+  const avg=BUS.reduce((a,b)=>a+buAvg(b.id),0)/BUS.length;
+  const fits=BUS.map(b=>fit(b.id));
+  const worst=BUS[fits.indexOf(Math.min(...fits))];
+  const nA=new Set(BUS.map(b=>archOf(b.id))).size;
+  const A={n: ST.mode==='single' ? ARCHS[AIX[ST.arch]].n : nA+' arquetipos en paralelo'};
+  const critic=BUS.reduce((a,b)=>a+gapsFor(b.id).filter(x=>x.gap>=1.5).length,0);
+  document.getElementById('kpiStrip').innerHTML=`
+   <div class="kpi"><div class="lbl">Nota grupo</div><div class="val">${f1(avg)}<span style="font-size:12px;color:#8fa5b3">/5</span></div></div>
+   <div class="kpi"><div class="lbl">Arquetipo</div><div class="val" style="font-size:14px;line-height:1.5;margin-top:4px">${A.n}</div></div>
+   <div class="kpi"><div class="lbl">Fit promedio</div><div class="val ${avgFitClass(fits)}">${Math.round(fits.reduce((a,b)=>a+b,0)/fits.length)}%</div></div>
+   <div class="kpi"><div class="lbl">Brechas críticas</div><div class="val ${critic>8?'bad':critic>3?'warn':'good'}">${critic}</div></div>
+   <div class="kpi"><div class="lbl">Unidad más lejos</div><div class="val bad" style="font-size:14px;line-height:1.5;margin-top:4px">${worst.n}</div></div>`;
+}
+function avgFitClass(f){const a=f.reduce((x,y)=>x+y,0)/f.length;return a>75?'good':a>55?'warn':'bad';}
+
+function opts(arr,val,lbl){return arr.map(x=>`<option value="${x.v}" ${x.v===val?'selected':''}>${x.n}</option>`).join('');}
+const buOpts=()=>BUS.map(b=>({v:b.id,n:b.n}));
+const fnOpts=()=>FUNCS.map(f=>({v:f.id,n:f.n}));
+
+function syncSelects(){
+  document.getElementById('modeSel').value=ST.mode;
+  document.getElementById('archSel').innerHTML=opts(ARCHS.map(a=>({v:a.id,n:a.n+' — '+a.tl})),ST.arch);
+  document.getElementById('groupSel').value=ST.group;
+  document.getElementById('viewSel').value=ST.view;
+  document.getElementById('scopeSel').value=ST.scope;
+  document.getElementById('buSel').innerHTML=opts(buOpts(),ST.bu);
+  document.getElementById('fnSel').innerHTML=opts(fnOpts(),ST.func);
+  document.getElementById('slBuSel').innerHTML=opts(buOpts(),ST.slBu);
+  document.getElementById('funcSel').innerHTML=opts(fnOpts(),ST.slFn);
+  document.getElementById('buSel2').innerHTML=opts(buOpts(),ST.planBu);
+  document.getElementById('buSel3').innerHTML=opts(buOpts(),ST.planBu2||ST.planBu);
+  document.getElementById('horSel').value=ST.hor;
+  document.getElementById('pmoBuSel').innerHTML=opts(buOpts(),ST.pmoBu);
+  document.getElementById('pmoCut').value=ST.pmoCut;
+  document.getElementById('teamSel').innerHTML=opts([{v:'corp',n:'Comité corporativo (CEO + primera línea)'}].concat(BUS.map(b=>({v:b.id,n:b.n+' (GG + primera línea)'}))),ST.teamBu);
+}
+function renderAll(){
+  renderKPI(); renderMarco(); renderArch(); renderMacro(); renderMicro();
+  renderGaps(); renderPlan(); renderGantt(); renderPMO(); renderTeam();
+}
+
+/* --- navegación y controles --- */
+document.querySelectorAll('nav button').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('t-'+btn.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+const on=(id,ev,fn)=>{const e=document.getElementById(id); if(e) e[ev]=fn;};
+on('modeSel','onchange',e=>{ST.mode=e.target.value;renderAll();});
+on('archSel','onchange',e=>{ST.arch=e.target.value;renderAll();});
+on('sugBtn','onclick',()=>{ST.mode='own';BUS.forEach(b=>ST.archBy[b.id]=b.sug);syncSelects();renderAll();});
+on('groupSel','onchange',e=>{ST.group=e.target.value;renderMacro();});
+on('viewSel','onchange',e=>{ST.view=e.target.value;renderMacro();});
+on('scopeSel','onchange',e=>{ST.scope=e.target.value;renderMicro();});
+on('buSel','onchange',e=>{ST.bu=e.target.value;ST.slBu=e.target.value;syncSelects();renderMicro();});
+on('fnSel','onchange',e=>{ST.func=e.target.value;ST.slFn=e.target.value;syncSelects();renderMicro();});
+on('slBuSel','onchange',e=>{ST.slBu=e.target.value;renderSliders();});
+on('funcSel','onchange',e=>{ST.slFn=e.target.value;renderSliders();});
+on('buSel2','onchange',e=>{ST.planBu=e.target.value;ST.planBu2=e.target.value;ST.planMacro=null;syncSelects();renderPlan();renderGantt();});
+on('buSel3','onchange',e=>{ST.planBu2=e.target.value;ST.planMacro=null;renderGantt();});
+on('macroSel','onchange',e=>{ST.planMacro=e.target.value;renderGantt();});
+on('horSel','onchange',e=>{ST.hor=e.target.value;renderPlan();});
+on('pmoBuSel','onchange',e=>{ST.pmoBu=e.target.value;renderPMO();});
+on('pmoCut','oninput',e=>{ST.pmoCut=+e.target.value;renderPMO();});
+on('pmoFilter','onchange',e=>{ST.pmoFilter=e.target.value;renderPMO();});
+on('pmoReset','onclick',()=>{PROG={};renderPMO();});
+on('teamSel','onchange',e=>{ST.teamBu=e.target.value;renderTeam();});
+on('resetBtn','onclick',()=>{S=JSON.parse(JSON.stringify(S0));renderAll();});
+
+syncSelects();
+renderMetodo();
+renderAll();
+</script>
+</body>
+</html>
