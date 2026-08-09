@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capital Humano 360 — Recruiting · Capabilities · Control de Gestión</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy:#051c2c; --navy2:#0a2e44; --blue:#1f40e6; --cyan:#00a9f4; --teal:#00b8a2;
+  --bg:#f4f6f8; --card:#ffffff; --ink:#051c2c; --muted:#5b6a75; --line:#e1e7ec;
+  --good:#00b8a2; --bad:#e5546c; --warn:#f5a623; --purple:#7b61ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif}
+body{background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:21px;font-weight:600}
+header h1 span{color:var(--cyan)}
+header .sub{font-size:12.5px;color:#9fb3c0;margin-top:4px;max-width:640px;line-height:1.5}
+.kpi-strip{display:flex;gap:12px;flex-wrap:wrap}
+.kpi{background:var(--navy2);border-radius:8px;padding:10px 15px;min-width:124px}
+.kpi .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#8fa5b3}
+.kpi .val{font-size:19px;font-weight:700;margin-top:2px}
+.kpi .val.good{color:var(--teal)} .kpi .val.bad{color:#ff7d92} .kpi .val.warn{color:#ffc760}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 32px;display:flex;gap:2px;overflow-x:auto;position:sticky;top:0;z-index:20}
+nav button{background:none;border:none;padding:14px 16px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:24px 32px;max-width:1400px;margin:0 auto}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+.card .hint{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 10px;background:var(--navy);color:#fff;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap}
+th:hover{background:var(--navy2)}
+td{padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:700;background:#eef2f6}
+tbody tr:hover{background:#f7fafc}
+tbody tr.clickable{cursor:pointer}
+.scroll{overflow-x:auto}
+.scroll.tall{max-height:520px;overflow-y:auto}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.pill.good{background:#d9f4ef;color:#00806f}.pill.bad{background:#fde3e8;color:#c73050}
+.pill.warn{background:#fdf0d8;color:#b57900}.pill.info{background:#dbf0fd;color:#0071a8}
+.pill.neutral{background:#eef2f6;color:#5b6a75}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.btn.big{padding:14px 24px;font-size:14.5px}
+.btn.sm{padding:6px 12px;font-size:11.5px}
+.field{margin-bottom:12px}
+.field label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.field label .v{color:var(--blue);font-weight:700}
+.field input[type=range]{width:100%;accent-color:var(--blue)}
+.field select,.field input[type=number],.field input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;background:#fff}
+.field .why{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+svg text{font-family:'Helvetica Neue',Arial,sans-serif}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.callout{border-left:4px solid var(--cyan);background:#eef7fd;padding:12px 16px;border-radius:0 8px 8px 0;font-size:12.5px;line-height:1.6;margin-bottom:14px}
+.callout.warn{border-left-color:var(--warn);background:#fdf7e9}
+.callout.good{border-left-color:var(--teal);background:#e9f8f5}
+.callout.bad{border-left-color:var(--bad);background:#fdeef1}
+.hero{background:linear-gradient(120deg,var(--navy),#123a56);color:#fff;border-radius:12px;padding:28px 30px;margin-bottom:20px}
+.hero h2{font-size:20px;margin-bottom:8px}
+.hero p{font-size:13.5px;color:#c3d2dc;line-height:1.65;max-width:900px;margin-bottom:16px}
+.comp-card{border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+.comp-card h4{font-size:13px;margin-bottom:6px;color:var(--blue)}
+.comp-card p{font-size:12px;color:var(--muted);line-height:1.5}
+.comp-card .ex{font-size:11.5px;margin-top:7px;background:#f4f6f8;border-radius:6px;padding:6px 9px}
+h3.sec{font-size:14px;margin:20px 0 10px;border-bottom:2px solid var(--navy);padding-bottom:6px}
+.chip{display:inline-block;background:#eef2f6;border-radius:6px;padding:4px 10px;font-size:11.5px;margin:0 6px 6px 0;color:var(--muted)}
+.chip b{color:var(--ink)}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:24px;text-align:center;color:var(--muted);font-size:13px}
+.drop.on{border-color:var(--blue);background:#eef2ff}
+.action{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:0 9px 9px 0;padding:13px 16px;margin-bottom:11px}
+.action h4{font-size:13.5px;margin-bottom:5px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.action h4 .imp{color:var(--teal);font-weight:800;font-size:13px;white-space:nowrap}
+.action p{font-size:12.5px;color:var(--muted);line-height:1.55}
+.action .who{font-size:11.5px;margin-top:6px;color:var(--ink)}
+.bignum{font-size:29px;font-weight:800;line-height:1.1}
+.bignum small{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+.bignum.good{color:var(--teal)}.bignum.bad{color:var(--bad)}.bignum.warn{color:#c98800}
+.tiny{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:8px}
+ul.bul{margin:8px 0 8px 20px}ul.bul li{font-size:12.5px;line-height:1.6;margin-bottom:5px;color:var(--muted)}
+ul.bul li b{color:var(--ink)}
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.filters .f{min-width:180px}
+.filters .f label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.filters select,.filters input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px;background:#fff}
+.bench{display:inline-block;font-size:11px;color:var(--muted);background:#f4f6f8;border-radius:5px;padding:2px 7px;margin-left:6px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.bar-row .nm{width:150px;flex-shrink:0;color:var(--muted)}
+.bar-row .track{flex:1;background:#eef2f6;border-radius:4px;height:14px;position:relative;overflow:hidden}
+.bar-row .fill{height:100%;background:var(--blue);border-radius:4px}
+.bar-row .vv{width:64px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.modal{position:fixed;inset:0;background:rgba(5,28,44,.55);display:none;z-index:60;padding:36px 16px;overflow-y:auto}
+.modal.on{display:block}
+.modal .box{background:#fff;border-radius:12px;max-width:900px;margin:0 auto;padding:24px 26px;position:relative}
+.modal .close{position:absolute;top:12px;right:16px;font-size:22px;color:var(--muted);cursor:pointer;background:none;border:none}
+.hm td{text-align:center;font-weight:700;color:#fff;cursor:pointer;border:1px solid #fff;font-size:11.5px}
+.hm td.lbl{background:#fff;color:var(--ink);text-align:left;font-weight:600;cursor:default}
+/* ── Chat ── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 232px);min-height:440px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.chat-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line);background:#fbfdfe}
+.chat-head .who{display:flex;align-items:center;gap:10px}
+.chat-head .av{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--navy),var(--cyan));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+.chat-head .nm{font-size:14px;font-weight:700}
+.chat-head .st{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.chat-head .st .led{width:7px;height:7px;border-radius:50%;background:var(--good);display:inline-block}
+.chat-head .st .led.off{background:var(--bad)}
+.chat-ctx{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chat-ctx select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;background:#fff;max-width:170px}
+.chat-body{flex:1;overflow-y:auto;padding:20px;background:#f7fafc}
+.msg{display:flex;gap:10px;margin-bottom:16px;max-width:78%}
+.msg .bub{padding:11px 15px;border-radius:12px;font-size:13.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.msg.bot .bub{background:#fff;border:1px solid var(--line);border-top-left-radius:3px}
+.msg.me{margin-left:auto;flex-direction:row-reverse}
+.msg.me .bub{background:var(--navy);color:#fff;border-top-right-radius:3px}
+.msg .ic{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;background:#e8eef3}
+.msg.me .ic{background:var(--blue);color:#fff}
+.msg .meta{font-size:10.5px;color:var(--muted);margin-top:5px}
+.msg .bub b{font-weight:700}
+.typing{display:inline-flex;gap:4px;align-items:center;height:16px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);display:block;animation:bl 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes bl{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.chat-sug{display:flex;gap:7px;flex-wrap:wrap;padding:10px 18px 0}
+.chat-sug button{background:#eef2ff;border:1px solid #dfe6ff;color:var(--blue);border-radius:16px;padding:6px 12px;font-size:11.5px;cursor:pointer;font-weight:600}
+.chat-sug button:hover{background:#e2e9ff}
+.chat-foot{padding:12px 18px 16px;border-top:1px solid var(--line);background:#fff}
+.chat-input{display:flex;gap:10px;align-items:flex-end}
+.chat-input textarea{flex:1;resize:none;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-family:inherit;line-height:1.5;max-height:130px}
+.chat-input textarea:focus{outline:none;border-color:var(--blue)}
+.chat-send{background:var(--blue);color:#fff;border:none;border-radius:9px;width:44px;height:42px;font-size:17px;cursor:pointer;flex-shrink:0}
+.chat-send:disabled{background:#c3cdd6;cursor:not-allowed}
+.cursor-blink{display:inline-block;width:7px;height:14px;background:var(--blue);vertical-align:-2px;animation:cb .9s steps(2) infinite}
+@keyframes cb{0%,50%{opacity:1}51%,100%{opacity:0}}
+.hm th{cursor:default}
+@media(max-width:700px){main,header,nav{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Capital Humano <span>360</span></h1>
+    <div class="sub">Recruiting · Desempeño y 360 · Capability building · Control de gestión de dotación, spans &amp; layers y costo — empresa mediana con operación en <b>Chile y Perú</b></div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="lbl">Dotación</div><div class="val" id="kHC">—</div></div>
+    <div class="kpi"><div class="lbl">Costo anual</div><div class="val" id="kCost">—</div></div>
+    <div class="kpi"><div class="lbl">Vacantes abiertas</div><div class="val warn" id="kReq">—</div></div>
+    <div class="kpi"><div class="lbl">Span promedio</div><div class="val" id="kSpan">—</div></div>
+    <div class="kpi"><div class="lbl">Gap capacidades</div><div class="val bad" id="kGap">—</div></div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" data-tab="guia">🎓 Guía &amp; Datos</button>
+  <button data-tab="recruit">🎯 Recruiting</button>
+  <button data-tab="pipe">🧑‍💼 Pipeline &amp; Candidatos</button>
+  <button data-tab="perf">⭐ Desempeño &amp; 360</button>
+  <button data-tab="talento">🧭 Talento &amp; Sucesión</button>
+  <button data-tab="cap">📈 Capability Building</button>
+  <button data-tab="ctrl">💰 Control de Gestión</button>
+  <button data-tab="opt">✂️ Optimización de dotación</button>
+  <button data-tab="ia">💬 Chat con el analista</button>
+  <button data-tab="metodo">📚 Metodología &amp; Benchmarks</button>
+</nav>
+
+<main>
+
+<!-- ══════════════ GUÍA ══════════════ -->
+<section class="tab active" id="tab-guia">
+  <div class="hero">
+    <h2>Tres preguntas que RRHH casi nunca puede responder con un número</h2>
+    <p>¿<b>Vamos a llegar</b> con las vacantes del trimestre — y dónde exactamente se rompe el embudo? ¿<b>Qué capacidad concreta</b> le falta a cada área para ejecutar la estrategia, y qué intervención cierra esa brecha? ¿<b>Cuánto pesa</b> nuestra estructura, cuántas capas tiene y dónde hay jefes con dos reportes? Esta plataforma responde las tres sobre el mismo modelo de datos: una organización con jerarquía real (cada persona tiene jefe), un embudo de reclutamiento con fechas por etapa, y una evaluación de capacidades por dimensión.</p>
+    <button class="btn big" onclick="loadDemo()">▶ Cargar caso demo (2 países · 3 BU · ~900 FTE · 38 vacantes)</button>
+    <button class="btn big ghost" style="background:transparent;color:#fff;border-color:#fff" onclick="goTab('guia');document.getElementById('upzone').scrollIntoView({behavior:'smooth'})">Subir mis datos</button>
+  </div>
+
+  <div class="card">
+    <h2>Qué mide cada módulo</h2>
+    <div class="hint">Cada módulo tiene una unidad de análisis distinta y un dueño distinto. Mezclarlos es la razón por la que los dashboards de RRHH terminan siendo un reporte de headcount con gráficos de torta.</div>
+    <div class="grid g3">
+      <div class="comp-card"><h4>1 · Recruiting — el embudo</h4><p>Unidad: <b>la vacante</b> y <b>el candidato</b>. Mide velocidad (time-to-fill, aging por etapa), rendimiento (conversión etapa a etapa, ratio candidatos:contratado), calidad (aceptación de oferta, sobrevivencia a 90 días) y carga por reclutador.</p><div class="ex">Dueño: Talent Acquisition · Cadencia semanal</div></div>
+      <div class="comp-card"><h4>2 · Capability building — la brecha</h4><p>Unidad: <b>la dimensión de capacidad</b> por familia de rol. Compara nivel observado vs. nivel requerido por nivel jerárquico, agrega por subgerencia / área / BU y prioriza por brecha × criticidad × personas afectadas.</p><div class="ex">Dueño: L&amp;D + líderes de BU · Cadencia semestral</div></div>
+      <div class="comp-card"><h4>3 · Control de gestión — la estructura</h4><p>Unidad: <b>la posición</b> y su lugar en el organigrama. Mide dotación, capas hasta la primera línea, span de control de cada jefatura, costo total y equidad interna (compa-ratio).</p><div class="ex">Dueño: CFO + RRHH · Cadencia mensual</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="upzone">
+    <h2>Cargar tus datos</h2>
+    <div class="hint">El archivo Excel debe traer hasta cuatro hojas: <b>Personas</b> (una fila por empleado, con su jefe — es lo que permite calcular spans y capas), <b>Requisiciones</b>, <b>Candidatos</b> y <b>Evaluaciones</b> de capacidades. Solo <b>Personas</b> es obligatoria: si falta alguna hoja, ese módulo sigue mostrando el demo y se avisa arriba. Descarga la plantilla para ver nombres de columna exactos.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn ghost" onclick="downloadTemplate()">⬇ Descargar plantilla Excel (4 hojas)</button>
+      <button class="btn ghost" onclick="exportAll()">⬇ Exportar datos + diagnóstico</button>
+      <button class="btn" onclick="loadDemo()">▶ Recargar demo</button>
+    </div>
+    <div class="drop" id="drop">
+      Arrastra aquí tu Excel/CSV o <label style="color:var(--blue);font-weight:700;cursor:pointer;text-decoration:underline">selecciona un archivo<input type="file" id="file" accept=".xlsx,.xls,.csv" style="display:none"></label>
+      <div class="tiny" id="upStatus" style="margin-top:8px"></div>
+    </div>
+    <div class="tiny"><b>Columnas mínimas de Personas:</b> id, nombre, cargo, nivel (1–7), business_unit, area, subgerencia, jefe_id, sueldo_bruto_mensual, fecha_ingreso, desempeño (1–5), potencial (1–3). Todo se procesa <b>en tu navegador</b>: ningún dato sale del equipo.</div>
+  </div>
+
+  <div class="card">
+    <h2>Modelo de datos del demo</h2>
+    <div class="hint">Generado de forma determinística (misma semilla ⇒ mismos números) para que puedas discutir cifras concretas sin que cambien entre sesiones.</div>
+    <div id="dataSummary" class="grid g4"></div>
+  </div>
+</section>
+
+<!-- ══════════════ RECRUITING ══════════════ -->
+<section class="tab" id="tab-recruit">
+  <div class="filters" id="fRecruit"></div>
+  <div class="grid g4" id="recKpis"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Embudo de reclutamiento — dónde se cae el proceso</h2>
+      <div class="hint">Cada barra es el volumen que entró a la etapa; el número a la derecha es la <b>conversión hacia la etapa siguiente</b> y su comparación con el rango best-in-class. Una conversión demasiado <i>alta</i> arriba del embudo suele significar filtro débil, no buen sourcing.</div>
+      <div id="funnelChart"></div>
+    </div>
+    <div class="card">
+      <h2>Aging: días en la etapa actual</h2>
+      <div class="hint">Los candidatos vivos ordenados por antigüedad en su etapa. Sobre 10 días sin movimiento la probabilidad de aceptar oferta cae de forma marcada; sobre 20 el candidato ya está en proceso avanzado con otro empleador.</div>
+      <div id="agingChart"></div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Time-to-fill por familia de rol</h2>
+      <div class="hint">Días desde la apertura de la requisición hasta la aceptación de la oferta, para vacantes cerradas. La línea marca la meta interna (45 días).</div>
+      <div id="ttfChart"></div>
+    </div>
+    <div class="card">
+      <h2>Calidad y costo por fuente</h2>
+      <div class="hint">Referidos casi siempre ganan en conversión y sobrevivencia a 90 días, y son los más baratos — pero tienen techo de volumen y riesgo de homogeneidad. Los cazatalentos se justifican solo en roles críticos escasos.</div>
+      <div class="scroll"><table id="sourceTable"></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Scorecard de reclutadores</h2>
+    <div class="hint">Carga (requisiciones activas), velocidad y calidad. Un reclutador con más de 20 vacantes activas deja de hacer sourcing y pasa a administrar postulaciones — la conversión cae aunque el volumen suba.</div>
+    <div class="scroll"><table id="recruiterTable"></table></div>
+  </div>
+  <div class="card">
+    <h2>Requisiciones abiertas — semáforo</h2>
+    <div class="hint">Ordenadas por riesgo: días abiertas contra la meta, ausencia de candidatos en etapas finales y criticidad del rol. Haz clic en una fila para ver su pipeline completo.</div>
+    <div class="scroll tall"><table id="reqTable"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════ PIPELINE ══════════════ -->
+<section class="tab" id="tab-pipe">
+  <div class="filters" id="fPipe"></div>
+  <div class="card">
+    <h2>Tablero de candidatos</h2>
+    <div class="hint">Vista de punta a punta: quién es, para qué vacante, en qué etapa, con qué reclutador, cuánto lleva, cómo le fue en cada evaluación y cuál es la recomendación del proceso. Haz clic en un candidato para ver su historial de etapas.</div>
+    <div class="scroll tall"><table id="candTable"></table></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Distribución de scores de entrevista</h2>
+      <div class="hint">Score promedio ponderado (técnica 40%, panel 35%, cultura 25%). La zona verde es el umbral de contratación recomendado (≥3,5). Contratar bajo 3,2 duplica la probabilidad de salida antes de 12 meses.</div>
+      <div id="scoreChart"></div>
+    </div>
+    <div class="card">
+      <h2>Motivos de caída</h2>
+      <div class="hint">Distinguir <b>rechazo nuestro</b> (filtro funcionando) de <b>declinación del candidato</b> (problema de propuesta de valor, velocidad o renta) es lo que separa un embudo sano de uno que está quemando mercado.</div>
+      <div id="rejectChart"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ DESEMPEÑO & 360 ══════════════ -->
+<section class="tab" id="tab-perf">
+  <div class="filters" id="fPerf"></div>
+  <div class="grid g4" id="perfKpis"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Distribución de calificaciones — real vs. referencia</h2>
+      <div class="hint">La barra sólida es la distribución observada tras calibración; la marca gris es la referencia de una organización sana (≈5% excepcional, 25% supera, 60% cumple, 15% bajo lo esperado). <b>No es una curva forzada</b>: es un termómetro. Una distribución muy corrida a la derecha no significa un equipo excepcional, significa que la evaluación dejó de discriminar.</div>
+      <div id="distChart"></div>
+    </div>
+    <div class="card">
+      <h2>Sesgo del evaluador — antes y después de calibrar</h2>
+      <div class="hint">Cada punto es una jefatura: eje horizontal, su nota promedio otorgada antes de calibrar; vertical, la de la organización. Los puntos lejos de la diagonal son evaluadores infladores (arriba) o duros (abajo). Sin esta corrección, la carrera de una persona depende de con quién le tocó trabajar.</div>
+      <div id="biasChart"></div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Cuartiles de desempeño</h2>
+      <div class="hint">Cuartil dentro del mismo nivel jerárquico — comparar un analista con un gerente no dice nada. Q1 son el cuarto superior: el foco es retenerlos y darles alcance; Q4 requiere conversación explícita y plan con plazo.</div>
+      <div id="quartChart"></div>
+      <div id="quartNotes"></div>
+    </div>
+    <div class="card">
+      <h2>Desempeño (KPI) vs. competencias — el "qué" y el "cómo"</h2>
+      <div class="hint">Eje horizontal: cumplimiento de objetivos del año. Vertical: nota de competencias/conductas. El cuadrante inferior derecho son los <b>resultados a cualquier costo</b>: personas que cumplen el número y dañan el sistema. Es el hallazgo más accionable y el que casi ningún reporte muestra.</div>
+      <div id="quePorComo"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Feedback 360 — perfil por grupo evaluador</h2>
+    <div class="hint">Promedio por competencia y por grupo de evaluadores para la población filtrada. La brecha entre <b>autoevaluación</b> y el resto es el indicador de autoconocimiento: sobre +0,5 hay punto ciego sistemático, bajo −0,3 hay subestimación (frecuente en perfiles técnicos senior y un predictor de renuncia silenciosa).</div>
+    <div class="grid g2">
+      <div id="radar360"></div>
+      <div id="tabla360"></div>
+    </div>
+    <div class="tiny">Participación 360 de la población filtrada: <b id="part360">—</b>. Bajo 70% de respuesta el resultado individual deja de ser confiable y solo debe leerse agregado.</div>
+  </div>
+  <div class="card">
+    <h2>Evaluación individual</h2>
+    <div class="hint">Una fila por persona evaluada. Haz clic para ver su ficha completa: objetivos, competencias, 360 desagregado por grupo, puntos ciegos y recomendación.</div>
+    <div class="scroll tall"><table id="perfTable"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════ TALENTO ══════════════ -->
+<section class="tab" id="tab-talento">
+  <div class="filters" id="fTal"></div>
+  <div class="grid g4" id="talKpis"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Grilla 9-box: desempeño × potencial</h2>
+      <div class="hint">Las nueve cajas de la calibración de talento. Desempeño es <b>pasado observado</b>; potencial es <b>capacidad estimada de asumir un rol mayor</b> — no son lo mismo y confundirlos es el error #1 de estos comités. Haz clic en una caja para ver a las personas y la acción asociada.</div>
+      <div id="nineBox"></div>
+    </div>
+    <div class="card">
+      <h2>Acción por caja</h2>
+      <div class="hint">Cada caja tiene una decisión distinta de inversión, exposición y remuneración. Si todas reciben lo mismo, la grilla es un ejercicio decorativo.</div>
+      <div id="nineActions"></div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Riesgo de fuga de talento crítico</h2>
+      <div class="hint">Personas en Q1 de desempeño con al menos dos señales de riesgo: compa-ratio bajo 0,9, entre 2 y 5 años de antigüedad sin movimiento, o alto potencial sin plan de sucesión asignado. Ordenadas por costo de reemplazo estimado.</div>
+      <div class="scroll tall"><table id="fugaTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Cobertura de sucesión de posiciones clave</h2>
+      <div class="hint">Para cada posición L2–L4, cuántos sucesores identificados hay y en qué horizonte. Una posición crítica sin sucesor listo en menos de 12 meses es un riesgo operacional, no un tema de RRHH.</div>
+      <div class="scroll tall"><table id="sucTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CAPABILITY ══════════════ -->
+<section class="tab" id="tab-cap">
+  <div class="filters" id="fCap"></div>
+  <div class="grid g4" id="capKpis"></div>
+  <div class="card">
+    <h2>Mapa de brechas — dimensión × unidad organizacional</h2>
+    <div class="hint">Cada celda es la brecha promedio (nivel requerido − nivel observado, escala 1–5) de esa dimensión en esa unidad. Rojo = brecha ≥ 1,0 nivel: no se cierra con un curso, requiere intervención estructurada. Haz clic en una celda para ver las personas detrás.</div>
+    <div class="scroll"><table class="hm" id="heatTable"></table></div>
+    <div class="legend"><span><i class="dot" style="background:#00806f"></i>Sin brecha (&lt;0,3)</span><span><i class="dot" style="background:#8fcf7f"></i>Leve (0,3–0,6)</span><span><i class="dot" style="background:#f5a623"></i>Moderada (0,6–1,0)</span><span><i class="dot" style="background:#e5546c"></i>Crítica (≥1,0)</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Prioridad de intervención</h2>
+      <div class="hint">Índice = brecha × criticidad de la dimensión para la BU × personas afectadas. Es lo que decide dónde poner el presupuesto de formación: no la brecha más grande, sino la que más valor libera.</div>
+      <div id="priorityChart"></div>
+    </div>
+    <div class="card">
+      <h2>Brecha promedio por nivel jerárquico</h2>
+      <div class="hint">Dónde duele más la brecha según la capa. Un patrón habitual en empresas medianas: la brecha de liderazgo se concentra en L5 (jefaturas promovidas por desempeño técnico y nunca formadas para conducir equipos), y la de analítica en L6.</div>
+      <div id="gapByLevel"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Plan de cierre de brechas recomendado</h2>
+    <div class="hint">Cada brecha se traduce a una intervención según su tamaño y naturaleza, con la lógica 70:20:10 — brechas grandes no se cierran con e-learning, se cierran con práctica deliberada acompañada.</div>
+    <div id="capPlan"></div>
+  </div>
+  <div class="card">
+    <h2>Detalle por persona</h2>
+    <div class="hint">Filtra hasta el nivel de subgerencia y ordena por brecha total para ver quién necesita qué. Haz clic para ver el perfil de dimensiones de la persona y su plan individual.</div>
+    <div class="scroll tall"><table id="capPeople"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════ CONTROL DE GESTIÓN ══════════════ -->
+<section class="tab" id="tab-ctrl">
+  <div class="filters" id="fCtrl"></div>
+  <div class="grid g4" id="ctrlKpis"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Pirámide organizacional — dotación y costo por capa</h2>
+      <div class="hint">Ancho = personas; la etiqueta de la derecha es el costo anual de esa capa. Una pirámide sana se ensancha de forma monótona hacia abajo; los "abultamientos" en capas intermedias (L4–L5) son la firma clásica de una organización que creció promoviendo para retener.</div>
+      <div id="pyramid"></div>
+    </div>
+    <div class="card">
+      <h2>Distribución de span de control</h2>
+      <div class="hint">Cuántos reportes directos tiene cada jefatura. Las barras rojas (1–3 reportes) son jefaturas sub-escala: casi siempre indican una capa que existe por razones de carrera, no de coordinación.</div>
+      <div id="spanChart"></div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h2>Dotación y costo por unidad</h2>
+      <div class="hint">Haz clic en una fila para bajar de BU a área y de área a subgerencia.</div>
+      <div class="scroll tall"><table id="orgTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Equidad interna — compa-ratio</h2>
+      <div class="hint">Sueldo de la persona ÷ punto medio de la banda de su nivel. Bajo 0,85 hay riesgo de fuga y probable inequidad; sobre 1,20 se paga sobre mercado sin justificación de banda — ambos extremos son hallazgos, no errores de dato.</div>
+      <div id="compaChart"></div>
+      <div class="scroll" style="margin-top:12px"><table id="outlierTable"></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Jefaturas con span sub-escala</h2>
+    <div class="hint">Candidatas a consolidación: el jefe absorbe el equipo de otro par, o el rol se convierte en contribuidor individual senior. Cada línea muestra el ahorro potencial si la posición de jefatura se elimina y sus reportes suben una capa.</div>
+    <div class="scroll tall"><table id="subScale"></table></div>
+  </div>
+</section>
+
+<!-- ══════════════ OPTIMIZACIÓN ══════════════ -->
+<section class="tab" id="tab-opt">
+  <div class="grid g2">
+    <div class="card">
+      <h2>Palancas</h2>
+      <div class="hint">Simulador de estructura objetivo. Los resultados son <b>potencial teórico</b>: el diseño real exige revisar el trabajo que hace cada capa, no solo el número de reportes.</div>
+      <div class="field"><label>Span mínimo objetivo por jefatura <span class="v" id="vSpan">6</span></label><input type="range" id="sSpan" min="3" max="10" step="1" value="6" oninput="renderOpt()"><div class="why">Jefaturas bajo este umbral se consolidan; sus reportes suben una capa. Referencia: 6–8 en roles de gestión, 8–12 en supervisión de operaciones estandarizadas.</div></div>
+      <div class="field"><label>Capas máximas permitidas <span class="v" id="vLayers">7</span></label><input type="range" id="sLayers" min="4" max="8" step="1" value="7" oninput="renderOpt()"><div class="why">Capas medidas desde el gerente general hasta la primera línea. Si el máximo es menor que la profundidad actual, se colapsan las capas intermedias con menor span — las que menos coordinación aportan por posición. Cada capa adicional agrega distorsión de información y tiempo de decisión.</div></div>
+      <div class="field"><label>% de vacantes abiertas que se congelan <span class="v" id="vFreeze">30%</span></label><input type="range" id="sFreeze" min="0" max="100" step="5" value="30" oninput="renderOpt()"><div class="why">Ahorro de bajo costo político: la posición nunca existió. Aplica primero a vacantes de reemplazo en áreas con span alto.</div></div>
+      <div class="field"><label>Atrición anual voluntaria supuesta <span class="v" id="vAttr">12%</span></label><input type="range" id="sAttr" min="4" max="25" step="1" value="12" oninput="renderOpt()"><div class="why">Determina cuánto del ajuste se puede lograr por no reemplazo (sin costo de desvinculación) en 12 meses.</div></div>
+      <div class="field"><label>Costo de desvinculación (meses de sueldo) <span class="v" id="vSev">4,5</span></label><input type="range" id="sSev" min="1" max="12" step="0.5" value="4.5" oninput="renderOpt()"><div class="why">Indemnización + aviso previo + vacaciones proporcionales. En Chile, ~1 mes por año de servicio con tope de 11.</div></div>
+    </div>
+    <div class="card">
+      <h2>Resultado</h2>
+      <div class="grid g2" id="optKpis"></div>
+      <div id="optWaterfall" style="margin-top:14px"></div>
+      <div id="optNotes"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Estructura actual vs. objetivo por unidad</h2>
+    <div class="scroll tall"><table id="optTable"></table></div>
+  </div>
+  <div class="card">
+    <h2>Advertencias de diseño</h2>
+    <div id="optWarn"></div>
+  </div>
+</section>
+
+<!-- ══════════════ ANALISTA IA (n8n) ══════════════ -->
+<section class="tab" id="tab-ia">
+  <div class="chat-wrap">
+    <div class="chat-head">
+      <div class="who">
+        <div class="av">🤖</div>
+        <div>
+          <div class="nm">Analista de Capital Humano</div>
+          <div class="st"><span class="led" id="chatLed"></span><span id="chatSt">Conectado · responde en vivo</span></div>
+        </div>
+      </div>
+      <div class="chat-ctx">
+        <select id="chatPais" onchange="chatCtxChange()"></select>
+        <select id="chatBu" onchange="chatCtxChange()"></select>
+        <select id="chatMod">
+          <option value="auto">Módulo: automático</option>
+          <option value="recruiting">Recruiting</option>
+          <option value="desempeno">Desempeño y 360</option>
+          <option value="capacidades">Capacidades</option>
+          <option value="estructura">Estructura y costo</option>
+        </select>
+        <button class="btn ghost sm" onclick="verPayload()">Ver datos enviados</button>
+        <button class="btn ghost sm" onclick="nuevaConversacion()">Nueva conversación</button>
+        <button class="btn ghost sm" onclick="configWebhook()">⚙</button>
+      </div>
+    </div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-sug" id="chatSug"></div>
+    <div class="chat-foot">
+      <div class="chat-input">
+        <textarea id="chatIn" rows="1" placeholder="Pregúntale lo que quieras sobre tu dotación, tu embudo o tu gente… (Enter para enviar)"></textarea>
+        <button class="chat-send" id="chatBtn" onclick="enviarChat()">➤</button>
+      </div>
+      <div class="tiny">El analista ve <b>solo métricas agregadas</b> del alcance seleccionado y recuerda lo conversado en esta sesión. Los números los calcula n8n, no el modelo — por eso no inventa cifras.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ METODOLOGÍA ══════════════ -->
+<section class="tab" id="tab-metodo">
+  <div class="card">
+    <h2>Benchmarks usados en la plataforma</h2>
+    <div class="hint">Rangos de referencia para empresas medianas (200–1.000 FTE). Son puntos de partida para conversar, no metas: el rango correcto depende de la industria, del grado de estandarización del trabajo y de la madurez del equipo. Donde la práctica difiere mucho entre fuentes, se muestra el rango completo.</div>
+    <div class="scroll"><table id="benchTable"></table></div>
+  </div>
+  <div class="card">
+    <h2>Cómo se calcula cada indicador</h2>
+    <div id="methodBody"></div>
+  </div>
+  <div class="card">
+    <h2>Qué NO hace esta herramienta</h2>
+    <ul class="bul">
+      <li><b>No decide desvinculaciones.</b> El simulador entrega potencial teórico de estructura; la decisión exige revisar carga real de trabajo, criticidad y sucesión.</li>
+      <li><b>No reemplaza la evaluación de desempeño.</b> Las notas de desempeño y potencial son insumos del proceso de calibración, no un output del modelo.</li>
+      <li><b>No hace scoring automático de candidatos.</b> Los scores vienen de las evaluaciones humanas; el sistema solo los agrega y los compara con el umbral.</li>
+      <li><b>No es un sistema de registro.</b> No sustituye al ATS ni al sistema de remuneraciones: consume sus datos y los pone en un mismo plano de decisión.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div class="modal" id="modal"><div class="box"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
+
+<script>
+/* ═══════════════ UTILIDADES ═══════════════ */
+let seed = 20260808;
+function rnd(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed>>>15, 1|seed); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; }
+function ri(a,b){ return Math.floor(rnd()*(b-a+1))+a; }
+function pick(a){ return a[Math.floor(rnd()*a.length)]; }
+function pickW(items){ const tot=items.reduce((s,i)=>s+i[1],0); let r=rnd()*tot; for(const it of items){ r-=it[1]; if(r<=0) return it[0]; } return items[items.length-1][0]; }
+function gauss(m,s){ let u=0,v=0; while(u===0)u=rnd(); while(v===0)v=rnd(); return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+const fmt=n=>new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(Math.round(n));
+const fmt1=n=>new Intl.NumberFormat('es-CL',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n);
+const fmt2=n=>new Intl.NumberFormat('es-CL',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const money=n=>'$'+fmt(n);
+const mm=n=>'$'+fmt1(n/1e6)+'MM';
+const pct=(n,d=0)=>(n*100).toFixed(d).replace('.',',')+'%';
+const TODAY=new Date(2026,7,8);
+const days=(a,b)=>Math.round((b-a)/86400000);
+const addD=(d,n)=>new Date(d.getTime()+n*86400000);
+const dstr=d=>d.toISOString().slice(0,10);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+/* ═══════════════ CONFIGURACIÓN DEL MODELO ═══════════════ */
+/* Dos países (vistas mayores) × unidades de negocio dentro de cada uno.
+   Los sueldos de Perú se expresan en CLP equivalente con un índice de costo laboral local. */
+const PAISES=[
+  {id:'CL',nombre:'Chile',fx:1.00,color:'#1f40e6',moneda:'CLP'},
+  {id:'PE',nombre:'Perú',fx:0.79,color:'#00a9f4',moneda:'PEN→CLP'}
+];
+const BUS=[
+  {id:'BU1',nombre:'Industrial',color:'#1f40e6'},
+  {id:'BU2',nombre:'Consumo Masivo',color:'#00a9f4'},
+  {id:'BU3',nombre:'Servicios & Post-venta',color:'#00b8a2'}
+];
+/* Combinación país × BU: Servicios opera solo en Chile (la sede) */
+const UNIDADES=[
+  {pais:'Chile',bu:'Industrial',escala:1.00},
+  {pais:'Chile',bu:'Consumo Masivo',escala:0.95},
+  {pais:'Chile',bu:'Servicios & Post-venta',escala:0.62},
+  {pais:'Perú',bu:'Industrial',escala:0.78},
+  {pais:'Perú',bu:'Consumo Masivo',escala:0.66}
+];
+const AREAS=[
+  {nombre:'Comercial',familia:'Comercial',sub:['Ventas Canal Moderno','Ventas Canal Tradicional','Trade & Marketing']},
+  {nombre:'Operaciones',familia:'Operaciones',sub:['Producción','Mantención','Calidad & HSE']},
+  {nombre:'Supply Chain',familia:'Operaciones',sub:['Planificación','Logística & Distribución','Abastecimiento']},
+  {nombre:'IT & Digital',familia:'IT',sub:['Infraestructura & Soporte','Aplicaciones & Datos','Ciberseguridad']},
+  {nombre:'Finanzas',familia:'Soporte',sub:['Control de Gestión','Contabilidad & Tesorería']},
+  {nombre:'Personas',familia:'Soporte',sub:['Talento & Desarrollo','Administración de Personal']}
+];
+const NIVELES=[
+  {n:1,nombre:'CEO',banda:14000000},
+  {n:2,nombre:'Vicepresidente / Gerente General BU',banda:9200000},
+  {n:3,nombre:'Gerente',banda:6100000},
+  {n:4,nombre:'Subgerente',banda:4200000},
+  {n:5,nombre:'Jefe / Superintendente',banda:2900000},
+  {n:6,nombre:'Especialista / Analista',banda:1750000},
+  {n:7,nombre:'Operador / Asistente',banda:980000}
+];
+const nivName=n=>NIVELES.find(x=>x.n===n).nombre;
+const banda=n=>NIVELES.find(x=>x.n===n).banda;
+
+/* Dimensiones de capacidad: transversales + funcionales por familia */
+const DIMS=[
+  {id:'lider',    nombre:'Liderazgo de equipos',      tipo:'Transversal', fam:'*',           crit:{Comercial:.8,Operaciones:.9,IT:.7,Soporte:.7}},
+  {id:'datos',    nombre:'Analítica y uso de datos',  tipo:'Transversal', fam:'*',           crit:{Comercial:.9,Operaciones:.8,IT:1,Soporte:.8}},
+  {id:'proceso',  nombre:'Mejora continua de procesos',tipo:'Transversal',fam:'*',           crit:{Comercial:.6,Operaciones:1,IT:.7,Soporte:.8}},
+  {id:'comuni',   nombre:'Comunicación e influencia', tipo:'Transversal', fam:'*',           crit:{Comercial:1,Operaciones:.6,IT:.6,Soporte:.8}},
+  {id:'digital',  nombre:'Fluidez digital y IA',      tipo:'Transversal', fam:'*',           crit:{Comercial:.8,Operaciones:.7,IT:1,Soporte:.8}},
+  {id:'negoc',    nombre:'Negociación comercial',     tipo:'Funcional',   fam:'Comercial',   crit:{Comercial:1}},
+  {id:'pricing',  nombre:'Pricing y gestión de margen',tipo:'Funcional',  fam:'Comercial',   crit:{Comercial:1}},
+  {id:'ejec',     nombre:'Ejecución en punto de venta',tipo:'Funcional',  fam:'Comercial',   crit:{Comercial:.9}},
+  {id:'plan',     nombre:'Planificación S&OP',        tipo:'Funcional',   fam:'Operaciones', crit:{Operaciones:1}},
+  {id:'manten',   nombre:'Confiabilidad y mantención',tipo:'Funcional',   fam:'Operaciones', crit:{Operaciones:.9}},
+  {id:'hse',      nombre:'Seguridad y calidad',       tipo:'Funcional',   fam:'Operaciones', crit:{Operaciones:1}},
+  {id:'cloud',    nombre:'Cloud e infraestructura',   tipo:'Funcional',   fam:'IT',          crit:{IT:1}},
+  {id:'ciber',    nombre:'Ciberseguridad',            tipo:'Funcional',   fam:'IT',          crit:{IT:1}},
+  {id:'arqui',    nombre:'Arquitectura de datos',     tipo:'Funcional',   fam:'IT',          crit:{IT:.9}},
+  {id:'control',  nombre:'Control financiero y costeo',tipo:'Funcional',  fam:'Soporte',     crit:{Soporte:1}},
+  {id:'cumpl',    nombre:'Cumplimiento y control interno',tipo:'Funcional',fam:'Soporte',    crit:{Soporte:.8}}
+];
+const dimsFor=fam=>DIMS.filter(d=>d.fam==='*'||d.fam===fam);
+/* Nivel requerido por dimensión según nivel jerárquico */
+function requerido(dim,nivel,fam){
+  const base = dim.tipo==='Transversal' ? (nivel<=2?4.6:nivel===3?4.3:nivel===4?3.9:nivel===5?3.4:nivel===6?2.9:2.3)
+                                        : (nivel<=2?4.2:nivel===3?4.2:nivel===4?4.0:nivel===5?3.7:nivel===6?3.4:2.6);
+  const ajuste = dim.id==='lider' && nivel>=6 ? -0.9 : 0;
+  const c = (dim.crit&&dim.crit[fam])||0.7;
+  return clamp(base+ajuste+(c-0.8)*0.5,1,5);
+}
+const INTERVS=[
+  {min:1.3,nombre:'Academia de capacidades (cohorte 6 meses)',modo:'70:20:10 completo — proyecto real + coaching + módulos',sem:26,costo:1800000},
+  {min:0.9,nombre:'Programa acompañado + proyecto aplicado',modo:'Práctica deliberada con mentor asignado',sem:14,costo:850000},
+  {min:0.6,nombre:'Taller práctico + shadowing estructurado',modo:'Observación de expertos internos + entrega evaluada',sem:8,costo:420000},
+  {min:0.3,nombre:'Microlearning + rutina de refuerzo en la línea',modo:'Cápsulas + checklist aplicado en la rutina semanal',sem:4,costo:120000},
+  {min:0,   nombre:'Mantención — refuerzo en la evaluación anual',modo:'Sin intervención dedicada',sem:0,costo:0}
+];
+const interv=g=>INTERVS.find(i=>g>=i.min);
+
+const ETAPAS=['Postulación','Screening CV','Entrevista RRHH','Entrevista técnica','Panel con líder','Oferta','Contratado'];
+const ETAPA_BM=[ /* conversión hacia la siguiente etapa: [interno esperado, best-in-class] */
+  {de:'Postulación',a:'Screening CV',bm:[0.25,0.40]},
+  {de:'Screening CV',a:'Entrevista RRHH',bm:[0.40,0.55]},
+  {de:'Entrevista RRHH',a:'Entrevista técnica',bm:[0.45,0.60]},
+  {de:'Entrevista técnica',a:'Panel con líder',bm:[0.45,0.60]},
+  {de:'Panel con líder',a:'Oferta',bm:[0.50,0.70]},
+  {de:'Oferta',a:'Contratado',bm:[0.85,0.92]}
+];
+const FUENTES=[
+  {n:'Referidos',peso:.22,q:.85,costo:350000,conv:1.45},
+  {n:'LinkedIn / sourcing directo',peso:.28,q:.72,costo:900000,conv:1.10},
+  {n:'Portal de empleo',peso:.30,q:.55,costo:280000,conv:0.72},
+  {n:'Cazatalentos',peso:.09,q:.80,costo:5200000,conv:1.35},
+  {n:'Universidades / práctica',peso:.11,q:.68,costo:220000,conv:0.95}
+];
+const MOTIVOS_NUESTROS=['No cumple requisitos técnicos','Experiencia insuficiente para el nivel','No pasa filtro cultural','Perfil sobre-calificado'];
+const MOTIVOS_SUYOS=['Contraoferta de su empleador','Aceptó otra oferta','Expectativa de renta sobre banda','Proceso demasiado lento','Modalidad de trabajo (presencialidad)'];
+const RECLUTADORES=['Camila Fuentes','Rodrigo Salas','Ignacia Prat','Matías Cerda','Valentina Ruiz'];
+const NOM=['Ana','José','María','Cristián','Paula','Felipe','Daniela','Sebastián','Carolina','Rodrigo','Javiera','Andrés','Fernanda','Nicolás','Constanza','Diego','Camila','Pablo','Antonia','Tomás','Isidora','Vicente','Catalina','Matías','Josefa','Benjamín','Trinidad','Lucas','Emilia','Martín'];
+const APE=['González','Muñoz','Rojas','Díaz','Pérez','Soto','Contreras','Silva','Martínez','Sepúlveda','Morales','Rodríguez','López','Fuentes','Hernández','Torres','Araya','Flores','Espinoza','Valenzuela','Castillo','Tapia','Reyes','Gutiérrez','Vargas','Álvarez','Riquelme','Vergara','Navarro','Bravo'];
+const nombreAl=()=>pick(NOM)+' '+pick(APE)+' '+pick(APE);
+
+/* ═══════════════ ESTADO ═══════════════ */
+let D={personas:[],reqs:[],cands:[],evals:[],origen:'demo'};
+let IDX={};
+let FILT={recruit:{bu:'',area:'',rec:'',est:'Abiertas'},pipe:{bu:'',etapa:'',rec:''},cap:{bu:'',area:'',sub:'',dim:''},ctrl:{bu:'',area:'',sub:''}};
+let sortState={};
+
+/* ═══════════════ GENERACIÓN DEMO ═══════════════ */
+function genOrg(){
+  seed=20260808;
+  const P=[]; let id=1000;
+  const nuevo=(nivel,cargo,pais,bu,area,sub,jefe,fam)=>{
+    id++;
+    const fx=(PAISES.find(x=>x.nombre===pais)||{fx:1}).fx;
+    const b=Math.round(banda(nivel)*fx);
+    const compa=clamp(gauss(1.0,0.115),0.72,1.42);
+    const antig=Math.max(0.2,gauss(nivel<=3?7:nivel===4?5.5:nivel===5?4.5:3.2,2.6));
+    const desemp=clamp(Math.round(gauss(3.25,0.85)),1,5);
+    const potenc=pickW([[3,desemp>=4?.30:.10],[2,.45],[1,desemp<=2?.45:.30]]);
+    const p={id:'E'+id,nombre:nombreAl(),cargo,nivel,pais,bu,area,sub,jefe_id:jefe,familia:fam,
+      sueldo:Math.round(b*compa/1000)*1000, banda_media:b, compa,
+      ingreso:dstr(addD(TODAY,-Math.round(antig*365))), antiguedad:antig,
+      desempeno:desemp, potencial:potenc, genero:pickW([['F',.42],['M',.58]]),
+      riesgo_fuga: clamp(Math.round(((compa<0.9?1.4:0.6)+(desemp>=4?0.9:0.3)+(antig>2&&antig<5?0.6:0.2))),1,3)};
+    P.push(p); return p;
+  };
+  const ceo=nuevo(1,'Gerente General Corporativo','Chile','Corporativo','Dirección','Dirección General',null,'Soporte');
+  UNIDADES.forEach(u=>{
+    const esc=u.escala;
+    const vp=nuevo(2,'Gerente General '+u.bu+' '+u.pais,u.pais,u.bu,'Dirección','Dirección '+u.bu,ceo.id,'Soporte');
+    AREAS.forEach(a=>{
+      /* Servicios no tiene planta productiva propia; en Perú, Supply Chain va dentro de Operaciones */
+      if(u.bu==='Servicios & Post-venta'&&a.nombre==='Operaciones') return;
+      if(u.pais==='Perú'&&a.nombre==='Supply Chain') return;
+      const ger=nuevo(3,'Gerente de '+a.nombre,u.pais,u.bu,a.nombre,'Gerencia '+a.nombre,vp.id,a.familia);
+      const nSubs=Math.max(1,Math.round(a.sub.length*(esc>0.9?1:esc>0.7?0.75:0.6)));
+      a.sub.slice(0,nSubs).forEach(sname=>{
+        const sg=nuevo(4,'Subgerente de '+sname,u.pais,u.bu,a.nombre,sname,ger.id,a.familia);
+        const nJefes = Math.max(1,Math.round((a.familia==='Operaciones'?ri(2,4):a.familia==='Soporte'?ri(1,2):ri(2,3))*(esc>0.9?1:0.8)));
+        for(let j=0;j<nJefes;j++){
+          const jf=nuevo(5,'Jefe de '+sname,u.pais,u.bu,a.nombre,sname,sg.id,a.familia);
+          const nEq = Math.max(1,Math.round((a.familia==='Operaciones'?ri(4,11):a.familia==='IT'?ri(3,7):ri(3,8))*esc));
+          for(let k=0;k<nEq;k++){
+            const esL7 = a.familia==='Operaciones' ? rnd()<0.55 : rnd()<0.12;
+            nuevo(esL7?7:6, esL7?pick(['Operador','Asistente','Auxiliar'])+' '+sname.split(' ')[0] : pick(['Analista','Especialista','Ingeniero','Ejecutivo'])+' '+sname.split(' ')[0],
+                  u.pais,u.bu,a.nombre,sname,jf.id,a.familia);
+          }
+        }
+      });
+    });
+  });
+  return P;
+}
+
+/* ── Desempeño anual + feedback 360 ── */
+const COMPETENCIAS=[
+  {id:'result',nombre:'Orientación a resultados'},
+  {id:'equipo',nombre:'Desarrollo de su equipo'},
+  {id:'colab',nombre:'Colaboración transversal'},
+  {id:'cliente',nombre:'Foco en el cliente'},
+  {id:'cambio',nombre:'Adaptación al cambio'},
+  {id:'integr',nombre:'Integridad y ejemplo'}
+];
+const RATERS=[{id:'auto',nombre:'Autoevaluación',peso:0},{id:'jefe',nombre:'Jefatura',peso:.40},
+  {id:'pares',nombre:'Pares',peso:.30},{id:'reportes',nombre:'Reportes directos',peso:.20},
+  {id:'clientes',nombre:'Clientes internos',peso:.10}];
+const CATS=[{min:4.5,n:'Excepcional',c:'#00806f'},{min:3.7,n:'Supera',c:'#00b8a2'},{min:2.8,n:'Cumple',c:'#00a9f4'},{min:2.0,n:'Parcial',c:'#f5a623'},{min:0,n:'No cumple',c:'#e5546c'}];
+const catDe=s=>CATS.find(c=>s>=c.min);
+/* Referencia de distribución sana en empresa mediana (no cuota rígida) */
+const DIST_GUIA={'Excepcional':.05,'Supera':.20,'Cumple':.60,'Parcial':.11,'No cumple':.04};
+
+function genPerf(P){
+  const R=[];
+  P.forEach(p=>{
+    if(p.antiguedad<0.5){ R.push({persona:p.id,evaluable:false}); return; }
+    /* sesgo de evaluador: cada jefe infla o castiga de forma consistente */
+    let h=0; const k=String(p.jefe_id); for(let i=0;i<k.length;i++) h=(h*33+k.charCodeAt(i))>>>0;
+    const sesgoJefe=((h%100)/100-0.5)*1.15;
+    const kpi=clamp(gauss(0.94+(p.desempeno-3.2)*0.07,0.14),0.45,1.35);
+    const comp={}; let cs=0;
+    COMPETENCIAS.forEach(c=>{
+      let b=p.desempeno*0.85+0.72;
+      if(c.id==='equipo'&&p.nivel>=6) b=null;
+      if(b!==null){ const v=clamp(gauss(b,0.5),1,5); comp[c.id]=Number(v.toFixed(2)); cs+=v; }
+    });
+    const nComp=Object.keys(comp).length;
+    const compAvg=cs/nComp;
+    const kpiScore=clamp(1+(kpi-0.60)*6.9,1,5);
+    const crudo=clamp(kpiScore*0.55+compAvg*0.45+sesgoJefe,1,5);
+    const calibrado=clamp(crudo-sesgoJefe*0.8+gauss(0,0.12),1,5);
+    /* 360: cada grupo evalúa cada competencia; la autoevaluación tiene sesgo positivo */
+    const t360={}; let part={};
+    RATERS.forEach(rt=>{
+      if(rt.id==='reportes'&&(IDXreports(P,p.id)===0)) return;
+      const n = rt.id==='auto'?1: rt.id==='jefe'?1: rt.id==='pares'?ri(3,6): rt.id==='reportes'?Math.min(6,ri(2,5)): ri(2,5);
+      part[rt.id]={invitados:n,respondieron: rt.id==='auto'||rt.id==='jefe'? n : Math.max(1,Math.round(n*clamp(gauss(0.82,0.16),0.4,1)))};
+      t360[rt.id]={};
+      COMPETENCIAS.forEach(c=>{
+        if(comp[c.id]===undefined) return;
+        const sesgo = rt.id==='auto'? 0.55 : rt.id==='reportes'? (c.id==='equipo'?-0.35:-0.1) : rt.id==='pares'? -0.05 : 0;
+        t360[rt.id][c.id]=Number(clamp(gauss(comp[c.id]+sesgo,0.42),1,5).toFixed(2));
+      });
+    });
+    const otros=RATERS.filter(r=>r.id!=='auto'&&t360[r.id]);
+    const prom360={}; COMPETENCIAS.forEach(c=>{
+      if(comp[c.id]===undefined) return;
+      let w=0,s=0; otros.forEach(r=>{ s+=t360[r.id][c.id]*r.peso; w+=r.peso; });
+      prom360[c.id]=Number((s/w).toFixed(2));
+    });
+    const gapAuto=Object.keys(prom360).reduce((s,c)=>s+(t360.auto[c]-prom360[c]),0)/Math.max(1,Object.keys(prom360).length);
+    R.push({persona:p.id,evaluable:true,kpi:Number(kpi.toFixed(3)),comp,compAvg:Number(compAvg.toFixed(2)),
+      crudo:Number(crudo.toFixed(2)),final:Number(calibrado.toFixed(2)),cat:catDe(calibrado).n,
+      movido: Math.abs(crudo-calibrado)>0.35, sesgoJefe:Number(sesgoJefe.toFixed(2)),
+      t360,prom360,part,gapAuto:Number(gapAuto.toFixed(2)),
+      periodo:'2025', promocionable: calibrado>=3.9&&p.potencial>=2 });
+  });
+  return R;
+}
+function IDXreports(P,id){ return P.filter(x=>x.jefe_id===id).length; }
+
+function genRecruiting(P){
+  const reqs=[],cands=[];
+  const unidades=[...new Set(P.filter(p=>p.nivel>=4).map(p=>p.bu+'|'+p.area+'|'+p.sub+'|'+p.pais))];
+  const nReq=38;
+  for(let i=0;i<nReq;i++){
+    const u=pick(unidades).split('|');
+    const jefe=P.find(p=>p.bu===u[0]&&p.sub===u[2]&&p.pais===u[3]&&p.nivel===4)||P.find(p=>p.sub===u[2]);
+    const nivel=pickW([[4,.10],[5,.22],[6,.46],[7,.22]]);
+    const fam=(AREAS.find(a=>a.nombre===u[1])||{familia:'Soporte'}).familia;
+    const critico=pickW([[true,nivel<=5?.55:.25],[false,.7]]);
+    const abiertaHace=Math.round(Math.abs(gauss(nivel<=5?58:38,30)))+4;
+    const meta=nivel<=4?70:nivel===5?55:45;
+    const cerrada = rnd()< (abiertaHace>meta?0.45:0.25);
+    const r={id:'R'+(100+i),
+      cargo:(nivel===4?'Subgerente de ':nivel===5?'Jefe de ':nivel===6?pick(['Analista de ','Especialista en ','Ingeniero de ']):pick(['Operador de ','Asistente de ']))+u[2],
+      nivel,bu:u[0],area:u[1],sub:u[2],pais:u[3],familia:fam,
+      hiring_manager:jefe?jefe.nombre:'—',
+      reclutador:pick(RECLUTADORES),
+      motivo:pickW([['Reemplazo',.55],['Nueva posición',.30],['Crecimiento de dotación',.15]]),
+      critico, meta_dias:meta,
+      apertura:dstr(addD(TODAY,-abiertaHace)), dias_abierta:abiertaHace,
+      renta_ofrecida:Math.round(banda(nivel)*clamp(gauss(0.97,0.07),0.8,1.15)/1000)*1000,
+      estado: cerrada?'Cerrada':(abiertaHace>meta*1.4?'En riesgo':'Abierta')};
+    if(cerrada){ r.dias_cierre=Math.max(18,Math.round(abiertaHace*clamp(gauss(0.85,0.15),0.5,1))); r.fecha_cierre=dstr(addD(new Date(r.apertura),r.dias_cierre)); }
+    reqs.push(r);
+  }
+  let cid=0;
+  reqs.forEach(r=>{
+    const nPost=Math.max(14,Math.round(gauss(r.nivel>=6?95:48,26)));
+    for(let i=0;i<nPost;i++){
+      cid++;
+      const f=pickW(FUENTES.map(x=>[x,x.peso]));
+      /* avance por el embudo */
+      let etapa=0;
+      const convs=[0.26,0.42,0.47,0.46,0.52,0.86];
+      for(let s=0;s<convs.length;s++){
+        /* la aceptación de la oferta no depende de la fuente sino de la propuesta y la velocidad */
+        const p = s===convs.length-1
+          ? clamp(convs[s]-(r.dias_abierta>r.meta_dias?0.07:0)-(r.critico?0.04:0),0.6,0.93)
+          : clamp(convs[s]*f.conv*(r.critico?0.92:1),0.05,0.94);
+        if(rnd()<p) etapa++; else break;
+      }
+      const llegoFinal = etapa>=6;
+      const vivo = !llegoFinal && rnd()<(etapa>=2?0.42:0.12) && r.estado!=='Cerrada';
+      const scoreBase = 2.4 + etapa*0.28 + (f.q-0.7)*1.3;
+      const score = clamp(gauss(scoreBase,0.42),1,5);
+      const aplicoHace = Math.max(1, r.dias_abierta - ri(0,Math.max(1,r.dias_abierta-2)));
+      const diasEnEtapa = vivo ? clamp(Math.round(Math.abs(gauss(etapa>=3?11:6,7)))+1,1,45) : ri(1,20);
+      let estado,motivo=null;
+      if(llegoFinal){ estado='Contratado'; }
+      else if(vivo){ estado='En proceso'; }
+      else if(etapa>=5 && rnd()<0.55){ estado='Declinó'; motivo=pick(MOTIVOS_SUYOS); }
+      else { estado='Rechazado'; motivo= etapa>=4&&rnd()<0.35 ? pick(MOTIVOS_SUYOS) : pick(MOTIVOS_NUESTROS); if(MOTIVOS_SUYOS.includes(motivo)) estado='Declinó'; }
+      const c={id:'C'+(1000+cid),nombre:nombreAl(),req:r.id,cargo:r.cargo,bu:r.bu,area:r.area,sub:r.sub,pais:r.pais,
+        etapa:ETAPAS[Math.min(etapa,6)], etapa_idx:etapa, estado, motivo,
+        reclutador:r.reclutador, fuente:f.n,
+        aplico:dstr(addD(TODAY,-aplicoHace)), dias_proceso:aplicoHace, dias_etapa:diasEnEtapa,
+        score: etapa>=2? Number(score.toFixed(2)) : null,
+        pretension: Math.round(banda(r.nivel)*clamp(gauss(1.02,0.14),0.7,1.6)/1000)*1000,
+        sobrevive90: llegoFinal ? (rnd() < (0.72+ (f.q-0.7)*0.5 + (score-3.3)*0.09)) : null};
+      cands.push(c);
+    }
+  });
+  return {reqs,cands};
+}
+
+function genEvals(P){
+  const E=[];
+  P.forEach(p=>{
+    if(p.nivel===1) return;
+    const dims=dimsFor(p.familia);
+    /* sesgo por unidad: algunas subgerencias están estructuralmente más atrasadas */
+    let h=0; const key=p.sub+p.area; for(let i=0;i<key.length;i++) h=(h*31+key.charCodeAt(i))>>>0;
+    const sesgoUnidad = ((h%100)/100-0.5)*0.75;
+    dims.forEach(d=>{
+      const req=requerido(d,p.nivel,p.familia);
+      let sesgoDim=0;
+      if(d.id==='datos'||d.id==='digital') sesgoDim=-0.55;
+      if(d.id==='ciber') sesgoDim=-0.7;
+      if(d.id==='lider'&&p.nivel===5) sesgoDim=-0.45;
+      if(d.id==='pricing') sesgoDim=-0.35;
+      const obs=clamp(gauss(req+sesgoDim+sesgoUnidad+(p.desempeno-3.2)*0.28,0.55),1,5);
+      E.push({persona:p.id,dim:d.id,requerido:Number(req.toFixed(2)),observado:Number(obs.toFixed(2)),gap:Number(Math.max(0,req-obs).toFixed(2))});
+    });
+  });
+  return E;
+}
+
+function loadDemo(){
+  const P=genOrg();
+  const {reqs,cands}=genRecruiting(P);
+  D={personas:P,reqs,cands,evals:genEvals(P),perf:genPerf(P),origen:'demo'};
+  reindex(); renderAll();
+  document.getElementById('upStatus').textContent='Caso demo cargado ('+P.length+' personas, 2 países).';
+}
+
+/* ═══════════════ ÍNDICES Y MÉTRICAS BASE ═══════════════ */
+function reindex(){
+  IDX={};
+  IDX.byId={}; D.personas.forEach(p=>IDX.byId[p.id]=p);
+  IDX.reports={}; D.personas.forEach(p=>{ if(p.jefe_id){ (IDX.reports[p.jefe_id]=IDX.reports[p.jefe_id]||[]).push(p.id); } });
+  /* profundidad desde la raíz */
+  IDX.depth={};
+  const raiz=D.personas.filter(p=>!p.jefe_id||!IDX.byId[p.jefe_id]);
+  const walk=(id,d)=>{ IDX.depth[id]=d; (IDX.reports[id]||[]).forEach(c=>walk(c,d+1)); };
+  raiz.forEach(r=>walk(r.id,1));
+  D.personas.forEach(p=>{ if(IDX.depth[p.id]===undefined) IDX.depth[p.id]=p.nivel; });
+  /* span y total de reportes (directos e indirectos) */
+  IDX.span={}; IDX.totalRep={};
+  const countAll=id=>{ if(IDX.totalRep[id]!==undefined) return IDX.totalRep[id]; let t=0; (IDX.reports[id]||[]).forEach(c=>{t+=1+countAll(c);}); IDX.totalRep[id]=t; return t; };
+  D.personas.forEach(p=>{ IDX.span[p.id]=(IDX.reports[p.id]||[]).length; countAll(p.id); });
+  /* evaluaciones por persona */
+  IDX.evalByP={}; D.evals.forEach(e=>{ (IDX.evalByP[e.persona]=IDX.evalByP[e.persona]||[]).push(e); });
+  IDX.candByReq={}; D.cands.forEach(c=>{ (IDX.candByReq[c.req]=IDX.candByReq[c.req]||[]).push(c); });
+  IDX.reqById={}; D.reqs.forEach(r=>IDX.reqById[r.id]=r);
+  IDX.costoAnual=D.personas.reduce((s,p)=>s+p.sueldo*13.2,0); /* 12 sueldos + carga social/beneficios aprox 10% */
+  /* desempeño: índice por persona y cuartil dentro del nivel jerárquico */
+  IDX.perfByP={}; (D.perf||[]).forEach(r=>IDX.perfByP[r.persona]=r);
+  const evaluables=(D.perf||[]).filter(r=>r.evaluable);
+  const porNivel={};
+  evaluables.forEach(r=>{ const p=IDX.byId[r.persona]; if(!p) return; (porNivel[p.nivel]=porNivel[p.nivel]||[]).push(r); });
+  Object.values(porNivel).forEach(arr=>{
+    arr.sort((a,b)=>b.final-a.final);
+    arr.forEach((r,i)=>{ r.cuartil=Math.min(4,Math.floor(i/(arr.length/4))+1); r.percentil=Math.round(100*(1-i/arr.length)); });
+  });
+}
+function goTab(t){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+t));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>goTab(b.dataset.tab));
+function openModal(html){ document.getElementById('modalBody').innerHTML=html; document.getElementById('modal').classList.add('on'); }
+function closeModal(){ document.getElementById('modal').classList.remove('on'); }
+document.getElementById('modal').onclick=e=>{ if(e.target.id==='modal') closeModal(); };
+
+/* Tabla genérica con orden por columna */
+function tabla(el,cols,rows,opts={}){
+  const key=opts.key||el.id;
+  const st=sortState[key];
+  let data=rows.slice();
+  if(st){ const c=cols[st.i]; data.sort((a,b)=>{ const va=c.sort?c.sort(a):c.raw(a), vb=c.sort?c.sort(b):c.raw(b);
+      return (typeof va==='number'? va-vb : String(va).localeCompare(String(vb)))*(st.dir?1:-1); }); }
+  let h='<thead><tr>'+cols.map((c,i)=>`<th class="${c.num?'num':''}" data-i="${i}">${c.t}${st&&st.i===i?(st.dir?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>';
+  data.forEach(r=>{
+    h+=`<tr class="${opts.click?'clickable':''}" data-id="${opts.id?opts.id(r):''}">`+cols.map(c=>`<td class="${c.num?'num':''}">${c.f?c.f(r):esc(c.raw(r))}</td>`).join('')+'</tr>';
+  });
+  h+='</tbody>';
+  if(opts.total) h=h.replace('</tbody>','<tr class="total">'+cols.map(c=>`<td class="${c.num?'num':''}">${opts.total(c,data)}</td>`).join('')+'</tr></tbody>');
+  el.innerHTML=h;
+  el.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const i=+th.dataset.i;
+    sortState[key]= st&&st.i===i? {i,dir:!st.dir} : {i,dir:false}; tabla(el,cols,rows,opts); });
+  if(opts.click) el.querySelectorAll('tbody tr.clickable').forEach(tr=>tr.onclick=()=>opts.click(tr.dataset.id));
+}
+/* Filtros reutilizables */
+function buildFilters(elId,cfg,onchange){
+  const el=document.getElementById(elId);
+  el.innerHTML=cfg.map(c=>`<div class="f"><label>${c.label}</label><select data-k="${c.k}">${c.opts.map(o=>`<option value="${esc(o.v)}" ${o.v===c.val?'selected':''}>${esc(o.t)}</option>`).join('')}</select></div>`).join('')
+    +`<div class="f" style="min-width:auto"><button class="btn ghost sm" id="${elId}-clr">Limpiar</button></div>`;
+  el.querySelectorAll('select').forEach(s=>s.onchange=()=>onchange(s.dataset.k,s.value));
+  document.getElementById(elId+'-clr').onclick=()=>onchange('__clear','');
+}
+const optList=(vals,todos)=>[{v:'',t:todos}].concat([...new Set(vals)].sort().map(v=>({v,t:v})));
+
+/* ═══════════════ SVG HELPERS ═══════════════ */
+function svg(w,h,inner,extra=''){ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;max-height:${h}px" ${extra}>${inner}</svg>`; }
+function txt(x,y,s,o={}){ return `<text x="${x}" y="${y}" font-size="${o.fs||11}" fill="${o.fill||'#5b6a75'}" text-anchor="${o.ta||'start'}" font-weight="${o.fw||400}">${esc(s)}</text>`; }
+function rect(x,y,w,h,f,o={}){ return `<rect x="${x}" y="${y}" width="${Math.max(0,w)}" height="${Math.max(0,h)}" fill="${f}" rx="${o.r||2}" ${o.op?`opacity="${o.op}"`:''}/>`; }
+function line(x1,y1,x2,y2,c='#e1e7ec',w=1,dash=''){ return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`; }
+function hbars(rows,opt={}){ /* rows: {nm,v,txt,color} */
+  const max=opt.max||Math.max(...rows.map(r=>r.v),1);
+  return rows.map(r=>`<div class="bar-row"><div class="nm" title="${esc(r.nm)}">${esc(r.nm)}</div>
+    <div class="track"><div class="fill" style="width:${(r.v/max*100).toFixed(1)}%;background:${r.color||'var(--blue)'}"></div></div>
+    <div class="vv">${r.txt!==undefined?r.txt:fmt(r.v)}</div></div>`).join('');
+}
+function kpiCard(lbl,val,sub,cls){ return `<div class="card" style="margin:0"><div class="bignum ${cls||''}">${val}<small>${esc(lbl)}</small></div>${sub?`<div class="tiny">${sub}</div>`:''}</div>`; }
+function colorGap(g){ return g>=1?'#e5546c':g>=0.6?'#f5a623':g>=0.3?'#8fcf7f':'#00806f'; }
+
+/* ═══════════════ FILTROS ═══════════════ */
+function orgCfg(f){
+  const P=D.personas;
+  const paises=optList(P.map(p=>p.pais),'Todos los países');
+  const bus=optList(P.filter(p=>!f.pais||p.pais===f.pais).map(p=>p.bu),'Todas las BU');
+  const areas=optList(P.filter(p=>(!f.pais||p.pais===f.pais)&&(!f.bu||p.bu===f.bu)).map(p=>p.area),'Todas las áreas');
+  const subs=optList(P.filter(p=>(!f.pais||p.pais===f.pais)&&(!f.bu||p.bu===f.bu)&&(!f.area||p.area===f.area)).map(p=>p.sub),'Todas las subgerencias');
+  return [{k:'pais',label:'País',opts:paises,val:f.pais||''},
+          {k:'bu',label:'Business Unit',opts:bus,val:f.bu||''},
+          {k:'area',label:'Área',opts:areas,val:f.area||''},
+          {k:'sub',label:'Subgerencia',opts:subs,val:f.sub||''}];
+}
+function matchOrg(o,f){ return (!f.pais||o.pais===f.pais)&&(!f.bu||o.bu===f.bu)&&(!f.area||o.area===f.area)&&(!f.sub||o.sub===f.sub); }
+function fPersonas(f){ return D.personas.filter(p=>matchOrg(p,f)); }
+function setF(which,k,v,rerender){
+  if(k==='__clear'){ FILT[which]={}; }
+  else { FILT[which][k]=v; if(k==='pais'){FILT[which].bu='';FILT[which].area='';FILT[which].sub='';} if(k==='bu'){FILT[which].area='';FILT[which].sub='';} if(k==='area'){FILT[which].sub='';} }
+  rerender();
+}
+
+/* ═══════════════ RENDER GLOBAL ═══════════════ */
+function renderAll(){
+  renderHeader(); renderSummary(); renderRecruit(); renderPipe(); renderPerf(); renderTalento();
+  renderCap(); renderCtrl(); renderOpt(); renderMetodo();
+}
+function renderHeader(){
+  const P=D.personas;
+  document.getElementById('kHC').textContent=fmt(P.length);
+  document.getElementById('kCost').textContent='$'+fmt1(IDX.costoAnual/1e9)+'MMM';
+  document.getElementById('kReq').textContent=D.reqs.filter(r=>r.estado!=='Cerrada').length;
+  const jefes=P.filter(p=>IDX.span[p.id]>0);
+  document.getElementById('kSpan').textContent=fmt1(jefes.reduce((s,p)=>s+IDX.span[p.id],0)/Math.max(1,jefes.length));
+  const g=D.evals.length?D.evals.reduce((s,e)=>s+e.gap,0)/D.evals.length:0;
+  document.getElementById('kGap').textContent=fmt2(g)+' niv.';
+}
+function renderSummary(){
+  const P=D.personas, capas=Math.max(...Object.values(IDX.depth));
+  const evaluados=(D.perf||[]).filter(r=>r.evaluable).length;
+  document.getElementById('dataSummary').innerHTML=
+    kpiCard('Personas en el organigrama',fmt(P.length),PAISES.map(p=>p.nombre+': '+fmt(P.filter(x=>x.pais===p.nombre).length)).join(' · '))+
+    kpiCard('Capas hasta primera línea',capas,'Del gerente general al operador')+
+    kpiCard('Requisiciones / candidatos',D.reqs.length+' / '+fmt(D.cands.length),'Con fechas por etapa y fuente')+
+    kpiCard('Evaluaciones cargadas',fmt(D.evals.length)+' cap. · '+fmt(evaluados)+' desemp.','Capacidades por dimensión + ciclo anual y 360');
+}
+
+/* ═══════════════ RECRUITING ═══════════════ */
+function reqsFiltradas(){ const f=FILT.recruit;
+  return D.reqs.filter(r=>matchOrg(r,f)&&(!f.rec||r.reclutador===f.rec)&&
+    (f.est==='Abiertas'? r.estado!=='Cerrada' : f.est==='Cerradas'? r.estado==='Cerrada' : true)); }
+function renderRecruit(){
+  const f=FILT.recruit;
+  buildFilters('fRecruit',orgCfg(f).concat([
+    {k:'rec',label:'Reclutador',opts:optList(D.reqs.map(r=>r.reclutador),'Todos'),val:f.rec||''},
+    {k:'est',label:'Estado',opts:[{v:'Abiertas',t:'Solo abiertas'},{v:'Cerradas',t:'Solo cerradas'},{v:'',t:'Todas'}],val:f.est===undefined?'Abiertas':f.est}
+  ]),(k,v)=>setF('recruit',k,v,renderRecruit));
+  const reqs=reqsFiltradas(), ids=new Set(reqs.map(r=>r.id));
+  const cands=D.cands.filter(c=>ids.has(c.req));
+  const cerradas=D.reqs.filter(r=>matchOrg(r,f)&&r.estado==='Cerrada');
+  const ttf=cerradas.length?cerradas.reduce((s,r)=>s+r.dias_cierre,0)/cerradas.length:0;
+  const ofertas=cands.filter(c=>c.etapa_idx>=5), aceptadas=ofertas.filter(c=>c.estado==='Contratado');
+  const contratados=cands.filter(c=>c.estado==='Contratado');
+  const surv=contratados.filter(c=>c.sobrevive90).length/Math.max(1,contratados.length);
+  const costoTot=cands.reduce((s,c)=>{const fu=FUENTES.find(x=>x.n===c.fuente); return s+(c.estado==='Contratado'?fu.costo:fu.costo*0.06);},0);
+  document.getElementById('recKpis').innerHTML=
+    kpiCard('Vacantes en el alcance',reqs.length,reqs.filter(r=>r.estado==='En riesgo').length+' en riesgo · '+reqs.filter(r=>r.critico).length+' críticas')+
+    kpiCard('Time-to-fill promedio',fmt(ttf)+' d',`Meta interna 45 d · best-in-class 30–35 d`,ttf<=45?'good':ttf<=60?'warn':'bad')+
+    kpiCard('Aceptación de oferta',pct(aceptadas.length/Math.max(1,ofertas.length),0),'Best-in-class ≥90%',aceptadas.length/Math.max(1,ofertas.length)>=0.9?'good':'warn')+
+    kpiCard('Sobrevivencia a 90 días',pct(surv,0),'Referencia ≥90% · mide calidad, no velocidad',surv>=0.9?'good':'warn')+
+    kpiCard('Costo por contratación',money(costoTot/Math.max(1,contratados.length)),'Incluye fuentes, cazatalentos y avisos')+
+    kpiCard('Ratio candidatos : contratado',fmt(cands.length/Math.max(1,contratados.length))+' : 1','Best-in-class 40–60:1 desde postulación');
+  /* Embudo */
+  const vol=ETAPAS.map((e,i)=>cands.filter(c=>c.etapa_idx>=i).length);
+  let h='';
+  ETAPAS.forEach((e,i)=>{
+    const w=vol[i]/Math.max(1,vol[0])*100;
+    const conv=i<6? vol[i+1]/Math.max(1,vol[i]) : null;
+    const bm=i<6?ETAPA_BM[i].bm:null;
+    const cls=conv===null?'':conv<bm[0]?'bad':conv>=bm[1]?'good':'warn';
+    h+=`<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+        <b>${i+1}. ${e}</b><span style="font-variant-numeric:tabular-nums">${fmt(vol[i])} candidatos</span></div>
+      <div style="background:#eef2f6;border-radius:4px;height:22px;position:relative">
+        <div style="width:${w}%;height:100%;background:linear-gradient(90deg,#1f40e6,#00a9f4);border-radius:4px;opacity:${0.45+0.09*i}"></div></div>
+      ${conv!==null?`<div style="font-size:11.5px;margin-top:3px;color:var(--muted)">Conversión a «${ETAPAS[i+1]}»: <b style="color:${cls==='bad'?'#c73050':cls==='good'?'#00806f':'#b57900'}">${pct(conv,0)}</b><span class="bench">best-in-class ${pct(bm[1],0)} · típico ${pct(bm[0],0)}</span></div>`:''}
+    </div>`;
+  });
+  document.getElementById('funnelChart').innerHTML=h;
+  /* Aging */
+  const vivos=cands.filter(c=>c.estado==='En proceso');
+  const buckets=[[0,5,'0–5 días','#00806f'],[6,10,'6–10','#00b8a2'],[11,20,'11–20','#f5a623'],[21,999,'Más de 20','#e5546c']];
+  document.getElementById('agingChart').innerHTML=hbars(buckets.map(b=>{
+    const n=vivos.filter(c=>c.dias_etapa>=b[0]&&c.dias_etapa<=b[1]).length;
+    return {nm:b[2],v:n,txt:fmt(n)+' ('+pct(n/Math.max(1,vivos.length),0)+')',color:b[3]};
+  }))+`<div class="tiny">${fmt(vivos.length)} candidatos vivos en el alcance. <b>${fmt(vivos.filter(c=>c.dias_etapa>20).length)}</b> llevan más de 20 días sin movimiento — cada uno es una vacante que se alarga y una marca empleadora que se erosiona.</div>`;
+  /* TTF por familia */
+  const fams=[...new Set(cerradas.map(r=>r.familia))];
+  const rows=fams.map(fa=>{ const rs=cerradas.filter(r=>r.familia===fa);
+    return {nm:fa,v:rs.reduce((s,r)=>s+r.dias_cierre,0)/rs.length,n:rs.length}; }).sort((a,b)=>b.v-a.v);
+  document.getElementById('ttfChart').innerHTML= rows.length? hbars(rows.map(r=>({nm:r.nm+' ('+r.n+')',v:r.v,txt:fmt(r.v)+' d',color:r.v>45?'#e5546c':'#00b8a2'})),{max:Math.max(70,...rows.map(r=>r.v))})
+    +`<div class="tiny">Línea de referencia: meta interna 45 días. Roles con brecha grande suelen tener un cuello en el paso «panel con líder» — disponibilidad de agenda del hiring manager, no escasez de candidatos.</div>` : '<div class="tiny">Sin vacantes cerradas en el alcance seleccionado.</div>';
+  /* Fuentes */
+  tabla(document.getElementById('sourceTable'),[
+    {t:'Fuente',raw:r=>r.n},
+    {t:'Candidatos',num:1,raw:r=>r.tot,f:r=>fmt(r.tot)},
+    {t:'Contratados',num:1,raw:r=>r.hire},
+    {t:'Conv. a contrato',num:1,raw:r=>r.conv,f:r=>pct(r.conv,1)},
+    {t:'Score prom.',num:1,raw:r=>r.score,f:r=>r.score?fmt2(r.score):'—'},
+    {t:'Sobrevive 90 d',num:1,raw:r=>r.surv,f:r=>r.hire?pct(r.surv,0):'—'},
+    {t:'Costo / contrato',num:1,raw:r=>r.cpc,f:r=>r.hire?money(r.cpc):'—'}
+  ],FUENTES.map(fu=>{
+    const cs=cands.filter(c=>c.fuente===fu.n), hs=cs.filter(c=>c.estado==='Contratado');
+    const sc=cs.filter(c=>c.score);
+    return {n:fu.n,tot:cs.length,hire:hs.length,conv:hs.length/Math.max(1,cs.length),
+      score:sc.length?sc.reduce((s,c)=>s+c.score,0)/sc.length:0,
+      surv:hs.filter(c=>c.sobrevive90).length/Math.max(1,hs.length),
+      cpc:(hs.length*fu.costo+(cs.length-hs.length)*fu.costo*0.06)/Math.max(1,hs.length)};
+  }));
+  /* Reclutadores */
+  tabla(document.getElementById('recruiterTable'),[
+    {t:'Reclutador',raw:r=>r.n},
+    {t:'Vacantes activas',num:1,raw:r=>r.act,f:r=>`${r.act} ${r.act>20?'<span class="pill bad">sobrecarga</span>':r.act<8?'<span class="pill info">holgura</span>':''}`},
+    {t:'Cerradas (12 m)',num:1,raw:r=>r.cerr},
+    {t:'TTF prom.',num:1,raw:r=>r.ttf,f:r=>r.cerr?fmt(r.ttf)+' d':'—'},
+    {t:'Candidatos vivos',num:1,raw:r=>r.vivos},
+    {t:'Conv. entrevista→oferta',num:1,raw:r=>r.co,f:r=>pct(r.co,0)},
+    {t:'Aceptación',num:1,raw:r=>r.acc,f:r=>`${pct(r.acc,0)} ${r.acc>=0.9?'<span class="pill good">✓</span>':r.acc<0.75?'<span class="pill bad">bajo</span>':''}`}
+  ],RECLUTADORES.map(n=>{
+    const rs=D.reqs.filter(r=>r.reclutador===n&&matchOrg(r,f)), cerr=rs.filter(r=>r.estado==='Cerrada');
+    const cs=D.cands.filter(c=>c.reclutador===n&&matchOrg(c,f));
+    const ent=cs.filter(c=>c.etapa_idx>=3), of=cs.filter(c=>c.etapa_idx>=5);
+    return {n,act:rs.filter(r=>r.estado!=='Cerrada').length,cerr:cerr.length,
+      ttf:cerr.length?cerr.reduce((s,r)=>s+r.dias_cierre,0)/cerr.length:0,
+      vivos:cs.filter(c=>c.estado==='En proceso').length,
+      co:of.length/Math.max(1,ent.length),
+      acc:cs.filter(c=>c.estado==='Contratado').length/Math.max(1,of.length)};
+  }));
+  /* Requisiciones */
+  tabla(document.getElementById('reqTable'),[
+    {t:'ID',raw:r=>r.id},
+    {t:'Cargo',raw:r=>r.cargo},
+    {t:'País',raw:r=>r.pais},
+    {t:'BU / Área',raw:r=>r.bu+' · '+r.area},
+    {t:'Nivel',num:1,raw:r=>r.nivel,f:r=>'L'+r.nivel},
+    {t:'Motivo',raw:r=>r.motivo},
+    {t:'Reclutador',raw:r=>r.reclutador},
+    {t:'Días abierta',num:1,raw:r=>r.dias_abierta,f:r=>`${r.dias_abierta} / ${r.meta_dias}`},
+    {t:'Pipeline vivo',num:1,raw:r=>(IDX.candByReq[r.id]||[]).filter(c=>c.estado==='En proceso').length},
+    {t:'En etapas finales',num:1,raw:r=>(IDX.candByReq[r.id]||[]).filter(c=>c.estado==='En proceso'&&c.etapa_idx>=4).length},
+    {t:'Renta ofrecida',num:1,raw:r=>r.renta_ofrecida,f:r=>money(r.renta_ofrecida)},
+    {t:'Semáforo',raw:r=>riesgoReq(r).n,f:r=>{const x=riesgoReq(r); return `<span class="pill ${x.c}">${x.n}</span>`;}}
+  ],reqs,{click:id=>verReq(id),id:r=>r.id});
+}
+function riesgoReq(r){
+  if(r.estado==='Cerrada') return {n:'Cerrada',c:'neutral'};
+  const finales=(IDX.candByReq[r.id]||[]).filter(c=>c.estado==='En proceso'&&c.etapa_idx>=4).length;
+  const vivos=(IDX.candByReq[r.id]||[]).filter(c=>c.estado==='En proceso').length;
+  if(r.dias_abierta>r.meta_dias&&finales===0) return {n:'Crítica',c:'bad'};
+  if(r.dias_abierta>r.meta_dias||vivos<2) return {n:'En riesgo',c:'warn'};
+  if(finales>=1) return {n:'En track',c:'good'};
+  return {n:'Normal',c:'info'};
+}
+function verReq(id){
+  const r=IDX.reqById[id]; if(!r) return;
+  const cs=(IDX.candByReq[id]||[]).slice().sort((a,b)=>b.etapa_idx-a.etapa_idx);
+  const vivos=cs.filter(c=>c.estado==='En proceso');
+  openModal(`<h2 style="font-size:17px;margin-bottom:4px">${esc(r.cargo)} <span class="pill info">${r.id}</span></h2>
+    <div class="tiny" style="margin-bottom:12px">${esc(r.pais)} · ${esc(r.bu)} · ${esc(r.area)} · ${esc(r.sub)} — nivel L${r.nivel} (${esc(nivName(r.nivel))}) · ${r.motivo} · abierta hace <b>${r.dias_abierta} días</b> (meta ${r.meta_dias}) · reclutador ${esc(r.reclutador)} · hiring manager ${esc(r.hiring_manager)} · renta ofrecida ${money(r.renta_ofrecida)}</div>
+    <div class="grid g4" style="margin-bottom:14px">${kpiCard('Postulantes',cs.length)}${kpiCard('Vivos',vivos.length)}${kpiCard('En etapas finales',vivos.filter(c=>c.etapa_idx>=4).length)}${kpiCard('Descartados',cs.filter(c=>c.estado!=='En proceso'&&c.estado!=='Contratado').length)}</div>
+    <div class="scroll" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Candidato</th><th>Etapa</th><th>Estado</th><th class="num">Score</th><th class="num">Días en etapa</th><th>Fuente</th><th>Motivo de caída</th></tr></thead><tbody>
+    ${cs.slice(0,60).map(c=>`<tr><td>${esc(c.nombre)}</td><td>${esc(c.etapa)}</td><td><span class="pill ${c.estado==='Contratado'?'good':c.estado==='En proceso'?'info':c.estado==='Declinó'?'bad':'neutral'}">${esc(c.estado)}</span></td><td class="num">${c.score?fmt2(c.score):'—'}</td><td class="num">${c.dias_etapa}</td><td>${esc(c.fuente)}</td><td>${esc(c.motivo||'—')}</td></tr>`).join('')}
+    </tbody></table></div>`);
+}
+
+/* ═══════════════ PIPELINE ═══════════════ */
+function renderPipe(){
+  const f=FILT.pipe;
+  buildFilters('fPipe',orgCfg(f).concat([
+    {k:'etapa',label:'Etapa',opts:optList(ETAPAS,'Todas'),val:f.etapa||''},
+    {k:'rec',label:'Reclutador',opts:optList(RECLUTADORES,'Todos'),val:f.rec||''},
+    {k:'est',label:'Estado',opts:[{v:'En proceso',t:'Solo vivos'},{v:'',t:'Todos'},{v:'Contratado',t:'Contratados'},{v:'Rechazado',t:'Rechazados'},{v:'Declinó',t:'Declinaron'}],val:f.est===undefined?'En proceso':f.est}
+  ]),(k,v)=>setF('pipe',k,v,renderPipe));
+  const est=f.est===undefined?'En proceso':f.est;
+  const cands=D.cands.filter(c=>matchOrg(c,f)&&(!f.etapa||c.etapa===f.etapa)&&(!f.rec||c.reclutador===f.rec)&&(!est||c.estado===est));
+  tabla(document.getElementById('candTable'),[
+    {t:'Candidato',raw:c=>c.nombre},
+    {t:'Vacante',raw:c=>c.cargo,f:c=>esc(c.cargo)+' <span class="pill neutral">'+c.req+'</span>'},
+    {t:'País',raw:c=>c.pais},
+    {t:'BU / Área',raw:c=>c.bu+' · '+c.area},
+    {t:'Etapa',raw:c=>c.etapa_idx,f:c=>`${c.etapa_idx+1}. ${esc(c.etapa)}`},
+    {t:'Estado',raw:c=>c.estado,f:c=>`<span class="pill ${c.estado==='Contratado'?'good':c.estado==='En proceso'?'info':c.estado==='Declinó'?'bad':'neutral'}">${esc(c.estado)}</span>`},
+    {t:'Reclutador',raw:c=>c.reclutador},
+    {t:'Fuente',raw:c=>c.fuente},
+    {t:'Score',num:1,raw:c=>c.score||0,f:c=>c.score?`<b style="color:${c.score>=3.5?'#00806f':c.score>=3.2?'#b57900':'#c73050'}">${fmt2(c.score)}</b>`:'—'},
+    {t:'Días proceso',num:1,raw:c=>c.dias_proceso},
+    {t:'Días en etapa',num:1,raw:c=>c.dias_etapa,f:c=>c.dias_etapa>20&&c.estado==='En proceso'?`<b style="color:#c73050">${c.dias_etapa}</b>`:c.dias_etapa},
+    {t:'Pretensión',num:1,raw:c=>c.pretension,f:c=>money(c.pretension)},
+    {t:'Recomendación',raw:c=>recomCand(c)}
+  ],cands.slice(0,600),{click:id=>verCand(id),id:c=>c.id});
+  /* Scores */
+  const sc=D.cands.filter(c=>matchOrg(c,f)&&c.score);
+  const bins=[]; for(let x=1;x<5;x+=0.25) bins.push([x,x+0.25]);
+  const maxb=Math.max(1,...bins.map(b=>sc.filter(c=>c.score>=b[0]&&c.score<b[1]).length));
+  let W=560,H=210,pad=34;
+  let inner=line(pad,H-24,W-8,H-24,'#051c2c',1.2);
+  bins.forEach((b,i)=>{
+    const n=sc.filter(c=>c.score>=b[0]&&c.score<b[1]).length;
+    const bw=(W-pad-14)/bins.length, x=pad+i*bw, hh=(H-46)*n/maxb;
+    inner+=rect(x+1,H-24-hh,bw-2,hh,b[0]>=3.5?'#00b8a2':b[0]>=3.2?'#f5a623':'#c3cdd6');
+    if(i%2===0) inner+=txt(x+bw/2,H-10,fmt1(b[0]).replace(',0',''),{ta:'middle',fs:10});
+  });
+  inner+=txt(pad,14,'Candidatos evaluados: '+sc.length,{fs:11,fw:700,fill:'#051c2c'});
+  inner+=txt(W-8,14,'Umbral recomendado ≥3,50',{fs:10,ta:'end'});
+  document.getElementById('scoreChart').innerHTML=svg(W,H,inner);
+  /* Motivos */
+  const caidos=D.cands.filter(c=>matchOrg(c,f)&&(c.estado==='Rechazado'||c.estado==='Declinó'));
+  const mot={}; caidos.forEach(c=>{ if(c.motivo) mot[c.motivo]=(mot[c.motivo]||0)+1; });
+  const rows=Object.entries(mot).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({nm:k,v,txt:fmt(v),color:MOTIVOS_SUYOS.includes(k)?'#e5546c':'#5b6a75'}));
+  const propios=caidos.filter(c=>MOTIVOS_SUYOS.includes(c.motivo)).length;
+  document.getElementById('rejectChart').innerHTML=hbars(rows)+
+    `<div class="legend"><span><i class="dot" style="background:#5b6a75"></i>Descartamos nosotros</span><span><i class="dot" style="background:#e5546c"></i>El candidato se retiró</span></div>
+     <div class="tiny"><b>${pct(propios/Math.max(1,caidos.length),0)}</b> de las caídas son decisión del candidato. Sobre 25% la causa rara vez es la renta: suele ser el tiempo del proceso y la calidad de la experiencia de entrevista.</div>`;
+}
+function recomCand(c){
+  if(c.estado==='Contratado') return 'Contratado';
+  if(c.estado!=='En proceso') return '—';
+  if(c.dias_etapa>20) return '⚠ Destrabar hoy — riesgo de pérdida';
+  if(c.score&&c.score>=4) return '★ Acelerar a oferta';
+  if(c.score&&c.score<3.2) return 'Cerrar el proceso con retroalimentación';
+  if(c.pretension>banda(IDX.reqById[c.req]?IDX.reqById[c.req].nivel:6)*1.25) return 'Validar expectativa de renta antes de avanzar';
+  return 'Continuar según plan';
+}
+function verCand(id){
+  const c=D.cands.find(x=>x.id===id); if(!c) return;
+  const r=IDX.reqById[c.req];
+  const hist=ETAPAS.slice(0,c.etapa_idx+1).map((e,i)=>`<tr><td>${i+1}. ${esc(e)}</td><td>${dstr(addD(TODAY,-(c.dias_proceso-Math.round(c.dias_proceso*i/Math.max(1,c.etapa_idx+1)))))}</td><td>${i<c.etapa_idx?'Superada':esc(c.estado)}</td></tr>`).join('');
+  openModal(`<h2 style="font-size:17px">${esc(c.nombre)}</h2>
+   <div class="tiny" style="margin-bottom:12px">Postula a <b>${esc(c.cargo)}</b> (${c.req}) · ${esc(c.pais)} · ${esc(c.bu)} / ${esc(c.area)} · fuente ${esc(c.fuente)} · reclutador ${esc(c.reclutador)}</div>
+   <div class="grid g4" style="margin-bottom:14px">${kpiCard('Etapa actual',(c.etapa_idx+1)+'. '+c.etapa)}${kpiCard('Score',c.score?fmt2(c.score):'—','Umbral 3,50',c.score>=3.5?'good':'warn')}${kpiCard('Días en proceso',c.dias_proceso)}${kpiCard('Días en etapa',c.dias_etapa,'',c.dias_etapa>20?'bad':'')}</div>
+   <div class="callout ${c.dias_etapa>20?'warn':''}"><b>Recomendación:</b> ${esc(recomCand(c))}${c.motivo?' · Motivo de cierre registrado: <b>'+esc(c.motivo)+'</b>':''}</div>
+   <div class="grid g2"><div><h3 class="sec">Historial de etapas</h3><table><thead><tr><th>Etapa</th><th>Fecha</th><th>Resultado</th></tr></thead><tbody>${hist}</tbody></table></div>
+   <div><h3 class="sec">Encaje económico</h3><table><tbody>
+     <tr><td>Pretensión de renta</td><td class="num">${money(c.pretension)}</td></tr>
+     <tr><td>Renta ofrecida en la vacante</td><td class="num">${r?money(r.renta_ofrecida):'—'}</td></tr>
+     <tr><td>Punto medio de banda L${r?r.nivel:'—'}</td><td class="num">${r?money(banda(r.nivel)):'—'}</td></tr>
+     <tr class="total"><td>Brecha vs. oferta</td><td class="num">${r?pct(c.pretension/r.renta_ofrecida-1,0):'—'}</td></tr></tbody></table></div></div>`);
+}
+
+/* ═══════════════ DESEMPEÑO & 360 ═══════════════ */
+function perfPop(f){
+  return fPersonas(f).map(p=>({p,r:IDX.perfByP[p.id]})).filter(x=>x.r&&x.r.evaluable);
+}
+function renderPerf(){
+  const f=FILT.perf=FILT.perf||{};
+  buildFilters('fPerf',orgCfg(f).concat([
+    {k:'nivel',label:'Nivel',opts:[{v:'',t:'Todos los niveles'}].concat(NIVELES.map(n=>({v:String(n.n),t:'L'+n.n+' — '+n.nombre}))),val:f.nivel||''},
+    {k:'cat',label:'Calificación',opts:[{v:'',t:'Todas'}].concat(CATS.map(c=>({v:c.n,t:c.n}))),val:f.cat||''}
+  ]),(k,v)=>setF('perf',k,v,renderPerf));
+  let pop=perfPop(f);
+  if(f.nivel) pop=pop.filter(x=>String(x.p.nivel)===f.nivel);
+  if(f.cat) pop=pop.filter(x=>x.r.cat===f.cat);
+  const n=pop.length||1;
+  const avg=pop.reduce((s,x)=>s+x.r.final,0)/n;
+  const kpiAvg=pop.reduce((s,x)=>s+x.r.kpi,0)/n;
+  const movidos=pop.filter(x=>x.r.movido).length;
+  const bajo=pop.filter(x=>x.r.final<2.8).length;
+  const top=pop.filter(x=>x.r.final>=3.7).length;
+  const ciegos=pop.filter(x=>x.r.gapAuto>0.5).length;
+  document.getElementById('perfKpis').innerHTML=
+    kpiCard('Personas evaluadas',fmt(pop.length),fmt(fPersonas(f).length-pop.length)+' sin evaluación (ingreso < 6 meses)')+
+    kpiCard('Nota promedio final',fmt2(avg),'Escala 1–5, post calibración',avg>=3.4?'good':'')+
+    kpiCard('Cumplimiento de objetivos',pct(kpiAvg,0),'Promedio ponderado de KPI del año',kpiAvg>=0.95?'good':'warn')+
+    kpiCard('Sobre lo esperado',pct(top/n,0)+' ('+top+')','Referencia sana ≈25–30%')+
+    kpiCard('Bajo lo esperado',pct(bajo/n,0)+' ('+bajo+')','Referencia ≈15% · requieren plan con plazo',bajo/n>0.2?'bad':'warn')+
+    kpiCard('Notas movidas en calibración',pct(movidos/n,0),'Mide cuánto corrigió el comité el sesgo del evaluador');
+  /* Distribución */
+  document.getElementById('distChart').innerHTML=CATS.slice().reverse().map(c=>{
+    const q=pop.filter(x=>x.r.cat===c.n).length, share=q/n, guia=DIST_GUIA[c.n];
+    return `<div class="bar-row"><div class="nm">${c.n}</div>
+      <div class="track" style="height:18px"><div class="fill" style="width:${(share*100).toFixed(1)}%;background:${c.c}"></div>
+      <div style="position:absolute;left:${(guia*100).toFixed(1)}%;top:0;bottom:0;width:2px;background:#051c2c;opacity:.55"></div></div>
+      <div class="vv">${pct(share,0)}</div><div style="width:70px;text-align:right;font-size:11px;color:var(--muted)">ref. ${pct(guia,0)}</div></div>`;
+  }).join('')+`<div class="tiny">La marca vertical es la referencia. Desviación acumulada respecto de la referencia: <b>${pct(CATS.reduce((s,c)=>s+Math.abs(pop.filter(x=>x.r.cat===c.n).length/n-DIST_GUIA[c.n]),0)/2,0)}</b> de la población tendría que cambiar de categoría para calzar con el patrón de referencia.</div>`;
+  /* Sesgo evaluador */
+  const jefes={};
+  pop.forEach(x=>{ const j=x.p.jefe_id; if(!j) return; (jefes[j]=jefes[j]||[]).push(x.r); });
+  const pts=Object.entries(jefes).filter(([j,rs])=>rs.length>=3).map(([j,rs])=>({
+    jefe:IDX.byId[j], n:rs.length,
+    crudo:rs.reduce((s,r)=>s+r.crudo,0)/rs.length,
+    fin:rs.reduce((s,r)=>s+r.final,0)/rs.length}));
+  const W=520,H=300,pd=42;
+  const sx=v=>pd+(v-1.5)/3.2*(W-pd-18), sy=v=>H-30-(v-1.5)/3.2*(H-52);
+  let inn=rect(pd,18,W-pd-18,H-48,'#fafcfd');
+  for(let v=2;v<=5;v++){ inn+=line(sx(v),18,sx(v),H-30); inn+=line(pd,sy(v),W-18,sy(v)); inn+=txt(sx(v),H-14,String(v),{ta:'middle',fs:10}); inn+=txt(pd-6,sy(v)+3,String(v),{ta:'end',fs:10}); }
+  inn+=line(sx(1.5),sy(1.5),sx(4.7),sy(4.7),'#051c2c',1,'4 3');
+  pts.forEach(p=>{ const d=p.crudo-p.fin;
+    inn+=`<circle cx="${sx(p.crudo).toFixed(1)}" cy="${sy(p.fin).toFixed(1)}" r="${(3+p.n*0.5).toFixed(1)}" fill="${Math.abs(d)>0.28?(d>0?'#e5546c':'#1f40e6'):'#00b8a2'}" opacity=".72"><title>${esc(p.jefe?p.jefe.nombre:'')} — ${p.n} evaluados · crudo ${fmt2(p.crudo)} → final ${fmt2(p.fin)}</title></circle>`; });
+  inn+=txt(W/2,H-2,'Nota promedio ANTES de calibrar',{ta:'middle',fs:10.5});
+  inn+=txt(12,14,'Nota DESPUÉS de calibrar',{fs:10.5});
+  document.getElementById('biasChart').innerHTML=svg(W,H,inn)+
+    `<div class="legend"><span><i class="dot" style="background:#e5546c"></i>Evaluador inflador (${pts.filter(p=>p.crudo-p.fin>0.28).length})</span><span><i class="dot" style="background:#1f40e6"></i>Evaluador duro (${pts.filter(p=>p.crudo-p.fin<-0.28).length})</span><span><i class="dot" style="background:#00b8a2"></i>Calibrado (${pts.filter(p=>Math.abs(p.crudo-p.fin)<=0.28).length})</span></div>`;
+  /* Cuartiles */
+  const qs=[1,2,3,4].map(q=>pop.filter(x=>x.r.cuartil===q));
+  document.getElementById('quartChart').innerHTML=hbars(qs.map((g,i)=>({
+    nm:'Q'+(i+1)+(i===0?' (top 25%)':i===3?' (bottom 25%)':''),v:g.length,
+    txt:g.length+' · nota '+fmt2(g.reduce((s,x)=>s+x.r.final,0)/Math.max(1,g.length)),
+    color:['#00806f','#00b8a2','#f5a623','#e5546c'][i]})));
+  const q1=qs[0],q4=qs[3];
+  const q1Riesgo=q1.filter(x=>x.p.compa<0.9||x.p.riesgo_fuga>=3).length;
+  document.getElementById('quartNotes').innerHTML=
+    `<div class="callout ${q1Riesgo>q1.length*0.25?'warn':'good'}"><b>${q1Riesgo} de ${q1.length}</b> personas del cuartil superior tienen señal de riesgo de fuga (compa-ratio bajo 0,90 o riesgo alto). Perder a un Q1 cuesta entre 6 y 12 meses de su renta entre búsqueda, curva de aprendizaje y productividad perdida — muy por sobre el costo de corregir su posición en banda.</div>
+     <div class="callout ${q4.length?'bad':''}">Cuartil inferior: <b>${q4.length} personas</b>, con costo anual de ${mm(q4.reduce((s,x)=>s+x.p.sueldo*13.2,0))}. La decisión no es automática: hay que separar problema de <i>encaje de rol</i> (se resuelve moviendo), de <i>capacidad</i> (se resuelve formando, ver Capability Building) y de <i>voluntad</i> (se resuelve con plan de desempeño formal y plazo).</div>`;
+  /* Qué vs cómo */
+  const W2=520,H2=320,p2=46;
+  const qx=v=>p2+(clamp(v,0.5,1.35)-0.5)/0.85*(W2-p2-20);
+  const qy=v=>H2-34-(clamp(v,1,5)-1)/4*(H2-56);
+  let i2=rect(p2,20,W2-p2-20,H2-54,'#fafcfd');
+  i2+=rect(qx(1),20,W2-20-qx(1),qy(3.3)-20,'#e9f8f5')+rect(qx(1),qy(3.3),W2-20-qx(1),H2-34-qy(3.3),'#fdeef1');
+  i2+=line(qx(1),20,qx(1),H2-34,'#051c2c',1,'4 3')+line(p2,qy(3.3),W2-20,qy(3.3),'#051c2c',1,'4 3');
+  pop.forEach(x=>{ i2+=`<circle cx="${qx(x.r.kpi).toFixed(1)}" cy="${qy(x.r.compAvg).toFixed(1)}" r="3" fill="${x.r.kpi>=1&&x.r.compAvg<3.3?'#e5546c':x.r.kpi>=1?'#00b8a2':x.r.compAvg>=3.3?'#00a9f4':'#c3cdd6'}" opacity=".6"><title>${esc(x.p.nombre)} — KPI ${pct(x.r.kpi,0)}, competencias ${fmt2(x.r.compAvg)}</title></circle>`; });
+  i2+=txt(W2/2,H2-6,'Cumplimiento de objetivos (KPI)',{ta:'middle',fs:10.5});
+  i2+=txt(10,14,'Competencias / conductas',{fs:10.5});
+  i2+=txt(W2-24,qy(4.7),'Referentes',{ta:'end',fs:11,fw:700,fill:'#00806f'});
+  i2+=txt(W2-24,qy(1.35),'Resultados a cualquier costo',{ta:'end',fs:11,fw:700,fill:'#c73050'});
+  const toxicos=pop.filter(x=>x.r.kpi>=1&&x.r.compAvg<3.3);
+  document.getElementById('quePorComo').innerHTML=svg(W2,H2,i2)+
+    `<div class="tiny"><b>${toxicos.length} personas</b> (${pct(toxicos.length/n,0)}) cumplen o superan sus objetivos con nota de conductas bajo el umbral. En roles con equipo a cargo, cada una de ellas explica una parte medible de la rotación de su unidad.</div>`;
+  /* 360 */
+  render360(pop);
+  /* Tabla individual */
+  tabla(document.getElementById('perfTable'),[
+    {t:'Persona',raw:x=>x.p.nombre},
+    {t:'Cargo',raw:x=>x.p.cargo},
+    {t:'Nivel',num:1,raw:x=>x.p.nivel,f:x=>'L'+x.p.nivel},
+    {t:'País',raw:x=>x.p.pais},
+    {t:'BU / Área',raw:x=>x.p.bu+' · '+x.p.area},
+    {t:'Subgerencia',raw:x=>x.p.sub},
+    {t:'KPI',num:1,raw:x=>x.r.kpi,f:x=>pct(x.r.kpi,0)},
+    {t:'Competencias',num:1,raw:x=>x.r.compAvg,f:x=>fmt2(x.r.compAvg)},
+    {t:'Nota final',num:1,raw:x=>x.r.final,f:x=>`<b>${fmt2(x.r.final)}</b>`},
+    {t:'Categoría',raw:x=>x.r.cat,f:x=>`<span class="pill" style="background:${catDe(x.r.final).c}22;color:${catDe(x.r.final).c}">${x.r.cat}</span>`},
+    {t:'Cuartil',num:1,raw:x=>x.r.cuartil,f:x=>'Q'+x.r.cuartil},
+    {t:'360 vs auto',num:1,raw:x=>x.r.gapAuto,f:x=>`${x.r.gapAuto>0?'+':''}${fmt2(x.r.gapAuto)} ${x.r.gapAuto>0.5?'<span class="pill warn">punto ciego</span>':x.r.gapAuto<-0.3?'<span class="pill info">se subestima</span>':''}`},
+    {t:'Potencial',num:1,raw:x=>x.p.potencial,f:x=>['Bajo','Medio','Alto'][x.p.potencial-1]}
+  ],pop,{click:id=>verPersona(id),id:x=>x.p.id});
+}
+function render360(pop){
+  const comps=COMPETENCIAS.filter(c=>pop.some(x=>x.r.comp[c.id]!==undefined));
+  const grupos=RATERS.filter(r=>pop.some(x=>x.r.t360[r.id]));
+  const val=(g,c)=>{ const v=pop.filter(x=>x.r.t360[g]&&x.r.t360[g][c]!==undefined); return v.length? v.reduce((s,x)=>s+x.r.t360[g][c],0)/v.length : null; };
+  /* radar */
+  const W=430,H=340,cx=W/2,cy=H/2-6,R=115;
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/comps.length;
+  const px=(i,v)=>cx+Math.cos(ang(i))*R*(v-1)/4, py=(i,v)=>cy+Math.sin(ang(i))*R*(v-1)/4;
+  let inn='';
+  [2,3,4,5].forEach(v=>{ inn+=`<polygon points="${comps.map((c,i)=>px(i,v).toFixed(1)+','+py(i,v).toFixed(1)).join(' ')}" fill="none" stroke="#e1e7ec"/>`; });
+  comps.forEach((c,i)=>{ inn+=line(cx,cy,px(i,5),py(i,5));
+    const lx=cx+Math.cos(ang(i))*(R+22), ly=cy+Math.sin(ang(i))*(R+22);
+    inn+=txt(lx,ly+3,c.nombre.length>22?c.nombre.slice(0,21)+'…':c.nombre,{ta:Math.abs(lx-cx)<12?'middle':(lx>cx?'start':'end'),fs:9.5,fill:'#051c2c'}); });
+  const cols={auto:'#f5a623',jefe:'#1f40e6',pares:'#00a9f4',reportes:'#00b8a2',clientes:'#7b61ff'};
+  grupos.forEach(g=>{ const pts=comps.map((c,i)=>{const v=val(g.id,c.id)||1; return px(i,v).toFixed(1)+','+py(i,v).toFixed(1);}).join(' ');
+    inn+=`<polygon points="${pts}" fill="${cols[g.id]}" fill-opacity=".08" stroke="${cols[g.id]}" stroke-width="2"/>`; });
+  document.getElementById('radar360').innerHTML=svg(W,H,inn)+
+    `<div class="legend">${grupos.map(g=>`<span><i class="dot" style="background:${cols[g.id]}"></i>${g.nombre}</span>`).join('')}</div>`;
+  /* tabla */
+  let t='<table><thead><tr><th>Competencia</th>'+grupos.map(g=>`<th class="num">${g.nombre}</th>`).join('')+'<th class="num">Brecha auto vs. resto</th></tr></thead><tbody>';
+  comps.forEach(c=>{
+    const auto=val('auto',c.id), otros=grupos.filter(g=>g.id!=='auto');
+    let w=0,s=0; otros.forEach(g=>{ const v=val(g.id,c.id); if(v!==null){s+=v*g.peso;w+=g.peso;} });
+    const prom=w?s/w:null, d=auto!==null&&prom!==null?auto-prom:null;
+    t+=`<tr><td>${esc(c.nombre)}</td>`+grupos.map(g=>{const v=val(g.id,c.id);return `<td class="num">${v!==null?fmt2(v):'—'}</td>`;}).join('')+
+      `<td class="num">${d!==null?`<b style="color:${d>0.5?'#c73050':d<-0.3?'#0071a8':'#00806f'}">${d>0?'+':''}${fmt2(d)}</b>`:'—'}</td></tr>`;
+  });
+  t+='</tbody></table>';
+  document.getElementById('tabla360').innerHTML=t;
+  let inv=0,resp=0; pop.forEach(x=>Object.values(x.r.part).forEach(p=>{inv+=p.invitados;resp+=p.respondieron;}));
+  document.getElementById('part360').textContent=pct(resp/Math.max(1,inv),0)+' ('+fmt(resp)+' de '+fmt(inv)+' evaluadores invitados)';
+}
+function verPersona(id){
+  const p=IDX.byId[id]; if(!p) return;
+  const r=IDX.perfByP[id], ev=(IDX.evalByP[id]||[]).slice().sort((a,b)=>b.gap-a.gap);
+  const jefe=p.jefe_id?IDX.byId[p.jefe_id]:null;
+  const gapTot=ev.reduce((s,e)=>s+e.gap,0);
+  let h=`<h2 style="font-size:17px">${esc(p.nombre)}</h2>
+   <div class="tiny" style="margin-bottom:12px">${esc(p.cargo)} · L${p.nivel} ${esc(nivName(p.nivel))} · ${esc(p.pais)} · ${esc(p.bu)} / ${esc(p.area)} / ${esc(p.sub)} · jefe: ${jefe?esc(jefe.nombre):'—'} · ingreso ${p.ingreso} (${fmt1(p.antiguedad)} años) · ${IDX.span[p.id]} reportes directos, ${IDX.totalRep[p.id]} totales</div>
+   <div class="grid g4" style="margin-bottom:14px">
+   ${kpiCard('Renta bruta',money(p.sueldo),'Punto medio banda '+money(p.banda_media))}
+   ${kpiCard('Compa-ratio',fmt2(p.compa),'Sano 0,85–1,20',p.compa<0.85?'bad':p.compa>1.2?'warn':'good')}
+   ${kpiCard('Nota de desempeño',r&&r.evaluable?fmt2(r.final):'Sin evaluar',r&&r.evaluable?r.cat+' · cuartil Q'+r.cuartil:'Ingreso reciente')}
+   ${kpiCard('Brecha de capacidades',fmt2(gapTot/Math.max(1,ev.length))+' niv.','Promedio en '+ev.length+' dimensiones',gapTot/Math.max(1,ev.length)>=0.6?'bad':'')}</div>`;
+  if(r&&r.evaluable){
+    h+=`<h3 class="sec">Ciclo de desempeño ${r.periodo}</h3>
+     <div class="grid g2"><div><table><tbody>
+      <tr><td>Cumplimiento de objetivos (KPI)</td><td class="num"><b>${pct(r.kpi,0)}</b></td></tr>
+      <tr><td>Promedio de competencias</td><td class="num">${fmt2(r.compAvg)}</td></tr>
+      <tr><td>Nota antes de calibrar</td><td class="num">${fmt2(r.crudo)}</td></tr>
+      <tr class="total"><td>Nota final calibrada</td><td class="num">${fmt2(r.final)} — ${r.cat}</td></tr>
+      <tr><td>Percentil en su nivel</td><td class="num">P${r.percentil}</td></tr>
+      <tr><td>Brecha autoevaluación vs. 360</td><td class="num">${r.gapAuto>0?'+':''}${fmt2(r.gapAuto)}</td></tr>
+      <tr><td>¿Promocionable?</td><td class="num">${r.promocionable?'Sí — sucesor potencial':'No en este ciclo'}</td></tr>
+     </tbody></table></div>
+     <div><table><thead><tr><th>Competencia</th><th class="num">Auto</th><th class="num">360 ponderado</th><th class="num">Δ</th></tr></thead><tbody>
+     ${COMPETENCIAS.filter(c=>r.prom360[c.id]!==undefined).map(c=>{const d=r.t360.auto[c.id]-r.prom360[c.id];
+       return `<tr><td>${esc(c.nombre)}</td><td class="num">${fmt2(r.t360.auto[c.id])}</td><td class="num">${fmt2(r.prom360[c.id])}</td><td class="num" style="color:${d>0.5?'#c73050':d<-0.3?'#0071a8':'#00806f'}">${d>0?'+':''}${fmt2(d)}</td></tr>`;}).join('')}
+     </tbody></table><div class="tiny">Participación: ${Object.entries(r.part).map(([k,v])=>`${(RATERS.find(x=>x.id===k)||{nombre:k}).nombre} ${v.respondieron}/${v.invitados}`).join(' · ')}</div></div></div>`;
+  }
+  h+=`<h3 class="sec">Brechas de capacidad y plan individual</h3>
+   <table><thead><tr><th>Dimensión</th><th class="num">Requerido</th><th class="num">Observado</th><th class="num">Brecha</th><th>Intervención recomendada</th><th class="num">Semanas</th></tr></thead><tbody>
+   ${ev.map(e=>{const d=DIMS.find(x=>x.id===e.dim),iv=interv(e.gap);
+     return `<tr><td>${esc(d.nombre)} <span class="pill neutral">${d.tipo}</span></td><td class="num">${fmt1(e.requerido)}</td><td class="num">${fmt1(e.observado)}</td>
+     <td class="num"><b style="color:${colorGap(e.gap)}">${fmt2(e.gap)}</b></td><td>${esc(iv.nombre)}</td><td class="num">${iv.sem||'—'}</td></tr>`;}).join('')}
+   </tbody></table>`;
+  openModal(h);
+}
+
+/* ═══════════════ TALENTO & SUCESIÓN ═══════════════ */
+function renderTalento(){
+  const f=FILT.tal=FILT.tal||{};
+  buildFilters('fTal',orgCfg(f),(k,v)=>setF('tal',k,v,renderTalento));
+  const pop=perfPop(f);
+  const box=(d,pt)=>pop.filter(x=>x.p.potencial===pt&&(d===3?x.r.final>=3.7:d===2?x.r.final>=2.8:x.r.final<2.8));
+  const altos=pop.filter(x=>x.p.potencial===3&&x.r.final>=3.7);
+  const bajos=pop.filter(x=>x.p.potencial===1&&x.r.final<2.8);
+  const clave=D.personas.filter(p=>p.nivel>=2&&p.nivel<=4&&matchOrg(p,f));
+  const cubiertas=clave.filter(p=>sucesores(p).length>0).length;
+  document.getElementById('talKpis').innerHTML=
+    kpiCard('Población calibrada',fmt(pop.length))+
+    kpiCard('Alto potencial + alto desempeño',altos.length+' ('+pct(altos.length/Math.max(1,pop.length),0)+')','Referencia 5–10% de la población','good')+
+    kpiCard('Bajo desempeño y bajo potencial',bajos.length+' ('+pct(bajos.length/Math.max(1,pop.length),0)+')','Requieren decisión explícita este ciclo',bajos.length/Math.max(1,pop.length)>0.08?'bad':'warn')+
+    kpiCard('Posiciones clave con sucesor',pct(cubiertas/Math.max(1,clave.length),0),cubiertas+' de '+clave.length+' posiciones L2–L4',cubiertas/Math.max(1,clave.length)>=0.7?'good':'bad');
+  /* 9-box */
+  const etiquetas=[
+    [['Riesgo / salida','Se cuestiona el encaje'],['Profesional sólido','Mantener y reconocer'],['Referente en su rol','Experto crítico a retener']],
+    [['Bajo rendimiento con potencial','Diagnóstico de encaje'],['Núcleo de la organización','Desarrollo continuo'],['Alto desempeño consistente','Ampliar alcance']],
+    [['Enigma','Potencial no expresado — cambiar de rol'],['Alto potencial en desarrollo','Rotación y proyecto visible'],['Estrella','Sucesor listo — acelerar']]
+  ];
+  let h='<div style="display:grid;grid-template-columns:auto repeat(3,1fr);gap:6px;align-items:stretch">';
+  h+='<div></div>'+['Bajo lo esperado','Cumple','Supera'].map(t=>`<div style="text-align:center;font-size:11px;font-weight:700;color:var(--muted);padding-bottom:2px">${t}</div>`).join('');
+  for(let pt=3;pt>=1;pt--){
+    h+=`<div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:700;color:var(--muted);text-align:center">${['Bajo','Medio','Alto'][pt-1]} potencial</div>`;
+    for(let d=1;d<=3;d++){
+      const g=box(d,pt), et=etiquetas[pt-1][d-1];
+      const inten=g.length/Math.max(1,pop.length);
+      const col= (pt+d)>=5?'#00806f':(pt+d)>=4?'#00a9f4':(pt+d)>=3?'#f5a623':'#e5546c';
+      h+=`<div onclick="verCaja(${d},${pt})" style="cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:10px;background:${col}${Math.round(clamp(inten*3.2,0.06,0.34)*255).toString(16).padStart(2,'0')}">
+        <div style="font-size:22px;font-weight:800;color:${col}">${g.length}</div>
+        <div style="font-size:11.5px;font-weight:700;margin-top:2px">${et[0]}</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.35;margin-top:3px">${et[1]}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">${pct(g.length/Math.max(1,pop.length),0)} · ${mm(g.reduce((s,x)=>s+x.p.sueldo*13.2,0))}/año</div></div>`;
+    }
+  }
+  h+='</div><div class="tiny">Eje horizontal: desempeño del ciclo cerrado. Eje vertical: potencial evaluado por el comité. Haz clic en cualquier caja para ver la nómina.</div>';
+  document.getElementById('nineBox').innerHTML=h;
+  document.getElementById('nineActions').innerHTML=[
+    ['Estrella (alto/alto)','Sucesor listo. Rol mayor en menos de 12 meses, exposición al directorio y revisión de renta fuera de ciclo. Si no se mueve, se va.','good'],
+    ['Alto potencial en desarrollo','Rotación funcional o proyecto transversal visible. Es la caja donde más se pierde talento por falta de una conversación de carrera explícita.','info'],
+    ['Enigma (alto potencial, bajo desempeño)','No es un problema de capacidad: casi siempre es encaje de rol, jefatura o momento personal. Diagnóstico antes de invertir en formación.','warn'],
+    ['Alto desempeño consistente','Ampliar alcance sin cambiar de nivel: más territorio, más presupuesto, mentoría de otros. Reconocimiento variable.','good'],
+    ['Núcleo de la organización','El 50–60% de la población y quien sostiene la operación. Desarrollo continuo y reconocimiento estable; el error es ignorarlos por perseguir a los top.','info'],
+    ['Profesional sólido / Referente en su rol','Carrera técnica, no jerárquica. Necesita banda propia para no forzar promociones a jefatura que destruyen span y capacidad técnica.','info'],
+    ['Bajo rendimiento con potencial medio','Plan de desempeño con objetivos, apoyo y plazo definido (típicamente 90 días).','warn'],
+    ['Riesgo / salida','Decisión explícita este ciclo. Postergarla degrada la credibilidad de todo el sistema de evaluación.','bad']
+  ].map(a=>`<div class="callout ${a[2]==='bad'?'bad':a[2]==='warn'?'warn':a[2]==='good'?'good':''}"><b>${a[0]}.</b> ${a[1]}</div>`).join('');
+  /* Fuga */
+  const riesgo=pop.filter(x=>x.r.cuartil===1&&((x.p.compa<0.9?1:0)+(x.p.antiguedad>2&&x.p.antiguedad<5?1:0)+(x.p.potencial===3?1:0))>=2)
+    .map(x=>({...x,costo:x.p.sueldo*(x.p.nivel<=4?9:6)}));
+  tabla(document.getElementById('fugaTable'),[
+    {t:'Persona',raw:x=>x.p.nombre},{t:'Cargo',raw:x=>x.p.cargo},
+    {t:'País / BU',raw:x=>x.p.pais+' · '+x.p.bu},
+    {t:'Nota',num:1,raw:x=>x.r.final,f:x=>fmt2(x.r.final)},
+    {t:'Compa',num:1,raw:x=>x.p.compa,f:x=>`<span style="color:${x.p.compa<0.9?'#c73050':'inherit'}">${fmt2(x.p.compa)}</span>`},
+    {t:'Antigüedad',num:1,raw:x=>x.p.antiguedad,f:x=>fmt1(x.p.antiguedad)+' a'},
+    {t:'Potencial',raw:x=>['Bajo','Medio','Alto'][x.p.potencial-1]},
+    {t:'Costo de reemplazo',num:1,raw:x=>x.costo,f:x=>money(x.costo)},
+    {t:'Acción',raw:x=>x.p.compa<0.9?'Ajuste de renta a banda + conversación de carrera':'Plan de carrera con hito a 6 meses'}
+  ],riesgo,{click:id=>verPersona(id),id:x=>x.p.id,
+    total:(c,d)=>c.t==='Persona'?`${d.length} personas`:c.t==='Costo de reemplazo'?money(d.reduce((s,x)=>s+x.costo,0)):''});
+  /* Sucesión */
+  tabla(document.getElementById('sucTable'),[
+    {t:'Posición',raw:p=>p.cargo},
+    {t:'Titular',raw:p=>p.nombre},
+    {t:'País / BU',raw:p=>p.pais+' · '+p.bu},
+    {t:'Nivel',num:1,raw:p=>p.nivel,f:p=>'L'+p.nivel},
+    {t:'Sucesores',num:1,raw:p=>sucesores(p).length},
+    {t:'Listo en',raw:p=>{const s=sucesores(p); return s.length===0?'Sin sucesor':s.some(x=>x.horiz==='0–12 meses')?'0–12 meses':'1–3 años';},
+     f:p=>{const s=sucesores(p); const t=s.length===0?'Sin sucesor':s.some(x=>x.horiz==='0–12 meses')?'0–12 meses':'1–3 años';
+       return `<span class="pill ${t==='Sin sucesor'?'bad':t==='0–12 meses'?'good':'warn'}">${t}</span>`;}},
+    {t:'Nombres',raw:p=>sucesores(p).map(s=>s.p.nombre).join(', ')||'—'}
+  ],D.personas.filter(p=>p.nivel>=2&&p.nivel<=4&&matchOrg(p,f)));
+}
+function sucesores(p){
+  /* candidatos: personas del mismo país/BU, un nivel abajo, con potencial alto o desempeño superior */
+  return D.personas.filter(q=>q.pais===p.pais&&q.bu===p.bu&&q.nivel===p.nivel+1&&
+      (q.area===p.area||p.nivel<=2))
+    .map(q=>({p:q,r:IDX.perfByP[q.id]}))
+    .filter(x=>x.r&&x.r.evaluable&&x.r.final>=3.7&&x.p.potencial>=2)
+    .map(x=>({p:x.p,horiz:(x.r.final>=4.2&&x.p.potencial===3)?'0–12 meses':'1–3 años'}))
+    .slice(0,3);
+}
+function verCaja(d,pt){
+  const pop=perfPop(FILT.tal||{});
+  const g=pop.filter(x=>x.p.potencial===pt&&(d===3?x.r.final>=3.7:d===2?x.r.final>=2.8:x.r.final<2.8));
+  openModal(`<h2 style="font-size:17px">Caja ${['bajo desempeño','cumple','supera'][d-1]} × potencial ${['bajo','medio','alto'][pt-1]} — ${g.length} personas</h2>
+  <div class="scroll" style="max-height:460px;overflow-y:auto;margin-top:12px"><table><thead><tr><th>Persona</th><th>Cargo</th><th>País / BU</th><th class="num">Nota</th><th class="num">KPI</th><th class="num">Compa</th><th class="num">Antigüedad</th></tr></thead><tbody>
+  ${g.map(x=>`<tr><td>${esc(x.p.nombre)}</td><td>${esc(x.p.cargo)}</td><td>${esc(x.p.pais)} · ${esc(x.p.bu)}</td><td class="num">${fmt2(x.r.final)}</td><td class="num">${pct(x.r.kpi,0)}</td><td class="num">${fmt2(x.p.compa)}</td><td class="num">${fmt1(x.p.antiguedad)}</td></tr>`).join('')}
+  </tbody></table></div>`);
+}
+
+/* ═══════════════ CAPABILITY BUILDING ═══════════════ */
+function renderCap(){
+  const f=FILT.cap;
+  buildFilters('fCap',orgCfg(f).concat([
+    {k:'dim',label:'Dimensión',opts:[{v:'',t:'Todas'}].concat(DIMS.map(d=>({v:d.id,t:d.nombre}))),val:f.dim||''},
+    {k:'nivel',label:'Nivel',opts:[{v:'',t:'Todos'}].concat(NIVELES.map(n=>({v:String(n.n),t:'L'+n.n}))),val:f.nivel||''}
+  ]),(k,v)=>setF('cap',k,v,renderCap));
+  let pers=fPersonas(f); if(f.nivel) pers=pers.filter(p=>String(p.nivel)===f.nivel);
+  const ids=new Set(pers.map(p=>p.id));
+  const evs=D.evals.filter(e=>ids.has(e.persona)&&(!f.dim||e.dim===f.dim));
+  const gProm=evs.length?evs.reduce((s,e)=>s+e.gap,0)/evs.length:0;
+  const criticas=evs.filter(e=>e.gap>=1).length;
+  const personasCriticas=new Set(evs.filter(e=>e.gap>=1).map(e=>e.persona)).size;
+  /* El plan se dimensiona sobre las brechas que justifican inversión dedicada (≥0,6) */
+  const costoPlan=evs.filter(e=>e.gap>=0.6).reduce((s,e)=>s+interv(e.gap).costo,0);
+  document.getElementById('capKpis').innerHTML=
+    kpiCard('Personas en el alcance',fmt(pers.length))+
+    kpiCard('Brecha promedio',fmt2(gProm)+' niveles','Sobre 0,6 la unidad no ejecuta el estándar sin apoyo',gProm>=0.6?'bad':gProm>=0.3?'warn':'good')+
+    kpiCard('Brechas críticas (≥1,0)',fmt(criticas),personasCriticas+' personas afectadas','bad')+
+    kpiCard('Inversión del programa',mm(costoPlan),'Brechas ≥0,6 · '+pct(costoPlan/Math.max(1,IDX.costoAnual),1)+' del costo anual de personal — a repartir en 24–36 meses (referencia 1–2% al año)');
+  /* Heatmap: dimensiones × unidad (nivel de agregación según filtro) */
+  const nivelAgg = f.sub? 'nivel' : f.area? 'sub' : f.bu? 'area' : f.pais? 'bu' : 'pais';
+  const keyOf=p=> nivelAgg==='pais'?p.pais: nivelAgg==='bu'?p.bu: nivelAgg==='area'?p.area: nivelAgg==='sub'?p.sub : 'L'+p.nivel;
+  const unidades=[...new Set(pers.map(keyOf))].sort();
+  const dims= f.dim? DIMS.filter(d=>d.id===f.dim) : DIMS.filter(d=>evs.some(e=>e.dim===d.id));
+  let h='<thead><tr><th>Dimensión</th>'+unidades.map(u=>`<th class="num">${esc(u)}</th>`).join('')+'<th class="num">Total</th></tr></thead><tbody>';
+  const cellGap=(dimId,u)=>{ const sub=evs.filter(e=>e.dim===dimId&&keyOf(IDX.byId[e.persona])===u);
+    return sub.length? {g:sub.reduce((s,e)=>s+e.gap,0)/sub.length,n:sub.length} : null; };
+  dims.forEach(d=>{
+    h+=`<tr><td class="lbl">${esc(d.nombre)} <span class="pill neutral">${d.tipo}</span></td>`;
+    unidades.forEach(u=>{ const c=cellGap(d.id,u);
+      h+= c? `<td style="background:${colorGap(c.g)}" onclick="verCelda('${d.id}','${esc(u)}','${nivelAgg}')" title="${c.n} personas">${fmt2(c.g)}</td>` : '<td class="lbl">—</td>'; });
+    const tot=evs.filter(e=>e.dim===d.id);
+    h+=`<td style="background:${colorGap(tot.length?tot.reduce((s,e)=>s+e.gap,0)/tot.length:0)}">${tot.length?fmt2(tot.reduce((s,e)=>s+e.gap,0)/tot.length):'—'}</td></tr>`;
+  });
+  h+='<tr><td class="lbl"><b>Promedio de la unidad</b></td>'+unidades.map(u=>{
+    const sub=evs.filter(e=>keyOf(IDX.byId[e.persona])===u); const g=sub.length?sub.reduce((s,e)=>s+e.gap,0)/sub.length:0;
+    return `<td style="background:${colorGap(g)}">${fmt2(g)}</td>`; }).join('')+`<td style="background:${colorGap(gProm)}">${fmt2(gProm)}</td></tr></tbody>`;
+  document.getElementById('heatTable').innerHTML=h;
+  /* Prioridad */
+  const prio=DIMS.map(d=>{
+    const sub=evs.filter(e=>e.dim===d.id); if(!sub.length) return null;
+    const g=sub.reduce((s,e)=>s+e.gap,0)/sub.length;
+    const crit=Object.values(d.crit||{}).reduce((s,v)=>s+v,0)/Math.max(1,Object.keys(d.crit||{}).length);
+    return {nm:d.nombre,g,n:sub.length,idx:g*crit*Math.sqrt(sub.length)};
+  }).filter(Boolean).sort((a,b)=>b.idx-a.idx).slice(0,10);
+  document.getElementById('priorityChart').innerHTML=hbars(prio.map(p=>({
+    nm:p.nm,v:p.idx,txt:'brecha '+fmt2(p.g)+' · '+p.n+' pers.',color:colorGap(p.g)})))+
+    `<div class="tiny">El orden no es el de la brecha más grande: una brecha de 0,8 en una dimensión crítica que afecta a 180 personas mueve más valor que una de 1,4 en una dimensión de nicho con 12 personas.</div>`;
+  /* Brecha por nivel */
+  const porNivel=NIVELES.map(nv=>{ const sub=evs.filter(e=>IDX.byId[e.persona].nivel===nv.n);
+    return sub.length? {nm:'L'+nv.n+' '+nv.nombre.split(' ')[0],v:sub.reduce((s,e)=>s+e.gap,0)/sub.length,n:sub.length}:null; }).filter(Boolean);
+  document.getElementById('gapByLevel').innerHTML=hbars(porNivel.map(x=>({nm:x.nm,v:x.v,txt:fmt2(x.v)+' ('+x.n+')',color:colorGap(x.v)})),{max:Math.max(1.2,...porNivel.map(x=>x.v))});
+  /* Plan */
+  const planes={};
+  evs.filter(e=>e.gap>=0.3).forEach(e=>{ const iv=interv(e.gap), k=e.dim+'|'+iv.nombre;
+    planes[k]=planes[k]||{dim:DIMS.find(d=>d.id===e.dim).nombre,iv,n:0,costo:0,gap:0};
+    planes[k].n++; planes[k].costo+=iv.costo; planes[k].gap+=e.gap; });
+  const pl=Object.values(planes).sort((a,b)=>b.costo-a.costo).slice(0,12);
+  document.getElementById('capPlan').innerHTML= pl.length? pl.map(p=>`<div class="action">
+     <h4><span>${esc(p.dim)} — ${esc(p.iv.nombre)}</span><span class="imp">${mm(p.costo)}</span></h4>
+     <p>${esc(p.iv.modo)}. Brecha promedio a cerrar: <b>${fmt2(p.gap/p.n)} niveles</b> en <b>${p.n} personas</b>. Duración ${p.iv.sem} semanas · ${money(p.costo/p.n)} por persona.</p>
+     <div class="who">Cierre esperado: ~70% de la brecha en un ciclo si hay práctica en el trabajo real; sin aplicación en la línea, la retención del aprendizaje cae bajo 20% a los 6 meses.</div></div>`).join('')
+     : '<div class="tiny">Sin brechas relevantes en el alcance seleccionado.</div>';
+  /* Personas */
+  const rows=pers.map(p=>{ const ee=(IDX.evalByP[p.id]||[]).filter(e=>!f.dim||e.dim===f.dim);
+    const g=ee.length?ee.reduce((s,e)=>s+e.gap,0)/ee.length:0;
+    const peor=ee.slice().sort((a,b)=>b.gap-a.gap)[0];
+    return {p,g,peor,n:ee.length}; }).filter(r=>r.n);
+  tabla(document.getElementById('capPeople'),[
+    {t:'Persona',raw:r=>r.p.nombre},{t:'Cargo',raw:r=>r.p.cargo},
+    {t:'Nivel',num:1,raw:r=>r.p.nivel,f:r=>'L'+r.p.nivel},
+    {t:'País',raw:r=>r.p.pais},{t:'BU / Área',raw:r=>r.p.bu+' · '+r.p.area},{t:'Subgerencia',raw:r=>r.p.sub},
+    {t:'Brecha promedio',num:1,raw:r=>r.g,f:r=>`<b style="color:${colorGap(r.g)}">${fmt2(r.g)}</b>`},
+    {t:'Mayor brecha',raw:r=>r.peor?DIMS.find(d=>d.id===r.peor.dim).nombre:'—'},
+    {t:'Tamaño',num:1,raw:r=>r.peor?r.peor.gap:0,f:r=>r.peor?fmt2(r.peor.gap):'—'},
+    {t:'Intervención',raw:r=>r.peor?interv(r.peor.gap).nombre:'—'}
+  ],rows,{click:id=>verPersona(id),id:r=>r.p.id});
+}
+function verCelda(dimId,u,agg){
+  const d=DIMS.find(x=>x.id===dimId);
+  const keyOf=p=> agg==='pais'?p.pais: agg==='bu'?p.bu: agg==='area'?p.area: agg==='sub'?p.sub : 'L'+p.nivel;
+  const rows=D.evals.filter(e=>e.dim===dimId&&IDX.byId[e.persona]&&keyOf(IDX.byId[e.persona])===u&&matchOrg(IDX.byId[e.persona],FILT.cap))
+    .map(e=>({e,p:IDX.byId[e.persona]})).sort((a,b)=>b.e.gap-a.e.gap);
+  openModal(`<h2 style="font-size:17px">${esc(d.nombre)} — ${esc(u)}</h2>
+   <div class="tiny" style="margin-bottom:12px">${rows.length} personas evaluadas · brecha promedio ${fmt2(rows.reduce((s,r)=>s+r.e.gap,0)/Math.max(1,rows.length))} niveles</div>
+   <div class="scroll" style="max-height:440px;overflow-y:auto"><table><thead><tr><th>Persona</th><th>Cargo</th><th>Subgerencia</th><th class="num">Requerido</th><th class="num">Observado</th><th class="num">Brecha</th><th>Intervención</th></tr></thead><tbody>
+   ${rows.map(r=>`<tr><td>${esc(r.p.nombre)}</td><td>${esc(r.p.cargo)}</td><td>${esc(r.p.sub)}</td><td class="num">${fmt1(r.e.requerido)}</td><td class="num">${fmt1(r.e.observado)}</td><td class="num" style="color:${colorGap(r.e.gap)}"><b>${fmt2(r.e.gap)}</b></td><td>${esc(interv(r.e.gap).nombre)}</td></tr>`).join('')}
+   </tbody></table></div>`);
+}
+
+/* ═══════════════ CONTROL DE GESTIÓN ═══════════════ */
+function renderCtrl(){
+  const f=FILT.ctrl;
+  buildFilters('fCtrl',orgCfg(f),(k,v)=>setF('ctrl',k,v,renderCtrl));
+  const pers=fPersonas(f);
+  const costo=pers.reduce((s,p)=>s+p.sueldo*13.2,0);
+  const jefes=pers.filter(p=>IDX.span[p.id]>0);
+  const spanProm=jefes.length?jefes.reduce((s,p)=>s+IDX.span[p.id],0)/jefes.length:0;
+  const capas=pers.length?Math.max(...pers.map(p=>IDX.depth[p.id]))-Math.min(...pers.map(p=>IDX.depth[p.id]))+1:0;
+  const subEscala=jefes.filter(p=>IDX.span[p.id]<4);
+  const ratioJefes=jefes.length/Math.max(1,pers.length);
+  document.getElementById('ctrlKpis').innerHTML=
+    kpiCard('Dotación',fmt(pers.length),pct(pers.length/D.personas.length,0)+' del total de la compañía')+
+    kpiCard('Costo anual de personal',mm(costo),'12 sueldos + ~10% carga social y beneficios')+
+    kpiCard('Costo promedio por persona',money(costo/Math.max(1,pers.length))+'/año','Mensualizado: '+money(costo/Math.max(1,pers.length)/12))+
+    kpiCard('Span de control promedio',fmt1(spanProm),'Referencia 6–8 gestión, 8–12 supervisión',spanProm>=6?'good':'warn')+
+    kpiCard('Capas en el alcance',capas,'Referencia ≤6–7 para empresa mediana',capas<=7?'good':'bad')+
+    kpiCard('Ratio de jefaturas',pct(ratioJefes,0),subEscala.length+' con menos de 4 reportes',ratioJefes<=0.13?'good':'warn');
+  /* Pirámide */
+  const W=520,H=300;
+  const maxN=Math.max(...NIVELES.map(nv=>pers.filter(p=>p.nivel===nv.n).length),1);
+  let inn='';
+  NIVELES.forEach((nv,i)=>{
+    const g=pers.filter(p=>p.nivel===nv.n); if(!g.length) return;
+    const w=(W-190)*g.length/maxN, y=18+i*40;
+    inn+=rect((W-190)/2-w/2+80,y,w,28,PAISES[0].color,{op:0.35+i*0.09});
+    inn+=txt(72,y+18,'L'+nv.n+' '+nv.nombre.split(' ')[0],{ta:'end',fs:10.5,fill:'#051c2c',fw:600});
+    const lbl=fmt(g.length)+' ('+pct(g.length/pers.length,0)+')';
+    inn+= w>78 ? txt((W-190)/2+80,y+18,lbl,{ta:'middle',fs:11,fill:'#fff',fw:700})
+               : txt((W-190)/2+80+w/2+7,y+18,lbl,{ta:'start',fs:10.5,fill:'#051c2c',fw:700});
+    inn+=txt(W-8,y+18,mm(g.reduce((s,p)=>s+p.sueldo*13.2,0)),{ta:'end',fs:10.5,fill:'#5b6a75'});
+  });
+  document.getElementById('pyramid').innerHTML=svg(W,H,inn);
+  /* Span */
+  const bins=[[1,1],[2,3],[4,5],[6,8],[9,12],[13,99]];
+  const lbl=['1 reporte','2–3','4–5','6–8','9–12','13+'];
+  document.getElementById('spanChart').innerHTML=hbars(bins.map((b,i)=>{
+    const g=jefes.filter(p=>IDX.span[p.id]>=b[0]&&IDX.span[p.id]<=b[1]);
+    return {nm:lbl[i],v:g.length,txt:g.length+' ('+pct(g.length/Math.max(1,jefes.length),0)+')',
+      color:i<=1?'#e5546c':i===2?'#f5a623':'#00b8a2'};
+  }))+`<div class="tiny"><b>${subEscala.length} jefaturas</b> tienen menos de 4 reportes directos y cuestan <b>${mm(subEscala.reduce((s,p)=>s+p.sueldo*13.2,0))}</b> al año en remuneraciones de esas posiciones. No todas sobran — algunas supervisan trabajo altamente especializado o turnos — pero cada una debería tener una justificación explícita.</div>`;
+  /* Tabla org */
+  const agg = f.area? 'sub' : f.bu? 'area' : f.pais? 'bu' : 'pais';
+  const keyOf=p=> agg==='pais'?p.pais: agg==='bu'?p.bu: agg==='area'?p.area : p.sub;
+  const grupos=[...new Set(pers.map(keyOf))].sort();
+  tabla(document.getElementById('orgTable'),[
+    {t:agg==='pais'?'País':agg==='bu'?'Business Unit':agg==='area'?'Área':'Subgerencia',raw:r=>r.k},
+    {t:'FTE',num:1,raw:r=>r.n},
+    {t:'% del alcance',num:1,raw:r=>r.n/pers.length,f:r=>pct(r.n/pers.length,0)},
+    {t:'Jefaturas',num:1,raw:r=>r.jef},
+    {t:'Span prom.',num:1,raw:r=>r.span,f:r=>fmt1(r.span)},
+    {t:'Capas',num:1,raw:r=>r.capas},
+    {t:'Costo anual',num:1,raw:r=>r.costo,f:r=>mm(r.costo)},
+    {t:'Costo / FTE',num:1,raw:r=>r.costo/r.n,f:r=>money(r.costo/r.n)},
+    {t:'Compa prom.',num:1,raw:r=>r.compa,f:r=>fmt2(r.compa)}
+  ],grupos.map(k=>{ const g=pers.filter(p=>keyOf(p)===k), jf=g.filter(p=>IDX.span[p.id]>0);
+    return {k,n:g.length,jef:jf.length,span:jf.length?jf.reduce((s,p)=>s+IDX.span[p.id],0)/jf.length:0,
+      capas:Math.max(...g.map(p=>IDX.depth[p.id]))-Math.min(...g.map(p=>IDX.depth[p.id]))+1,
+      costo:g.reduce((s,p)=>s+p.sueldo*13.2,0), compa:g.reduce((s,p)=>s+p.compa,0)/g.length}; }),
+    {total:(c,d)=>c.t==='FTE'?fmt(d.reduce((s,r)=>s+r.n,0)):c.t==='Costo anual'?mm(d.reduce((s,r)=>s+r.costo,0)):c.t==='Jefaturas'?fmt(d.reduce((s,r)=>s+r.jef,0)):(c.num?'':'Total')});
+  /* Compa */
+  const bs=[]; for(let x=0.7;x<1.45;x+=0.05) bs.push([x,x+0.05]);
+  const maxc=Math.max(1,...bs.map(b=>pers.filter(p=>p.compa>=b[0]&&p.compa<b[1]).length));
+  const Wc=520,Hc=200,pc=30;
+  let ic=line(pc,Hc-26,Wc-8,Hc-26,'#051c2c',1.2);
+  bs.forEach((b,i)=>{ const n=pers.filter(p=>p.compa>=b[0]&&p.compa<b[1]).length;
+    const bw=(Wc-pc-14)/bs.length, x=pc+i*bw, hh=(Hc-48)*n/maxc;
+    ic+=rect(x+1,Hc-26-hh,bw-2,hh,b[0]<0.85?'#e5546c':b[0]>=1.2?'#f5a623':'#00b8a2');
+    if(i%3===0) ic+=txt(x+bw/2,Hc-12,fmt2(b[0]),{ta:'middle',fs:9.5}); });
+  const bajo=pers.filter(p=>p.compa<0.85).length, alto=pers.filter(p=>p.compa>1.2).length;
+  document.getElementById('compaChart').innerHTML=svg(Wc,Hc,ic)+
+    `<div class="legend"><span><i class="dot" style="background:#e5546c"></i>Bajo 0,85 — ${bajo} personas (${pct(bajo/Math.max(1,pers.length),0)})</span><span><i class="dot" style="background:#00b8a2"></i>En banda</span><span><i class="dot" style="background:#f5a623"></i>Sobre 1,20 — ${alto} personas</span></div>`;
+  const out=pers.map(p=>({p,d:Math.abs(p.compa-1)})).sort((a,b)=>b.d-a.d).slice(0,12);
+  tabla(document.getElementById('outlierTable'),[
+    {t:'Persona',raw:r=>r.p.nombre},{t:'Cargo',raw:r=>r.p.cargo},
+    {t:'Nivel',num:1,raw:r=>r.p.nivel,f:r=>'L'+r.p.nivel},
+    {t:'Renta',num:1,raw:r=>r.p.sueldo,f:r=>money(r.p.sueldo)},
+    {t:'Compa',num:1,raw:r=>r.p.compa,f:r=>`<b style="color:${r.p.compa<0.85?'#c73050':r.p.compa>1.2?'#b57900':'#00806f'}">${fmt2(r.p.compa)}</b>`},
+    {t:'Desempeño',num:1,raw:r=>IDX.perfByP[r.p.id]&&IDX.perfByP[r.p.id].final||0,f:r=>{const x=IDX.perfByP[r.p.id]; return x&&x.evaluable?fmt2(x.final):'—';}},
+    {t:'Lectura',raw:r=>{const x=IDX.perfByP[r.p.id];
+      if(r.p.compa>1.2) return (x&&x.evaluable&&x.final>=3.7)?'Sobre banda, desempeño lo respalda':'Sobre banda sin respaldo de desempeño — revisar';
+      return (x&&x.evaluable&&x.final>=3.7)?'Bajo banda con alto desempeño — riesgo de fuga':'Bajo banda — revisar equidad interna';}}
+  ],out,{click:id=>verPersona(id),id:r=>r.p.id});
+  /* Sub-escala */
+  tabla(document.getElementById('subScale'),[
+    {t:'Jefatura',raw:p=>p.nombre},{t:'Cargo',raw:p=>p.cargo},
+    {t:'Nivel',num:1,raw:p=>p.nivel,f:p=>'L'+p.nivel},
+    {t:'País / BU',raw:p=>p.pais+' · '+p.bu},{t:'Subgerencia',raw:p=>p.sub},
+    {t:'Reportes directos',num:1,raw:p=>IDX.span[p.id]},
+    {t:'Equipo total',num:1,raw:p=>IDX.totalRep[p.id]},
+    {t:'Renta anual',num:1,raw:p=>p.sueldo*13.2,f:p=>money(p.sueldo*13.2)},
+    {t:'Si se consolida',raw:p=>{const j=p.jefe_id?IDX.byId[p.jefe_id]:null;
+      return j? `Sus ${IDX.span[p.id]} reportes pasan a ${j.nombre} (span ${IDX.span[j.id]}→${IDX.span[j.id]-1+IDX.span[p.id]})` : '—';}}
+  ],subEscala.sort((a,b)=>IDX.span[a.id]-IDX.span[b.id]),
+    {click:id=>verPersona(id),id:p=>p.id,total:(c,d)=>c.t==='Jefatura'?d.length+' jefaturas':c.t==='Renta anual'?money(d.reduce((s,p)=>s+p.sueldo*13.2,0)):''});
+}
+
+/* ═══════════════ OPTIMIZACIÓN ═══════════════ */
+function renderOpt(){
+  const target=+document.getElementById('sSpan').value;
+  const maxLayers=+document.getElementById('sLayers').value;
+  const freeze=+document.getElementById('sFreeze').value/100;
+  const attr=+document.getElementById('sAttr').value/100;
+  const sev=+document.getElementById('sSev').value;
+  document.getElementById('vSpan').textContent=target;
+  document.getElementById('vLayers').textContent=maxLayers;
+  document.getElementById('vFreeze').textContent=Math.round(freeze*100)+'%';
+  document.getElementById('vAttr').textContent=Math.round(attr*100)+'%';
+  document.getElementById('vSev').textContent=fmt1(sev);
+  /* Consolidación de jefaturas sub-escala. El umbral no es el mismo en toda la pirámide:
+     una jefatura de primera línea coordina ejecución (span alto), una gerencia coordina jefaturas
+     (span estructuralmente menor). Se excluye a quien dirige una estructura de más de 25 personas. */
+  const umbral=p=> p.nivel>=5? target : Math.max(3,target-3);
+  const consolidar=D.personas.filter(p=>p.nivel>=4&&IDX.span[p.id]>0&&IDX.span[p.id]<umbral(p)&&IDX.totalRep[p.id]<25);
+  const ahorroCons=consolidar.reduce((s,p)=>s+p.sueldo*13.2,0);
+  /* Delayering: si la organización tiene más capas que el máximo permitido, se colapsan las capas
+     intermedias con menor span promedio — las que aportan menos coordinación por posición.
+     Nunca se tocan la primera capa ni la línea de ejecución. */
+  const profMax=Math.max(...D.personas.map(p=>IDX.depth[p.id]));
+  const sobran=Math.max(0,profMax-maxLayers);
+  let capasFuera=[];
+  if(sobran>0){
+    const cands=[];
+    for(let c=3;c<profMax;c++){
+      const g=D.personas.filter(p=>IDX.depth[p.id]===c&&IDX.span[p.id]>0);
+      if(g.length) cands.push({capa:c,span:g.reduce((s,p)=>s+IDX.span[p.id],0)/g.length,n:g.length});
+    }
+    capasFuera=cands.sort((a,b)=>a.span-b.span).slice(0,sobran).map(x=>x.capa);
+  }
+  const delayer=D.personas.filter(p=>capasFuera.includes(IDX.depth[p.id])&&IDX.span[p.id]>0&&!consolidar.includes(p));
+  const ahorroDel=delayer.reduce((s,p)=>s+p.sueldo*13.2,0);
+  /* congelamiento de vacantes */
+  const abiertas=D.reqs.filter(r=>r.estado!=='Cerrada');
+  const congelar=Math.round(abiertas.length*freeze);
+  const ahorroFre=abiertas.slice().sort((a,b)=>a.renta_ofrecida-b.renta_ofrecida).slice(0,congelar).reduce((s,r)=>s+r.renta_ofrecida*13.2,0);
+  const totalPos=consolidar.length+delayer.length;
+  const ahorro=ahorroCons+ahorroDel+ahorroFre;
+  /* cuánto se logra por atrición natural en 12 meses */
+  const porAtricion=Math.min(totalPos,Math.round(D.personas.length*attr*0.35));
+  const conDesvinc=Math.max(0,totalPos-porAtricion);
+  const costoSalida=conDesvinc*(consolidar.concat(delayer).reduce((s,p)=>s+p.sueldo,0)/Math.max(1,totalPos))*sev;
+  document.getElementById('optKpis').innerHTML=
+    kpiCard('Posiciones impactadas',fmt(totalPos),pct(totalPos/D.personas.length,1)+' de la dotación · '+consolidar.length+' por span, '+delayer.length+' por capas')+
+    kpiCard('Ahorro anual potencial',mm(ahorro),pct(ahorro/IDX.costoAnual,1)+' del costo de personal','good')+
+    kpiCard('Costo de salida (una vez)',mm(costoSalida),conDesvinc+' desvinculaciones · '+porAtricion+' por no reemplazo',costoSalida>ahorro?'bad':'warn')+
+    kpiCard('Recuperación de la inversión',ahorro>0?fmt1(costoSalida/ahorro*12)+' meses':'—','Payback del costo de reestructuración');
+  /* Waterfall */
+  const W=560,H=230,base=IDX.costoAnual;
+  const pasos=[{n:'Costo actual',v:base,tipo:'tot'},{n:'Consolidar jefaturas',v:-ahorroCons},{n:'Reducir capas',v:-ahorroDel},{n:'Congelar vacantes',v:-ahorroFre},{n:'Costo objetivo',v:base-ahorro,tipo:'tot'}];
+  const maxV=base*1.03; let acc=0; let inn=''; const bw=(W-70)/pasos.length;
+  pasos.forEach((p,i)=>{
+    const x=50+i*bw, sy=v=>H-42-(v/maxV)*(H-72);
+    if(p.tipo==='tot'){ inn+=rect(x+6,sy(p.v),bw-16,H-42-sy(p.v),'#051c2c',{r:2}); acc=p.v; inn+=txt(x+bw/2-2,sy(p.v)-6,mm(p.v),{ta:'middle',fs:10.5,fw:700,fill:'#051c2c'}); }
+    else { const top=acc, bot=acc+p.v; inn+=rect(x+6,sy(top),bw-16,Math.abs(sy(bot)-sy(top)),'#00b8a2',{r:2});
+      inn+=txt(x+bw/2-2,sy(top)-6,mm(Math.abs(p.v)),{ta:'middle',fs:10.5,fw:700,fill:'#00806f'}); acc=bot; }
+    inn+=txt(x+bw/2-2,H-26,p.n.length>16?p.n.slice(0,15)+'…':p.n,{ta:'middle',fs:9.5});
+  });
+  document.getElementById('optWaterfall').innerHTML=svg(W,H,inn);
+  document.getElementById('optNotes').innerHTML=
+    (capasFuera.length?`<div class="callout warn">Para llegar a <b>${maxLayers} capas</b> hay que colapsar la${capasFuera.length>1?'s':''} capa${capasFuera.length>1?'s':''} <b>${capasFuera.join(' y ')}</b> (la${capasFuera.length>1?'s':''} de menor span promedio). Eso significa que los equipos de esas jefaturas pasan a reportar una capa más arriba: revisa antes si el trabajo que hoy hacen esas posiciones es coordinación —que se absorbe— o contenido técnico —que hay que reubicar, no eliminar.</div>`:'')+
+    `<div class="callout">Span promedio pasaría de <b>${fmt1(D.personas.filter(p=>IDX.span[p.id]>0).reduce((s,p)=>s+IDX.span[p.id],0)/Math.max(1,D.personas.filter(p=>IDX.span[p.id]>0).length))}</b> a aproximadamente <b>${fmt1((D.personas.length-totalPos)/Math.max(1,D.personas.filter(p=>IDX.span[p.id]>0&&!consolidar.includes(p)&&!delayer.includes(p)).length))}</b> reportes por jefatura, con ${maxLayers} capas máximas.</div>`;
+  /* Tabla por unidad */
+  const grupos=[...new Set(D.personas.map(p=>p.pais+' · '+p.bu))].sort();
+  tabla(document.getElementById('optTable'),[
+    {t:'Unidad',raw:r=>r.k},
+    {t:'FTE actual',num:1,raw:r=>r.n},
+    {t:'Posiciones impactadas',num:1,raw:r=>r.imp},
+    {t:'FTE objetivo',num:1,raw:r=>r.n-r.imp},
+    {t:'Var. %',num:1,raw:r=>-r.imp/r.n,f:r=>pct(-r.imp/r.n,1)},
+    {t:'Span actual',num:1,raw:r=>r.span,f:r=>fmt1(r.span)},
+    {t:'Costo actual',num:1,raw:r=>r.costo,f:r=>mm(r.costo)},
+    {t:'Ahorro',num:1,raw:r=>r.ah,f:r=>mm(r.ah)}
+  ],grupos.map(k=>{ const g=D.personas.filter(p=>(p.pais+' · '+p.bu)===k);
+    const imp=g.filter(p=>consolidar.includes(p)||delayer.includes(p));
+    const jf=g.filter(p=>IDX.span[p.id]>0);
+    return {k,n:g.length,imp:imp.length,span:jf.length?jf.reduce((s,p)=>s+IDX.span[p.id],0)/jf.length:0,
+      costo:g.reduce((s,p)=>s+p.sueldo*13.2,0),ah:imp.reduce((s,p)=>s+p.sueldo*13.2,0)}; }),
+    {total:(c,d)=>c.t==='Unidad'?'Total':c.t==='FTE actual'?fmt(d.reduce((s,r)=>s+r.n,0)):c.t==='Ahorro'?mm(d.reduce((s,r)=>s+r.ah,0)):c.t==='Posiciones impactadas'?fmt(d.reduce((s,r)=>s+r.imp,0)):''});
+  /* Advertencias */
+  const conTalento=consolidar.concat(delayer).filter(p=>{const r=IDX.perfByP[p.id]; return r&&r.evaluable&&r.final>=3.7;});
+  const conGap=consolidar.concat(delayer).filter(p=>{const e=IDX.evalByP[p.id]||[]; return e.length&&e.reduce((s,x)=>s+x.gap,0)/e.length>=0.8;});
+  document.getElementById('optWarn').innerHTML=
+    `<div class="callout warn"><b>${conTalento.length} de las ${totalPos} posiciones impactadas</b> las ocupan personas con desempeño sobre lo esperado. Una reestructuración que se ejecuta por organigrama y no por persona expulsa justamente al talento que se quería conservar: el diseño define la <i>posición</i>, y luego se decide <i>quién</i> la ocupa entre los titulares afectados.</div>
+     <div class="callout">${conGap.length} de las posiciones impactadas las ocupan personas con brecha de capacidades sobre 0,8 — para ellas la alternativa de reubicación exige el plan de formación del módulo de Capability Building, no solo un cambio de casilla.</div>
+     <div class="callout bad">Antes de tocar span en Operaciones, revisa turnos: un jefe de turno con 4 reportes en un proceso continuo no es sub-escala, es cobertura 24/7. El modelo no distingue turnos — esa validación es manual.</div>
+     <div class="callout ${costoSalida>ahorro?'bad':'good'}">Costo de salida ${costoSalida>ahorro?'supera':'está por debajo de'} el ahorro del primer año. ${costoSalida>ahorro?'Aumentar el peso de la atrición natural o escalonar el plan en 18–24 meses mejora sustancialmente el perfil de caja.':'El plan se paga dentro del primer año.'}</div>`;
+}
+
+/* ═══════════════ METODOLOGÍA ═══════════════ */
+const BENCHMARKS=[
+  ['Recruiting','Time-to-fill (días)','30–35 best-in-class','44 mediana de mercado','Desde apertura de la requisición hasta aceptación de la oferta'],
+  ['Recruiting','Time-to-hire (días)','< 25','30–40','Desde postulación del candidato contratado hasta su aceptación'],
+  ['Recruiting','Aceptación de oferta','≥ 90%','78–85%','Bajo 80% revisar renta, velocidad y calidad de la experiencia'],
+  ['Recruiting','Ratio candidatos : contratado','40–60 : 1','Muy variable por canal','Sobre 100:1 indica sourcing poco dirigido'],
+  ['Recruiting','Conversión entrevista → oferta','20–25%','12–20%','Una conversión muy alta suele indicar filtro previo débil'],
+  ['Recruiting','Referidos como % de contrataciones','30–45%','15–25%','La fuente con mejor retención a 12 meses de forma consistente'],
+  ['Recruiting','Carga por reclutador','15–25 vacantes activas','20–40','Sobre 25 el reclutador administra y deja de buscar'],
+  ['Recruiting','Sobrevivencia a 90 días','≥ 95%','85–92%','Métrica de calidad de contratación, no de velocidad'],
+  ['Desempeño','Cobertura del ciclo de evaluación','≥ 95% de elegibles','80–90%','Sin cobertura alta la calibración pierde sentido'],
+  ['Desempeño','Distribución sobre lo esperado','25–30%','Frecuentemente > 45%','Sobre 45% la evaluación dejó de discriminar'],
+  ['Desempeño','Distribución bajo lo esperado','10–15%','Frecuentemente < 5%','Bajo 5% suele indicar evasión del conflicto, no excelencia'],
+  ['Desempeño','Participación en 360','≥ 80% de evaluadores','60–75%','Bajo 70% el resultado individual no es confiable'],
+  ['Desempeño','Notas movidas en calibración','10–20%','< 5% o > 40%','Muy poco = comité decorativo; mucho = evaluadores sin criterio común'],
+  ['Talento','Alto potencial identificado','5–10% de la población','Variable','Más de 15% diluye la inversión y desmotiva al resto'],
+  ['Talento','Posiciones clave con sucesor listo','≥ 70%','40–60%','Sucesor "listo" = puede asumir en menos de 12 meses'],
+  ['Talento','Rotación voluntaria total','8–12%','12–18%','El número que importa es la rotación lamentada, no la total'],
+  ['Talento','Rotación lamentada','< 5%','6–10%','Salidas voluntarias de personas del cuartil superior'],
+  ['Estructura','Span de control promedio','6–8 en gestión','4–6','8–12 es razonable en supervisión de trabajo estandarizado'],
+  ['Estructura','Jefaturas con menos de 4 reportes','< 10%','20–30%','Cada una necesita justificación explícita (turnos, especialidad)'],
+  ['Estructura','Capas del CEO a la primera línea','5–7','7–9','Cada capa adicional agrega distorsión y tiempo de decisión'],
+  ['Estructura','Ratio de jefaturas sobre dotación','10–13%','15–20%','Proxy directo del costo de coordinación'],
+  ['Estructura','FTE de RRHH por cada 100 empleados','1,0–1,4','1,5–2,0','En empresas medianas con procesos digitalizados'],
+  ['Costo','Compa-ratio saludable','0,95–1,05 promedio','—','Individual entre 0,85 y 1,20 salvo justificación'],
+  ['Costo','Inversión en formación','1–2% del costo de personal','0,5–1%','Equivalente a 30–40 horas por persona al año'],
+  ['Costo','Costo por contratación','—','2–4 meses de renta del cargo','Sube fuerte con cazatalentos en roles escasos']
+];
+function renderMetodo(){
+  tabla(document.getElementById('benchTable'),[
+    {t:'Módulo',raw:r=>r[0]},{t:'Indicador',raw:r=>r[1]},{t:'Best-in-class',raw:r=>r[2]},
+    {t:'Rango habitual',raw:r=>r[3]},{t:'Nota de lectura',raw:r=>r[4]}
+  ],BENCHMARKS);
+  document.getElementById('methodBody').innerHTML=`
+   <h3 class="sec">Recruiting</h3>
+   <ul class="bul">
+     <li><b>Conversión por etapa</b> = candidatos que alcanzaron la etapa n+1 ÷ candidatos que alcanzaron la etapa n. Se calcula sobre el máximo estado alcanzado, no sobre el estado actual, para que las caídas no distorsionen el numerador.</li>
+     <li><b>Time-to-fill</b> = días entre apertura de la requisición y aceptación de la oferta, solo sobre vacantes cerradas. Las abiertas se reportan como <i>aging</i> aparte: promediarlas juntas subestima sistemáticamente el problema.</li>
+     <li><b>Costo por contratación</b> = (costo de fuentes con contratación + costo prorrateado de fuentes sin contratación) ÷ contrataciones.</li>
+     <li><b>Score del candidato</b> = técnica 40% + panel con líder 35% + entrevista de cultura 25%, escala 1–5.</li>
+   </ul>
+   <h3 class="sec">Desempeño y 360</h3>
+   <ul class="bul">
+     <li><b>Nota cruda</b> = 55% cumplimiento de objetivos (KPI, reescalado a 1–5) + 45% competencias, más el sesgo del evaluador.</li>
+     <li><b>Nota final</b> = nota cruda corregida en calibración, descontando el sesgo sistemático del evaluador estimado sobre todos sus evaluados. La diferencia entre ambas es lo que hace visible el gráfico de sesgo.</li>
+     <li><b>360 ponderado</b> = jefatura 40%, pares 30%, reportes directos 20%, clientes internos 10%. La autoevaluación no pondera: se usa solo para medir la brecha de autoconocimiento.</li>
+     <li><b>Cuartiles</b> se calculan <i>dentro de cada nivel jerárquico</i>. Compararlos transversalmente entre niveles no tiene sentido estadístico ni de gestión.</li>
+   </ul>
+   <h3 class="sec">Capacidades</h3>
+   <ul class="bul">
+     <li><b>Brecha</b> = máx(0, nivel requerido − nivel observado). El requerido depende de la dimensión, del nivel jerárquico y de la criticidad de esa capacidad para la familia de roles.</li>
+     <li><b>Índice de prioridad</b> = brecha × criticidad × √(personas afectadas). La raíz evita que las áreas grandes dominen mecánicamente el ranking.</li>
+     <li><b>Intervención</b> se asigna por tamaño de brecha siguiendo 70:20:10 — brechas sobre 1,3 niveles requieren academia con proyecto real; bajo 0,3 no justifican inversión dedicada.</li>
+   </ul>
+   <h3 class="sec">Estructura y costo</h3>
+   <ul class="bul">
+     <li><b>Span de control</b> = reportes directos. <b>Equipo total</b> = reportes directos e indirectos (recursivo).</li>
+     <li><b>Capas</b> = profundidad en el árbol jerárquico real, no el nivel nominal del cargo. Es la diferencia entre lo que dice el organigrama y cómo fluye realmente la decisión.</li>
+     <li><b>Costo anual</b> = renta bruta mensual × 13,2 (12 meses + ~10% de carga social y beneficios). Ajusta este factor a tu realidad antes de usar los números.</li>
+     <li><b>Compa-ratio</b> = renta ÷ punto medio de la banda del nivel. Las bandas de Perú se expresan en CLP con un índice de costo laboral local de 0,79.</li>
+   </ul>`;
+}
+
+/* ═══════════════ CARGA / EXPORTACIÓN ═══════════════ */
+const MAPA={
+  personas:{id:['id','rut','codigo'],nombre:['nombre','nombre_completo'],cargo:['cargo','puesto'],nivel:['nivel','level','grado'],
+    pais:['pais','país','country'],bu:['business_unit','bu','division','división'],area:['area','área','gerencia'],
+    sub:['subgerencia','sub_gerencia','subarea','departamento'],jefe_id:['jefe_id','id_jefe','supervisor_id','reporta_a'],
+    sueldo:['sueldo_bruto_mensual','sueldo','renta','remuneracion'],ingreso:['fecha_ingreso','ingreso'],
+    desempeno:['desempeno','desempeño','performance'],potencial:['potencial','potential'],genero:['genero','género','sexo']}
+};
+function norm(s){ return String(s).toLowerCase().trim().replace(/\s+/g,'_'); }
+function mapRow(row,mapa){
+  const out={}, keys={}; Object.keys(row).forEach(k=>keys[norm(k)]=row[k]);
+  Object.entries(mapa).forEach(([campo,alias])=>{ for(const a of alias){ if(keys[a]!==undefined&&keys[a]!==''){ out[campo]=keys[a]; break; } } });
+  return out;
+}
+function procesarPersonas(rows){
+  const P=rows.map(r=>{
+    const o=mapRow(r,MAPA.personas);
+    const nivel=clamp(parseInt(o.nivel)||6,1,7);
+    const pais=o.pais||'Chile';
+    const fx=(PAISES.find(x=>x.nombre===pais)||{fx:1}).fx;
+    const sueldo=Number(String(o.sueldo||'').toString().replace(/[^0-9.-]/g,''))||banda(nivel)*fx;
+    const ing=o.ingreso?new Date(o.ingreso):addD(TODAY,-1200);
+    const antig=Math.max(0.1,days(ing,TODAY)/365);
+    const fam=(AREAS.find(a=>a.nombre===o.area)||{familia:'Soporte'}).familia;
+    return {id:String(o.id),nombre:o.nombre||'—',cargo:o.cargo||'—',nivel,pais,bu:o.bu||'—',area:o.area||'—',
+      sub:o.sub||o.area||'—',jefe_id:o.jefe_id?String(o.jefe_id):null,familia:fam,
+      sueldo,banda_media:Math.round(banda(nivel)*fx),compa:sueldo/(banda(nivel)*fx),
+      ingreso:dstr(ing),antiguedad:antig,desempeno:clamp(parseInt(o.desempeno)||3,1,5),
+      potencial:clamp(parseInt(o.potencial)||2,1,3),genero:o.genero||'—',riesgo_fuga:2};
+  }).filter(p=>p.id&&p.id!=='undefined');
+  return P;
+}
+function leerArchivo(file){
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const hoja=n=>{ const nm=wb.SheetNames.find(s=>norm(s).includes(n)); return nm?XLSX.utils.sheet_to_json(wb.Sheets[nm],{defval:''}):null; };
+      const hp=hoja('persona')||XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      const P=procesarPersonas(hp);
+      if(!P.length) throw new Error('No se encontraron filas válidas en la hoja de Personas.');
+      const avisos=[];
+      let reqs=[],cands=[];
+      const hr=hoja('requisicion'), hc=hoja('candidato'), he=hoja('evaluacion');
+      if(hr&&hc){
+        reqs=hr.map(r=>{const o={};Object.keys(r).forEach(k=>o[norm(k)]=r[k]);
+          const ap=o.fecha_apertura?new Date(o.fecha_apertura):addD(TODAY,-30);
+          return {id:String(o.id||o.requisicion),cargo:o.cargo||'—',nivel:clamp(parseInt(o.nivel)||6,1,7),
+            pais:o.pais||'Chile',bu:o.business_unit||o.bu||'—',area:o.area||'—',sub:o.subgerencia||o.area||'—',
+            familia:(AREAS.find(a=>a.nombre===o.area)||{familia:'Soporte'}).familia,
+            hiring_manager:o.hiring_manager||'—',reclutador:o.reclutador||'—',motivo:o.motivo||'Reemplazo',
+            critico:String(o.critico).toLowerCase()==='si'||o.critico===true,meta_dias:parseInt(o.meta_dias)||45,
+            apertura:dstr(ap),dias_abierta:days(ap,TODAY),renta_ofrecida:Number(String(o.renta_ofrecida||0).replace(/[^0-9]/g,''))||banda(parseInt(o.nivel)||6),
+            estado:o.estado||'Abierta',dias_cierre:parseInt(o.dias_cierre)||undefined};});
+        cands=hc.map((r,i)=>{const o={};Object.keys(r).forEach(k=>o[norm(k)]=r[k]);
+          const req=reqs.find(x=>x.id===String(o.requisicion||o.req))||reqs[0]||{};
+          const idx=Math.max(0,ETAPAS.indexOf(o.etapa));
+          return {id:String(o.id||'C'+i),nombre:o.nombre||'—',req:req.id,cargo:req.cargo,pais:req.pais,bu:req.bu,area:req.area,sub:req.sub,
+            etapa:ETAPAS[idx],etapa_idx:idx,estado:o.estado||'En proceso',motivo:o.motivo||null,
+            reclutador:o.reclutador||req.reclutador,fuente:o.fuente||'Portal de empleo',
+            aplico:o.fecha_postulacion||dstr(TODAY),dias_proceso:parseInt(o.dias_proceso)||0,dias_etapa:parseInt(o.dias_en_etapa)||0,
+            score:o.score?Number(o.score):null,pretension:Number(String(o.pretension||0).replace(/[^0-9]/g,''))||0,
+            sobrevive90:o.estado==='Contratado'?String(o.sobrevive_90d).toLowerCase()!=='no':null};});
+      } else { avisos.push('sin hojas de Requisiciones/Candidatos — el módulo de recruiting sigue con datos demo'); }
+      let evals=[];
+      if(he&&he.length){
+        evals=he.map(r=>{const o={};Object.keys(r).forEach(k=>o[norm(k)]=r[k]);
+          const d=DIMS.find(x=>x.id===o.dimension||x.nombre===o.dimension);
+          const p=P.find(x=>x.id===String(o.persona||o.id_persona));
+          if(!d||!p) return null;
+          const req=o.requerido?Number(o.requerido):requerido(d,p.nivel,p.familia);
+          const obs=Number(o.observado||o.nivel_actual||3);
+          return {persona:p.id,dim:d.id,requerido:req,observado:obs,gap:Number(Math.max(0,req-obs).toFixed(2))};
+        }).filter(Boolean);
+      } else { evals=genEvals(P); avisos.push('sin hoja de Evaluaciones — capacidades estimadas a partir del modelo'); }
+      D={personas:P,reqs:reqs.length?reqs:D.reqs,cands:cands.length?cands:D.cands,evals,perf:genPerf(P),origen:'archivo'};
+      reindex(); renderAll();
+      document.getElementById('upStatus').innerHTML=`<b style="color:#00806f">✓ ${fmt(P.length)} personas cargadas.</b>${avisos.length?' Avisos: '+avisos.join('; ')+'.':''}`;
+      goTab('ctrl');
+    }catch(err){ document.getElementById('upStatus').innerHTML='<b style="color:#c73050">Error al leer el archivo: '+esc(err.message)+'</b>'; }
+  };
+  rd.readAsArrayBuffer(file);
+}
+document.getElementById('file').onchange=e=>{ if(e.target.files[0]) leerArchivo(e.target.files[0]); };
+const dz=document.getElementById('drop');
+dz.ondragover=e=>{e.preventDefault();dz.classList.add('on');};
+dz.ondragleave=()=>dz.classList.remove('on');
+dz.ondrop=e=>{e.preventDefault();dz.classList.remove('on'); if(e.dataTransfer.files[0]) leerArchivo(e.dataTransfer.files[0]);};
+
+function downloadTemplate(){
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.personas.slice(0,25).map(p=>({
+    id:p.id,nombre:p.nombre,cargo:p.cargo,nivel:p.nivel,pais:p.pais,business_unit:p.bu,area:p.area,
+    subgerencia:p.sub,jefe_id:p.jefe_id,sueldo_bruto_mensual:p.sueldo,fecha_ingreso:p.ingreso,
+    desempeno:p.desempeno,potencial:p.potencial,genero:p.genero}))),'Personas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.reqs.slice(0,12).map(r=>({
+    id:r.id,cargo:r.cargo,nivel:r.nivel,pais:r.pais,business_unit:r.bu,area:r.area,subgerencia:r.sub,
+    hiring_manager:r.hiring_manager,reclutador:r.reclutador,motivo:r.motivo,critico:r.critico?'Si':'No',
+    meta_dias:r.meta_dias,fecha_apertura:r.apertura,renta_ofrecida:r.renta_ofrecida,estado:r.estado,dias_cierre:r.dias_cierre||''}))),'Requisiciones');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.cands.slice(0,40).map(c=>({
+    id:c.id,nombre:c.nombre,requisicion:c.req,etapa:c.etapa,estado:c.estado,motivo:c.motivo||'',
+    reclutador:c.reclutador,fuente:c.fuente,fecha_postulacion:c.aplico,dias_proceso:c.dias_proceso,
+    dias_en_etapa:c.dias_etapa,score:c.score||'',pretension:c.pretension,sobrevive_90d:c.sobrevive90===null?'':(c.sobrevive90?'Si':'No')}))),'Candidatos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.evals.slice(0,60).map(e=>({
+    persona:e.persona,dimension:e.dim,requerido:e.requerido,observado:e.observado}))),'Evaluaciones');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DIMS.map(d=>({
+    id:d.id,dimension:d.nombre,tipo:d.tipo,familia:d.fam==='*'?'Todas':d.fam}))),'Catalogo_Dimensiones');
+  XLSX.writeFile(wb,'plantilla_capital_humano.xlsx');
+}
+function exportAll(){
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.personas.map(p=>{
+    const r=IDX.perfByP[p.id], ev=IDX.evalByP[p.id]||[];
+    return {id:p.id,nombre:p.nombre,cargo:p.cargo,nivel:p.nivel,pais:p.pais,business_unit:p.bu,area:p.area,
+      subgerencia:p.sub,jefe_id:p.jefe_id,sueldo:p.sueldo,costo_anual:Math.round(p.sueldo*13.2),
+      compa_ratio:Number(p.compa.toFixed(3)),span:IDX.span[p.id],equipo_total:IDX.totalRep[p.id],capa:IDX.depth[p.id],
+      nota_desempeno:r&&r.evaluable?r.final:'',categoria:r&&r.evaluable?r.cat:'',cuartil:r&&r.evaluable?r.cuartil:'',
+      kpi:r&&r.evaluable?r.kpi:'',gap_auto_360:r&&r.evaluable?r.gapAuto:'',potencial:p.potencial,
+      brecha_capacidades:ev.length?Number((ev.reduce((s,e)=>s+e.gap,0)/ev.length).toFixed(2)):''};
+  })),'Personas_diagnostico');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.reqs.map(r=>({...r,semaforo:riesgoReq(r).n,
+    pipeline_vivo:(IDX.candByReq[r.id]||[]).filter(c=>c.estado==='En proceso').length}))),'Requisiciones');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.cands.map(c=>({...c,recomendacion:recomCand(c)}))),'Candidatos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(D.evals.map(e=>({...e,
+    dimension:DIMS.find(d=>d.id===e.dim).nombre,intervencion:interv(e.gap).nombre,costo:interv(e.gap).costo}))),'Brechas_capacidad');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(BENCHMARKS.map(b=>({modulo:b[0],indicador:b[1],best_in_class:b[2],rango_habitual:b[3],nota:b[4]}))),'Benchmarks');
+  XLSX.writeFile(wb,'capital_humano_diagnostico.xlsx');
+}
+
+/* ═══════════════ ANALISTA IA (n8n) ═══════════════ */
+function resumenIA(){
+  const f={pais:CHATF.pais||'',bu:CHATF.bu||''};
+  const pers=fPersonas(f), ids=new Set(pers.map(p=>p.id));
+  const jefes=pers.filter(p=>IDX.span[p.id]>0);
+  const reqs=D.reqs.filter(r=>matchOrg(r,f)), abiertas=reqs.filter(r=>r.estado!=='Cerrada'), cerradas=reqs.filter(r=>r.estado==='Cerrada');
+  const cands=D.cands.filter(c=>matchOrg(c,f));
+  const vol=ETAPAS.map((e,i)=>cands.filter(c=>c.etapa_idx>=i).length);
+  const conv={}; ['Postulacion','Screening CV','Entrevista RRHH','Entrevista tecnica','Panel con lider','Oferta'].forEach((k,i)=>{
+    conv[k]= vol[i]? Number((vol[i+1]/vol[i]).toFixed(3)) : null; });
+  const ofertas=cands.filter(c=>c.etapa_idx>=5), contratados=cands.filter(c=>c.estado==='Contratado');
+  const pop=perfPop(f), n=Math.max(1,pop.length);
+  const dist={}; CATS.forEach(c=>dist[c.n]=Number((pop.filter(x=>x.r.cat===c.n).length/n).toFixed(3)));
+  const jefesEval={}; pop.forEach(x=>{ if(x.p.jefe_id) (jefesEval[x.p.jefe_id]=jefesEval[x.p.jefe_id]||[]).push(x.r); });
+  const sesgos=Object.values(jefesEval).filter(a=>a.length>=3).map(a=>a.reduce((s,r)=>s+r.crudo-r.final,0)/a.length);
+  let inv=0,resp=0; pop.forEach(x=>Object.values(x.r.part).forEach(p=>{inv+=p.invitados;resp+=p.respondieron;}));
+  const evs=D.evals.filter(e=>ids.has(e.persona));
+  const porDim=DIMS.map(d=>{ const s=evs.filter(e=>e.dim===d.id); return s.length?{dimension:d.nombre,brecha:Number((s.reduce((a,e)=>a+e.gap,0)/s.length).toFixed(2)),personas:s.length}:null; })
+    .filter(Boolean).sort((a,b)=>b.brecha-a.brecha).slice(0,6);
+  const porUni=[...new Set(pers.map(p=>p.pais+' / '+p.bu))].map(u=>{
+    const s=evs.filter(e=>{const p=IDX.byId[e.persona]; return p&&(p.pais+' / '+p.bu)===u;});
+    return s.length?{unidad:u,brecha:Number((s.reduce((a,e)=>a+e.gap,0)/s.length).toFixed(2))}:null; })
+    .filter(Boolean).sort((a,b)=>b.brecha-a.brecha).slice(0,4);
+  const costo=pers.reduce((s,p)=>s+p.sueldo*13.2,0);
+  const optSpan=+document.getElementById('sSpan').value;
+  const cons=D.personas.filter(p=>p.nivel>=4&&IDX.span[p.id]>0&&IDX.span[p.id]<(p.nivel>=5?optSpan:Math.max(3,optSpan-3))&&IDX.totalRep[p.id]<25);
+  return {
+    recruiting:{
+      time_to_fill: cerradas.length? Number((cerradas.reduce((s,r)=>s+r.dias_cierre,0)/cerradas.length).toFixed(1)) : null,
+      aceptacion_oferta: ofertas.length? Number((contratados.length/ofertas.length).toFixed(3)) : null,
+      sobrevivencia_90d: contratados.length? Number((contratados.filter(c=>c.sobrevive90).length/contratados.length).toFixed(3)) : null,
+      vacantes_abiertas: abiertas.length,
+      vacantes_criticas: abiertas.filter(r=>riesgoReq(r).n==='Crítica').length,
+      candidatos_estancados: cands.filter(c=>c.estado==='En proceso'&&c.dias_etapa>20).length,
+      conversiones: conv,
+      reclutadores: RECLUTADORES.map(nm=>({nombre:nm,activas:reqs.filter(r=>r.reclutador===nm&&r.estado!=='Cerrada').length}))
+    },
+    desempeno:{
+      evaluados:pop.length, nota_promedio:Number((pop.reduce((s,x)=>s+x.r.final,0)/n).toFixed(2)),
+      distribucion:dist,
+      evaluadores_infladores:sesgos.filter(s=>s>0.28).length, evaluadores_duros:sesgos.filter(s=>s<-0.28).length,
+      notas_movidas:Number((pop.filter(x=>x.r.movido).length/n).toFixed(3)),
+      resultados_a_cualquier_costo:pop.filter(x=>x.r.kpi>=1&&x.r.compAvg<3.3).length,
+      puntos_ciegos:pop.filter(x=>x.r.gapAuto>0.5).length,
+      participacion_360:Number((resp/Math.max(1,inv)).toFixed(3)),
+      q1_en_riesgo:pop.filter(x=>x.r.cuartil===1&&(x.p.compa<0.9||x.p.riesgo_fuga>=3)).length
+    },
+    capacidades:{
+      brecha_promedio: evs.length? Number((evs.reduce((s,e)=>s+e.gap,0)/evs.length).toFixed(2)) : null,
+      top_dimensiones: porDim, unidades_criticas: porUni,
+      inversion_programa: evs.filter(e=>e.gap>=0.6).reduce((s,e)=>s+interv(e.gap).costo,0),
+      costo_personal_anual: Math.round(costo)
+    },
+    estructura:{
+      dotacion:pers.length, costo_anual:Math.round(costo),
+      span_promedio: jefes.length? Number((jefes.reduce((s,p)=>s+IDX.span[p.id],0)/jefes.length).toFixed(2)) : null,
+      capas: pers.length? Math.max(...pers.map(p=>IDX.depth[p.id])) : null,
+      jefaturas:jefes.length, jefaturas_sub_escala:jefes.filter(p=>IDX.span[p.id]<4).length,
+      ratio_jefaturas: Number((jefes.length/Math.max(1,pers.length)).toFixed(3)),
+      compa_bajo_085:pers.filter(p=>p.compa<0.85).length, compa_sobre_120:pers.filter(p=>p.compa>1.2).length,
+      posiciones_impactadas:cons.length, ahorro_potencial:Math.round(cons.reduce((s,p)=>s+p.sueldo*13.2,0))
+    },
+    comparativo: comparativoIA()
+  };
+}
+/* Bloque comparativo: métricas clave por país y por BU, SIEMPRE sobre la compañía completa,
+   para que el analista pueda comparar unidades sin depender del alcance seleccionado. */
+function comparativoIA(){
+  const fila=(nom,pers)=>{
+    if(!pers.length) return null;
+    const ids=new Set(pers.map(p=>p.id));
+    const jefes=pers.filter(p=>IDX.span[p.id]>0);
+    const evs=D.evals.filter(e=>ids.has(e.persona));
+    const pop=pers.map(p=>IDX.perfByP[p.id]).filter(r=>r&&r.evaluable);
+    const cerr=D.reqs.filter(r=>r.estado==='Cerrada'&&pers.some(p=>p.pais===r.pais&&p.bu===r.bu));
+    const cands=D.cands.filter(c=>pers.some(p=>p.pais===c.pais&&p.bu===c.bu));
+    const of=cands.filter(c=>c.etapa_idx>=5), hi=cands.filter(c=>c.estado==='Contratado');
+    return {unidad:nom, dotacion:pers.length,
+      costo_anual:Math.round(pers.reduce((s,p)=>s+p.sueldo*13.2,0)),
+      span_promedio: jefes.length? Number((jefes.reduce((s,p)=>s+IDX.span[p.id],0)/jefes.length).toFixed(2)):null,
+      capas: Math.max(...pers.map(p=>IDX.depth[p.id])),
+      ratio_jefaturas: Number((jefes.length/pers.length).toFixed(3)),
+      nota_desempeno: pop.length? Number((pop.reduce((s,r)=>s+r.final,0)/pop.length).toFixed(2)):null,
+      brecha_capacidades: evs.length? Number((evs.reduce((s,e)=>s+e.gap,0)/evs.length).toFixed(2)):null,
+      time_to_fill: cerr.length? Number((cerr.reduce((s,r)=>s+r.dias_cierre,0)/cerr.length).toFixed(1)):null,
+      aceptacion_oferta: of.length? Number((hi.length/of.length).toFixed(3)):null,
+      vacantes_abiertas: D.reqs.filter(r=>r.estado!=='Cerrada'&&pers.some(p=>p.pais===r.pais&&p.bu===r.bu)).length};
+  };
+  return {
+    por_pais:[...new Set(D.personas.map(p=>p.pais))].sort().map(x=>fila(x,D.personas.filter(p=>p.pais===x))).filter(Boolean),
+    por_bu:[...new Set(D.personas.map(p=>p.pais+' / '+p.bu))].sort().map(x=>fila(x,D.personas.filter(p=>(p.pais+' / '+p.bu)===x))).filter(Boolean)
+  };
+}
+/* Alcance propio del chat (independiente de los filtros de las otras pestañas) */
+let CHATF={pais:'',bu:''};
+function chatCtxChange(){
+  CHATF.pais=document.getElementById('chatPais').value;
+  CHATF.bu=document.getElementById('chatBu').value;
+  llenarCtxChat();
+  const et=(CHATF.pais||'Toda la compañía')+(CHATF.bu?' · '+CHATF.bu:'');
+  pushMsg('bot','Listo, cambio el alcance del análisis a: '+et+'. Pregúntame sobre esta población.',{sistema:true});
+}
+function llenarCtxChat(){
+  const sp=document.getElementById('chatPais'), sb=document.getElementById('chatBu');
+  const paises=[...new Set(D.personas.map(p=>p.pais))].sort();
+  sp.innerHTML='<option value="">Todos los países</option>'+paises.map(p=>`<option value="${esc(p)}" ${p===CHATF.pais?'selected':''}>${esc(p)}</option>`).join('');
+  const bus=[...new Set(D.personas.filter(p=>!CHATF.pais||p.pais===CHATF.pais).map(p=>p.bu))].sort();
+  if(CHATF.bu&&!bus.includes(CHATF.bu)) CHATF.bu='';
+  sb.innerHTML='<option value="">Todas las BU</option>'+bus.map(b=>`<option value="${esc(b)}" ${b===CHATF.bu?'selected':''}>${esc(b)}</option>`).join('');
+}
+/* Detección de módulo por palabras clave cuando está en automático */
+const KEYS={recruiting:['vacante','candidat','recluta','embudo','contrat','oferta','entrevista','sourcing','postul','time-to-fill','cazatalento'],
+  desempeno:['desempeñ','desempen','evaluac','calibra','360','nota','cuartil','potencial','9-box','sucesi','fuga','rotaci','talento'],
+  capacidades:['capacid','brecha','formaci','capacit','skill','academia','entrenamiento','aprendiz','desarrollo de compet'],
+  estructura:['estructura','span','capa','layer','organigrama','dotaci','headcount','costo','sueldo','renta','banda','compa','jefatur','optimiz','reestructur']};
+function detectarModulo(txt){
+  const t=txt.toLowerCase(); let best='general',score=0;
+  Object.keys(KEYS).forEach(k=>{ const s=KEYS[k].filter(w=>t.includes(w)).length; if(s>score){score=s;best=k;} });
+  return score?best:'general';
+}
+/* Si el usuario nombra un país o una BU en el mensaje, el alcance se mueve solo.
+   Si nombra dos (o pide comparar), el alcance no se toca: el bloque comparativo cubre el caso. */
+function alcanceDesdeTexto(txt){
+  const t=txt.toLowerCase();
+  const paises=[...new Set(D.personas.map(p=>p.pais))];
+  const bus=[...new Set(D.personas.map(p=>p.bu))];
+  const pHit=paises.filter(p=>t.includes(p.toLowerCase().replace('ú','u'))||t.includes(p.toLowerCase()));
+  const bHit=bus.filter(b=>t.includes(b.toLowerCase().split(' ')[0]));
+  const comparando=/compar|versus| vs |diferencia entre|ambos|los dos/.test(t)||pHit.length>1||bHit.length>1;
+  if(comparando) return null;
+  let cambio=null;
+  if(pHit.length===1&&pHit[0]!==CHATF.pais){ CHATF.pais=pHit[0]; cambio=pHit[0]; }
+  if(bHit.length===1&&bHit[0]!==CHATF.bu){ CHATF.bu=bHit[0]; cambio=(cambio?cambio+' · ':'')+bHit[0]; }
+  if(cambio){ llenarCtxChat(); }
+  return cambio;
+}
+function payloadIA(mensaje){
+  const sel=document.getElementById('chatMod').value;
+  const msg=mensaje!==undefined?mensaje:(document.getElementById('chatIn').value||'');
+  return {modulo: sel==='auto'? detectarModulo(msg) : sel,
+    mensaje: msg,
+    sessionId: SESSION,
+    alcance:{pais:CHATF.pais||'Todos',bu:CHATF.bu||'Todas'},
+    datos:resumenIA()};
+}
+function verPayload(){
+  openModal('<h2 style="font-size:16px">Datos que se envían a n8n</h2><div class="tiny" style="margin:8px 0 12px">Solo agregados. Ningún nombre, renta individual ni evaluación personal sale del navegador.</div><pre style="background:#f4f6f8;padding:14px;border-radius:8px;font-size:11.5px;overflow:auto;max-height:520px">'+esc(JSON.stringify(payloadIA(),null,2))+'</pre>');
+}
+/* ── Chat en vivo ── */
+const URL_DEFECTO='https://n8n-production-121a.up.railway.app/webhook/rrhh-ai';
+let SESSION=localStorage.getItem('rrhh_sid')||('s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
+localStorage.setItem('rrhh_sid',SESSION);
+let ENVIANDO=false;
+/* La URL por defecto solo se aplica al abrir el archivo en local. Publicado en un sitio público,
+   el webhook se configura con ⚙ y queda guardado en el navegador de cada persona: así el endpoint
+   de n8n (y la cuota del modelo) no queda expuesto a cualquiera que abra la página. */
+const esLocal=()=>location.protocol==='file:'||/^(localhost|127\.|192\.168\.)/.test(location.hostname);
+const urlChat=()=>localStorage.getItem('rrhh_ia_url')||(esLocal()?URL_DEFECTO:'');
+function configWebhook(){
+  const u=prompt('URL del webhook n8n (workflow «Capital Humano — Analista IA», ruta /webhook/rrhh-ai):',urlChat());
+  if(u!==null&&u.trim()){ localStorage.setItem('rrhh_ia_url',u.trim()); estadoChat(true,'Conectado · responde en vivo'); }
+}
+function estadoChat(ok,txt){
+  document.getElementById('chatLed').className='led'+(ok?'':' off');
+  document.getElementById('chatSt').textContent=txt;
+}
+function pushMsg(quien,texto,opt={}){
+  const b=document.getElementById('chatBody');
+  const d=document.createElement('div');
+  d.className='msg '+(quien==='me'?'me':'bot');
+  d.innerHTML=`<div class="ic">${quien==='me'?'🙂':'🤖'}</div><div><div class="bub">${opt.html||esc(texto)}</div>${opt.meta?`<div class="meta">${esc(opt.meta)}</div>`:''}</div>`;
+  b.appendChild(d); b.scrollTop=b.scrollHeight;
+  return d.querySelector('.bub');
+}
+function nuevaConversacion(){
+  SESSION='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  localStorage.setItem('rrhh_sid',SESSION);
+  document.getElementById('chatBody').innerHTML='';
+  saludoChat();
+}
+function saludoChat(){
+  const p=fPersonas({pais:CHATF.pais,bu:CHATF.bu});
+  const abiertas=D.reqs.filter(r=>matchOrg(r,{pais:CHATF.pais,bu:CHATF.bu})&&r.estado!=='Cerrada').length;
+  const et=(CHATF.pais||'Chile y Perú')+(CHATF.bu?' · '+CHATF.bu:'');
+  pushMsg('bot','',{html:`Hola. Estoy mirando <b>${fmt(p.length)} personas</b> de ${esc(et)}, con <b>${abiertas} vacantes abiertas</b>, el ciclo de desempeño cerrado y el mapa de capacidades cargado.\n\nPuedes preguntarme lo que quieras: te respondo con los números que calculo sobre tus datos, no con generalidades. Si quieres, parte por una de las sugerencias de abajo.`});
+  renderSugerencias(4);
+}
+const SUGS=[
+  '¿Dónde se me está cayendo el embudo de reclutamiento?',
+  '¿Qué vacante debería preocuparme esta semana?',
+  '¿La evaluación de desempeño discriminó de verdad?',
+  '¿Quiénes cumplen el número pero destruyen el cómo?',
+  'Si tengo plata para una sola academia, ¿en qué la invierto?',
+  '¿Cuánto de mi costo de estructura es coordinación evitable?',
+  'Compárame Chile con Perú',
+  'Prepárame los tres mensajes para el comité de gerencia'
+];
+function renderSugerencias(n){
+  const el=document.getElementById('chatSug');
+  if(n===0){ el.innerHTML=''; return; }
+  const idx=SUGS.map((s,i)=>i);
+  const usar= n? idx.sort(()=>Math.random()-0.5).slice(0,n) : idx;
+  el.innerHTML=usar.map(i=>`<button onclick="enviarChat(${i})">${esc(SUGS[i])}</button>`).join('');
+}
+async function enviarChat(idxSug){
+  if(ENVIANDO) return;
+  if(!urlChat()){
+    pushMsg('bot','',{html:'Para conversar necesito la URL del webhook de n8n (workflow «Capital Humano — Analista IA», ruta <code>/webhook/rrhh-ai</code>). Pícale al botón <b>⚙</b> de arriba y pégala: queda guardada en este navegador.'});
+    estadoChat(false,'Falta configurar el webhook');
+    return;
+  }
+  const inp=document.getElementById('chatIn');
+  const texto=(idxSug!==undefined&&typeof idxSug==='number')?SUGS[idxSug]:inp.value.trim();
+  if(!texto) return;
+  inp.value=''; inp.style.height='auto';
+  ENVIANDO=true; document.getElementById('chatBtn').disabled=true;
+  renderSugerencias(0);
+  pushMsg('me',texto);
+  const cambio=alcanceDesdeTexto(texto);
+  if(cambio) pushMsg('bot','',{html:`<span style="color:var(--muted);font-size:12.5px">Cambio el alcance de los datos a <b>${esc(cambio)}</b> y respondo sobre esa población.</span>`});
+  const mod=document.getElementById('chatMod').value==='auto'?detectarModulo(texto):document.getElementById('chatMod').value;
+  const bub=pushMsg('bot','',{html:'<span class="typing"><i></i><i></i><i></i></span>'});
+  const body=document.getElementById('chatBody');
+  const t0=Date.now(); let acc='', primerToken=null;
+  /* mientras no llega el primer token, el analista está calculando: se lo decimos con el reloj corriendo */
+  const espera=setInterval(()=>{
+    if(acc) return;
+    const s=((Date.now()-t0)/1000).toFixed(0);
+    bub.innerHTML=`<span class="typing"><i></i><i></i><i></i></span> <span style="color:var(--muted);font-size:12px">calculando ${MODNOM[mod]||'los indicadores'} sobre tus datos… ${s}s</span>`;
+  },400);
+  try{
+    const r=await fetch(urlChat(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payloadIA(texto))});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    if(r.body&&r.body.getReader){
+      const rd=r.body.getReader(), dec=new TextDecoder(); let buf='';
+      while(true){
+        const {done,value}=await rd.read(); if(done) break;
+        buf+=dec.decode(value,{stream:true});
+        const lineas=buf.split('\n'); buf=lineas.pop();
+        lineas.forEach(l=>{
+          if(!l.trim()) return;
+          let j=null; try{ j=JSON.parse(l); }catch(e){ acc+=l; }
+          if(j&&j.type==='item'&&j.content){ acc+=j.content; if(primerToken===null) primerToken=Date.now()-t0; }
+          else if(j&&j.respuesta){ acc=j.respuesta; }
+        });
+        if(acc){ bub.innerHTML=esc(acc)+'<span class="cursor-blink"></span>'; body.scrollTop=body.scrollHeight; }
+      }
+      if(buf.trim()){ try{ const j=JSON.parse(buf); if(j.type==='item'&&j.content) acc+=j.content; if(j.respuesta) acc=j.respuesta; }catch(e){} }
+    } else {
+      const t=await r.text(); try{ acc=JSON.parse(t).respuesta||t; }catch(e){ acc=t; }
+    }
+    if(!acc.trim()) throw new Error('respuesta vacía del workflow');
+    bub.innerHTML=esc(acc);
+    bub.parentElement.insertAdjacentHTML('beforeend',
+      `<div class="meta">${MODNOM[mod]||'transversal'} · ${((Date.now()-t0)/1000).toFixed(1)} s${primerToken!==null?' (primer token en '+(primerToken/1000).toFixed(1)+' s)':''}</div>`);
+    estadoChat(true,'Conectado · responde en vivo');
+    renderSugerencias(3);
+  }catch(err){
+    bub.innerHTML='<b style="color:#c73050">No pude responder:</b> '+esc(err.message)+'.\nRevisa que el workflow «Capital Humano — Analista IA» esté publicado en n8n, o cambia la URL con el botón ⚙.';
+    estadoChat(false,'Sin conexión con n8n');
+  }
+  clearInterval(espera);
+  ENVIANDO=false; document.getElementById('chatBtn').disabled=false; inp.focus();
+}
+const MODNOM={recruiting:'recruiting',desempeno:'desempeño y 360',capacidades:'capacidades',estructura:'estructura y costo',general:'transversal'};
+function renderIA(){
+  llenarCtxChat();
+  const inp=document.getElementById('chatIn');
+  inp.addEventListener('input',()=>{ inp.style.height='auto'; inp.style.height=Math.min(130,inp.scrollHeight)+'px'; });
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); enviarChat(); } });
+  if(!document.getElementById('chatBody').children.length) saludoChat();
+  if(!urlChat()) estadoChat(false,'Configura el webhook con ⚙');
+}
+
+loadDemo();
+renderIA();
+</script>
+</body>
+</html>
