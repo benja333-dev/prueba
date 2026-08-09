@@ -487,7 +487,7 @@ ul.bul li b{color:var(--ink)}
         <textarea id="chatIn" rows="1" placeholder="Pregúntale lo que quieras sobre tu dotación, tu embudo o tu gente… (Enter para enviar)"></textarea>
         <button class="chat-send" id="chatBtn" onclick="enviarChat()">➤</button>
       </div>
-      <div class="tiny">El analista ve <b>solo métricas agregadas</b> del alcance seleccionado y recuerda lo conversado en esta sesión. Los números los calcula n8n, no el modelo — por eso no inventa cifras.</div>
+      <div class="tiny">El analista ve <b>solo métricas agregadas</b> del alcance seleccionado y recuerda lo conversado en esta sesión. Los números los calcula n8n, no el modelo — por eso no inventa cifras. <b>Demo abierta sobre datos ficticios:</b> no ingreses información real de personas; con ⚙ puedes apuntar el chat a tu propia instancia.</div>
     </div>
   </div>
 </section>
@@ -2067,11 +2067,9 @@ const URL_DEFECTO='https://n8n-production-121a.up.railway.app/webhook/rrhh-ai';
 let SESSION=localStorage.getItem('rrhh_sid')||('s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
 localStorage.setItem('rrhh_sid',SESSION);
 let ENVIANDO=false;
-/* La URL por defecto solo se aplica al abrir el archivo en local. Publicado en un sitio público,
-   el webhook se configura con ⚙ y queda guardado en el navegador de cada persona: así el endpoint
-   de n8n (y la cuota del modelo) no queda expuesto a cualquiera que abra la página. */
-const esLocal=()=>location.protocol==='file:'||/^(localhost|127\.|192\.168\.)/.test(location.hostname);
-const urlChat=()=>localStorage.getItem('rrhh_ia_url')||(esLocal()?URL_DEFECTO:'');
+/* Demo abierta: el chat funciona para cualquier visitante contra el webhook público.
+   Con ⚙ puedes apuntarlo a tu propia instancia de n8n. */
+const urlChat=()=>localStorage.getItem('rrhh_ia_url')||URL_DEFECTO;
 function configWebhook(){
   const u=prompt('URL del webhook n8n (workflow «Capital Humano — Analista IA», ruta /webhook/rrhh-ai):',urlChat());
   if(u!==null&&u.trim()){ localStorage.setItem('rrhh_ia_url',u.trim()); estadoChat(true,'Conectado · responde en vivo'); }
