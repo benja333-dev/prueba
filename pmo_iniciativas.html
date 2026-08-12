@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WavePMO — Gestión de Iniciativas &amp; Captura de Impacto</title>
+<style>
+:root{
+  --navy:#051c2c; --navy2:#0a2e44; --blue:#2251ff; --cyan:#00a9f4; --teal:#00b8a2;
+  --bg:#f4f6f8; --card:#ffffff; --ink:#051c2c; --muted:#5b6a75; --line:#e1e7ec;
+  --good:#00b8a2; --bad:#e5546c; --warn:#f5a623; --purple:#7b61ff;
+  --c1:#051c2c; --c2:#2251ff; --c3:#00a9f4; --c4:#00b8a2; --c5:#f5a623; --c6:#7b61ff; --c7:#e5546c;
+  --l1:#c9d3dd; --l2:#7b61ff; --l3:#00a9f4; --l4:#00b8a2; --l5:#0a7d5a;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif}
+body{background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:18px 30px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+header h1{font-size:20px;font-weight:600;display:flex;align-items:center;gap:9px}
+header h1 span{color:var(--cyan)}
+header .sub{font-size:12px;color:#9fb3c0;margin-top:4px;max-width:560px;line-height:1.5}
+.kpi-strip{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{background:var(--navy2);border-radius:8px;padding:8px 14px;min-width:118px}
+.kpi .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#8fa5b3}
+.kpi .val{font-size:17px;font-weight:700;margin-top:2px}
+.kpi .val.good{color:var(--teal)} .kpi .val.bad{color:#ff7d92} .kpi .val.warn{color:#ffc760} .kpi .val.info{color:var(--cyan)}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 30px;display:flex;gap:2px;overflow-x:auto;position:sticky;top:0;z-index:30}
+nav button{background:none;border:none;padding:13px 15px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button:hover{color:var(--ink)}
+nav button.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:22px 30px 70px;max-width:1440px;margin:0 auto}
+.tab{display:none}.tab.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:17px 19px;margin-bottom:16px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.card h2 .tools{display:flex;gap:7px;align-items:center}
+.card .hint{font-size:12px;color:var(--muted);margin-bottom:13px;line-height:1.55}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(400px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:8px 10px;background:var(--navy);color:#fff;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.tot td{font-weight:700;background:#eef2f6}
+tbody tr:hover{background:#f7fafc}
+tbody tr.clk{cursor:pointer}
+.scroll{overflow-x:auto}
+.scrollY{max-height:520px;overflow:auto}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.pill.good{background:#d9f4ef;color:#00806f}.pill.bad{background:#fde3e8;color:#c73050}
+.pill.warn{background:#fdf0d8;color:#b57900}.pill.info{background:#dbf0fd;color:#0071a8}
+.pill.n{background:#eef2f6;color:#5b6a75}
+.stage{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;color:#fff}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.btn.sm{padding:5px 11px;font-size:11.5px}
+.btn.danger{background:var(--bad)}
+.btn.gray{background:#eef2f6;color:var(--ink)}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:11.5px;font-weight:600;margin-bottom:4px}
+.field select,.field input,.field textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px;background:#fff;font-family:inherit}
+.field textarea{resize:vertical;min-height:52px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>.field{flex:1;min-width:130px}
+.minibar{height:7px;border-radius:4px;background:#e7edf2;overflow:hidden;min-width:60px}
+.minibar>span{display:block;height:100%;border-radius:4px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.tree-row{display:grid;grid-template-columns:1fr 90px 90px 90px 80px 60px;gap:6px;align-items:center;padding:7px 8px;border-bottom:1px solid var(--line);font-size:12.5px}
+.tree-row.head{background:var(--navy);color:#fff;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;border:none;position:sticky;top:0;z-index:2}
+.tree-row .nm{display:flex;align-items:center;gap:7px;overflow:hidden;text-overflow:ellipsis}
+.tw{cursor:pointer;user-select:none}
+.tw:hover{background:#f2f6fa}
+.lvl-area{background:#eef3f8;font-weight:700}
+.lvl-grupo{background:#f6f9fb;font-weight:600}
+.lvl-macro{font-weight:600}
+.lvl-ini{color:var(--muted)}
+.caret{display:inline-block;width:12px;font-size:10px;color:var(--muted);transition:transform .15s}
+.caret.open{transform:rotate(90deg)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.overlay{position:fixed;inset:0;background:rgba(5,28,44,.55);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow:auto}
+.overlay.on{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:760px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{font-size:17px;margin-bottom:3px}
+.modal .msub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.modal-foot{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.chip{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;background:#eef2f6;color:var(--ink)}
+.ms-row{display:grid;grid-template-columns:22px 1fr 120px 120px 30px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.ms-row input{padding:5px 7px}
+.bignum{font-size:26px;font-weight:800;line-height:1.1}
+.bignum small{font-size:12px;font-weight:600;color:var(--muted)}
+.flag{font-size:11px;padding:2px 7px;border-radius:5px;font-weight:700}
+.flag.red{background:#fde3e8;color:#c73050}.flag.amber{background:#fdf0d8;color:#b57900}.flag.green{background:#d9f4ef;color:#00806f}.flag.gray{background:#eef2f6;color:#5b6a75}
+svg text{font-family:'Helvetica Neue',Arial,sans-serif}
+.t4{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+.statcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.statcard .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.statcard .v{font-size:24px;font-weight:800;margin-top:4px}
+.statcard .d{font-size:11px;color:var(--muted);margin-top:2px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar select,.toolbar input{padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px;background:#fff}
+.tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:#eef2f6;color:#5b6a75}
+.spark{display:inline-block;vertical-align:middle}
+details.acc{border:1px solid var(--line);border-radius:8px;margin-bottom:8px;overflow:hidden}
+details.acc summary{padding:10px 13px;cursor:pointer;font-weight:600;font-size:13px;background:#f6f9fb;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc .body{padding:12px 14px}
+@media(max-width:640px){.tree-row{grid-template-columns:1fr 70px 70px;font-size:11px}.tree-row .c-owner,.tree-row.head .c-owner,.hidem{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🌊 Wave<span>PMO</span></h1>
+    <div class="sub">Motor de captura de valor: macroiniciativas → iniciativas → hitos, con proyección financiera, escalón de captura por etapa (L1–L5) y seguimiento semanal de riesgos. Todo local, se guarda en tu navegador.</div>
+  </div>
+  <div class="kpi-strip" id="hdrKpis"></div>
+</header>
+<nav id="nav">
+  <button data-tab="dash" class="active">📊 Dashboard</button>
+  <button data-tab="cartera">🗂️ Cartera</button>
+  <button data-tab="captura">📈 Escalón de captura</button>
+  <button data-tab="seguimiento">⏱️ Seguimiento semanal</button>
+  <button data-tab="iniciativas">📋 Iniciativas</button>
+  <button data-tab="config">⚙️ Estructura &amp; datos</button>
+</nav>
+<main>
+  <!-- DASHBOARD -->
+  <section class="tab active" id="tab-dash">
+    <div class="grid t4" id="dashStats" style="margin-bottom:16px"></div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>Pipeline de valor por etapa <span class="tag">run-rate anual</span></h2>
+        <div class="hint">Embudo de captura estilo Wave: de la idea (L1) al valor bancado (L5). El ancho pierde valor por el riesgo de cada etapa (valor ponderado por confianza).</div>
+        <div id="funnel"></div>
+      </div>
+      <div class="card">
+        <h2>Impacto por área</h2>
+        <div class="hint">Valor objetivo (run-rate pleno) de cada área del programa.</div>
+        <div id="donut"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Escalón de captura del programa <span class="tag">plan vs. real</span></h2>
+      <div class="hint">Construcción mensual del run-rate: cada peldaño suma la contribución de una etapa. La línea es la meta comprometida; las barras, lo capturado real.</div>
+      <div id="staircaseMini"></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>🚩 Hitos en riesgo</h2>
+        <div class="hint">Atrasados y próximos a vencer (14 días). Detalle completo en «Seguimiento semanal».</div>
+        <div id="riskList"></div>
+      </div>
+      <div class="card">
+        <h2>Salud de macroiniciativas</h2>
+        <div class="hint">Avance vs. plan de tiempo y captura vs. meta.</div>
+        <div id="macroHealth"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARTERA -->
+  <section class="tab" id="tab-cartera">
+    <div class="card">
+      <h2>Cartera de iniciativas
+        <span class="tools">
+          <button class="btn sm ghost" onclick="expandAll(true)">Expandir todo</button>
+          <button class="btn sm ghost" onclick="expandAll(false)">Colapsar</button>
+          <button class="btn sm" onclick="openIniModal()">+ Iniciativa</button>
+        </span>
+      </h2>
+      <div class="hint">Árbol Área → Grupo → Macroiniciativa → Iniciativa. Los montos son <b>run-rate anual pleno</b> (impacto una vez implementado). Click en una iniciativa para editarla.</div>
+      <div class="toolbar">
+        <label style="font-size:12px;font-weight:600">Ver monto:</label>
+        <select id="carteraMetric" onchange="renderCartera()">
+          <option value="runRate">Run-rate pleno</option>
+          <option value="weighted">Ponderado por confianza</option>
+          <option value="captured">Capturado a la fecha</option>
+          <option value="inYear">Impacto en el año</option>
+        </select>
+      </div>
+      <div class="scrollY" style="max-height:none">
+        <div class="tree-row head">
+          <div class="nm">Estructura</div>
+          <div class="num">Monto</div>
+          <div class="num c-owner">Iniciativas</div>
+          <div class="num">Avance</div>
+          <div class="num">Etapa</div>
+          <div class="num">Salud</div>
+        </div>
+        <div id="tree"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPTURA -->
+  <section class="tab" id="tab-captura">
+    <div class="card">
+      <h2>Escalón de captura — proyección financiera</h2>
+      <div class="hint">Cómo se construye el run-rate mes a mes. Cada iniciativa rampa desde su fecha de inicio hasta el run-rate pleno en su fecha de captura. Compara el <b>plan comprometido</b> (línea) con la <b>captura real</b> (área) según el avance reportado.</div>
+      <div class="toolbar">
+        <label style="font-size:12px;font-weight:600">Área:</label>
+        <select id="capArea" onchange="renderCaptura()"><option value="">Todo el programa</option></select>
+        <label style="font-size:12px;font-weight:600">Apilar por:</label>
+        <select id="capStack" onchange="renderCaptura()">
+          <option value="area">Área</option>
+          <option value="stage">Etapa (L1–L5)</option>
+        </select>
+        <label style="font-size:12px;font-weight:600">Escenario:</label>
+        <select id="capScen" onchange="renderCaptura()">
+          <option value="plan">Plan (comprometido)</option>
+          <option value="weighted">Ponderado por confianza</option>
+        </select>
+      </div>
+      <div id="staircase"></div>
+      <div class="legend" id="capLegend"></div>
+    </div>
+    <div class="grid g3" id="capStats"></div>
+    <div class="card">
+      <h2>Presupuesto inicial vs. Forecast vs. Real <span class="tag">baseline se congela en L3</span></h2>
+      <div class="hint">Las tres curvas de captura de valor. <b>Baseline</b> = presupuesto comprometido al aprobar (congelado). <b>Forecast</b> = mejor estimación vigente (se mueve si cambian supuestos/fechas). <b>Real</b> = capturado a la fecha, derivado del avance. Respeta el filtro de Área de arriba.</div>
+      <div id="tripleCurve"></div>
+      <div class="legend"><span><i style="background:#8a99a8"></i>Presupuesto inicial (baseline)</span><span><i style="background:#051c2c"></i>Forecast vigente</span><span><i style="background:#00b8a2"></i>Real capturado</span></div>
+    </div>
+    <div class="grid g3" id="devStats"></div>
+    <div class="card">
+      <h2>Detalle de rampas por iniciativa</h2>
+      <div class="hint">Perfil de captura acumulada por mes (0% → 100% del run-rate).</div>
+      <div class="scroll"><div id="rampTable"></div></div>
+    </div>
+  </section>
+
+  <!-- SEGUIMIENTO -->
+  <section class="tab" id="tab-seguimiento">
+    <div class="grid t4" id="segStats" style="margin-bottom:16px"></div>
+    <div class="card">
+      <h2>📅 Reporte semanal de hitos <span class="tools"><span class="tag" id="weekStamp"></span></span></h2>
+      <div class="hint">Qué está atrasado, quién lo tenía, cuándo vencía, y qué viene. Ordenado por criticidad.</div>
+      <div class="toolbar">
+        <label style="font-size:12px;font-weight:600">Filtro:</label>
+        <select id="segFilter" onchange="renderSeguimiento()">
+          <option value="all">Todos los abiertos</option>
+          <option value="late">Solo atrasados</option>
+          <option value="soon14">Próximos 14 días</option>
+          <option value="soon30">Próximos 30 días</option>
+        </select>
+        <label style="font-size:12px;font-weight:600">Responsable:</label>
+        <select id="segOwner" onchange="renderSeguimiento()"><option value="">Todos</option></select>
+        <button class="btn sm ghost" onclick="copyWeekly()">📋 Copiar resumen</button>
+      </div>
+      <div class="scroll"><table id="segTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>🏁 Ranking de responsables <span class="tag">adelantado · en línea · atrasado</span></h2>
+      <div class="hint">Desempeño de cada dueño según el avance real de sus iniciativas vs. lo esperado por calendario (Δ = avance real − avance esperado). Verde = adelantado, gris = en línea, rojo = atrasado. Considera además hitos vencidos.</div>
+      <div class="grid g3" id="rankingCols"></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h2>Carga por responsable</h2><div class="hint">Hitos abiertos y atrasados por persona.</div><div id="byOwner"></div></div>
+      <div class="card"><h2>Cumplimiento de hitos (on-time)</h2><div class="hint">De los hitos ya vencidos, cuántos se cerraron a tiempo.</div><div id="otd"></div></div>
+    </div>
+  </section>
+
+  <!-- INICIATIVAS -->
+  <section class="tab" id="tab-iniciativas">
+    <div class="card">
+      <h2>Todas las iniciativas <span class="tools"><button class="btn sm" onclick="openIniModal()">+ Nueva iniciativa</button></span></h2>
+      <div class="toolbar">
+        <input type="text" id="iniSearch" placeholder="🔎 Buscar…" oninput="renderIniTable()" style="min-width:200px">
+        <select id="iniAreaF" onchange="renderIniTable()"><option value="">Todas las áreas</option></select>
+        <select id="iniStageF" onchange="renderIniTable()"><option value="">Todas las etapas</option></select>
+        <select id="iniSort" onchange="renderIniTable()">
+          <option value="impact">Ordenar: mayor impacto</option>
+          <option value="health">Ordenar: peor salud</option>
+          <option value="due">Ordenar: próximo hito</option>
+        </select>
+      </div>
+      <div class="scroll"><table id="iniTable"></table></div>
+    </div>
+  </section>
+
+  <!-- CONFIG -->
+  <section class="tab" id="tab-config">
+    <div class="grid g2">
+      <div class="card">
+        <h2>Estructura organizacional</h2>
+        <div class="hint">Áreas y grupos del programa. Las macroiniciativas cuelgan de un grupo.</div>
+        <div id="structEditor"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn sm ghost" onclick="addArea()">+ Área</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Macroiniciativas</h2>
+        <div class="hint">Agrupan iniciativas y fijan la meta de valor del bloque.</div>
+        <div id="macroEditor"></div>
+        <button class="btn sm ghost" style="margin-top:10px" onclick="openMacroModal()">+ Macroiniciativa</button>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>💾 Respaldo completo (JSON)</h2>
+        <div class="hint">Copia fiel de <b>todo</b> (estructura + iniciativas + hitos). Úsalo como backup maestro: nunca pierdes nada. Se guarda solo en este navegador (localStorage); exporta seguido.</div>
+        <div class="row">
+          <button class="btn ghost" onclick="exportJSON()">⬇️ Exportar JSON</button>
+          <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆️ Importar JSON</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importJSON(event)">
+          <button class="btn gray" onclick="loadSeed(true)">🔄 Datos de ejemplo</button>
+          <button class="btn danger" onclick="wipe()">🗑️ Borrar todo</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px" id="lastSaved"></div>
+      </div>
+      <div class="card">
+        <h2>☁️ Sincronización en la nube <span class="tag" id="syncBadge">local</span></h2>
+        <div class="hint">Conecta un webhook (n8n / API propia) para que la data viva en un servidor y sea compartida por todo el equipo. Deja vacío para modo 100% local.</div>
+        <div class="field"><label>URL del webhook</label><input id="syncUrl" placeholder="https://…/webhook/pmo"></div>
+        <div class="field"><label>Token (Bearer, opcional)</label><input id="syncToken" type="password" placeholder="secreto compartido"></div>
+        <label style="display:flex;gap:7px;align-items:center;font-size:12px;font-weight:600;margin-bottom:10px"><input type="checkbox" id="syncAuto" style="width:auto"> Auto-guardar en la nube al editar</label>
+        <div class="row">
+          <button class="btn" onclick="cloudSave()">⬆️ Guardar en la nube</button>
+          <button class="btn ghost" onclick="cloudLoad()">⬇️ Cargar de la nube</button>
+        </div>
+        <div style="font-size:11px;margin-top:8px" id="syncStatus"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📥 Carga masiva de iniciativas (CSV / Excel)</h2>
+      <div class="hint">Sube un lote de iniciativas de una vez. El CSV crea automáticamente las áreas, grupos y macroiniciativas que no existan (por nombre). Descarga la plantilla para ver el formato exacto — se abre en Excel.</div>
+      <div class="row" style="margin-bottom:12px">
+        <button class="btn ghost" onclick="downloadTemplate(false)">📄 Plantilla vacía (ejemplo)</button>
+        <button class="btn ghost" onclick="downloadTemplate(true)">📄 Plantilla con mis datos actuales</button>
+        <button class="btn ghost" onclick="exportCSV()">⬇️ Exportar iniciativas a CSV</button>
+      </div>
+      <div class="row" style="align-items:flex-end">
+        <div class="field" style="flex:0 0 auto;margin:0"><label>Al importar</label>
+          <select id="csvMode"><option value="append">Agregar a lo existente</option><option value="replace">Reemplazar todo</option></select></div>
+        <button class="btn" onclick="document.getElementById('csvFile').click()">📥 Subir CSV</button>
+        <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
+      </div>
+      <details class="acc" style="margin-top:14px"><summary><span>ℹ️ Columnas del CSV</span></summary><div class="body" style="font-size:12px;line-height:1.7">
+        <code>area, grupo, macroiniciativa, meta_macro, iniciativa, responsable, etapa, run_rate_anual, avance_pct, inicio, captura, cierre, curva, notas, hitos</code>
+        <ul style="margin:10px 0 0 18px;color:var(--muted)">
+          <li><b>etapa</b>: L1 a L5 (Idea, Diseño, En ejecución, Capturada, Validada).</li>
+          <li><b>run_rate_anual</b>: impacto anual pleno en $ (solo número). <b>avance_pct</b>: 0–100.</li>
+          <li><b>fechas</b>: formato AAAA-MM-DD. <b>curva</b>: linear o s.</li>
+          <li><b>hitos</b>: <code>nombre~responsable~vence~estado</code> separando cada hito con <code>;</code>. Estado = ok o pend. Ej: <code>Kickoff~M. Díaz~2026-03-15~ok ; Piloto~M. Díaz~2026-05-20~pend</code></li>
+        </ul>
+      </div></details>
+    </div>
+    <div class="card">
+      <h2>🧾 Log de auditoría <span class="tools"><button class="btn sm gray" onclick="clearAudit()">Limpiar</button></span></h2>
+      <div class="hint">Registro de cambios (crear/editar/eliminar/importar/nube). Pon tu nombre para que quede firmado quién hizo cada cambio; se guarda con la data.</div>
+      <div class="field" style="max-width:280px"><label>Tu nombre (para firmar los cambios)</label><input id="auditUser" placeholder="Ej: Benjamín Brunet" onchange="setAuditUser(this.value)"></div>
+      <div class="scroll" style="max-height:320px;overflow:auto"><table id="auditTable"></table></div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL INICIATIVA -->
+<div class="overlay" id="iniOverlay">
+  <div class="modal" id="iniModal"></div>
+</div>
+<!-- MODAL MACRO -->
+<div class="overlay" id="macroOverlay">
+  <div class="modal" id="macroModal"></div>
+</div>
+
+<script>
+/* ============ ESTADO / MODELO ============ */
+const LS='wavepmo_v1';
+const STAGES=[
+  {id:'L1',name:'Idea',conf:.15,color:'var(--l1)',c:'#c9d3dd'},
+  {id:'L2',name:'Diseño / caso',conf:.40,color:'var(--l2)',c:'#7b61ff'},
+  {id:'L3',name:'En ejecución',conf:.70,color:'var(--l3)',c:'#00a9f4'},
+  {id:'L4',name:'Capturada',conf:.95,color:'var(--l4)',c:'#00b8a2'},
+  {id:'L5',name:'Validada / bancada',conf:1.0,color:'var(--l5)',c:'#0a7d5a'}
+];
+const stageOf=id=>STAGES.find(s=>s.id===id)||STAGES[0];
+const AREA_COLORS=['#2251ff','#00a9f4','#00b8a2','#f5a623','#7b61ff','#e5546c','#0a7d5a','#9c27b0'];
+let db=null;
+const uid=p=>p+Math.random().toString(36).slice(2,8);
+const today=()=>new Date();
+const parseD=s=>s?new Date(s+'T00:00:00'):null;
+const fmtD=d=>d?d.toISOString().slice(0,10):'';
+const monthsBetween=(a,b)=>(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());
+function money(v){ if(v==null||isNaN(v))return '—'; const a=Math.abs(v);
+  if(a>=1e9)return '$'+(v/1e9).toFixed(2)+'B'; if(a>=1e6)return '$'+(v/1e6).toFixed(1)+'M';
+  if(a>=1e3)return '$'+(v/1e3).toFixed(0)+'k'; return '$'+Math.round(v); }
+function pct(v){return (v*100).toFixed(0)+'%';}
+
+/* ============ SEED ============ */
+function seed(){
+  const areas=[
+    {id:'a_op',name:'Operaciones',color:AREA_COLORS[0]},
+    {id:'a_com',name:'Comercial',color:AREA_COLORS[1]},
+    {id:'a_fin',name:'Finanzas',color:AREA_COLORS[2]},
+    {id:'a_hr',name:'Recursos Humanos',color:AREA_COLORS[3]}
+  ];
+  const grupos=[
+    {id:'g_manu',areaId:'a_op',name:'Manufactura'},
+    {id:'g_log',areaId:'a_op',name:'Logística'},
+    {id:'g_comp',areaId:'a_op',name:'Compras'},
+    {id:'g_vta',areaId:'a_com',name:'Ventas'},
+    {id:'g_mkt',areaId:'a_com',name:'Marketing & Pricing'},
+    {id:'g_fp',areaId:'a_fin',name:'FP&A / Control'},
+    {id:'g_tes',areaId:'a_fin',name:'Tesorería'},
+    {id:'g_tal',areaId:'a_hr',name:'Talento'},
+    {id:'g_hro',areaId:'a_hr',name:'Efic. organizacional'}
+  ];
+  const macros=[
+    {id:'m_oee',grupoId:'g_manu',name:'Excelencia operacional (OEE)',owner:'C. Rojas',sponsor:'COO',target:4200000},
+    {id:'m_net',grupoId:'g_log',name:'Rediseño de red logística',owner:'M. Díaz',sponsor:'COO',target:2600000},
+    {id:'m_proc',grupoId:'g_comp',name:'Procurement / clean-sheet',owner:'J. Fuentes',sponsor:'CPO',target:3800000},
+    {id:'m_grw',grupoId:'g_vta',name:'Motor de crecimiento comercial',owner:'A. Silva',sponsor:'CCO',target:5100000},
+    {id:'m_pr',grupoId:'g_mkt',name:'Pricing & revenue management',owner:'P. Herrera',sponsor:'CCO',target:2900000},
+    {id:'m_wc',grupoId:'g_tes',name:'Capital de trabajo',owner:'L. Vera',sponsor:'CFO',target:1800000},
+    {id:'m_cost',grupoId:'g_fp',name:'Costos G&A / zero-based',owner:'R. Núñez',sponsor:'CFO',target:1500000},
+    {id:'m_org',grupoId:'g_hro',name:'Spans & layers',owner:'F. Castro',sponsor:'CHRO',target:1200000},
+    {id:'m_tal',grupoId:'g_tal',name:'Productividad de talento',owner:'S. Mora',sponsor:'CHRO',target:700000}
+  ];
+  const owners=['C. Rojas','M. Díaz','J. Fuentes','A. Silva','P. Herrera','L. Vera','R. Núñez','F. Castro','S. Mora','D. Pérez','V. Ortiz','G. Muñoz'];
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const base=new Date(2026,0,1);
+  const iniDefs=[
+    ['m_oee','SMED en línea 3',STAGES[3]],['m_oee','Reducción de mermas',STAGES[2]],['m_oee','Mantención predictiva',STAGES[1]],['m_oee','Balanceo de turnos',STAGES[2]],
+    ['m_net','Consolidación de CDs',STAGES[2]],['m_net','Optimización de rutas',STAGES[3]],['m_net','Carga de camiones 3D',STAGES[1]],
+    ['m_proc','Clean-sheet packaging',STAGES[2]],['m_proc','Consolidación de proveedores MRO',STAGES[3]],['m_proc','Renegociación energía',STAGES[3]],['m_proc','Long-tail spend',STAGES[0]],
+    ['m_grw','Cobertura de nuevos clientes',STAGES[2]],['m_grw','Cross-sell portafolio',STAGES[1]],['m_grw','Recuperación de churn',STAGES[2]],['m_grw','Excelencia en ejecución (perfect store)',STAGES[3]],
+    ['m_pr','Pricing dinámico',STAGES[2]],['m_pr','Gestión de descuentos',STAGES[3]],['m_pr','Mix de productos',STAGES[1]],
+    ['m_wc','Reducción de DSO',STAGES[2]],['m_wc','Optimización de inventario',STAGES[2]],
+    ['m_cost','Zero-based budgeting viajes',STAGES[3]],['m_cost','Digitalización back-office',STAGES[1]],
+    ['m_org','De-layering estructura',STAGES[1]],['m_org','Optimización de spans',STAGES[2]],
+    ['m_tal','Automatización RRHH',STAGES[1]]
+  ];
+  const inis=iniDefs.map((d,i)=>{
+    const [macroId,name,st]=d;
+    const start=new Date(base); start.setMonth(start.getMonth()+Math.floor(rnd(0,7)));
+    const ramp=Math.floor(rnd(2,7));
+    const capture=new Date(start); capture.setMonth(capture.getMonth()+ramp);
+    const end=new Date(capture); end.setMonth(end.getMonth()+Math.floor(rnd(1,4)));
+    const rr=Math.round(rnd(180000,900000)/10000)*10000;
+    const stIdx=STAGES.indexOf(st);
+    const progress=Math.min(1,Math.max(.05, stIdx/4 + rnd(-.12,.12)));
+    const owner=pick(owners);
+    // milestones
+    const nMs=Math.floor(rnd(3,6)); const ms=[];
+    for(let k=0;k<nMs;k++){
+      const due=new Date(start); due.setMonth(due.getMonth()+k+1); due.setDate(Math.floor(rnd(1,27)));
+      const done=(k/nMs)<progress;
+      const dd=done?new Date(due.getTime()+rnd(-6,10)*864e5):null;
+      ms.push({id:uid('ms'),name:['Kickoff & baseline','Diseño de solución','Piloto','Roll-out','Estabilización','Cierre & captura'][k]||('Hito '+(k+1)),owner:Math.random()<.6?owner:pick(owners),due:fmtD(due),done,doneDate:done?fmtD(dd):''});
+    }
+    // baseline congelado (presupuesto inicial) para iniciativas en L3+ con desviación vs forecast
+    let baseline=null;
+    if(STAGE_ORDER[st.id]>=3){
+      const bStart=new Date(start); const bCap=new Date(capture); bCap.setMonth(bCap.getMonth()-Math.floor(rnd(0,2)));
+      baseline={runRate:Math.round(rr*(0.78+rnd(0,.3))/10000)*10000,start:fmtD(bStart),captureDate:fmtD(bCap),curve:'linear',frozenAt:fmtD(bStart)};
+    }
+    return {id:uid('ini'),macroId,name,owner,stage:st.id,runRate:rr,progress:+progress.toFixed(2),
+      start:fmtD(start),captureDate:fmtD(capture),end:fmtD(end),curve:'linear',notes:'',baseline
+      ,milestones:ms};
+  });
+  return {areas,grupos,macros,inis,meta:{name:'Programa de Transformación 2026',currency:'USD',user:''},audit:[]};
+}
+
+/* ============ PERSISTENCIA ============ */
+function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio guardado local: '+new Date().toLocaleString();autoPush();}
+function logAudit(action,detail){if(!db.audit)db.audit=[];db.audit.unshift({ts:new Date().toISOString(),user:(db.meta&&db.meta.user)||'—',action,detail});if(db.audit.length>500)db.audit.length=500;}
+function setAuditUser(v){db.meta.user=v;save();}
+function clearAudit(){if(confirm('¿Vaciar el log de auditoría?')){db.audit=[];save();renderAudit();}}
+function renderAudit(){
+  const el=document.getElementById('auditTable'); if(!el)return;
+  const u=document.getElementById('auditUser'); if(u&&db.meta)u.value=db.meta.user||'';
+  const rows=(db.audit||[]).slice(0,80);
+  el.innerHTML='<thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead><tbody>'+
+   (rows.length?rows.map(a=>`<tr><td style="font-size:11px">${new Date(a.ts).toLocaleString()}</td><td>${a.user||'—'}</td><td><span class="tag">${a.action}</span></td><td style="white-space:normal">${a.detail||''}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">Sin movimientos aún</td></tr>')+'</tbody>';
+}
+function loadSeed(force){ if(force||!localStorage.getItem(LS)){db=seed(); if(force)logAudit('reset','Datos de ejemplo recargados'); save();} else db=JSON.parse(localStorage.getItem(LS)); refreshAll(); }
+function wipe(){ if(confirm('¿Borrar todos los datos y empezar de cero (vacío)?')){db={areas:[],grupos:[],macros:[],inis:[],meta:{name:'Programa',currency:'USD'}};save();refreshAll();} }
+
+/* ============ CÁLCULOS FINANCIEROS ============ */
+const STAGE_ORDER={L1:1,L2:2,L3:3,L4:4,L5:5};
+// rampa mensual genérica de run-rate acumulado dados parámetros explícitos
+function rampCurve(runRate,startS,capS,curve,months){
+  const s=parseD(startS), c=parseD(capS)||s;
+  return months.map(m=>{
+    if(!s||m<s)return 0;
+    if(m>=c)return runRate;
+    const total=Math.max(1,monthsBetween(s,c)); const el=monthsBetween(s,m);
+    let f=el/total; if(curve==='s')f=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    return runRate*f;
+  });
+}
+// FORECAST = plan vigente (campos actuales de la iniciativa)
+function iniForecastMonthly(ini,months){return rampCurve(ini.runRate,ini.start,ini.captureDate,ini.curve,months);}
+// BASELINE = presupuesto inicial congelado al pasar a L3 (si no hay, = forecast)
+function iniBaselineMonthly(ini,months){const b=ini.baseline;return b?rampCurve(b.runRate,b.start,b.captureDate,b.curve||'linear',months):iniForecastMonthly(ini,months);}
+// REAL = capturado, derivado automáticamente del % de avance (solo hasta hoy)
+function iniRealMonthly(ini,months){
+  const fc=iniForecastMonthly(ini,months); const t=today();
+  let idx=months.findIndex(m=>m.getFullYear()===t.getFullYear()&&m.getMonth()===t.getMonth());
+  if(idx<0)idx=months.length-1;
+  const planToday=fc[idx]||0; const expFrac=ini.runRate?planToday/ini.runRate:0;
+  const r=expFrac>0?(ini.progress||0)/expFrac:0;
+  return months.map((m,i)=>{if(m>t)return null;return Math.min(ini.runRate,fc[i]*r);});
+}
+// compat: el resto del código usa el forecast como "plan"
+function iniMonthlyRunRate(ini,months){return iniForecastMonthly(ini,months);}
+// congela el baseline automáticamente cuando la iniciativa llega a L3+
+function ensureBaseline(ini){if(!ini.baseline&&STAGE_ORDER[ini.stage]>=3){ini.baseline={runRate:ini.runRate,start:ini.start,captureDate:ini.captureDate,curve:ini.curve||'linear',frozenAt:fmtD(today())};}return ini;}
+function programWindow(){
+  let min=null,max=null;
+  db.inis.forEach(i=>{const s=parseD(i.start),e=parseD(i.end)||parseD(i.captureDate);
+    if(s&&(!min||s<min))min=s; if(e&&(!max||e>max))max=e;});
+  if(!min)min=new Date(2026,0,1); if(!max){max=new Date(min);max.setMonth(max.getMonth()+12);}
+  max=new Date(Math.max(max, new Date(min.getFullYear(),min.getMonth()+11,1)));
+  const months=[]; let d=new Date(min.getFullYear(),min.getMonth(),1);
+  while(d<=max){months.push(new Date(d)); d.setMonth(d.getMonth()+1);}
+  return months;
+}
+// valores derivados de una iniciativa
+function iniDerived(ini){
+  const st=stageOf(ini.stage);
+  const runRate=ini.runRate||0;
+  const weighted=runRate*st.conf;
+  const captured=runRate*(ini.progress||0);      // capturado a la fecha (run-rate ya realizado)
+  // impacto en el año = integral aproximada de run-rate mensual/12 sobre 12 meses desde inicio
+  const months=[]; let d=parseD(ini.start)||new Date(2026,0,1); d=new Date(d.getFullYear(),d.getMonth(),1);
+  for(let k=0;k<12;k++){months.push(new Date(d.getFullYear(),d.getMonth()+k,1));}
+  const mrr=iniMonthlyRunRate(ini,months); const inYear=mrr.reduce((a,b)=>a+b/12,0);
+  return {runRate,weighted,captured,inYear,st};
+}
+function grpInis(gid){return db.inis.filter(i=>{const m=db.macros.find(x=>x.id===i.macroId);return m&&m.grupoId===gid;});}
+function macroInis(mid){return db.inis.filter(i=>i.macroId===mid);}
+function areaInis(aid){const gs=db.grupos.filter(g=>g.areaId===aid).map(g=>g.id);return db.inis.filter(i=>{const m=db.macros.find(x=>x.id===i.macroId);return m&&gs.includes(m.grupoId);});}
+function sumMetric(inis,metric){return inis.reduce((a,i)=>{const d=iniDerived(i);return a+(d[metric]||0);},0);}
+
+/* hitos */
+function allMilestones(){
+  const out=[];
+  db.inis.forEach(i=>{const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
+    (i.milestones||[]).forEach(ms=>out.push({...ms,ini:i,macro:m,grupo:g,area:a}));});
+  return out;
+}
+function msStatus(ms){
+  const due=parseD(ms.due), t=today();
+  if(ms.done){ const dd=parseD(ms.doneDate); const onTime=dd&&due&&dd<=new Date(due.getTime()+864e5); return {key:'done',onTime}; }
+  if(!due)return {key:'open',days:null};
+  const days=Math.round((due-t)/864e5);
+  if(days<0)return {key:'late',days};
+  if(days<=14)return {key:'soon',days};
+  return {key:'open',days};
+}
+
+/* salud iniciativa: compara avance real vs avance esperado por tiempo */
+function iniHealth(ini){
+  const s=parseD(ini.start), e=parseD(ini.end)||parseD(ini.captureDate)||s, t=today();
+  if(!s)return {key:'gray',label:'—',delta:0};
+  if(t<s)return {key:'gray',label:'No iniciada',delta:0};
+  const total=Math.max(1,(e-s)); const el=Math.min(total,(t-s));
+  const expected=el/total; const delta=(ini.progress||0)-expected;
+  // hitos atrasados penalizan
+  const late=(ini.milestones||[]).some(m=>!m.done && parseD(m.due) && parseD(m.due)<t);
+  if(delta<-.2||late)return {key:'red',label:'En riesgo',delta};
+  if(delta<-.05)return {key:'amber',label:'Atención',delta};
+  return {key:'green',label:'En curso',delta};
+}
+
+/* ============ NAV ============ */
+document.getElementById('nav').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x===b));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+});
+
+/* ============ RENDER MAESTRO ============ */
+function refreshAll(){
+  fillSelectors();
+  renderHeaderKpis();
+  renderDash();
+  renderCartera();
+  renderCaptura();
+  renderSeguimiento();
+  renderIniTable();
+  renderStruct();
+  renderMacroEditor();
+  renderAudit();
+}
+function fillSelectors(){
+  const areaOpts='<option value="">Todas las áreas</option>'+db.areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  document.getElementById('iniAreaF').innerHTML=areaOpts;
+  document.getElementById('capArea').innerHTML='<option value="">Todo el programa</option>'+db.areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  document.getElementById('iniStageF').innerHTML='<option value="">Todas las etapas</option>'+STAGES.map(s=>`<option value="${s.id}">${s.id} · ${s.name}</option>`).join('');
+  const owners=[...new Set(allMilestones().map(m=>m.owner).concat(db.inis.map(i=>i.owner)))].filter(Boolean).sort();
+  document.getElementById('segOwner').innerHTML='<option value="">Todos</option>'+owners.map(o=>`<option>${o}</option>`).join('');
+}
+
+/* ---- HEADER KPIs ---- */
+function renderHeaderKpis(){
+  const rr=sumMetric(db.inis,'runRate'), w=sumMetric(db.inis,'weighted'), cap=sumMetric(db.inis,'captured');
+  const late=allMilestones().filter(m=>msStatus(m).key==='late').length;
+  const el=document.getElementById('hdrKpis');
+  el.innerHTML=`
+    <div class="kpi"><div class="lbl">Valor objetivo</div><div class="val info">${money(rr)}</div></div>
+    <div class="kpi"><div class="lbl">Ponderado</div><div class="val">${money(w)}</div></div>
+    <div class="kpi"><div class="lbl">Capturado</div><div class="val good">${money(cap)}</div></div>
+    <div class="kpi"><div class="lbl">Iniciativas</div><div class="val">${db.inis.length}</div></div>
+    <div class="kpi"><div class="lbl">Hitos atrasados</div><div class="val ${late?'bad':'good'}">${late}</div></div>`;
+}
+
+/* ============ DASHBOARD ============ */
+function renderDash(){
+  const rr=sumMetric(db.inis,'runRate'), cap=sumMetric(db.inis,'captured');
+  const inYear=sumMetric(db.inis,'inYear');
+  const realizedPct=rr?cap/rr:0;
+  const ms=allMilestones(); const late=ms.filter(m=>msStatus(m).key==='late').length;
+  document.getElementById('dashStats').innerHTML=[
+    ['Run-rate objetivo',money(rr),'impacto anual pleno',''],
+    ['Capturado a la fecha',money(cap),pct(realizedPct)+' del objetivo','good'],
+    ['Impacto en el año',money(inYear),'reconocido este año',''],
+    ['Iniciativas activas',db.inis.filter(i=>['L2','L3','L4'].includes(i.stage)).length+' / '+db.inis.length,late+' hitos atrasados',late?'bad':'']
+  ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
+
+  renderFunnel(); renderDonut(); renderStaircase('staircaseMini',true); renderRiskList(); renderMacroHealth();
+}
+
+function renderFunnel(){
+  const box=document.getElementById('funnel');
+  const byStage=STAGES.map(s=>{const inis=db.inis.filter(i=>i.stage===s.id);
+    return {s,rr:sumMetric(inis,'runRate'),w:sumMetric(inis,'weighted'),n:inis.length};});
+  const max=Math.max(1,...byStage.map(b=>b.rr));
+  const W=440,rowH=52,pad=6;
+  let svg=`<svg viewBox="0 0 ${W} ${byStage.length*rowH+10}" width="100%">`;
+  byStage.forEach((b,i)=>{
+    const y=i*rowH+pad;
+    const wFull=(b.rr/max)*(W-150);
+    const wW=(b.w/max)*(W-150);
+    const x=140;
+    svg+=`<rect x="${x}" y="${y}" width="${Math.max(2,wFull)}" height="34" rx="5" fill="${b.s.c}" opacity=".28"/>`;
+    svg+=`<rect x="${x}" y="${y}" width="${Math.max(2,wW)}" height="34" rx="5" fill="${b.s.c}"/>`;
+    svg+=`<text x="${x-8}" y="${y+15}" text-anchor="end" font-size="11.5" font-weight="700" fill="#051c2c">${b.s.id} · ${b.s.name}</text>`;
+    svg+=`<text x="${x-8}" y="${y+29}" text-anchor="end" font-size="10" fill="#5b6a75">${b.n} inic. · conf ${pct(b.s.conf)}</text>`;
+    svg+=`<text x="${x+Math.max(2,wFull)+8}" y="${y+22}" font-size="11.5" font-weight="700" fill="#051c2c">${money(b.rr)}</text>`;
+  });
+  svg+='</svg>';
+  box.innerHTML=svg+`<div class="legend"><span><i style="background:#00a9f4;opacity:.3"></i>Run-rate pleno</span><span><i style="background:#00a9f4"></i>Ponderado por confianza</span></div>`;
+}
+
+function renderDonut(){
+  const box=document.getElementById('donut');
+  const data=db.areas.map(a=>({name:a.name,color:a.color,v:sumMetric(areaInis(a.id),'runRate')})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v);
+  const total=data.reduce((s,d)=>s+d.v,0)||1;
+  const R=78,r=48,cx=95,cy=95;let ang=-Math.PI/2;
+  let svg=`<svg viewBox="0 0 340 195" width="100%">`;
+  data.forEach(d=>{
+    const a2=ang+(d.v/total)*Math.PI*2;
+    const x1=cx+R*Math.cos(ang),y1=cy+R*Math.sin(ang),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);
+    const xi2=cx+r*Math.cos(a2),yi2=cy+r*Math.sin(a2),xi1=cx+r*Math.cos(ang),yi1=cy+r*Math.sin(ang);
+    const large=(a2-ang)>Math.PI?1:0;
+    svg+=`<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${xi2} ${yi2} A${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z" fill="${d.color}"/>`;
+    ang=a2;
+  });
+  svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="18" font-weight="800" fill="#051c2c">${money(total)}</text>`;
+  svg+=`<text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#5b6a75">objetivo total</text>`;
+  data.forEach((d,i)=>{const y=22+i*26;
+    svg+=`<rect x="200" y="${y}" width="11" height="11" rx="3" fill="${d.color}"/>`;
+    svg+=`<text x="218" y="${y+10}" font-size="11.5" font-weight="600" fill="#051c2c">${d.name}</text>`;
+    svg+=`<text x="335" y="${y+10}" text-anchor="end" font-size="11" fill="#5b6a75">${pct(d.v/total)}</text>`;
+  });
+  svg+='</svg>';
+  box.innerHTML=svg;
+}
+
+function renderMacroHealth(){
+  const box=document.getElementById('macroHealth');
+  const rows=db.macros.map(m=>{
+    const inis=macroInis(m.id); const rr=sumMetric(inis,'runRate'); const cap=sumMetric(inis,'captured');
+    const grp=db.grupos.find(g=>g.id===m.grupoId); const area=grp&&db.areas.find(a=>a.id===grp.areaId);
+    const capPct=rr?cap/rr:0; const tgtPct=m.target?rr/m.target:0;
+    return {m,area,rr,cap,capPct,tgtPct,n:inis.length};
+  }).sort((a,b)=>b.rr-a.rr);
+  box.innerHTML='<table><thead><tr><th>Macroiniciativa</th><th class="num">Meta</th><th class="num">Cartera</th><th style="width:130px">Captura</th></tr></thead><tbody>'+
+    rows.map(r=>`<tr><td><span class="dot" style="background:${r.area?.color||'#ccc'};display:inline-block;margin-right:5px"></span>${r.m.name}<div style="font-size:10px;color:var(--muted)">${r.area?.name||''} · ${r.n} inic.</div></td>
+    <td class="num">${money(r.m.target)}</td>
+    <td class="num">${money(r.rr)}<div style="font-size:10px;color:${r.tgtPct>=1?'var(--good)':'var(--muted)'}">${pct(r.tgtPct)} de meta</div></td>
+    <td><div class="minibar"><span style="width:${Math.min(100,r.capPct*100)}%;background:var(--good)"></span></div><span style="font-size:10px;color:var(--muted)">${money(r.cap)} · ${pct(r.capPct)}</span></td></tr>`).join('')+
+    '</tbody></table>';
+}
+
+function renderRiskList(){
+  const box=document.getElementById('riskList');
+  const ms=allMilestones().map(m=>({m,st:msStatus(m)})).filter(x=>x.st.key==='late'||x.st.key==='soon')
+    .sort((a,b)=>(a.st.days??0)-(b.st.days??0)).slice(0,8);
+  if(!ms.length){box.innerHTML='<div style="padding:20px;text-align:center;color:var(--good);font-weight:600">✓ Sin hitos en riesgo</div>';return;}
+  box.innerHTML='<table><tbody>'+ms.map(({m,st})=>{
+    const flag=st.key==='late'?`<span class="flag red">${Math.abs(st.days)}d atraso</span>`:`<span class="flag amber">${st.days}d</span>`;
+    return `<tr><td>${flag}</td><td><b>${m.name}</b><div style="font-size:10px;color:var(--muted)">${m.ini.name} · ${m.area?.name||''}</div></td><td style="font-size:11px">${m.owner||'—'}</td><td class="num" style="font-size:11px">${m.due}</td></tr>`;
+  }).join('')+'</tbody></table>';
+}
+
+/* ============ ESCALÓN DE CAPTURA ============ */
+function renderStaircase(elId, mini){
+  const el=document.getElementById(elId); const months=programWindow();
+  const stack= (!mini && document.getElementById('capStack').value)||'area';
+  const scen=(!mini && document.getElementById('capScen').value)||'plan';
+  const areaFilter=(!mini && document.getElementById('capArea').value)||'';
+  let inis=db.inis; if(areaFilter)inis=areaInis(areaFilter);
+  // grupos de apilado
+  let groups;
+  if(stack==='stage')groups=STAGES.map(s=>({key:s.id,name:s.id,color:s.c,inis:inis.filter(i=>i.stage===s.id)}));
+  else groups=db.areas.map(a=>({key:a.id,name:a.name,color:a.color,inis:inis.filter(i=>areaInis(a.id).includes(i))}));
+  groups=groups.filter(g=>g.inis.length);
+  // series apiladas plan
+  const series=groups.map(g=>{
+    const perMonth=months.map((m,idx)=>g.inis.reduce((s,ini)=>{
+      let v=iniMonthlyRunRate(ini,months)[idx];
+      if(scen==='weighted')v*=stageOf(ini.stage).conf;
+      return s+v;},0));
+    return {...g,perMonth};
+  });
+  const totalPlan=months.map((m,idx)=>series.reduce((s,g)=>s+g.perMonth[idx],0));
+  // real capturado: run-rate*progress prorrateado en el tiempo (aprox: cap acumulado sube con avance hasta hoy)
+  const tIdx=months.findIndex(m=>m.getFullYear()===today().getFullYear()&&m.getMonth()===today().getMonth());
+  const realLine=months.map((m,idx)=>{
+    if(m>today())return null;
+    return inis.reduce((s,ini)=>{
+      const plan=iniMonthlyRunRate(ini,months)[idx];
+      return s+plan*(ini.progress||0);
+    },0);
+  });
+  const maxV=Math.max(1,...totalPlan);
+  const W=mini?900:960, H=mini?230:340, padL=54,padB=28,padT=12,padR=12;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const bw=iw/months.length;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">`;
+  // gridlines
+  for(let k=0;k<=4;k++){const y=padT+ih*(k/4);const val=maxV*(1-k/4);
+    svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eef2f6"/>`;
+    svg+=`<text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="9.5" fill="#9fb3c0">${money(val)}</text>`;}
+  // stacked bars
+  months.forEach((m,idx)=>{
+    let acc=0; const x=padL+idx*bw;
+    series.forEach(g=>{
+      const v=g.perMonth[idx]; if(v<=0)return;
+      const h=(v/maxV)*ih; const y=padT+ih-(acc+v)/maxV*ih;
+      svg+=`<rect x="${x+1}" y="${y}" width="${bw-2}" height="${h}" fill="${g.color}" opacity="${m>today()?.55:.9}"/>`;
+      acc+=v;
+    });
+    // x labels (cada 2-3 meses)
+    if(idx%Math.ceil(months.length/12)===0){
+      svg+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle" font-size="9" fill="#9fb3c0">${m.toLocaleDateString('es',{month:'short',year:'2-digit'})}</text>`;
+    }
+  });
+  // today line
+  if(tIdx>=0){const x=padL+tIdx*bw+bw/2;
+    svg+=`<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+ih}" stroke="#e5546c" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    svg+=`<text x="${x+3}" y="${padT+9}" font-size="9" fill="#e5546c" font-weight="700">hoy</text>`;}
+  // plan line (commit)
+  let path=''; totalPlan.forEach((v,idx)=>{const x=padL+idx*bw+bw/2;const y=padT+ih-v/maxV*ih;path+=(idx?'L':'M')+x+' '+y+' ';});
+  svg+=`<path d="${path}" fill="none" stroke="#051c2c" stroke-width="2"/>`;
+  // real line
+  let rpath=''; let started=false;
+  realLine.forEach((v,idx)=>{if(v==null)return;const x=padL+idx*bw+bw/2;const y=padT+ih-v/maxV*ih;rpath+=(started?'L':'M')+x+' '+y+' ';started=true;});
+  svg+=`<path d="${rpath}" fill="none" stroke="#00b8a2" stroke-width="2.5" stroke-dasharray="1"/>`;
+  svg+='</svg>';
+  el.innerHTML=svg;
+  if(!mini){
+    document.getElementById('capLegend').innerHTML=series.map(g=>`<span><i style="background:${g.color}"></i>${g.name}</span>`).join('')+
+      `<span><i style="background:#051c2c"></i>Plan comprometido</span><span><i style="background:#00b8a2"></i>Captura real</span>`;
+  }
+}
+function renderTripleCurve(inis,months){
+  const el=document.getElementById('tripleCurve');
+  const sum=fn=>months.map((m,i)=>inis.reduce((a,ini)=>{const v=fn(ini)[i];return a+(v==null?0:v);},0));
+  const base=sum(ini=>iniBaselineMonthly(ini,months));
+  const fc=sum(ini=>iniForecastMonthly(ini,months));
+  // real: cortar en hoy (null después)
+  const t=today();
+  const realRaw=months.map((m,i)=>m>t?null:inis.reduce((a,ini)=>{const v=iniRealMonthly(ini,months)[i];return a+(v==null?0:v);},0));
+  const maxV=Math.max(1,...base,...fc);
+  const W=960,H=300,padL=54,padB=28,padT=12,padR=12,iw=W-padL-padR,ih=H-padT-padB;
+  const X=i=>padL+(months.length<=1?0:i/(months.length-1)*iw), Y=v=>padT+ih-(v/maxV)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">`;
+  for(let k=0;k<=4;k++){const y=padT+ih*(k/4);svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eef2f6"/><text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="9.5" fill="#9fb3c0">${money(maxV*(1-k/4))}</text>`;}
+  months.forEach((m,i)=>{if(i%Math.ceil(months.length/12)===0)svg+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9" fill="#9fb3c0">${m.toLocaleDateString('es',{month:'short',year:'2-digit'})}</text>`;});
+  const tIdx=months.findIndex(m=>m.getFullYear()===t.getFullYear()&&m.getMonth()===t.getMonth());
+  if(tIdx>=0)svg+=`<line x1="${X(tIdx)}" y1="${padT}" x2="${X(tIdx)}" y2="${padT+ih}" stroke="#e5546c" stroke-width="1.2" stroke-dasharray="4 3"/><text x="${X(tIdx)+3}" y="${padT+9}" font-size="9" fill="#e5546c" font-weight="700">hoy</text>`;
+  const line=(arr,color,w,dash)=>{let p='',started=false;arr.forEach((v,i)=>{if(v==null){return;}p+=(started?'L':'M')+X(i)+' '+Y(v)+' ';started=true;});return `<path d="${p}" fill="none" stroke="${color}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;};
+  svg+=line(base,'#8a99a8',2,'5 4');
+  svg+=line(fc,'#051c2c',2.4);
+  svg+=line(realRaw,'#00b8a2',3);
+  svg+='</svg>';
+  el.innerHTML=svg;
+  // KPIs de desviación
+  const last=a=>{for(let i=a.length-1;i>=0;i--)if(a[i]!=null)return a[i];return 0;};
+  const baseFull=base[base.length-1], fcFull=fc[fc.length-1];
+  const realToday=last(realRaw); const fcToday=tIdx>=0?fc[tIdx]:fcFull;
+  const dFcBase=fcFull-baseFull, dRealFc=realToday-fcToday;
+  document.getElementById('devStats').innerHTML=[
+    ['Baseline (run-rate pleno)',money(baseFull),'presupuesto inicial comprometido',''],
+    ['Forecast vs. baseline',(dFcBase>=0?'+':'')+money(dFcBase),dFcBase>=0?'forecast por sobre lo comprometido':'forecast bajo lo comprometido',dFcBase>=0?'good':'bad'],
+    ['Real vs. forecast (a hoy)',(dRealFc>=0?'+':'')+money(dRealFc),dRealFc>=0?'adelantado al plan':'atrasado vs. plan',dRealFc>=0?'good':'bad']
+  ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
+}
+function renderCaptura(){
+  renderStaircase('staircase',false);
+  const months=programWindow();
+  const inis= document.getElementById('capArea').value?areaInis(document.getElementById('capArea').value):db.inis;
+  renderTripleCurve(inis,months);
+  const rr=sumMetric(inis,'runRate'), cap=sumMetric(inis,'captured'), w=sumMetric(inis,'weighted');
+  // mes a full run-rate
+  const totalPlan=months.map((m,idx)=>inis.reduce((s,ini)=>s+iniMonthlyRunRate(ini,months)[idx],0));
+  const full=totalPlan[totalPlan.length-1];
+  const reachIdx=totalPlan.findIndex(v=>v>=full*0.95);
+  const reachM=reachIdx>=0?months[reachIdx]:null;
+  document.getElementById('capStats').innerHTML=[
+    ['Run-rate al cierre',money(full),'plan pleno del alcance',''],
+    ['Capturado hoy',money(cap),pct(rr?cap/rr:0)+' del objetivo','good'],
+    ['Ponderado por riesgo',money(w),'valor esperado',''],
+    ['Full run-rate en',reachM?reachM.toLocaleDateString('es',{month:'short',year:'numeric'}):'—','95% del potencial',''],
+    ['Iniciativas',inis.length,'en el corte seleccionado',''],
+    ['Impacto en el año',money(sumMetric(inis,'inYear')),'reconocido en 12m','']
+  ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
+  // ramp table
+  renderRampTable(inis,months);
+}
+function renderRampTable(inis,months){
+  const step=Math.ceil(months.length/12);
+  const cols=months.filter((m,i)=>i%step===0);
+  let h='<table><thead><tr><th>Iniciativa</th><th class="num">Run-rate</th>'+cols.map(m=>`<th class="num">${m.toLocaleDateString('es',{month:'short',year:'2-digit'})}</th>`).join('')+'</tr></thead><tbody>';
+  inis.slice().sort((a,b)=>b.runRate-a.runRate).forEach(ini=>{
+    const mrr=iniMonthlyRunRate(ini,months);
+    h+=`<tr><td>${ini.name}</td><td class="num">${money(ini.runRate)}</td>`+
+      cols.map((m,ci)=>{const idx=months.indexOf(m);const f=ini.runRate?mrr[idx]/ini.runRate:0;
+        const bg=f>=1?'#00b8a2':f>0?`rgba(0,169,244,${.15+f*.55})`:'transparent';
+        return `<td class="num" style="background:${bg};color:${f>=.6?'#fff':'#051c2c'}">${f>0?pct(f):'·'}</td>`;}).join('')+'</tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById('rampTable').innerHTML=h;
+}
+function renderMiniCurve(ini){
+  const el=document.getElementById('miniCurve'); if(!el)return;
+  const s=parseD(ini.start)||new Date(); let e=parseD(ini.end)||parseD(ini.captureDate)||s;
+  const be=ini.baseline?parseD(ini.baseline.captureDate):null; if(be&&be>e)e=be;
+  const end=new Date(Math.max(e,new Date(s.getFullYear(),s.getMonth()+6,1)));
+  const months=[]; let d=new Date(s.getFullYear(),s.getMonth(),1); while(d<=end){months.push(new Date(d));d.setMonth(d.getMonth()+1);}
+  const base=iniBaselineMonthly(ini,months),fc=iniForecastMonthly(ini,months),real=iniRealMonthly(ini,months);
+  const maxV=Math.max(1,ini.runRate,ini.baseline?ini.baseline.runRate:0);
+  const W=680,H=150,padL=48,padT=8,padR=8,ih=H-padT-20,iw=W-padL-padR;
+  const X=i=>padL+(months.length<=1?0:i/(months.length-1)*iw),Y=v=>padT+ih-(v/maxV)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let k=0;k<=2;k++){const y=padT+ih*(k/2);svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eef2f6"/><text x="${padL-5}" y="${y+3}" text-anchor="end" font-size="8.5" fill="#9fb3c0">${money(maxV*(1-k/2))}</text>`;}
+  const t=today();const tIdx=months.findIndex(m=>m.getFullYear()===t.getFullYear()&&m.getMonth()===t.getMonth());
+  if(tIdx>=0)svg+=`<line x1="${X(tIdx)}" y1="${padT}" x2="${X(tIdx)}" y2="${padT+ih}" stroke="#e5546c" stroke-width="1" stroke-dasharray="3 2"/>`;
+  const line=(arr,c,w,dash)=>{let p='',st=false;arr.forEach((v,i)=>{if(v==null)return;p+=(st?'L':'M')+X(i)+' '+Y(v)+' ';st=true;});return `<path d="${p}" fill="none" stroke="${c}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;};
+  svg+=line(base,'#8a99a8',1.8,'4 3')+line(fc,'#051c2c',2)+line(real,'#00b8a2',2.4);
+  svg+='</svg>';
+  el.innerHTML=svg;
+}
+
+/* ============ CARTERA (árbol) ============ */
+let expanded={};
+function expandAll(v){db.areas.forEach(a=>{expanded['a'+a.id]=v;});db.grupos.forEach(g=>{expanded['g'+g.id]=v;});db.macros.forEach(m=>{expanded['m'+m.id]=v;});renderCartera();}
+function toggleNode(k){expanded[k]=!expanded[k];renderCartera();}
+function renderCartera(){
+  const metric=document.getElementById('carteraMetric').value;
+  const box=document.getElementById('tree'); let h='';
+  db.areas.forEach(a=>{
+    const ainis=areaInis(a.id); if(!ainis.length && !db.grupos.some(g=>g.areaId===a.id))return;
+    const aVal=sumMetric(ainis,metric);
+    const aProg=ainis.length?ainis.reduce((s,i)=>s+(i.progress||0),0)/ainis.length:0;
+    const openA=expanded['a'+a.id];
+    h+=`<div class="tree-row tw lvl-area" onclick="toggleNode('a${a.id}')">
+      <div class="nm"><span class="caret ${openA?'open':''}">▶</span><span class="dot" style="background:${a.color}"></span>${a.name}</div>
+      <div class="num">${money(aVal)}</div><div class="num c-owner">${ainis.length}</div>
+      <div class="num">${pct(aProg)}</div><div class="num"></div><div class="num"></div></div>`;
+    if(openA){
+      db.grupos.filter(g=>g.areaId===a.id).forEach(g=>{
+        const ginis=grpInis(g.id); const gVal=sumMetric(ginis,metric);
+        const gProg=ginis.length?ginis.reduce((s,i)=>s+(i.progress||0),0)/ginis.length:0;
+        const openG=expanded['g'+g.id];
+        h+=`<div class="tree-row tw lvl-grupo" style="padding-left:20px" onclick="toggleNode('g${g.id}')">
+          <div class="nm"><span class="caret ${openG?'open':''}">▶</span>${g.name}</div>
+          <div class="num">${money(gVal)}</div><div class="num c-owner">${ginis.length}</div>
+          <div class="num">${pct(gProg)}</div><div class="num"></div><div class="num"></div></div>`;
+        if(openG){
+          db.macros.filter(m=>m.grupoId===g.id).forEach(m=>{
+            const minis=macroInis(m.id); const mVal=sumMetric(minis,metric);
+            const mProg=minis.length?minis.reduce((s,i)=>s+(i.progress||0),0)/minis.length:0;
+            const openM=expanded['m'+m.id];
+            const tgtPct=m.target?sumMetric(minis,'runRate')/m.target:0;
+            h+=`<div class="tree-row tw lvl-macro" style="padding-left:38px" onclick="toggleNode('m${m.id}')">
+              <div class="nm"><span class="caret ${openM?'open':''}">▶</span>📦 ${m.name} <span class="tag hidem">meta ${money(m.target)} · ${pct(tgtPct)}</span></div>
+              <div class="num">${money(mVal)}</div><div class="num c-owner">${minis.length}</div>
+              <div class="num">${pct(mProg)}</div><div class="num"></div><div class="num"></div></div>`;
+            if(openM){
+              minis.forEach(ini=>{
+                const d=iniDerived(ini); const hl=iniHealth(ini); const st=stageOf(ini.stage);
+                h+=`<div class="tree-row tw lvl-ini" style="padding-left:58px" onclick="event.stopPropagation();openIniModal('${ini.id}')">
+                  <div class="nm">• ${ini.name}<span class="tag hidem" style="margin-left:6px">${ini.owner||''}</span></div>
+                  <div class="num">${money(d[metric]||0)}</div>
+                  <div class="num c-owner"><div class="minibar" style="margin-left:auto;max-width:60px"><span style="width:${(ini.progress||0)*100}%;background:${st.c}"></span></div></div>
+                  <div class="num">${pct(ini.progress||0)}</div>
+                  <div class="num"><span class="stage" style="background:${st.c}">${st.id}</span></div>
+                  <div class="num"><span class="flag ${hl.key}">${hl.key==='green'?'✓':hl.key==='gray'?'–':'!'}</span></div></div>`;
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+  box.innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--muted)">Sin datos. Crea un área y una iniciativa.</div>';
+}
+
+/* ============ SEGUIMIENTO ============ */
+function renderSeguimiento(){
+  const ms=allMilestones();
+  const open=ms.filter(m=>!m.done);
+  const late=open.filter(m=>msStatus(m).key==='late');
+  const soon14=open.filter(m=>{const s=msStatus(m);return s.key==='soon'||(s.key==='late');});
+  const doneMs=ms.filter(m=>m.done);
+  const onTime=doneMs.filter(m=>msStatus(m).onTime).length;
+  document.getElementById('segStats').innerHTML=[
+    ['Hitos abiertos',open.length,'sin cerrar',''],
+    ['Atrasados',late.length,'vencidos sin cerrar',late.length?'bad':'good'],
+    ['Vencen ≤14d',open.filter(m=>msStatus(m).key==='soon').length,'próximos','warn'],
+    ['On-time delivery',doneMs.length?pct(onTime/doneMs.length):'—',onTime+'/'+doneMs.length+' a tiempo','good']
+  ].map((s,i)=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${['','bad','warn','good'][i]==='bad'&&s[3]==='good'?'good':s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
+
+  document.getElementById('weekStamp').textContent='Semana de '+today().toLocaleDateString('es',{day:'2-digit',month:'long',year:'numeric'});
+  renderRanking();
+  const filter=document.getElementById('segFilter').value;
+  const ownerF=document.getElementById('segOwner').value;
+  let rows=open.map(m=>({m,st:msStatus(m)}));
+  if(filter==='late')rows=rows.filter(r=>r.st.key==='late');
+  else if(filter==='soon14')rows=rows.filter(r=>r.st.key==='late'||(r.st.days!=null&&r.st.days<=14));
+  else if(filter==='soon30')rows=rows.filter(r=>r.st.key==='late'||(r.st.days!=null&&r.st.days<=30));
+  if(ownerF)rows=rows.filter(r=>r.m.owner===ownerF);
+  rows.sort((a,b)=>(a.st.days??9999)-(b.st.days??9999));
+  let h='<thead><tr><th>Estado</th><th>Hito</th><th>Iniciativa / área</th><th>Responsable</th><th class="num">Vence</th><th class="num">Días</th><th>Impacto inic.</th></tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--good)">✓ Nada pendiente en este filtro</td></tr>';
+  rows.forEach(({m,st})=>{
+    const flag=st.key==='late'?`<span class="flag red">Atrasado</span>`:st.key==='soon'?`<span class="flag amber">Por vencer</span>`:`<span class="flag gray">Abierto</span>`;
+    h+=`<tr class="clk" onclick="openIniModal('${m.ini.id}')"><td>${flag}</td><td><b>${m.name}</b></td>
+      <td>${m.ini.name}<div style="font-size:10px;color:var(--muted)">${m.area?.name||''} › ${m.grupo?.name||''}</div></td>
+      <td>${m.owner||'—'}</td><td class="num">${m.due||'—'}</td>
+      <td class="num" style="color:${st.key==='late'?'var(--bad)':st.key==='soon'?'var(--warn)':'var(--muted)'};font-weight:700">${st.days!=null?(st.days<0?st.days:'+'+st.days):'—'}</td>
+      <td class="num">${money(m.ini.runRate)}</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('segTable').innerHTML=h;
+
+  // por responsable
+  const byO={};
+  open.forEach(m=>{const o=m.owner||'—';byO[o]=byO[o]||{open:0,late:0};byO[o].open++;if(msStatus(m).key==='late')byO[o].late++;});
+  const oArr=Object.entries(byO).sort((a,b)=>b[1].late-a[1].late||b[1].open-a[1].open);
+  const maxO=Math.max(1,...oArr.map(x=>x[1].open));
+  document.getElementById('byOwner').innerHTML='<table><tbody>'+oArr.map(([o,v])=>`<tr><td style="width:120px">${o}</td>
+    <td><div class="minibar"><span style="width:${v.open/maxO*100}%;background:var(--blue)"></span></div></td>
+    <td class="num" style="width:60px">${v.open}</td>
+    <td style="width:70px">${v.late?`<span class="flag red">${v.late} atr.</span>`:'<span class="flag green">ok</span>'}</td></tr>`).join('')+'</tbody></table>';
+
+  // OTD por área
+  const otd={};
+  doneMs.forEach(m=>{const a=m.area?.name||'—';otd[a]=otd[a]||{d:0,ot:0};otd[a].d++;if(msStatus(m).onTime)otd[a].ot++;});
+  document.getElementById('otd').innerHTML='<table><tbody>'+Object.entries(otd).map(([a,v])=>{const p=v.d?v.ot/v.d:0;
+    return `<tr><td style="width:150px">${a}</td><td><div class="minibar"><span style="width:${p*100}%;background:${p>=.8?'var(--good)':p>=.6?'var(--warn)':'var(--bad)'}"></span></div></td><td class="num" style="width:80px">${pct(p)}</td><td class="num" style="width:60px;color:var(--muted)">${v.ot}/${v.d}</td></tr>`;
+  }).join('')+'</tbody></table>';
+}
+function renderRanking(){
+  const box=document.getElementById('rankingCols'); if(!box)return;
+  const t=today();
+  const by={};
+  db.inis.forEach(i=>{const o=i.owner||'—';const h=iniHealth(i);
+    by[o]=by[o]||{owner:o,dSum:0,wSum:0,n:0,late:0,rr:0};
+    const w=(i.runRate||0)+1; by[o].dSum+=h.delta*w; by[o].wSum+=w; by[o].n++; by[o].rr+=i.runRate||0;});
+  allMilestones().forEach(m=>{if(!m.done&&parseD(m.due)&&parseD(m.due)<t){const o=m.ini.owner||'—';if(by[o])by[o].late++;}});
+  const arr=Object.values(by).map(p=>({...p,delta:p.wSum?p.dSum/p.wSum:0})).filter(p=>p.n);
+  const bucket=p=>p.delta>0.05?'ahead':(p.delta<-0.05||p.late>0)?'behind':'ontrack';
+  const cols=[
+    {key:'ahead',title:'🟢 Adelantados',cls:'green',sort:(a,b)=>b.delta-a.delta},
+    {key:'ontrack',title:'⚪ En línea',cls:'gray',sort:(a,b)=>b.rr-a.rr},
+    {key:'behind',title:'🔴 Atrasados',cls:'red',sort:(a,b)=>a.delta-b.delta}
+  ];
+  box.innerHTML=cols.map(c=>{
+    const list=arr.filter(p=>bucket(p)===c.key).sort(c.sort);
+    return `<div style="border:1px solid var(--line);border-radius:9px;overflow:hidden">
+      <div style="padding:8px 11px;font-weight:700;font-size:12.5px;background:#f6f9fb;border-bottom:1px solid var(--line)">${c.title} <span class="tag">${list.length}</span></div>
+      <div style="max-height:260px;overflow:auto">${list.length?list.map(p=>{
+        const dpp=Math.round(p.delta*100);
+        return `<div style="padding:7px 11px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div style="min-width:0"><b style="font-size:12.5px">${p.owner}</b><div style="font-size:10px;color:var(--muted)">${p.n} inic. · ${money(p.rr)}${p.late?` · <span style="color:var(--bad)">${p.late} hito(s) atrasado(s)</span>`:''}</div></div>
+          <span class="flag ${c.cls}">${dpp>0?'+':''}${dpp} pp</span></div>`;
+      }).join(''):'<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">—</div>'}</div>
+    </div>`;
+  }).join('');
+}
+function copyWeekly(){
+  const ms=allMilestones().filter(m=>!m.done);
+  const late=ms.filter(m=>msStatus(m).key==='late').sort((a,b)=>msStatus(a).days-msStatus(b).days);
+  const soon=ms.filter(m=>{const s=msStatus(m);return s.key==='soon';}).sort((a,b)=>msStatus(a).days-msStatus(b).days);
+  let t=`REPORTE SEMANAL PMO — ${today().toLocaleDateString('es')}\n${db.meta.name}\n\n`;
+  t+=`ATRASADOS (${late.length}):\n`;
+  late.forEach(m=>{t+=`  • ${m.name} — ${m.ini.name} [${m.area?.name}] · ${m.owner} · venció ${m.due} (${Math.abs(msStatus(m).days)}d)\n`;});
+  t+=`\nPRÓXIMOS A VENCER ≤14d (${soon.length}):\n`;
+  soon.forEach(m=>{t+=`  • ${m.name} — ${m.ini.name} · ${m.owner} · vence ${m.due} (${msStatus(m).days}d)\n`;});
+  const rr=sumMetric(db.inis,'runRate'),cap=sumMetric(db.inis,'captured');
+  t+=`\nIMPACTO: capturado ${money(cap)} de ${money(rr)} objetivo (${pct(rr?cap/rr:0)}).\n`;
+  navigator.clipboard.writeText(t).then(()=>alert('Resumen semanal copiado al portapapeles.')).catch(()=>{prompt('Copia manual:',t);});
+}
+
+/* ============ TABLA INICIATIVAS ============ */
+function renderIniTable(){
+  const q=(document.getElementById('iniSearch').value||'').toLowerCase();
+  const af=document.getElementById('iniAreaF').value, sf=document.getElementById('iniStageF').value;
+  const sort=document.getElementById('iniSort').value;
+  let list=db.inis.filter(i=>{
+    if(sf&&i.stage!==sf)return false;
+    if(af){const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);if(!g||g.areaId!==af)return false;}
+    if(q&&!(i.name+' '+i.owner).toLowerCase().includes(q))return false;
+    return true;
+  });
+  const nextMs=i=>{const o=(i.milestones||[]).filter(m=>!m.done&&parseD(m.due)).sort((a,b)=>parseD(a.due)-parseD(b.due));return o[0];};
+  list.sort((a,b)=>{
+    if(sort==='impact')return b.runRate-a.runRate;
+    if(sort==='health'){const o={red:0,amber:1,gray:2,green:3};return o[iniHealth(a).key]-o[iniHealth(b).key];}
+    if(sort==='due'){const na=nextMs(a),nb=nextMs(b);return (na?parseD(na.due):9e15)-(nb?parseD(nb.due):9e15);}
+  });
+  let h='<thead><tr><th>Iniciativa</th><th>Área / grupo</th><th>Responsable</th><th>Etapa</th><th class="num">Run-rate</th><th class="num">Capturado</th><th style="width:110px">Avance</th><th>Salud</th><th class="num">Próx. hito</th></tr></thead><tbody>';
+  list.forEach(i=>{
+    const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
+    const d=iniDerived(i);const hl=iniHealth(i);const st=stageOf(i.stage);const nm=nextMs(i);
+    h+=`<tr class="clk" onclick="openIniModal('${i.id}')"><td><b>${i.name}</b><div style="font-size:10px;color:var(--muted)">${m?.name||''}</div></td>
+      <td>${a?`<span class="dot" style="background:${a.color};display:inline-block;margin-right:4px"></span>`:''}${a?.name||''}<div style="font-size:10px;color:var(--muted)">${g?.name||''}</div></td>
+      <td>${i.owner||'—'}</td><td><span class="stage" style="background:${st.c}">${st.id} ${st.name}</span></td>
+      <td class="num">${money(d.runRate)}</td><td class="num">${money(d.captured)}</td>
+      <td><div class="minibar"><span style="width:${(i.progress||0)*100}%;background:${st.c}"></span></div><span style="font-size:10px;color:var(--muted)">${pct(i.progress||0)}</span></td>
+      <td><span class="flag ${hl.key}">${hl.label}</span></td>
+      <td class="num" style="font-size:11px">${nm?nm.due:'—'}${nm&&msStatus(nm).key==='late'?' 🔴':''}</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('iniTable').innerHTML=h;
+}
+
+/* ============ MODAL INICIATIVA ============ */
+let editingIni=null;
+function openIniModal(id){
+  editingIni=id?JSON.parse(JSON.stringify(db.inis.find(i=>i.id===id))):{
+    id:uid('ini'),macroId:db.macros[0]?.id||'',name:'',owner:'',stage:'L1',runRate:0,progress:0,
+    start:fmtD(today()),captureDate:fmtD(new Date(today().getTime()+120*864e5)),end:fmtD(new Date(today().getTime()+180*864e5)),curve:'linear',notes:'',milestones:[]};
+  renderIniModal();
+  document.getElementById('iniOverlay').classList.add('on');
+}
+function renderIniModal(){
+  const e=editingIni;
+  const macroOpts=db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);return `<option value="${m.id}" ${m.id===e.macroId?'selected':''}>${a?.name||'?'} › ${g?.name||'?'} › ${m.name}</option>`;}).join('');
+  const stageOpts=STAGES.map(s=>`<option value="${s.id}" ${s.id===e.stage?'selected':''}>${s.id} · ${s.name} (conf ${pct(s.conf)})</option>`).join('');
+  const d=iniDerived(e);
+  document.getElementById('iniModal').innerHTML=`
+    <h3>${db.inis.find(i=>i.id===e.id)?'Editar':'Nueva'} iniciativa</h3>
+    <div class="msub">Impacto, dueño, fechas y hitos. El run-rate es el impacto anual pleno una vez implementada.</div>
+    <div class="field"><label>Nombre de la iniciativa</label><input id="f_name" value="${e.name||''}" placeholder="Ej: Renegociación de energía"></div>
+    <div class="row">
+      <div class="field"><label>Macroiniciativa</label><select id="f_macro">${macroOpts}</select></div>
+      <div class="field"><label>Responsable</label><input id="f_owner" value="${e.owner||''}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Etapa (madurez)</label><select id="f_stage">${stageOpts}</select></div>
+      <div class="field"><label>Run-rate anual (impacto pleno $)</label><input id="f_rr" type="number" value="${e.runRate||0}"></div>
+      <div class="field"><label>Avance % (0–100)</label><input id="f_prog" type="number" min="0" max="100" value="${Math.round((e.progress||0)*100)}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Inicio</label><input id="f_start" type="date" value="${e.start||''}"></div>
+      <div class="field"><label>Full run-rate (captura)</label><input id="f_cap" type="date" value="${e.captureDate||''}"></div>
+      <div class="field"><label>Cierre</label><input id="f_end" type="date" value="${e.end||''}"></div>
+      <div class="field"><label>Curva</label><select id="f_curve"><option value="linear" ${e.curve==='linear'?'selected':''}>Lineal</option><option value="s" ${e.curve==='s'?'selected':''}>S-curve</option></select></div>
+    </div>
+    <div class="card" style="background:#f6f9fb;margin:6px 0 12px">
+      <div class="row" style="text-align:center">
+        <div style="flex:1"><div class="bignum">${money(d.runRate)}</div><small style="color:var(--muted)">run-rate pleno</small></div>
+        <div style="flex:1"><div class="bignum" style="color:var(--purple)">${money(d.weighted)}</div><small style="color:var(--muted)">ponderado</small></div>
+        <div style="flex:1"><div class="bignum" style="color:var(--good)">${money(d.captured)}</div><small style="color:var(--muted)">capturado</small></div>
+        <div style="flex:1"><div class="bignum" style="color:var(--cyan)">${money(d.inYear)}</div><small style="color:var(--muted)">en el año</small></div>
+      </div>
+    </div>
+    ${STAGE_ORDER[e.stage]>=3?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:4px">Baseline vs. Forecast vs. Real ${e.baseline?`<span class="tag">baseline congelado ${e.baseline.frozenAt||''}</span>`:`<span class="tag" style="background:#fdf0d8;color:#b57900">se congelará al guardar en L3</span>`}</div><div id="miniCurve"></div><div class="legend" style="margin-top:4px"><span><i style="background:#8a99a8"></i>Baseline</span><span><i style="background:#051c2c"></i>Forecast</span><span><i style="background:#00b8a2"></i>Real</span></div></div>`:''}
+    <div style="font-weight:700;font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">Hitos <button class="btn sm ghost" onclick="addMs()">+ Hito</button></div>
+    <div id="msList"></div>
+    <div class="field" style="margin-top:12px"><label>Notas</label><textarea id="f_notes">${e.notes||''}</textarea></div>
+    <div class="modal-foot">
+      <div>${db.inis.find(i=>i.id===e.id)?`<button class="btn danger" onclick="deleteIni()">Eliminar</button>`:''}</div>
+      <div style="display:flex;gap:8px"><button class="btn gray" onclick="closeIni()">Cancelar</button><button class="btn" onclick="saveIni()">Guardar</button></div>
+    </div>`;
+  renderMsList();
+  if(STAGE_ORDER[e.stage]>=3)renderMiniCurve(e);
+  ['f_name','f_owner','f_rr','f_prog','f_stage','f_start','f_cap','f_end','f_curve','f_macro','f_notes'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',syncIni);
+    document.getElementById(id).addEventListener('change',syncIni);
+  });
+}
+function syncIni(){
+  const e=editingIni;
+  e.name=val('f_name');e.owner=val('f_owner');e.macroId=val('f_macro');e.stage=val('f_stage');
+  e.runRate=+val('f_rr')||0;e.progress=Math.min(1,Math.max(0,(+val('f_prog')||0)/100));
+  e.start=val('f_start');e.captureDate=val('f_cap');e.end=val('f_end');e.curve=val('f_curve');e.notes=val('f_notes');
+  // actualizar solo los bignums sin re-render completo (para no perder foco)
+  const d=iniDerived(e);
+  const nums=document.querySelectorAll('#iniModal .bignum');
+  if(nums.length===4){nums[0].textContent=money(d.runRate);nums[1].textContent=money(d.weighted);nums[2].textContent=money(d.captured);nums[3].textContent=money(d.inYear);}
+}
+const val=id=>document.getElementById(id).value;
+function renderMsList(){
+  const box=document.getElementById('msList');
+  box.innerHTML=`<div class="ms-row" style="font-weight:700;color:var(--muted);border:none"><div></div><div>Hito</div><div>Responsable</div><div>Vence</div><div></div></div>`+
+    (editingIni.milestones||[]).map((m,i)=>`<div class="ms-row">
+      <input type="checkbox" ${m.done?'checked':''} onchange="msSet(${i},'done',this.checked)">
+      <input value="${m.name||''}" oninput="msSet(${i},'name',this.value)">
+      <input value="${m.owner||''}" oninput="msSet(${i},'owner',this.value)" placeholder="resp.">
+      <input type="date" value="${m.due||''}" onchange="msSet(${i},'due',this.value)">
+      <span style="cursor:pointer;color:var(--bad)" onclick="msDel(${i})">✕</span></div>`).join('');
+}
+function addMs(){editingIni.milestones=editingIni.milestones||[];editingIni.milestones.push({id:uid('ms'),name:'',owner:editingIni.owner||'',due:'',done:false,doneDate:''});renderMsList();}
+function msSet(i,k,v){const m=editingIni.milestones[i];m[k]=v;if(k==='done')m.doneDate=v?fmtD(today()):'';}
+function msDel(i){editingIni.milestones.splice(i,1);renderMsList();}
+function saveIni(){
+  syncIni();
+  if(!editingIni.name){alert('Ponle un nombre a la iniciativa.');return;}
+  const idx=db.inis.findIndex(i=>i.id===editingIni.id);
+  const wasBaseline=idx>=0&&db.inis[idx].baseline;
+  ensureBaseline(editingIni);
+  if(idx>=0){logAudit('editar','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')'+(!wasBaseline&&editingIni.baseline?' · baseline congelado':''));db.inis[idx]=editingIni;}
+  else{logAudit('crear','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')');db.inis.push(editingIni);}
+  save();closeIni();refreshAll();
+}
+function deleteIni(){if(confirm('¿Eliminar esta iniciativa?')){logAudit('eliminar','Iniciativa "'+editingIni.name+'"');db.inis=db.inis.filter(i=>i.id!==editingIni.id);save();closeIni();refreshAll();}}
+function closeIni(){document.getElementById('iniOverlay').classList.remove('on');editingIni=null;}
+
+/* ============ MODAL MACRO ============ */
+let editingMacro=null;
+function openMacroModal(id){
+  editingMacro=id?JSON.parse(JSON.stringify(db.macros.find(m=>m.id===id))):{id:uid('m'),grupoId:db.grupos[0]?.id||'',name:'',owner:'',sponsor:'',target:0};
+  const grpOpts=db.grupos.map(g=>{const a=db.areas.find(x=>x.id===g.areaId);return `<option value="${g.id}" ${g.id===editingMacro.grupoId?'selected':''}>${a?.name||'?'} › ${g.name}</option>`;}).join('');
+  document.getElementById('macroModal').innerHTML=`
+    <h3>${id?'Editar':'Nueva'} macroiniciativa</h3><div class="msub">Bloque de valor que agrupa iniciativas.</div>
+    <div class="field"><label>Nombre</label><input id="mf_name" value="${editingMacro.name||''}"></div>
+    <div class="row"><div class="field"><label>Grupo</label><select id="mf_grp">${grpOpts}</select></div>
+    <div class="field"><label>Meta de valor $ (run-rate)</label><input id="mf_target" type="number" value="${editingMacro.target||0}"></div></div>
+    <div class="row"><div class="field"><label>Líder</label><input id="mf_owner" value="${editingMacro.owner||''}"></div>
+    <div class="field"><label>Sponsor</label><input id="mf_sponsor" value="${editingMacro.sponsor||''}"></div></div>
+    <div class="modal-foot"><div>${id?`<button class="btn danger" onclick="deleteMacro('${id}')">Eliminar</button>`:''}</div>
+    <div style="display:flex;gap:8px"><button class="btn gray" onclick="document.getElementById('macroOverlay').classList.remove('on')">Cancelar</button><button class="btn" onclick="saveMacro()">Guardar</button></div></div>`;
+  document.getElementById('macroOverlay').classList.add('on');
+}
+function saveMacro(){
+  editingMacro.name=val('mf_name');editingMacro.grupoId=val('mf_grp');editingMacro.target=+val('mf_target')||0;
+  editingMacro.owner=val('mf_owner');editingMacro.sponsor=val('mf_sponsor');
+  if(!editingMacro.name){alert('Nombre requerido');return;}
+  const idx=db.macros.findIndex(m=>m.id===editingMacro.id);
+  logAudit(idx>=0?'editar':'crear','Macroiniciativa "'+editingMacro.name+'" (meta '+money(editingMacro.target)+')');
+  if(idx>=0)db.macros[idx]=editingMacro;else db.macros.push(editingMacro);
+  save();document.getElementById('macroOverlay').classList.remove('on');refreshAll();
+}
+function deleteMacro(id){if(db.inis.some(i=>i.macroId===id)){alert('Tiene iniciativas asociadas. Reasígnalas o elimínalas primero.');return;}if(confirm('¿Eliminar macroiniciativa?')){db.macros=db.macros.filter(m=>m.id!==id);save();document.getElementById('macroOverlay').classList.remove('on');refreshAll();}}
+
+/* ============ EDITOR ESTRUCTURA ============ */
+function renderStruct(){
+  const box=document.getElementById('structEditor');
+  box.innerHTML=db.areas.map(a=>`<details class="acc"><summary><span><span class="dot" style="background:${a.color};display:inline-block;margin-right:6px"></span>${a.name}</span><span class="tag">${db.grupos.filter(g=>g.areaId===a.id).length} grupos</span></summary>
+    <div class="body">
+      <div class="row" style="margin-bottom:8px"><div class="field" style="flex:2;margin:0"><input value="${a.name}" onchange="renameArea('${a.id}',this.value)"></div>
+      <input type="color" value="${a.color}" onchange="colorArea('${a.id}',this.value)" style="width:40px;padding:2px">
+      <button class="btn sm danger" onclick="delArea('${a.id}')">✕</button></div>
+      ${db.grupos.filter(g=>g.areaId===a.id).map(g=>`<div class="row" style="margin-bottom:5px;padding-left:14px"><div class="field" style="flex:1;margin:0"><input value="${g.name}" onchange="renameGrp('${g.id}',this.value)"></div><button class="btn sm gray" onclick="delGrp('${g.id}')">✕</button></div>`).join('')}
+      <button class="btn sm ghost" onclick="addGrp('${a.id}')" style="margin-left:14px;margin-top:4px">+ Grupo</button>
+    </div></details>`).join('');
+}
+function addArea(){db.areas.push({id:uid('a'),name:'Nueva área',color:AREA_COLORS[db.areas.length%AREA_COLORS.length]});save();renderStruct();fillSelectors();}
+function renameArea(id,v){db.areas.find(a=>a.id===id).name=v;save();refreshAll();}
+function colorArea(id,v){db.areas.find(a=>a.id===id).color=v;save();refreshAll();}
+function delArea(id){if(db.grupos.some(g=>g.areaId===id)){alert('Elimina primero sus grupos.');return;}db.areas=db.areas.filter(a=>a.id!==id);save();refreshAll();}
+function addGrp(aid){db.grupos.push({id:uid('g'),areaId:aid,name:'Nuevo grupo'});save();renderStruct();fillSelectors();}
+function renameGrp(id,v){db.grupos.find(g=>g.id===id).name=v;save();refreshAll();}
+function delGrp(id){if(db.macros.some(m=>m.grupoId===id)){alert('Tiene macroiniciativas. Reasígnalas primero.');return;}db.grupos=db.grupos.filter(g=>g.id!==id);save();refreshAll();}
+
+function renderMacroEditor(){
+  const box=document.getElementById('macroEditor');
+  box.innerHTML='<table><thead><tr><th>Macroiniciativa</th><th>Grupo</th><th class="num">Meta</th><th class="num">Inic.</th><th></th></tr></thead><tbody>'+
+    db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
+      return `<tr class="clk" onclick="openMacroModal('${m.id}')"><td><b>${m.name}</b></td><td>${a?.name||''} › ${g?.name||''}</td><td class="num">${money(m.target)}</td><td class="num">${macroInis(m.id).length}</td><td>✎</td></tr>`;}).join('')+'</tbody></table>';
+}
+
+/* ============ IMPORT/EXPORT ============ */
+function exportJSON(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='wavepmo_'+today().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}
+function importJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.areas||!d.inis)throw 0;db=d;logAudit('importar','Respaldo JSON importado');save();refreshAll();alert('Datos importados.');}catch(e){alert('Archivo inválido.');}};r.readAsText(f);ev.target.value='';}
+
+/* ============ CSV: PARSER ROBUSTO ============ */
+function parseCSV(text){
+  const rows=[];let row=[],cur='',q=false;
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else{ if(c==='"')q=true; else if(c===','){row.push(cur);cur='';} else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';} else cur+=c; }
+  }
+  if(cur.length||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.some(c=>c.trim()!==''));
+}
+function csvCell(v){v=(v==null?'':''+v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+const CSV_HEADERS=['area','grupo','macroiniciativa','meta_macro','iniciativa','responsable','etapa','run_rate_anual','avance_pct','inicio','captura','cierre','curva','notas','hitos'];
+
+/* ============ CSV: GENERAR ============ */
+function iniToRow(ini){
+  const m=db.macros.find(x=>x.id===ini.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
+  const st=stageOf(ini.stage);
+  const hitos=(ini.milestones||[]).map(ms=>`${ms.name}~${ms.owner||''}~${ms.due||''}~${ms.done?'ok':'pend'}`).join(' ; ');
+  return [a?.name||'',g?.name||'',m?.name||'',m?.target||'',ini.name,ini.owner||'',st.id,ini.runRate||0,Math.round((ini.progress||0)*100),ini.start||'',ini.captureDate||'',ini.end||'',ini.curve||'linear',ini.notes||'',hitos];
+}
+function buildCSV(rows){return [CSV_HEADERS.join(','),...rows.map(r=>r.map(csvCell).join(','))].join('\n');}
+function dl(name,content,type){const blob=new Blob(['﻿'+content],{type});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+function exportCSV(){dl('wavepmo_iniciativas_'+today().toISOString().slice(0,10)+'.csv',buildCSV(db.inis.map(iniToRow)),'text/csv');}
+function downloadTemplate(withData){
+  const rows=withData?db.inis.map(iniToRow):[
+    ['Operaciones','Compras','Procurement / clean-sheet',3800000,'Renegociación energía','J. Fuentes','L3',420000,55,'2026-02-01','2026-06-01','2026-08-01','linear','Contrato PPA a evaluar','Kickoff & baseline~J. Fuentes~2026-03-01~ok ; Licitación~J. Fuentes~2026-05-15~pend'],
+    ['Comercial','Ventas','Motor de crecimiento comercial',5100000,'Recuperación de churn','A. Silva','L2',300000,20,'2026-03-01','2026-08-01','2026-10-01','s','Modelo predictivo de fuga','Definir cohorte~A. Silva~2026-04-10~pend']
+  ];
+  dl('wavepmo_plantilla.csv',buildCSV(rows),'text/csv');
+}
+
+/* ============ CSV: IMPORTAR ============ */
+function findOrCreateArea(name){name=(name||'Sin área').trim();let a=db.areas.find(x=>x.name.trim().toLowerCase()===name.toLowerCase());if(!a){a={id:uid('a'),name,color:AREA_COLORS[db.areas.length%AREA_COLORS.length]};db.areas.push(a);}return a;}
+function findOrCreateGrupo(areaId,name){name=(name||'General').trim();let g=db.grupos.find(x=>x.areaId===areaId&&x.name.trim().toLowerCase()===name.toLowerCase());if(!g){g={id:uid('g'),areaId,name};db.grupos.push(g);}return g;}
+function findOrCreateMacro(grupoId,name,target){name=(name||'General').trim();let m=db.macros.find(x=>x.grupoId===grupoId&&x.name.trim().toLowerCase()===name.toLowerCase());if(!m){m={id:uid('m'),grupoId,name,owner:'',sponsor:'',target:+target||0};db.macros.push(m);}else if(target&&!m.target)m.target=+target;return m;}
+function normStage(v){v=(v||'').trim().toLowerCase();const byId=STAGES.find(s=>s.id.toLowerCase()===v);if(byId)return byId.id;const byName=STAGES.find(s=>s.name.toLowerCase().includes(v)&&v);return byName?byName.id:'L1';}
+function parseHitos(v){if(!v||!v.trim())return [];return v.split(';').map(chunk=>{const p=chunk.split('~').map(s=>s.trim());if(!p[0])return null;const done=/^(ok|si|sí|done|true|1|x)$/i.test(p[3]||'');return {id:uid('ms'),name:p[0],owner:p[1]||'',due:p[2]||'',done,doneDate:done?(p[2]||fmtD(today())):''};}).filter(Boolean);}
+function importCSVFile(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{importCSV(r.result,document.getElementById('csvMode').value);}catch(e){alert('Error al leer el CSV: '+e.message);}};r.readAsText(f);ev.target.value='';}
+function importCSV(text,mode){
+  const rows=parseCSV(text);if(rows.length<2)throw new Error('CSV vacío o sin filas de datos.');
+  const head=rows[0].map(h=>h.trim().toLowerCase());
+  const col=n=>head.indexOf(n);
+  if(col('iniciativa')<0)throw new Error('Falta la columna "iniciativa". Descarga la plantilla.');
+  if(mode==='replace'){db.areas=[];db.grupos=[];db.macros=[];db.inis=[];}
+  let added=0;
+  for(let i=1;i<rows.length;i++){const r=rows[i];const get=n=>{const c=col(n);return c>=0?(r[c]||'').trim():'';};
+    const iniName=get('iniciativa');if(!iniName)continue;
+    const a=findOrCreateArea(get('area'));const g=findOrCreateGrupo(a.id,get('grupo'));const m=findOrCreateMacro(g.id,get('macroiniciativa'),get('meta_macro'));
+    const obj={id:uid('ini'),macroId:m.id,name:iniName,owner:get('responsable'),stage:normStage(get('etapa')),
+      runRate:+(get('run_rate_anual').replace(/[^0-9.-]/g,''))||0,progress:Math.min(1,Math.max(0,(+get('avance_pct')||0)/100)),
+      start:get('inicio'),captureDate:get('captura'),end:get('cierre'),curve:/^s/i.test(get('curva'))?'s':'linear',
+      notes:get('notas'),baseline:null,milestones:parseHitos(get('hitos'))};
+    ensureBaseline(obj);
+    db.inis.push(obj);
+    added++;
+  }
+  logAudit('importar',added+' iniciativas por CSV ('+(mode==='replace'?'reemplazo total':'agregadas')+')');
+  save();refreshAll();alert(`✓ ${added} iniciativas importadas (${mode==='replace'?'reemplazo total':'agregadas'}).`);
+}
+
+/* ============ SINCRONIZACIÓN EN LA NUBE ============ */
+let sync={url:localStorage.getItem('wavepmo_syncUrl')||'https://n8n-production-121a.up.railway.app/webhook/pmo',token:localStorage.getItem('wavepmo_syncToken')||'',auto:localStorage.getItem('wavepmo_syncAuto')==='1'};
+let syncTimer=null;
+function syncStatus(msg,cls){const el=document.getElementById('syncStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
+function loadSyncPanel(){
+  const u=document.getElementById('syncUrl'),t=document.getElementById('syncToken'),a=document.getElementById('syncAuto');
+  if(!u)return;u.value=sync.url;t.value=sync.token;a.checked=sync.auto;
+  document.getElementById('syncBadge').textContent=sync.url?(sync.auto?'auto ☁️':'nube'):'local';
+  const persist=()=>{sync.url=u.value.trim();sync.token=t.value.trim();sync.auto=a.checked;
+    localStorage.setItem('wavepmo_syncUrl',sync.url);localStorage.setItem('wavepmo_syncToken',sync.token);localStorage.setItem('wavepmo_syncAuto',sync.auto?'1':'0');
+    document.getElementById('syncBadge').textContent=sync.url?(sync.auto?'auto ☁️':'nube'):'local';};
+  [u,t].forEach(x=>x.oninput=persist);a.onchange=persist;
+}
+async function cloudSave(){
+  if(!sync.url){alert('Configura primero la URL del webhook.');return;}
+  syncStatus('Guardando…');
+  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json',...(sync.token?{'Authorization':'Bearer '+sync.token}:{})},body:JSON.stringify({action:'save',data:db})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    syncStatus('✓ Guardado en la nube · '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){syncStatus('✗ '+e.message+' (revisa URL, token y CORS del webhook)','err');}
+}
+async function cloudLoad(){
+  if(!sync.url){alert('Configura primero la URL del webhook.');return;}
+  if(!confirm('Esto reemplazará los datos locales con los de la nube. ¿Continuar?'))return;
+  syncStatus('Cargando…');
+  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json',...(sync.token?{'Authorization':'Bearer '+sync.token}:{})},body:JSON.stringify({action:'load'})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    let d=await res.json();if(d.data)d=d.data;if(d.body)d=d.body;
+    if(!d.areas||!d.inis)throw new Error('Respuesta sin estructura válida');
+    db=d;logAudit('nube','Programa cargado desde la nube');save();refreshAll();syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){syncStatus('✗ '+e.message,'err');}
+}
+function autoPush(){if(!sync.auto||!sync.url)return;clearTimeout(syncTimer);syncTimer=setTimeout(cloudSave,2500);}
+
+/* ============ INIT ============ */
+loadSeed(false);
+loadSyncPanel();
+</script>
+</body>
+</html>
