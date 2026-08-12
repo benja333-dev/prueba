@@ -109,6 +109,22 @@ details.acc summary{padding:10px 13px;cursor:pointer;font-weight:600;font-size:1
 details.acc summary::-webkit-details-marker{display:none}
 details.acc .body{padding:12px 14px}
 @media(max-width:640px){.tree-row{grid-template-columns:1fr 70px 70px;font-size:11px}.tree-row .c-owner,.tree-row.head .c-owner,.hidem{display:none}}
+/* Reporte de comité */
+.rep-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.rep-head h1{font-size:22px;color:var(--navy)}
+.rep-head .meta{font-size:12px;color:var(--muted);text-align:right}
+.rep-sec{margin-bottom:20px;break-inside:avoid}
+.rep-sec h3{font-size:14px;color:var(--navy);border-left:4px solid var(--blue);padding-left:9px;margin-bottom:9px}
+.gnode{cursor:default}
+@media print{
+  @page{margin:12mm}
+  header,nav,#comiteTools,.tab:not(#tab-comite){display:none !important}
+  .tab#tab-comite{display:block !important}
+  main{padding:0;max-width:none}
+  body{background:#fff}
+  .statcard,.card{box-shadow:none}
+  .rep-sec{page-break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -125,6 +141,8 @@ details.acc .body{padding:12px 14px}
   <button data-tab="captura">📈 Escalón de captura</button>
   <button data-tab="seguimiento">⏱️ Seguimiento semanal</button>
   <button data-tab="iniciativas">📋 Iniciativas</button>
+  <button data-tab="deps">🔗 Dependencias</button>
+  <button data-tab="comite">📑 Comité</button>
   <button data-tab="config">⚙️ Estructura &amp; datos</button>
 </nav>
 <main>
@@ -280,6 +298,34 @@ details.acc .body{padding:12px 14px}
       </div>
       <div class="scroll"><table id="iniTable"></table></div>
     </div>
+  </section>
+
+  <!-- DEPENDENCIAS -->
+  <section class="tab" id="tab-deps">
+    <div class="grid t4" id="depsStats" style="margin-bottom:16px"></div>
+    <div class="card">
+      <h2>🔗 Dependencias &amp; ruta crítica
+        <span class="tools">
+          <label style="font-size:12px;font-weight:600">Área:</label>
+          <select id="depsArea" onchange="renderDeps()" style="padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px"><option value="">Todas</option></select>
+        </span>
+      </h2>
+      <div class="hint">Diagrama de Gantt de hitos por iniciativa. Cada rombo es un hito en su fecha de vencimiento (color = estado). Las flechas son dependencias (predecesor → sucesor). La <b>ruta crítica</b> —la cadena de hitos encadenados más larga— se resalta en rojo. Las dependencias se definen en el modal de cada iniciativa.</div>
+      <div class="scroll" style="overflow:auto;max-height:520px"><div id="ganttChart"></div></div>
+      <div class="legend"><span><i style="background:#00b8a2"></i>Cerrado</span><span><i style="background:#e5546c"></i>Atrasado</span><span><i style="background:#f5a623"></i>Por vencer</span><span><i style="background:#8a99a8"></i>Abierto</span><span><i style="background:#2251ff;border-radius:50%"></i>Ruta crítica</span></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h2>🧭 Ruta crítica (secuencia)</h2><div class="hint">Cadena de hitos dependientes que marca el fin. Vigílala de cerca.</div><div id="critPath"></div></div>
+      <div class="card"><h2>⚠️ Conflictos de dependencia</h2><div class="hint">Hitos que vencen antes o el mismo día que su predecesor: imposible de cumplir.</div><div id="depConflicts"></div></div>
+    </div>
+  </section>
+
+  <!-- COMITE -->
+  <section class="tab" id="tab-comite">
+    <div class="toolbar" style="justify-content:flex-end" id="comiteTools">
+      <button class="btn ghost" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+    <div id="comiteReport"></div>
   </section>
 
   <!-- CONFIG -->
@@ -454,6 +500,7 @@ function seed(){
       const dd=done?new Date(due.getTime()+rnd(-6,10)*864e5):null;
       ms.push({id:uid('ms'),name:['Kickoff & baseline','Diseño de solución','Piloto','Roll-out','Estabilización','Cierre & captura'][k]||('Hito '+(k+1)),owner:Math.random()<.6?owner:pick(owners),due:fmtD(due),done,doneDate:done?fmtD(dd):''});
     }
+    for(let k=1;k<ms.length;k++)ms[k].deps=[ms[k-1].id]; // cadena secuencial de hitos
     // baseline congelado (presupuesto inicial) para iniciativas en L3+ con desviación vs forecast
     let baseline=null;
     if(STAGE_ORDER[st.id]>=3){
@@ -590,6 +637,8 @@ function refreshAll(){
   renderStruct();
   renderMacroEditor();
   renderAudit();
+  renderDeps();
+  renderComite();
 }
 function fillSelectors(){
   const areaOpts='<option value="">Todas las áreas</option>'+db.areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
@@ -598,6 +647,7 @@ function fillSelectors(){
   document.getElementById('iniStageF').innerHTML='<option value="">Todas las etapas</option>'+STAGES.map(s=>`<option value="${s.id}">${s.id} · ${s.name}</option>`).join('');
   const owners=[...new Set(allMilestones().map(m=>m.owner).concat(db.inis.map(i=>i.owner)))].filter(Boolean).sort();
   document.getElementById('segOwner').innerHTML='<option value="">Todos</option>'+owners.map(o=>`<option>${o}</option>`).join('');
+  const dA=document.getElementById('depsArea'); if(dA)dA.innerHTML='<option value="">Todas</option>'+db.areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
 }
 
 /* ---- HEADER KPIs ---- */
@@ -1092,12 +1142,14 @@ function renderIniModal(){
     ${STAGE_ORDER[e.stage]>=3?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:4px">Baseline vs. Forecast vs. Real ${e.baseline?`<span class="tag">baseline congelado ${e.baseline.frozenAt||''}</span>`:`<span class="tag" style="background:#fdf0d8;color:#b57900">se congelará al guardar en L3</span>`}</div><div id="miniCurve"></div><div class="legend" style="margin-top:4px"><span><i style="background:#8a99a8"></i>Baseline</span><span><i style="background:#051c2c"></i>Forecast</span><span><i style="background:#00b8a2"></i>Real</span></div></div>`:''}
     <div style="font-weight:700;font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">Hitos <button class="btn sm ghost" onclick="addMs()">+ Hito</button></div>
     <div id="msList"></div>
+    <div id="depsEditor"></div>
     <div class="field" style="margin-top:12px"><label>Notas</label><textarea id="f_notes">${e.notes||''}</textarea></div>
     <div class="modal-foot">
       <div>${db.inis.find(i=>i.id===e.id)?`<button class="btn danger" onclick="deleteIni()">Eliminar</button>`:''}</div>
       <div style="display:flex;gap:8px"><button class="btn gray" onclick="closeIni()">Cancelar</button><button class="btn" onclick="saveIni()">Guardar</button></div>
     </div>`;
   renderMsList();
+  renderDepsEditor();
   if(STAGE_ORDER[e.stage]>=3)renderMiniCurve(e);
   ['f_name','f_owner','f_rr','f_prog','f_stage','f_start','f_cap','f_end','f_curve','f_macro','f_notes'].forEach(id=>{
     document.getElementById(id).addEventListener('input',syncIni);
@@ -1125,9 +1177,24 @@ function renderMsList(){
       <input type="date" value="${m.due||''}" onchange="msSet(${i},'due',this.value)">
       <span style="cursor:pointer;color:var(--bad)" onclick="msDel(${i})">✕</span></div>`).join('');
 }
-function addMs(){editingIni.milestones=editingIni.milestones||[];editingIni.milestones.push({id:uid('ms'),name:'',owner:editingIni.owner||'',due:'',done:false,doneDate:''});renderMsList();}
+function addMs(){editingIni.milestones=editingIni.milestones||[];editingIni.milestones.push({id:uid('ms'),name:'',owner:editingIni.owner||'',due:'',done:false,doneDate:'',deps:[]});renderMsList();renderDepsEditor();}
 function msSet(i,k,v){const m=editingIni.milestones[i];m[k]=v;if(k==='done')m.doneDate=v?fmtD(today()):'';}
-function msDel(i){editingIni.milestones.splice(i,1);renderMsList();}
+function msDel(i){editingIni.milestones.splice(i,1);renderMsList();renderDepsEditor();}
+function msSetDeps(i,sel){editingIni.milestones[i].deps=Array.from(sel.selectedOptions).map(o=>o.value);}
+function renderDepsEditor(){
+  const box=document.getElementById('depsEditor'); if(!box)return;
+  const mine=editingIni.milestones||[];
+  if(mine.length<2){box.innerHTML=mine.length?'<div style="font-size:11px;color:var(--muted);margin-top:6px">Agrega otro hito para poder encadenar dependencias.</div>':'';return;}
+  const others=[];
+  mine.forEach(m=>others.push({id:m.id,label:'(este hito) '+(m.name||'sin nombre')}));
+  db.inis.forEach(i=>{if(i.id===editingIni.id)return;(i.milestones||[]).forEach(m=>others.push({id:m.id,label:i.name+' · '+(m.name||'sin nombre')}));});
+  box.innerHTML='<details class="acc" style="margin-top:10px"><summary><span>🔗 Dependencias (predecesores)</span></summary><div class="body">'+
+    mine.map((m,i)=>{
+      const opts=others.filter(o=>o.id!==m.id).map(o=>`<option value="${o.id}" ${(m.deps||[]).includes(o.id)?'selected':''}>${o.label}</option>`).join('');
+      return `<div style="margin-bottom:9px"><div style="font-size:12px;font-weight:600;margin-bottom:3px">${m.name||'Hito '+(i+1)} <span style="color:var(--muted);font-weight:400">depende de:</span></div>
+        <select multiple size="3" style="width:100%;font-size:11.5px;padding:4px" onchange="msSetDeps(${i}, this)">${opts}</select></div>`;
+    }).join('')+'<div style="font-size:11px;color:var(--muted)">Ctrl/Cmd + click para elegir varios o ninguno. La ruta crítica se calcula en el tab «Dependencias».</div></div></details>';
+}
 function saveIni(){
   syncIni();
   if(!editingIni.name){alert('Ponle un nombre a la iniciativa.');return;}
@@ -1293,6 +1360,131 @@ async function cloudLoad(){
   }catch(e){syncStatus('✗ '+e.message,'err');}
 }
 function autoPush(){if(!sync.auto||!sync.url)return;clearTimeout(syncTimer);syncTimer=setTimeout(cloudSave,2500);}
+
+/* ============ DEPENDENCIAS & RUTA CRÍTICA ============ */
+function computeCritical(){
+  const all=allMilestones(); const byId={}; all.forEach(m=>byId[m.id]=m);
+  const memo={},stack={};
+  function chain(id){ if(memo[id])return memo[id]; if(stack[id])return {len:0,path:[]}; stack[id]=1;
+    const m=byId[id]; let best={len:0,path:[]};
+    (((m&&m.deps)||[])).forEach(d=>{if(byId[d]){const r=chain(d);if(r.len>best.len)best=r;}});
+    stack[id]=0; const res={len:best.len+1,path:best.path.concat(id)}; memo[id]=res; return res; }
+  let best={len:0,path:[]};
+  all.forEach(m=>{const r=chain(m.id);
+    const rd=r.path.length?parseD(byId[r.path[r.path.length-1]].due):null;
+    const bd=best.path.length?parseD(byId[best.path[best.path.length-1]].due):null;
+    if(r.len>best.len||(r.len===best.len&&rd&&bd&&rd>bd))best=r;});
+  return {critical:best.path,byId,all};
+}
+function renderDeps(){
+  const dA=document.getElementById('depsArea'); const areaF=dA?dA.value:'';
+  const {critical,byId,all}=computeCritical();
+  const critSet={}; critical.forEach(id=>critSet[id]=1);
+  let inis=db.inis.filter(i=>(i.milestones||[]).length);
+  if(areaF)inis=inis.filter(i=>areaInis(areaF).includes(i));
+  const months=programWindow(); const t0=months[0],t1=months[months.length-1]; const span=Math.max(1,t1-t0);
+  const labelW=190,W=980,padR=24,rowH=30,padTop=26,x0=labelW,iw=W-labelW-padR;
+  const X=d=>{const dd=parseD(fmtD(d));return x0+((dd-t0)/span)*iw;};
+  const H=padTop+Math.max(1,inis.length)*rowH+14; const pos={};
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="${W}" style="min-width:${W}px">`;
+  svg+=`<defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b7c1cc"/></marker><marker id="arwC" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e5546c"/></marker></defs>`;
+  months.forEach((m,i)=>{if(i%Math.ceil(months.length/10)===0){const x=X(m);svg+=`<line x1="${x}" y1="${padTop-6}" x2="${x}" y2="${H}" stroke="#eef2f6"/><text x="${x}" y="${padTop-10}" text-anchor="middle" font-size="9" fill="#9fb3c0">${m.toLocaleDateString('es',{month:'short',year:'2-digit'})}</text>`;}});
+  const tx=X(today()); svg+=`<line x1="${tx}" y1="${padTop-6}" x2="${tx}" y2="${H}" stroke="#e5546c" stroke-width="1.2" stroke-dasharray="4 3"/><text x="${tx+3}" y="${padTop-1}" font-size="8.5" fill="#e5546c" font-weight="700">hoy</text>`;
+  inis.forEach((ini,ri)=>{
+    const y=padTop+ri*rowH+rowH/2;
+    const sx=X(parseD(ini.start)||months[0]),ex=X(parseD(ini.end)||parseD(ini.captureDate)||months[0]);
+    svg+=`<text x="6" y="${y+3}" font-size="11" fill="#051c2c">${ini.name.length>26?ini.name.slice(0,25)+'…':ini.name}</text>`;
+    svg+=`<line x1="${Math.min(sx,ex)}" y1="${y}" x2="${Math.max(sx,ex)}" y2="${y}" stroke="#dfe6ec" stroke-width="5" stroke-linecap="round"/>`;
+    (ini.milestones||[]).forEach(m=>{if(!m.due)return;const x=X(parseD(m.due));pos[m.id]={x,y};
+      const st=msStatus(m);const col=st.key==='done'?'#00b8a2':st.key==='late'?'#e5546c':st.key==='soon'?'#f5a623':'#8a99a8';
+      const crit=critSet[m.id];const r=crit?6:4.5;
+      svg+=`<path class="gnode" d="M${x} ${y-r} L${x+r} ${y} L${x} ${y+r} L${x-r} ${y} Z" fill="${col}" ${crit?'stroke="#2251ff" stroke-width="2"':''}><title>${m.name} · vence ${m.due}${m.owner?' · '+m.owner:''}${crit?' · RUTA CRÍTICA':''}</title></path>`;
+    });
+  });
+  all.forEach(m=>{if(!pos[m.id])return;((m.deps)||[]).forEach(d=>{if(!pos[d])return;const a=pos[d],b=pos[m.id];const crit=critSet[m.id]&&critSet[d];const mx=(a.x+b.x)/2;
+    svg+=`<path d="M${a.x} ${a.y} C ${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}" fill="none" stroke="${crit?'#e5546c':'#c3ccd6'}" stroke-width="${crit?1.8:1}" marker-end="url(#${crit?'arwC':'arw'})" opacity="${crit?0.95:0.55}"/>`;});});
+  svg+='</svg>';
+  document.getElementById('ganttChart').innerHTML=svg;
+  // conflictos
+  const conflicts=[];
+  all.forEach(m=>{((m.deps)||[]).forEach(d=>{const p=byId[d];if(p&&m.due&&p.due&&parseD(m.due)<=parseD(p.due))conflicts.push({m,p});});});
+  let depEdges=0; all.forEach(m=>depEdges+=((m.deps)||[]).length);
+  const critLast=critical.length?byId[critical[critical.length-1]]:null;
+  document.getElementById('depsStats').innerHTML=[
+    ['Dependencias definidas',depEdges,'enlaces entre hitos',''],
+    ['Hitos en ruta crítica',critical.length,'la cadena más larga',''],
+    ['Fin de ruta crítica',critLast?critLast.due:'—','último hito de la cadena',''],
+    ['Conflictos',conflicts.length,'vencen antes que su predecesor',conflicts.length?'bad':'good']
+  ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
+  // secuencia ruta crítica
+  document.getElementById('critPath').innerHTML= critical.length?('<div style="display:flex;flex-direction:column;gap:6px">'+critical.map((id,k)=>{const m=byId[id];const st=msStatus(m);const col=st.key==='done'?'good':st.key==='late'?'bad':st.key==='soon'?'warn':'n';
+    return `<div style="display:flex;align-items:center;gap:8px"><span class="chip" style="background:var(--navy);color:#fff">${k+1}</span><div style="flex:1"><b style="font-size:12.5px">${m.name}</b><div style="font-size:10px;color:var(--muted)">${m.ini?m.ini.name:''} · ${m.owner||'—'}</div></div><span class="pill ${col}">${m.due||'—'}</span></div>`;
+  }).join('')+'</div>'):'<div style="color:var(--muted);padding:12px">Aún no hay cadenas de dependencia. Define predecesores en el modal de las iniciativas.</div>';
+  // conflictos
+  document.getElementById('depConflicts').innerHTML= conflicts.length?('<table><tbody>'+conflicts.map(c=>`<tr><td><b>${c.m.name}</b><div style="font-size:10px;color:var(--muted)">${c.m.ini?c.m.ini.name:''}</div></td><td style="font-size:11px">vence ${c.m.due}</td><td style="color:var(--bad)">≤</td><td style="font-size:11px">predecesor «${c.p.name}» vence ${c.p.due}</td></tr>`).join('')+'</tbody></table>'):'<div style="color:var(--good);padding:12px;font-weight:600">✓ Sin conflictos de dependencia</div>';
+}
+
+/* ============ REPORTE DE COMITÉ ============ */
+function renderComite(){
+  const box=document.getElementById('comiteReport'); if(!box)return;
+  const rr=sumMetric(db.inis,'runRate'),cap=sumMetric(db.inis,'captured'),inYear=sumMetric(db.inis,'inYear');
+  const months=programWindow();
+  const sumLast=fn=>{const s=months.map((m,idx)=>db.inis.reduce((a,ini)=>{const v=fn(ini)[idx];return a+(v==null?0:v);},0));return s[s.length-1];};
+  const baseFull=sumLast(i=>iniBaselineMonthly(i,months)),fcFull=sumLast(i=>iniForecastMonthly(i,months));
+  const ms=allMilestones(); const late=ms.filter(m=>msStatus(m).key==='late');
+  const soon=ms.filter(m=>msStatus(m).key==='soon');
+  const {critical,byId}=computeCritical();
+  const areas=db.areas.map(a=>{const ai=areaInis(a.id);return{a,rr:sumMetric(ai,'runRate'),cap:sumMetric(ai,'captured'),n:ai.length};}).filter(x=>x.n).sort((x,y)=>y.rr-x.rr);
+  const topInis=db.inis.slice().sort((a,b)=>b.runRate-a.runRate).slice(0,8);
+  const iniDev=i=>{const b=iniBaselineMonthly(i,months),f=iniForecastMonthly(i,months);return f[f.length-1]-b[b.length-1];};
+  const kpi=(l,v,d,c)=>`<div class="statcard"><div class="lbl">${l}</div><div class="v ${c||''}">${v}</div><div class="d">${d}</div></div>`;
+  box.innerHTML=`
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <div class="rep-head">
+      <div><h1>${db.meta.name||'Programa'}</h1><div style="font-size:12px;color:var(--muted)">Reporte de Comité de Seguimiento · Captura de valor e hitos</div></div>
+      <div class="meta">Fecha: <b>${today().toLocaleDateString('es',{day:'2-digit',month:'long',year:'numeric'})}</b><br>Preparado por: ${db.meta.user||'—'}<br>${db.inis.length} iniciativas · ${db.macros.length} macroiniciativas</div>
+    </div>
+    <div class="rep-sec">
+      <h3>1 · Resumen ejecutivo</h3>
+      <div class="grid t4">
+        ${kpi('Valor objetivo (run-rate)',money(rr),'impacto anual pleno','')}
+        ${kpi('Capturado a la fecha',money(cap),pct(rr?cap/rr:0)+' del objetivo','good')}
+        ${kpi('Forecast vs. baseline',(fcFull-baseFull>=0?'+':'')+money(fcFull-baseFull),fcFull-baseFull>=0?'sobre lo comprometido':'bajo lo comprometido',fcFull-baseFull>=0?'good':'bad')}
+        ${kpi('Impacto en el año',money(inYear),'reconocido en 12m','')}
+        ${kpi('Hitos atrasados',late.length,'requieren acción',late.length?'bad':'good')}
+      </div>
+    </div>
+    <div class="rep-sec">
+      <h3>2 · Impacto por área</h3>
+      <div class="scroll"><table><thead><tr><th>Área</th><th class="num">Iniciativas</th><th class="num">Run-rate objetivo</th><th class="num">Capturado</th><th class="num">% captura</th></tr></thead><tbody>
+      ${areas.map(x=>`<tr><td><span class="dot" style="background:${x.a.color};display:inline-block;margin-right:5px"></span>${x.a.name}</td><td class="num">${x.n}</td><td class="num">${money(x.rr)}</td><td class="num">${money(x.cap)}</td><td class="num">${pct(x.rr?x.cap/x.rr:0)}</td></tr>`).join('')}
+      <tr class="tot"><td>Total programa</td><td class="num">${db.inis.length}</td><td class="num">${money(rr)}</td><td class="num">${money(cap)}</td><td class="num">${pct(rr?cap/rr:0)}</td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="rep-sec">
+      <h3>3 · Top iniciativas por impacto</h3>
+      <div class="scroll"><table><thead><tr><th>Iniciativa</th><th>Área</th><th>Responsable</th><th>Etapa</th><th class="num">Run-rate</th><th class="num">Avance</th><th class="num">Δ Fc-Base</th><th>Salud</th></tr></thead><tbody>
+      ${topInis.map(i=>{const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);const st=stageOf(i.stage);const hl=iniHealth(i);const dv=iniDev(i);
+        return `<tr><td><b>${i.name}</b></td><td>${a?a.name:''}</td><td>${i.owner||'—'}</td><td><span class="stage" style="background:${st.c}">${st.id}</span></td><td class="num">${money(i.runRate)}</td><td class="num">${pct(i.progress||0)}</td><td class="num" style="color:${dv>=0?'var(--good)':'var(--bad)'}">${dv>=0?'+':''}${money(dv)}</td><td><span class="flag ${hl.key}">${hl.label}</span></td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>
+    <div class="grid g2">
+      <div class="rep-sec">
+        <h3>4 · Riesgos — hitos atrasados</h3>
+        ${late.length?`<div class="scroll"><table><thead><tr><th>Hito</th><th>Iniciativa</th><th>Responsable</th><th class="num">Venció</th></tr></thead><tbody>${late.slice(0,10).sort((a,b)=>msStatus(a).days-msStatus(b).days).map(m=>`<tr><td><b>${m.name}</b></td><td>${m.ini.name}</td><td>${m.owner||'—'}</td><td class="num" style="color:var(--bad)">${m.due} (${Math.abs(msStatus(m).days)}d)</td></tr>`).join('')}</tbody></table></div>`:'<div style="color:var(--good);font-weight:600;padding:8px">✓ Sin hitos atrasados</div>'}
+      </div>
+      <div class="rep-sec">
+        <h3>5 · Próximos hitos (≤14 días)</h3>
+        ${soon.length?`<div class="scroll"><table><thead><tr><th>Hito</th><th>Iniciativa</th><th>Responsable</th><th class="num">Vence</th></tr></thead><tbody>${soon.sort((a,b)=>msStatus(a).days-msStatus(b).days).map(m=>`<tr><td><b>${m.name}</b></td><td>${m.ini.name}</td><td>${m.owner||'—'}</td><td class="num" style="color:var(--warn)">${m.due} (${msStatus(m).days}d)</td></tr>`).join('')}</tbody></table></div>`:'<div style="color:var(--muted);padding:8px">Nada en los próximos 14 días.</div>'}
+      </div>
+    </div>
+    <div class="rep-sec">
+      <h3>6 · Ruta crítica del programa</h3>
+      ${critical.length?`<div style="font-size:12.5px;line-height:2">${critical.map((id,k)=>{const m=byId[id];return `<span class="chip" style="margin-right:4px">${k+1}. ${m.name} <span style="color:var(--muted)">(${m.due||'s/f'})</span></span>${k<critical.length-1?' <span style="color:var(--muted)">→</span> ':''}`;}).join('')}</div>`:'<div style="color:var(--muted)">Sin dependencias definidas.</div>'}
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px">Generado por WavePMO · ${new Date().toLocaleString()}</div>
+  </div>`;
+}
 
 /* ============ INIT ============ */
 loadSeed(false);
