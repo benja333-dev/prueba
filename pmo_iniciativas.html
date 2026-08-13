@@ -109,6 +109,16 @@ details.acc summary{padding:10px 13px;cursor:pointer;font-weight:600;font-size:1
 details.acc summary::-webkit-details-marker{display:none}
 details.acc .body{padding:12px 14px}
 @media(max-width:640px){.tree-row{grid-template-columns:1fr 70px 70px;font-size:11px}.tree-row .c-owner,.tree-row.head .c-owner,.hidem{display:none}}
+/* Login gate */
+.login-gate{position:fixed;inset:0;background:linear-gradient(135deg,#051c2c,#0a2e44);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:#fff;border-radius:14px;padding:34px 30px;width:100%;max-width:370px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.login-logo{font-size:27px;font-weight:700;color:var(--navy);text-align:center}
+.login-logo span{color:var(--cyan)}
+.login-sub{font-size:12.5px;color:var(--muted);text-align:center;margin:6px 0 22px;line-height:1.5}
+.login-msg{font-size:12.5px;margin-top:12px;text-align:center;min-height:17px;font-weight:600}
+body.locked{overflow:hidden}
+.session-chip{background:var(--navy2);border-radius:8px;padding:8px 12px;font-size:11.5px;color:#cfe0ec;display:flex;align-items:center;gap:8px}
+.session-chip a{color:#ffc760;text-decoration:none;font-weight:700}
 /* Reporte de comité */
 .rep-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .rep-head h1{font-size:22px;color:var(--navy)}
@@ -127,7 +137,17 @@ details.acc .body{padding:12px 14px}
 }
 </style>
 </head>
-<body>
+<body class="locked">
+<div id="loginGate" class="login-gate">
+  <div class="login-box">
+    <div class="login-logo">🌊 Wave<span>PMO</span></div>
+    <div class="login-sub">Acceso restringido. Ingresa con tu usuario y contraseña autorizados.</div>
+    <div class="field"><label>Usuario</label><input id="lg_user" type="text" autocomplete="username" placeholder="tu-email@empresa.com"></div>
+    <div class="field"><label>Contraseña</label><input id="lg_pass" type="password" autocomplete="current-password"></div>
+    <button class="btn" id="lg_btn" style="width:100%;margin-top:4px" onclick="doLogin()">Ingresar</button>
+    <div id="lg_msg" class="login-msg"></div>
+  </div>
+</div>
 <header>
   <div>
     <h1>🌊 Wave<span>PMO</span></h1>
@@ -360,14 +380,13 @@ details.acc .body{padding:12px 14px}
         <div style="font-size:11px;color:var(--muted);margin-top:8px" id="lastSaved"></div>
       </div>
       <div class="card">
-        <h2>☁️ Sincronización en la nube <span class="tag" id="syncBadge">local</span></h2>
-        <div class="hint">Conecta un webhook (n8n / API propia) para que la data viva en un servidor y sea compartida por todo el equipo. Deja vacío para modo 100% local.</div>
-        <div class="field"><label>URL del webhook</label><input id="syncUrl" placeholder="https://…/webhook/pmo"></div>
-        <div class="field"><label>Token (Bearer, opcional)</label><input id="syncToken" type="password" placeholder="secreto compartido"></div>
-        <label style="display:flex;gap:7px;align-items:center;font-size:12px;font-weight:600;margin-bottom:10px"><input type="checkbox" id="syncAuto" style="width:auto"> Auto-guardar en la nube al editar</label>
+        <h2>☁️ Datos compartidos <span class="tag" id="syncBadge">nube</span></h2>
+        <div class="hint">Estás conectado al servidor seguro. Tus cambios se guardan automáticamente y los comparte todo el equipo autorizado.</div>
+        <div id="sessionInfo" style="font-size:12.5px;margin-bottom:12px;color:var(--muted)"></div>
         <div class="row">
-          <button class="btn" onclick="cloudSave()">⬆️ Guardar en la nube</button>
-          <button class="btn ghost" onclick="cloudLoad()">⬇️ Cargar de la nube</button>
+          <button class="btn" onclick="cloudSave()">⬆️ Guardar ahora</button>
+          <button class="btn ghost" onclick="cloudLoad()">⬇️ Recargar de la nube</button>
+          <button class="btn gray" onclick="logout()">🔒 Cerrar sesión</button>
         </div>
         <div style="font-size:11px;margin-top:8px" id="syncStatus"></div>
       </div>
@@ -401,6 +420,17 @@ details.acc .body{padding:12px 14px}
       <div class="hint">Registro de cambios (crear/editar/eliminar/importar/nube). Pon tu nombre para que quede firmado quién hizo cada cambio; se guarda con la data.</div>
       <div class="field" style="max-width:280px"><label>Tu nombre (para firmar los cambios)</label><input id="auditUser" placeholder="Ej: Benjamín Brunet" onchange="setAuditUser(this.value)"></div>
       <div class="scroll" style="max-height:320px;overflow:auto"><table id="auditTable"></table></div>
+    </div>
+    <div class="card" id="adminCard" style="display:none">
+      <h2>🔑 Gestión de usuarios (admin)</h2>
+      <div class="hint">Para dar acceso a alguien: abre la Google Sheet de usuarios y agrega una fila con <code>usuario · password_hash · nombre · rol · activo</code>. El <code>password_hash</code> se genera aquí (nunca escribas la contraseña real en la Sheet). Para quitar acceso, pon <code>activo=no</code> o borra la fila.</div>
+      <div class="row" style="align-items:flex-end">
+        <div class="field" style="flex:1;margin:0"><label>Usuario (email)</label><input id="hg_user" placeholder="persona@empresa.com"></div>
+        <div class="field" style="flex:1;margin:0"><label>Contraseña temporal</label><input id="hg_pass"></div>
+        <button class="btn" onclick="genHash()">Generar hash</button>
+      </div>
+      <div class="field" style="margin-top:10px"><label>password_hash (cópialo a la columna de la Sheet)</label><input id="hg_out" readonly onclick="this.select()" style="font-family:monospace;font-size:11px"></div>
+      <a id="sheetLink" href="#" target="_blank" style="font-size:12px;font-weight:600">📄 Abrir Google Sheet de usuarios ↗</a>
     </div>
   </section>
 </main>
@@ -661,6 +691,8 @@ function renderHeaderKpis(){
     <div class="kpi"><div class="lbl">Capturado</div><div class="val good">${money(cap)}</div></div>
     <div class="kpi"><div class="lbl">Iniciativas</div><div class="val">${db.inis.length}</div></div>
     <div class="kpi"><div class="lbl">Hitos atrasados</div><div class="val ${late?'bad':'good'}">${late}</div></div>`;
+  const s=currentSession();
+  if(s)el.innerHTML+=`<div class="session-chip">👤 ${s.nombre||s.usuario} <a href="#" onclick="logout();return false">Salir</a></div>`;
 }
 
 /* ============ DASHBOARD ============ */
@@ -1327,39 +1359,81 @@ function importCSV(text,mode){
   save();refreshAll();alert(`✓ ${added} iniciativas importadas (${mode==='replace'?'reemplazo total':'agregadas'}).`);
 }
 
-/* ============ SINCRONIZACIÓN EN LA NUBE ============ */
-let sync={url:localStorage.getItem('wavepmo_syncUrl')||'https://n8n-production-121a.up.railway.app/webhook/pmo',token:localStorage.getItem('wavepmo_syncToken')||'',auto:localStorage.getItem('wavepmo_syncAuto')==='1'};
+/* ============ AUTENTICACIÓN & NUBE ============ */
+const DATA_URL='https://n8n-production-121a.up.railway.app/webhook/pmo';
+const LOGIN_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-login';
+const SHEET_URL='https://docs.google.com/spreadsheets/d/1pmRS0iZ0jNULR3GhZZglGnWpei0oEsgbbKKwlXdzhgY/edit';
+let sync={url:DATA_URL,token:'',auto:true};
 let syncTimer=null;
+async function sha256(str){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function currentSession(){try{const s=JSON.parse(sessionStorage.getItem('wavepmo_session')||'null');if(s&&s.token&&Date.parse(s.expiresAt)>Date.now())return s;}catch(e){}return null;}
 function syncStatus(msg,cls){const el=document.getElementById('syncStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
 function loadSyncPanel(){
-  const u=document.getElementById('syncUrl'),t=document.getElementById('syncToken'),a=document.getElementById('syncAuto');
-  if(!u)return;u.value=sync.url;t.value=sync.token;a.checked=sync.auto;
-  document.getElementById('syncBadge').textContent=sync.url?(sync.auto?'auto ☁️':'nube'):'local';
-  const persist=()=>{sync.url=u.value.trim();sync.token=t.value.trim();sync.auto=a.checked;
-    localStorage.setItem('wavepmo_syncUrl',sync.url);localStorage.setItem('wavepmo_syncToken',sync.token);localStorage.setItem('wavepmo_syncAuto',sync.auto?'1':'0');
-    document.getElementById('syncBadge').textContent=sync.url?(sync.auto?'auto ☁️':'nube'):'local';};
-  [u,t].forEach(x=>x.oninput=persist);a.onchange=persist;
+  const s=currentSession();
+  const badge=document.getElementById('syncBadge'); if(badge)badge.textContent=s?'conectado ☁️':'local';
+  const info=document.getElementById('sessionInfo');
+  if(info&&s)info.innerHTML=`Conectado como <b>${s.nombre||s.usuario}</b> (${s.rol||'user'}). Sesión válida hasta ${new Date(s.expiresAt).toLocaleString()}.`;
 }
 async function cloudSave(){
-  if(!sync.url){alert('Configura primero la URL del webhook.');return;}
+  const s=currentSession(); if(!s){syncStatus('Sesión expirada','err');return;}
   syncStatus('Guardando…');
-  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json',...(sync.token?{'Authorization':'Bearer '+sync.token}:{})},body:JSON.stringify({action:'save',data:db})});
+  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.token},body:JSON.stringify({action:'save',data:db})});
+    if(res.status===401){sessionExpired();return;}
     if(!res.ok)throw new Error('HTTP '+res.status);
     syncStatus('✓ Guardado en la nube · '+new Date().toLocaleTimeString(),'ok');
-  }catch(e){syncStatus('✗ '+e.message+' (revisa URL, token y CORS del webhook)','err');}
+  }catch(e){syncStatus('✗ '+e.message,'err');}
 }
-async function cloudLoad(){
-  if(!sync.url){alert('Configura primero la URL del webhook.');return;}
-  if(!confirm('Esto reemplazará los datos locales con los de la nube. ¿Continuar?'))return;
+async function cloudLoad(silent){
+  const s=currentSession(); if(!s){if(!silent)syncStatus('Sesión expirada','err');return;}
+  if(!silent&&!confirm('Esto reemplazará tus datos locales con los de la nube. ¿Continuar?'))return;
   syncStatus('Cargando…');
-  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json',...(sync.token?{'Authorization':'Bearer '+sync.token}:{})},body:JSON.stringify({action:'load'})});
+  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.token},body:JSON.stringify({action:'load'})});
+    if(res.status===401){sessionExpired();return;}
     if(!res.ok)throw new Error('HTTP '+res.status);
     let d=await res.json();if(d.data)d=d.data;if(d.body)d=d.body;
-    if(!d.areas||!d.inis)throw new Error('Respuesta sin estructura válida');
+    if(!d.areas||!d.inis){if(silent){syncStatus('Nube vacía; usando datos locales','');return;}throw new Error('Respuesta sin estructura válida');}
     db=d;logAudit('nube','Programa cargado desde la nube');save();refreshAll();syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
   }catch(e){syncStatus('✗ '+e.message,'err');}
 }
-function autoPush(){if(!sync.auto||!sync.url)return;clearTimeout(syncTimer);syncTimer=setTimeout(cloudSave,2500);}
+function autoPush(){if(!sync.auto||!currentSession())return;clearTimeout(syncTimer);syncTimer=setTimeout(cloudSave,2500);}
+function sessionExpired(){alert('Tu sesión expiró. Vuelve a iniciar sesión.');logout();}
+async function doLogin(){
+  const user=(document.getElementById('lg_user').value||'').trim();
+  const pass=document.getElementById('lg_pass').value||'';
+  const msg=document.getElementById('lg_msg');
+  if(!user||!pass){msg.style.color='var(--bad)';msg.textContent='Completa usuario y contraseña';return;}
+  msg.style.color='var(--muted)';msg.textContent='Verificando…';
+  const btn=document.getElementById('lg_btn'); btn.disabled=true;
+  try{
+    const hash=await sha256(user.toLowerCase()+':'+pass);
+    const r=await fetch(LOGIN_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,hash})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok)throw new Error(j.error||'Usuario o contraseña inválidos');
+    sessionStorage.setItem('wavepmo_session',JSON.stringify({token:j.token,nombre:j.nombre,rol:j.rol,expiresAt:j.expiresAt,usuario:user}));
+    msg.style.color='var(--good)';msg.textContent='✓ Bienvenido '+(j.nombre||'');
+    await bootApp();
+  }catch(e){msg.style.color='var(--bad)';msg.textContent='✗ '+e.message;btn.disabled=false;}
+}
+function logout(){sessionStorage.removeItem('wavepmo_session');location.reload();}
+function showGate(){document.getElementById('loginGate').style.display='flex';document.body.classList.add('locked');const u=document.getElementById('lg_user');if(u)u.focus();}
+async function bootApp(){
+  const s=currentSession(); if(!s){showGate();return;}
+  document.getElementById('loginGate').style.display='none';
+  document.body.classList.remove('locked');
+  sync.url=DATA_URL; sync.token=s.token; sync.auto=true;
+  loadSeed(false);
+  await cloudLoad(true);
+  const admin=(s.rol||'').toLowerCase()==='admin';
+  const ac=document.getElementById('adminCard'); if(ac)ac.style.display=admin?'':'none';
+  const sl=document.getElementById('sheetLink'); if(sl)sl.href=SHEET_URL;
+  loadSyncPanel();
+}
+async function genHash(){
+  const u=(document.getElementById('hg_user').value||'').trim();
+  const p=document.getElementById('hg_pass').value||'';
+  if(!u||!p){alert('Ingresa usuario y contraseña');return;}
+  document.getElementById('hg_out').value=await sha256(u.toLowerCase()+':'+p);
+}
 
 /* ============ DEPENDENCIAS & RUTA CRÍTICA ============ */
 function computeCritical(){
@@ -1487,8 +1561,12 @@ function renderComite(){
 }
 
 /* ============ INIT ============ */
-loadSeed(false);
-loadSyncPanel();
+(function initAuth(){
+  const lp=document.getElementById('lg_pass'), lu=document.getElementById('lg_user');
+  if(lp)lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  if(lu)lu.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lp.focus();}});
+  if(currentSession()){ bootApp(); } else { showGate(); }
+})();
 </script>
 </body>
 </html>
