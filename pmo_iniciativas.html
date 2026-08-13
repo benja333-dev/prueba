@@ -225,36 +225,14 @@ body.locked{overflow:hidden}
   <section class="tab active" id="tab-dash">
     <div id="dashWelcome"></div>
     <div id="dashAprob"></div>
-    <div class="grid t4" id="dashStats" style="margin-bottom:16px"></div>
-    <div class="grid g2">
-      <div class="card">
-        <h2>Pipeline de valor por etapa <span class="tag">run-rate anual</span></h2>
-        <div class="hint">Embudo de captura estilo Wave: de la idea (L1) al valor capturado (L4). El ancho pierde valor por el riesgo de cada etapa (valor ponderado por confianza).</div>
-        <div id="funnel"></div>
-      </div>
-      <div class="card">
-        <h2>Impacto por área</h2>
-        <div class="hint">Valor objetivo (run-rate pleno) de cada área del programa.</div>
-        <div id="donut"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:14px;font-weight:700;color:var(--navy)">Mi panel <span style="font-size:11px;color:var(--muted);font-weight:400">— personalizable: agrega, mueve, agranda o quita gráficos</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm" onclick="openWAdd()">➕ Agregar gráfico</button>
+        <button class="btn sm gray" onclick="resetDash()">↺ Panel por defecto</button>
       </div>
     </div>
-    <div class="card">
-      <h2>Escalón de captura del programa <span class="tag">plan vs. real</span></h2>
-      <div class="hint">Construcción mensual del run-rate: cada peldaño suma la contribución de una etapa. La línea es la meta comprometida; las barras, lo capturado real.</div>
-      <div id="staircaseMini"></div>
-    </div>
-    <div class="grid g2">
-      <div class="card">
-        <h2>🚩 Hitos en riesgo</h2>
-        <div class="hint">Atrasados y próximos a vencer (14 días). Detalle completo en «Seguimiento semanal».</div>
-        <div id="riskList"></div>
-      </div>
-      <div class="card">
-        <h2>Salud de macroiniciativas</h2>
-        <div class="hint">Avance vs. plan de tiempo y captura vs. meta.</div>
-        <div id="macroHealth"></div>
-      </div>
-    </div>
+    <div id="dashWidgets" style="display:flex;flex-wrap:wrap;gap:16px;align-items:stretch"></div>
   </section>
 
   <!-- CARTERA -->
@@ -515,6 +493,9 @@ body.locked{overflow:hidden}
 <div class="overlay" id="macroOverlay">
   <div class="modal" id="macroModal"></div>
 </div>
+<div class="overlay" id="wAddOverlay">
+  <div class="modal" style="max-width:520px" id="wAddModal"></div>
+</div>
 
 <script>
 /* ============ ESTADO / MODELO ============ */
@@ -617,7 +598,7 @@ function seed(){
     else if(r<0.28)gateStatus='pendiente';
     return {id:uid('ini'),macroId,name,owner,stage:st.id,runRate:rr,progress:+progress.toFixed(2),
       start:fmtD(start),captureDate:fmtD(capture),end:fmtD(end),curve:'linear',notes:'',descripcion:'',palanca:'',supuestos:'',
-      enabler:false,parentId:'',history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
+      enabler:false,parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
       gateStatus,submittedBy:gateStatus==='pendiente'?owner:'',submittedAt:gateStatus==='pendiente'?fmtD(today()):'',approvals:[],baseline
       ,milestones:ms};
   });
@@ -628,6 +609,13 @@ function seed(){
   setChild('Optimización de rutas','Consolidación de CDs');
   setChild('Gestión de descuentos','Pricing dinámico');
   setChild('Cross-sell portafolio','Cobertura de nuevos clientes');
+  // demo: cargar Real mensual (con ramp-up) para iniciativas en ejecución/capturadas
+  const cm=today().getFullYear()+'-'+String(today().getMonth()+1).padStart(2,'0');
+  inis.forEach(i=>{ if(i.enabler||STAGE_ORDER[i.stage]<3)return;
+    const base=Math.round((i.runRate||0)/12); const sYm=(i.start||'2026-01').slice(0,7); let k=0;
+    for(let y=2026;y<=2028;y++)for(let mo=1;mo<=12;mo++){const ym=y+'-'+String(mo).padStart(2,'0'); if(ym<sYm)continue; if(ym>cm)break;
+      const ramp=Math.min(1,0.4+k*0.12); i.monthly.real[ym]=Math.round(base*ramp*(0.85+Math.random()*0.3)); k++;}
+  });
   return {areas,grupos,macros,inis,meta:{name:'Programa de Transformación 2026',currency:'USD',user:''},audit:[]};
 }
 
@@ -797,22 +785,133 @@ function renderDash(){
     da.innerHTML=mine.length?`<div class="card" style="background:linear-gradient(90deg,#fff7e6,#fff);border-left:4px solid var(--warn);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
       <div><b style="font-size:15px">⏳ Tienes ${mine.length} iniciativa${mine.length>1?'s':''} por aprobar</b><div style="font-size:12px;color:var(--muted)">${mine.slice(0,3).map(i=>i.name).join(' · ')}${mine.length>3?' …':''}</div></div>
       <button class="btn" onclick="document.querySelector('[data-tab=aprob]').click()">Ir a Aprobaciones →</button></div>`:'';}
-  const rr=sumMetric(db.inis,'runRate'), cap=sumMetric(db.inis,'captured');
-  const inYear=sumMetric(db.inis,'inYear');
-  const realizedPct=rr?cap/rr:0;
-  const ms=allMilestones(); const late=ms.filter(m=>msStatus(m).key==='late').length;
-  document.getElementById('dashStats').innerHTML=[
-    ['Run-rate objetivo',money(rr),'impacto anual pleno',''],
-    ['Capturado a la fecha',money(cap),pct(realizedPct)+' del objetivo','good'],
-    ['Impacto en el año',money(inYear),'reconocido este año',''],
-    ['Iniciativas activas',db.inis.filter(i=>['L2','L3','L4'].includes(i.stage)).length+' / '+db.inis.length,late+' hitos atrasados',late?'bad':'']
-  ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
-
-  renderFunnel(); renderDonut(); renderStaircase('staircaseMini',true); renderRiskList(); renderMacroHealth();
+  renderDashWidgets();
 }
 
-function renderFunnel(){
-  const box=document.getElementById('funnel');
+/* ============ DASHBOARD CONFIGURABLE (por usuario) ============ */
+function dashKey(){const s=currentSession();return 'wavepmo_dash_'+((s&&s.usuario)||'anon');}
+function loadDash(){try{const d=JSON.parse(localStorage.getItem(dashKey())||'null');if(Array.isArray(d)&&d.length)return d;}catch(e){}return defaultDash();}
+function saveDashCfg(w){localStorage.setItem(dashKey(),JSON.stringify(w));}
+function defaultDash(){return [
+  {id:uid('w'),type:'kpis',size:'L',title:'Indicadores clave'},
+  {id:uid('w'),type:'funnel',size:'M',title:'Pipeline por etapa (L1–L4)'},
+  {id:uid('w'),type:'donut',dim:'area',metric:'runRate',size:'M',title:'Valor por área'},
+  {id:uid('w'),type:'monthly',size:'M',title:'Presupuesto vs Real vs Forecast (programa)'},
+  {id:uid('w'),type:'gatedonut',size:'M',title:'Estado de gates'},
+  {id:uid('w'),type:'risks',size:'M',title:'Hitos en riesgo'},
+  {id:uid('w'),type:'bars',dim:'grupo',metric:'runRate',size:'L',title:'Valor por sub-área'}
+];}
+function resetDash(){if(confirm('¿Volver al panel por defecto? Se pierde tu configuración.')){localStorage.removeItem(dashKey());renderDashWidgets();}}
+function openWAdd(){
+  document.getElementById('wAddModal').innerHTML=`<h3>➕ Agregar gráfico</h3><div class="msub">Elige el tipo; para dona/barras/tabla, la dimensión y la métrica.</div>
+    <div class="field"><label>Tipo de gráfico</label><select id="wa_type" onchange="waTypeChange()">
+      <option value="donut">🍩 Dona (proporción)</option><option value="bars">📊 Barras (ranking)</option><option value="table">🔢 Tabla</option>
+      <option value="funnel">🫙 Embudo por etapa</option><option value="gatedonut">🚦 Estado de gates</option>
+      <option value="monthly">📅 Presupuesto/Real/Forecast (programa)</option><option value="kpis">🎯 Indicadores clave</option>
+      <option value="risks">🚩 Hitos en riesgo</option><option value="macros">📦 Salud de macroiniciativas</option></select></div>
+    <div class="row" id="wa_dimmetric">
+      <div class="field"><label>Dimensión</label><select id="wa_dim">${Object.entries(DIMS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+      <div class="field"><label>Métrica</label><select id="wa_metric">${Object.entries(METRICS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+    </div>
+    <div class="row"><div class="field"><label>Título (opcional)</label><input id="wa_title" placeholder="(automático)"></div>
+    <div class="field" style="flex:0 0 130px"><label>Tamaño</label><select id="wa_size"><option value="S">Chico</option><option value="M" selected>Mediano</option><option value="L">Grande</option></select></div></div>
+    <div class="modal-foot"><div></div><div style="display:flex;gap:8px"><button class="btn gray" onclick="document.getElementById('wAddOverlay').classList.remove('on')">Cancelar</button><button class="btn" onclick="addWidget()">Agregar</button></div></div>`;
+  document.getElementById('wAddOverlay').classList.add('on'); waTypeChange();
+}
+function waTypeChange(){const t=document.getElementById('wa_type').value;document.getElementById('wa_dimmetric').style.display=['donut','bars','table'].includes(t)?'':'none';}
+function addWidget(){const t=document.getElementById('wa_type').value;const w=loadDash();const nw={id:uid('w'),type:t,size:document.getElementById('wa_size').value,title:document.getElementById('wa_title').value.trim()};if(['donut','bars','table'].includes(t)){nw.dim=document.getElementById('wa_dim').value;nw.metric=document.getElementById('wa_metric').value;}w.push(nw);saveDashCfg(w);document.getElementById('wAddOverlay').classList.remove('on');renderDashWidgets();}
+function wResize(id){const w=loadDash();const x=w.find(a=>a.id===id);if(!x)return;x.size={S:'M',M:'L',L:'S'}[x.size]||'M';saveDashCfg(w);renderDashWidgets();}
+function wMove(id,dir){const w=loadDash();const i=w.findIndex(a=>a.id===id);if(i<0)return;const j=i+dir;if(j<0||j>=w.length)return;[w[i],w[j]]=[w[j],w[i]];saveDashCfg(w);renderDashWidgets();}
+function wRemove(id){const w=loadDash().filter(a=>a.id!==id);saveDashCfg(w);renderDashWidgets();}
+const DIMS={area:'Área',grupo:'Sub-área',stage:'Etapa',gate:'Estado gate',owner:'Responsable',macro:'Macroiniciativa'};
+const METRICS={runRate:'Run-rate',weighted:'Ponderado',captured:'Capturado',inYear:'Impacto en año',count:'# iniciativas'};
+function wTitle(w){return (w.type||'')+(w.dim?' · '+(DIMS[w.dim]||w.dim):'')+(w.metric?' · '+(METRICS[w.metric]||w.metric):'');}
+function groupsBy(dim){
+  const inis=db.inis; let arr=[];
+  if(dim==='area')arr=db.areas.map((a,i)=>({key:a.id,label:a.name,color:a.color,inis:areaInis(a.id)}));
+  else if(dim==='grupo')arr=db.grupos.map(g=>{const a=db.areas.find(x=>x.id===g.areaId);return {key:g.id,label:g.name,color:a?a.color:'#8a99a8',inis:grpInis(g.id)};});
+  else if(dim==='stage')arr=STAGES.map(s=>({key:s.id,label:s.id+' '+s.name,color:s.c,inis:inis.filter(i=>i.stage===s.id)}));
+  else if(dim==='gate')arr=[['borrador','#8a99a8'],['pendiente','#f5a623'],['completada','#00b8a2']].map(([k,c])=>({key:k,label:k,color:c,inis:inis.filter(i=>(i.gateStatus||'borrador')===k)}));
+  else if(dim==='owner'){const o={};inis.forEach(i=>{const k=i.owner||'—';(o[k]=o[k]||[]).push(i);});arr=Object.entries(o).map(([k,v],idx)=>({key:k,label:k,color:AREA_COLORS[idx%AREA_COLORS.length],inis:v}));}
+  else if(dim==='macro')arr=db.macros.map((m,idx)=>({key:m.id,label:m.name,color:AREA_COLORS[idx%AREA_COLORS.length],inis:macroInis(m.id)}));
+  return arr.filter(g=>g.inis.length);
+}
+function metricOf(inis,metric){return metric==='count'?inis.length:sumMetric(inis,metric);}
+function renderDashWidgets(){
+  const box=document.getElementById('dashWidgets'); if(!box)return;
+  const widgets=loadDash();
+  box.innerHTML=widgets.map(w=>{
+    const basis=w.size==='S'?'calc(33.33% - 11px)':w.size==='L'?'100%':'calc(50% - 8px)';
+    return `<div class="card" style="flex:1 1 ${basis};min-width:270px;margin:0;display:flex;flex-direction:column">
+      <h2 style="font-size:13px">${w.title||wTitle(w)}
+        <span class="tools">
+          <button class="btn sm gray" title="Tamaño" onclick="wResize('${w.id}')">${w.size}</button>
+          <button class="btn sm gray" title="Mover ←" onclick="wMove('${w.id}',-1)">←</button>
+          <button class="btn sm gray" title="Mover →" onclick="wMove('${w.id}',1)">→</button>
+          <button class="btn sm danger" title="Quitar" onclick="wRemove('${w.id}')">✕</button>
+        </span></h2>
+      <div id="wb_${w.id}" style="flex:1"></div></div>`;
+  }).join('');
+  widgets.forEach(w=>{try{renderWidget(w);}catch(e){const el=document.getElementById('wb_'+w.id);if(el)el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px">—</div>';}});
+}
+function renderWidget(w){
+  const el=document.getElementById('wb_'+w.id); if(!el)return;
+  if(w.type==='kpis')return widgetKpis(el);
+  if(w.type==='funnel')return renderFunnel(el);
+  if(w.type==='monthly')return widgetMonthlyProgram(el);
+  if(w.type==='risks')return renderRiskList(el);
+  if(w.type==='macros')return renderMacroHealth(el);
+  if(w.type==='gatedonut')return widgetDonutGroups(el,groupsBy('gate'),'count');
+  const groups=groupsBy(w.dim||'area'); const metric=w.metric||'runRate';
+  if(w.type==='donut')return widgetDonutGroups(el,groups,metric);
+  if(w.type==='bars')return widgetBars(el,groups,metric);
+  if(w.type==='table')return widgetTable(el,groups,metric);
+  el.innerHTML='<div style="color:var(--muted);padding:10px">—</div>';
+}
+function widgetKpis(el){
+  const rr=sumMetric(db.inis,'runRate'),cap=sumMetric(db.inis,'captured'),inYear=sumMetric(db.inis,'inYear');
+  const late=allMilestones().filter(m=>msStatus(m).key==='late').length;
+  el.innerHTML='<div class="grid t4">'+[
+    ['Run-rate objetivo',money(rr),'impacto anual pleno',''],
+    ['Capturado',money(cap),pct(rr?cap/rr:0)+' del objetivo','good'],
+    ['Impacto en el año',money(inYear),'reconocido este año',''],
+    ['Iniciativas',db.inis.filter(i=>['L2','L3','L4'].includes(i.stage)).length+' / '+db.inis.length,late+' hitos atrasados',late?'bad':'']
+  ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('')+'</div>';
+}
+function widgetDonutGroups(el,data0,metric){
+  const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric)})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v);
+  const total=data.reduce((s,d)=>s+d.v,0)||1; const R=70,r=44,cx=82,cy=88;let ang=-Math.PI/2;
+  let svg=`<svg viewBox="0 0 340 180" width="100%">`;
+  data.forEach(d=>{const a2=ang+(d.v/total)*Math.PI*2;const x1=cx+R*Math.cos(ang),y1=cy+R*Math.sin(ang),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);const xi2=cx+r*Math.cos(a2),yi2=cy+r*Math.sin(a2),xi1=cx+r*Math.cos(ang),yi1=cy+r*Math.sin(ang);const large=(a2-ang)>Math.PI?1:0;svg+=`<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${xi2} ${yi2} A${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z" fill="${d.color}"/>`;ang=a2;});
+  svg+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="15" font-weight="800" fill="#051c2c">${metric==='count'?total:money(total)}</text><text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="9" fill="#5b6a75">total</text>`;
+  data.slice(0,8).forEach((d,i)=>{const y=16+i*20;svg+=`<rect x="180" y="${y}" width="10" height="10" rx="2" fill="${d.color}"/><text x="196" y="${y+9}" font-size="10.5" fill="#051c2c">${d.name.length>20?d.name.slice(0,19)+'…':d.name}</text><text x="335" y="${y+9}" text-anchor="end" font-size="10" fill="#5b6a75">${pct(d.v/total)}</text>`;});
+  el.innerHTML=svg+'</svg>';
+}
+function widgetBars(el,data0,metric){
+  const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric)})).sort((a,b)=>b.v-a.v).slice(0,12);
+  const max=Math.max(1,...data.map(d=>d.v));
+  el.innerHTML='<table><tbody>'+data.map(d=>`<tr><td style="width:150px;font-size:11.5px">${d.name}</td><td><div class="minibar"><span style="width:${d.v/max*100}%;background:${d.color}"></span></div></td><td class="num" style="width:80px;font-size:11px">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table>';
+}
+function widgetTable(el,data0,metric){
+  const data=data0.map(g=>({name:g.label,v:metricOf(g.inis,metric),n:g.inis.length})).sort((a,b)=>b.v-a.v);
+  el.innerHTML='<div class="scroll"><table><thead><tr><th>Grupo</th><th class="num">#</th><th class="num">'+(METRICS[metric]||metric)+'</th></tr></thead><tbody>'+data.map(d=>`<tr><td>${d.name}</td><td class="num">${d.n}</td><td class="num">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table></div>';
+}
+function widgetMonthlyProgram(el){
+  const mk=monthKeys(); const cm=curYm(); let cb=0,cf=0,cr=0; const B=[],F=[],R=[];
+  mk.forEach(ym=>{let b=0,f=0,r=0;db.inis.forEach(i=>{if(i.enabler)return;b+=budgetVal(i,ym);f+=forecastVal(i,ym);r+=realVal(i,ym);});cb+=b;cf+=f;B.push(cb);F.push(cf);if(ym<=cm){cr+=r;R.push(cr);}else R.push(null);});
+  const max=Math.max(1,cb,cf,cr); const W=340,H=150,padL=44,padT=8,ih=H-padT-18,iw=W-padL-8;
+  const X=i=>padL+i/(mk.length-1)*iw,Y=v=>padT+ih-(v/max)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let k=0;k<=2;k++){const y=padT+ih*(k/2);svg+=`<line x1="${padL}" y1="${y}" x2="${W-8}" y2="${y}" stroke="#eef2f6"/><text x="${padL-4}" y="${y+3}" text-anchor="end" font-size="8" fill="#9fb3c0">${money(max*(1-k/2))}</text>`;}
+  mk.forEach((ym,i)=>{if(ym.slice(5)==='01')svg+=`<text x="${X(i)+2}" y="${H-5}" font-size="8" fill="#9fb3c0">${ym.slice(0,4)}</text>`;});
+  const ci=mk.indexOf(cm);if(ci>=0)svg+=`<line x1="${X(ci)}" y1="${padT}" x2="${X(ci)}" y2="${padT+ih}" stroke="#e5546c" stroke-width="1" stroke-dasharray="3 2"/>`;
+  const line=(arr,c,w,dash)=>{let p='',st=false;arr.forEach((v,i)=>{if(v==null)return;p+=(st?'L':'M')+X(i)+' '+Y(v)+' ';st=true;});return `<path d="${p}" fill="none" stroke="${c}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;};
+  svg+=line(B,'#8a99a8',1.6,'4 3')+line(F,'#051c2c',1.8)+line(R,'#00b8a2',2.2)+'</svg>';
+  el.innerHTML=svg+'<div class="legend"><span><i style="background:#8a99a8"></i>Ppto</span><span><i style="background:#051c2c"></i>Forecast</span><span><i style="background:#00b8a2"></i>Real</span></div>';
+}
+
+function renderFunnel(box){
+  box=box||document.getElementById('funnel'); if(!box)return;
   const byStage=STAGES.map(s=>{const inis=db.inis.filter(i=>i.stage===s.id);
     return {s,rr:sumMetric(inis,'runRate'),w:sumMetric(inis,'weighted'),n:inis.length};});
   const max=Math.max(1,...byStage.map(b=>b.rr));
@@ -858,8 +957,8 @@ function renderDonut(){
   box.innerHTML=svg;
 }
 
-function renderMacroHealth(){
-  const box=document.getElementById('macroHealth');
+function renderMacroHealth(box){
+  box=box||document.getElementById('macroHealth'); if(!box)return;
   const rows=db.macros.map(m=>{
     const inis=macroInis(m.id); const rr=sumMetric(inis,'runRate'); const cap=sumMetric(inis,'captured');
     const grp=db.grupos.find(g=>g.id===m.grupoId); const area=grp&&db.areas.find(a=>a.id===grp.areaId);
@@ -874,8 +973,8 @@ function renderMacroHealth(){
     '</tbody></table>';
 }
 
-function renderRiskList(){
-  const box=document.getElementById('riskList');
+function renderRiskList(box){
+  box=box||document.getElementById('riskList'); if(!box)return;
   const ms=allMilestones().map(m=>({m,st:msStatus(m)})).filter(x=>x.st.key==='late'||x.st.key==='soon')
     .sort((a,b)=>(a.st.days??0)-(b.st.days??0)).slice(0,8);
   if(!ms.length){box.innerHTML='<div style="padding:20px;text-align:center;color:var(--good);font-weight:600">✓ Sin hitos en riesgo</div>';return;}
@@ -1237,11 +1336,12 @@ function openIniModal(id){
   editingIni=id?JSON.parse(JSON.stringify(db.inis.find(i=>i.id===id))):{
     id:uid('ini'),macroId:db.macros[0]?.id||'',name:'',owner:'',stage:'L1',runRate:0,progress:0,
     start:fmtD(today()),captureDate:fmtD(new Date(today().getTime()+120*864e5)),end:fmtD(new Date(today().getTime()+180*864e5)),curve:'linear',notes:'',
-    descripcion:'',palanca:'',supuestos:'',enabler:false,parentId:'',history:[],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],milestones:[]};
+    descripcion:'',palanca:'',supuestos:'',enabler:false,parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],milestones:[]};
   // normaliza registros viejos
   if(!editingIni.gateStatus)editingIni.gateStatus='borrador';
   if(!editingIni.approvals)editingIni.approvals=[];
   if(!editingIni.history)editingIni.history=[];
+  ensureMonthly(editingIni);
   if(editingIni.enabler===undefined)editingIni.enabler=false;
   if(editingIni.parentId===undefined)editingIni.parentId='';
   renderIniModal();
@@ -1322,7 +1422,7 @@ function renderIniModal(){
       <div style="flex:1"><div class="bignum" style="color:var(--good)">${money(d.captured)}</div><small style="color:var(--muted)">capturado</small></div>
       <div style="flex:1"><div class="bignum" style="color:var(--cyan)">${money(d.inYear)}</div><small style="color:var(--muted)">en el año</small></div>
     </div></div>
-    ${cur>=2?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:4px">Baseline vs. Forecast vs. Real ${e.baseline?`<span class="tag">baseline congelado ${e.baseline.frozenAt||''}</span>`:''}</div><div id="miniCurve"></div><div class="legend" style="margin-top:4px"><span><i style="background:#8a99a8"></i>Baseline</span><span><i style="background:#051c2c"></i>Forecast</span><span><i style="background:#00b8a2"></i>Real</span></div></div>`:''}
+    ${cur>=2?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:2px">📅 Presupuesto · Real · Forecast (mensual, 2026–2028)</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">El presupuesto se reparte automáticamente (impacto anual ÷ 12) desde el inicio; edita meses para ramp-up. El Real se carga a mano; el Forecast se actualiza según el Real.</div><div id="monthlyBox"></div></div>`:''}
     ${hist}
     ${secL1}${secL2}${secL3}${secL4}
     <div class="field"><label>Notas</label><textarea id="f_notes" ${dis}>${e.notes||''}</textarea></div>
@@ -1330,7 +1430,7 @@ function renderIniModal(){
     ${(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">🕓 Historial de la iniciativa</div>${e.history.slice(0,25).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:''}
     <div class="modal-foot">${footer}</div>`;
   if(cur>=3&&!lock(3)){renderMsList();renderDepsEditor();}
-  if(cur>=2)renderMiniCurve(e);
+  if(cur>=2)renderMonthly(e);
   ['f_name','f_owner','f_macro','f_parent','f_desc','f_rr','f_start','f_palanca','f_supuestos','f_cap','f_end','f_curve','f_prog','f_notes'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.addEventListener('input',syncIni);el.addEventListener('change',syncIni);}
   });
@@ -1577,7 +1677,7 @@ function importCSV(text,mode){
     const obj={id:uid('ini'),macroId:m.id,name:iniName,owner:get('responsable'),stage:normStage(get('etapa')),
       runRate:+(get('run_rate_anual').replace(/[^0-9.-]/g,''))||0,progress:Math.min(1,Math.max(0,(+get('avance_pct')||0)/100)),
       start:get('inicio'),captureDate:get('captura'),end:get('cierre'),curve:/^s/i.test(get('curva'))?'s':'linear',
-      notes:get('notas'),descripcion:'',palanca:'',supuestos:'',enabler:/^(si|sí|true|1|x)$/i.test(get('habilitadora')),parentId:'',history:[{action:'importada',user:(db.meta&&db.meta.user)||'CSV',fecha:fmtD(today()),detail:'Carga masiva'}],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
+      notes:get('notas'),descripcion:'',palanca:'',supuestos:'',enabler:/^(si|sí|true|1|x)$/i.test(get('habilitadora')),parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[{action:'importada',user:(db.meta&&db.meta.user)||'CSV',fecha:fmtD(today()),detail:'Carga masiva'}],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
     if(obj.enabler)obj.runRate=0;
     ensureBaseline(obj);
     db.inis.push(obj);
@@ -1727,6 +1827,52 @@ function renderDeps(){
   }).join('')+'</div>'):'<div style="color:var(--muted);padding:12px">Aún no hay cadenas de dependencia. Define predecesores en el modal de las iniciativas.</div>';
   // conflictos
   document.getElementById('depConflicts').innerHTML= conflicts.length?('<table><tbody>'+conflicts.map(c=>`<tr><td><b>${c.m.name}</b><div style="font-size:10px;color:var(--muted)">${c.m.ini?c.m.ini.name:''}</div></td><td style="font-size:11px">vence ${c.m.due}</td><td style="color:var(--bad)">≤</td><td style="font-size:11px">predecesor «${c.p.name}» vence ${c.p.due}</td></tr>`).join('')+'</tbody></table>'):'<div style="color:var(--good);padding:12px;font-weight:600">✓ Sin conflictos de dependencia</div>';
+}
+
+/* ============ GRILLA MENSUAL: PRESUPUESTO / REAL / FORECAST (3 años) ============ */
+function monthKeys(){const out=[];for(let y=2026;y<=2028;y++)for(let m=1;m<=12;m++)out.push(y+'-'+String(m).padStart(2,'0'));return out;}
+function ymOf(dateStr){const d=parseD(dateStr);if(!d)return '2026-01';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function curYm(){const t=today();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0');}
+function ensureMonthly(ini){if(!ini.monthly)ini.monthly={};['budget','real','forecast'].forEach(k=>{if(!ini.monthly[k])ini.monthly[k]={};});return ini.monthly;}
+function defaultBudget(ini,ym){if(ini.enabler)return 0;const s=ymOf(ini.start);return ym<s?0:Math.round((ini.runRate||0)/12);}
+function budgetVal(ini,ym){ensureMonthly(ini);const o=ini.monthly.budget[ym];return o!==undefined?o:defaultBudget(ini,ym);}
+function realVal(ini,ym){ensureMonthly(ini);const o=ini.monthly.real[ym];return o!==undefined?o:0;}
+function forecastVal(ini,ym){ensureMonthly(ini);const o=ini.monthly.forecast[ym];return o!==undefined?o:budgetVal(ini,ym);}
+function setMonthly(key,ym,val){if(!editingIni)return;ensureMonthly(editingIni);const num=(val===''||val==null)?undefined:(+val||0);if(num===undefined)delete editingIni.monthly[key][ym];else editingIni.monthly[key][ym]=num;updateMonthlyChart(editingIni);}
+function resetBudget(){if(!editingIni)return;ensureMonthly(editingIni);editingIni.monthly.budget={};renderMonthly(editingIni);}
+function forecastFromReal(){if(!editingIni)return;const ini=editingIni;ensureMonthly(ini);const cm=curYm();monthKeys().forEach(ym=>{const r=ini.monthly.real[ym];if(ym<=cm&&r!==undefined&&r!==0)ini.monthly.forecast[ym]=r;else delete ini.monthly.forecast[ym];});renderMonthly(ini);}
+function renderMonthly(ini){
+  const box=document.getElementById('monthlyBox'); if(!box)return; ensureMonthly(ini);
+  const ed=ini.gateStatus==='borrador';
+  box.innerHTML=`<div class="toolbar" style="margin-bottom:6px">
+    ${ed?`<button class="btn sm ghost" onclick="resetBudget()">↺ Reiniciar presupuesto (anual÷12)</button><button class="btn sm ghost" onclick="forecastFromReal()">Forecast ← Real</button>`:'<span style="font-size:11px;color:var(--muted)">Solo lectura (en aprobación/completada)</span>'}
+    <span style="font-size:11px;color:var(--muted)">Acumulado ${new Date().getFullYear()}: Ppto ${money(ytdSum(ini,'budget'))} · Real ${money(ytdSum(ini,'real'))}</span></div>
+    <div id="monthlyChart"></div>
+    <div class="scroll" style="max-height:190px;overflow:auto;margin-top:6px;border:1px solid var(--line);border-radius:6px"><table id="monthlyGrid" style="font-size:10px"></table></div>`;
+  renderMonthlyGrid(ini,ed); updateMonthlyChart(ini);
+}
+function ytdSum(ini,key){const y=new Date().getFullYear();let s=0;monthKeys().forEach(ym=>{if(+ym.slice(0,4)===y)s+=(key==='budget'?budgetVal:key==='real'?realVal:forecastVal)(ini,ym);});return s;}
+function renderMonthlyGrid(ini,ed){
+  const g=document.getElementById('monthlyGrid'); if(!g)return; const mk=monthKeys(); const yrs=[2026,2027,2028];
+  let head='<thead><tr><th style="position:sticky;left:0;z-index:2;background:var(--navy)">$ / mes</th>'+yrs.map(y=>`<th colspan="12" style="text-align:center">${y}</th>`).join('')+'</tr><tr><th style="position:sticky;left:0;z-index:2;background:var(--navy)"></th>'+mk.map(ym=>`<th class="num" style="font-weight:400;padding:2px 3px">${ym.slice(5)}</th>`).join('')+'</tr></thead>';
+  const row=(label,key,color)=>{const get=key==='budget'?budgetVal:key==='real'?realVal:forecastVal;
+    return `<tr><td style="position:sticky;left:0;background:#fff;font-weight:700;color:${color};z-index:1">${label}</td>`+mk.map(ym=>{const v=get(ini,ym);const over=ini.monthly[key][ym]!==undefined;
+      return `<td style="padding:1px"><input value="${v||''}" ${ed?'':'disabled'} onchange="setMonthly('${key}','${ym}',this.value)" style="width:46px;border:1px solid ${over?color:'var(--line)'};border-radius:3px;padding:2px 3px;font-size:9.5px;text-align:right;${over?'font-weight:700':''}"></td>`;}).join('')+'</tr>';};
+  g.innerHTML=head+'<tbody>'+row('Presupuesto','budget','#8a99a8')+row('Real','real','#00b8a2')+row('Forecast','forecast','#051c2c')+'</tbody>';
+}
+function updateMonthlyChart(ini){
+  const el=document.getElementById('monthlyChart'); if(!el)return; const mk=monthKeys(); const cm=curYm();
+  let cb=0,cf=0,cr=0; const B=[],F=[],R=[];
+  mk.forEach(ym=>{cb+=budgetVal(ini,ym);B.push(cb);cf+=forecastVal(ini,ym);F.push(cf);if(ym<=cm){cr+=realVal(ini,ym);R.push(cr);}else R.push(null);});
+  const max=Math.max(1,cb,cf,cr); const W=680,H=140,padL=48,padT=8,ih=H-padT-18,iw=W-padL-8;
+  const X=i=>padL+(mk.length<=1?0:i/(mk.length-1)*iw),Y=v=>padT+ih-(v/max)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let k=0;k<=2;k++){const y=padT+ih*(k/2);svg+=`<line x1="${padL}" y1="${y}" x2="${W-8}" y2="${y}" stroke="#eef2f6"/><text x="${padL-5}" y="${y+3}" text-anchor="end" font-size="8.5" fill="#9fb3c0">${money(max*(1-k/2))}</text>`;}
+  mk.forEach((ym,i)=>{if(ym.slice(5)==='01')svg+=`<line x1="${X(i)}" y1="${padT}" x2="${X(i)}" y2="${padT+ih}" stroke="#eef2f6"/><text x="${X(i)+2}" y="${H-5}" font-size="8.5" fill="#9fb3c0">${ym.slice(0,4)}</text>`;});
+  const ci=mk.indexOf(cm); if(ci>=0)svg+=`<line x1="${X(ci)}" y1="${padT}" x2="${X(ci)}" y2="${padT+ih}" stroke="#e5546c" stroke-width="1" stroke-dasharray="3 2"/>`;
+  const line=(arr,c,w,dash)=>{let p='',st=false;arr.forEach((v,i)=>{if(v==null)return;p+=(st?'L':'M')+X(i)+' '+Y(v)+' ';st=true;});return `<path d="${p}" fill="none" stroke="${c}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;};
+  svg+=line(B,'#8a99a8',1.8,'4 3')+line(F,'#051c2c',2)+line(R,'#00b8a2',2.6)+'</svg>';
+  el.innerHTML=svg+`<div class="legend" style="margin-top:2px"><span><i style="background:#8a99a8"></i>Presupuesto acum.</span><span><i style="background:#051c2c"></i>Forecast acum.</span><span><i style="background:#00b8a2"></i>Real acum.</span></div>`;
 }
 
 /* ============ RENDER APROBACIONES ============ */
