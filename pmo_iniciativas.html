@@ -156,6 +156,7 @@ body.locked{overflow:hidden}
   <div class="kpi-strip" id="hdrKpis"></div>
 </header>
 <nav id="nav">
+  <button data-tab="guia">📖 Guía</button>
   <button data-tab="dash" class="active">📊 Dashboard</button>
   <button data-tab="cartera">🗂️ Cartera</button>
   <button data-tab="captura">📈 Escalón de captura</button>
@@ -167,8 +168,62 @@ body.locked{overflow:hidden}
   <button data-tab="config">⚙️ Estructura &amp; datos</button>
 </nav>
 <main>
+  <!-- GUIA -->
+  <section class="tab" id="tab-guia">
+    <div class="card" style="border-top:4px solid var(--blue)">
+      <h2 style="font-size:18px">📖 Cómo funciona WavePMO</h2>
+      <div class="hint" style="font-size:13px">Herramienta de captura de valor tipo <b>McKinsey Wave</b>: organiza iniciativas de mejora, les hace seguimiento financiero y de hitos, y las gobierna con <b>stage-gates</b> (aprobaciones por etapa).</div>
+      <div class="grid g2" style="margin-top:8px">
+        <div>
+          <h3 style="font-size:14px;color:var(--navy);border-left:4px solid var(--blue);padding-left:9px;margin-bottom:8px">La jerarquía</h3>
+          <div style="font-size:12.5px;line-height:1.9">
+            <b>Área</b> (ej. Operaciones) → <b>Sub-área / Grupo</b> (ej. Compras) → <b>Macroiniciativa</b> (bloque de valor) → <b>Iniciativa</b> (la unidad de trabajo) → <b>Hitos</b> (pasos con fecha y responsable).<br>
+            Una iniciativa puede ser <b>madre</b> y tener <b>hijas</b> vinculadas, o ser <b>habilitadora</b> (sin valor $, pero con hitos y gates).
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;color:var(--navy);border-left:4px solid var(--blue);padding-left:9px;margin-bottom:8px">Los roles</h3>
+          <div style="font-size:12.5px;line-height:1.9">
+            <b>Dueño</b>: crea y completa la iniciativa, la envía a aprobación.<br>
+            <b>Aprobador</b> (por área/sub-área): aprueba o rechaza cada gate; ve su cola en el tab «Aprobaciones».<br>
+            <b>Admin</b>: puede aprobar cualquier gate y gestionar usuarios.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Los stage-gates: L1 → L4</h2>
+      <div class="hint">Cada iniciativa avanza etapa por etapa. En cada etapa solo completas los campos de esa etapa; al <b>aprobarse el gate</b> se habilita la siguiente. McKinsey observa que el impacto estimado «se fuga» en el camino (por eso se refina en cada etapa).</div>
+      <div class="scroll"><table>
+        <thead><tr><th>Etapa</th><th>Qué significa</th><th>Qué completas</th><th>Gate</th></tr></thead>
+        <tbody>
+          <tr><td><span class="stage" style="background:#c9d3dd;color:#051c2c">L1</span> <b>Idea</b></td><td>Oportunidad identificada con estimación temprana; el dueño valida supuestos.</td><td>Nombre, área, responsable, descripción, impacto estimado.</td><td>—</td></tr>
+          <tr><td><span class="stage" style="background:#7b61ff">L2</span> <b>Caso de negocio</b></td><td>Caso sólido y aprobado (Finanzas); se fija el valor objetivo.</td><td>Palanca, supuestos → <b>congela el baseline</b>.</td><td>~45% de fuga L1→L2</td></tr>
+          <tr><td><span class="stage" style="background:#00a9f4">L3</span> <b>Plan / Implementación</b></td><td>Hitos robustos + calendario de captura; en ejecución.</td><td>Hitos, fechas de captura/cierre, curva.</td><td>~13% L2→L3</td></tr>
+          <tr><td><span class="stage" style="background:#00b8a2">L4</span> <b>Capturado</b></td><td>Hitos completados; Finanzas valida la captura del valor.</td><td>Avance real de captura.</td><td>~28% L3→L4</td></tr>
+        </tbody>
+      </table></div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">Estados de una iniciativa: <span class="flag gray">✎ Borrador</span> (editable) → <span class="flag amber">⏳ En aprobación</span> (bloqueada, esperando al aprobador) → al aprobar avanza de etapa; al aprobar L4 queda <span class="flag green">✓ Completada</span>.</div>
+    </div>
+    <div class="card">
+      <h2>Las pestañas</h2>
+      <div class="grid g3" style="font-size:12.5px;line-height:1.7">
+        <div><b>📊 Dashboard</b> — resumen del programa; personalizable con tus gráficos.</div>
+        <div><b>🗂️ Cartera</b> — árbol área→grupo→macro→iniciativa con montos.</div>
+        <div><b>📈 Escalón de captura</b> — proyección financiera y baseline/forecast/real.</div>
+        <div><b>⏱️ Seguimiento semanal</b> — hitos atrasados y ranking de responsables.</div>
+        <div><b>✅ Aprobaciones</b> — lo que te toca aprobar (si eres aprobador/admin).</div>
+        <div><b>📋 Iniciativas</b> — tabla filtrable de todas las iniciativas.</div>
+        <div><b>🔗 Dependencias</b> — Gantt de hitos y ruta crítica.</div>
+        <div><b>📑 Comité</b> — reporte ejecutivo imprimible / PDF.</div>
+        <div><b>⚙️ Estructura &amp; datos</b> — áreas, respaldo, carga masiva, usuarios.</div>
+      </div>
+    </div>
+  </section>
+
   <!-- DASHBOARD -->
   <section class="tab active" id="tab-dash">
+    <div id="dashWelcome"></div>
     <div id="dashAprob"></div>
     <div class="grid t4" id="dashStats" style="margin-bottom:16px"></div>
     <div class="grid g2">
@@ -562,15 +617,25 @@ function seed(){
     else if(r<0.28)gateStatus='pendiente';
     return {id:uid('ini'),macroId,name,owner,stage:st.id,runRate:rr,progress:+progress.toFixed(2),
       start:fmtD(start),captureDate:fmtD(capture),end:fmtD(end),curve:'linear',notes:'',descripcion:'',palanca:'',supuestos:'',
+      enabler:false,parentId:'',history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
       gateStatus,submittedBy:gateStatus==='pendiente'?owner:'',submittedAt:gateStatus==='pendiente'?fmtD(today()):'',approvals:[],baseline
       ,milestones:ms};
   });
+  // demo: una iniciativa habilitadora (sin valor) y algunos vínculos madre→hija
+  const byName=n=>inis.find(x=>x.name===n);
+  const enab=byName('Digitalización back-office'); if(enab){enab.enabler=true;enab.runRate=0;if(enab.baseline)enab.baseline.runRate=0;}
+  const setChild=(child,parent)=>{const c=byName(child),p=byName(parent);if(c&&p)c.parentId=p.id;};
+  setChild('Optimización de rutas','Consolidación de CDs');
+  setChild('Gestión de descuentos','Pricing dinámico');
+  setChild('Cross-sell portafolio','Cobertura de nuevos clientes');
   return {areas,grupos,macros,inis,meta:{name:'Programa de Transformación 2026',currency:'USD',user:''},audit:[]};
 }
 
 /* ============ PERSISTENCIA ============ */
 function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio guardado local: '+new Date().toLocaleString();autoPush();}
 function logAudit(action,detail){if(!db.audit)db.audit=[];db.audit.unshift({ts:new Date().toISOString(),user:(db.meta&&db.meta.user)||'—',action,detail});if(db.audit.length>500)db.audit.length=500;}
+function curUserName(){return (currentSession()||{}).nombre||(db.meta&&db.meta.user)||'—';}
+function iniHist(ini,action,detail){ini.history=ini.history||[];ini.history.unshift({action,user:curUserName(),fecha:new Date().toISOString(),detail:detail||''});}
 function setAuditUser(v){db.meta.user=v;save();}
 function clearAudit(){if(confirm('¿Vaciar el log de auditoría?')){db.audit=[];save();renderAudit();}}
 function renderAudit(){
@@ -627,6 +692,7 @@ function programWindow(){
 // valores derivados de una iniciativa
 function iniDerived(ini){
   const st=stageOf(ini.stage);
+  if(ini.enabler){return {runRate:0,weighted:0,captured:0,inYear:0,st};}
   const runRate=ini.runRate||0;
   const weighted=runRate*st.conf;
   const captured=runRate*(ini.progress||0);      // capturado a la fecha (run-rate ya realizado)
@@ -723,6 +789,9 @@ function renderHeaderKpis(){
 
 /* ============ DASHBOARD ============ */
 function renderDash(){
+  const dw=document.getElementById('dashWelcome');
+  if(dw){const s=currentSession();const hr=new Date().getHours();const saludo=hr<12?'Buenos días':hr<19?'Buenas tardes':'Buenas noches';
+    dw.innerHTML=`<div style="margin-bottom:16px"><div style="font-size:22px;font-weight:800;color:var(--navy)">${saludo}, ${s?(s.nombre||s.usuario):'—'} 👋</div><div style="font-size:13px;color:var(--muted)">${db.meta.name||'Programa'} · ${new Date().toLocaleDateString('es',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div></div>`;}
   const da=document.getElementById('dashAprob');
   if(da){const mine=myPending();
     da.innerHTML=mine.length?`<div class="card" style="background:linear-gradient(90deg,#fff7e6,#fff);border-left:4px solid var(--warn);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
@@ -1168,10 +1237,13 @@ function openIniModal(id){
   editingIni=id?JSON.parse(JSON.stringify(db.inis.find(i=>i.id===id))):{
     id:uid('ini'),macroId:db.macros[0]?.id||'',name:'',owner:'',stage:'L1',runRate:0,progress:0,
     start:fmtD(today()),captureDate:fmtD(new Date(today().getTime()+120*864e5)),end:fmtD(new Date(today().getTime()+180*864e5)),curve:'linear',notes:'',
-    descripcion:'',palanca:'',supuestos:'',gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],milestones:[]};
-  // normaliza registros viejos que no tengan gateStatus
+    descripcion:'',palanca:'',supuestos:'',enabler:false,parentId:'',history:[],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],milestones:[]};
+  // normaliza registros viejos
   if(!editingIni.gateStatus)editingIni.gateStatus='borrador';
   if(!editingIni.approvals)editingIni.approvals=[];
+  if(!editingIni.history)editingIni.history=[];
+  if(editingIni.enabler===undefined)editingIni.enabler=false;
+  if(editingIni.parentId===undefined)editingIni.parentId='';
   renderIniModal();
   document.getElementById('iniOverlay').classList.add('on');
 }
@@ -1185,6 +1257,10 @@ function renderIniModal(){
   const d=iniDerived(e);
   const exists=db.inis.find(i=>i.id===e.id);
   const ap=approverFor(e);
+  const desc=iniDescendants(e.id);
+  const parentOpts='<option value="">— Ninguna (iniciativa madre) —</option>'+db.inis.filter(x=>x.id!==e.id&&!desc.includes(x.id)).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${x.id===e.parentId?'selected':''}>${x.name}</option>`).join('');
+  const kids=iniChildren(e.id);
+  const parentIni=e.parentId?db.inis.find(x=>x.id===e.parentId):null;
   const gb=e.gateStatus==='pendiente'?`<span class="flag amber">⏳ En aprobación</span>`:e.gateStatus==='completada'?`<span class="flag green">✓ Completada</span>`:`<span class="flag gray">✎ Borrador</span>`;
   // stepper
   const stepper=`<div style="display:flex;align-items:center;margin:2px 0 14px">`+STAGES.map((s,i)=>{const n=i+1;const state=n<cur?'done':n===cur?'cur':'future';const bg=state==='done'?'#00b8a2':state==='cur'?'#2251ff':'#e7edf2';const col=state==='future'?'#8a99a8':'#fff';
@@ -1200,7 +1276,11 @@ function renderIniModal(){
     </div>
     <div class="field"><label>Descripción / oportunidad</label><textarea id="f_desc" ${dis}>${e.descripcion||''}</textarea></div>
     <div class="row">
-      <div class="field"><label>Impacto anual estimado (run-rate $) *</label><input id="f_rr" type="number" value="${e.runRate||0}" ${dis}></div>
+      <div class="field"><label>Iniciativa madre (opcional)</label><select id="f_parent" ${dis}>${parentOpts}</select></div>
+      <div class="field"><label>Tipo</label><label style="display:flex;gap:7px;align-items:center;padding:7px 0;font-size:12.5px;font-weight:400"><input type="checkbox" id="f_enabler" ${e.enabler?'checked':''} ${dis} style="width:auto" onchange="syncIni();editingIni.enabler=this.checked;if(this.checked)editingIni.runRate=0;renderIniModal()"> Habilitadora (sin valor $)</label></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>${e.enabler?'Impacto (habilitadora, sin valor)':'Impacto anual estimado (run-rate $) *'}</label><input id="f_rr" type="number" value="${e.runRate||0}" ${dis||(e.enabler?'disabled':'')}></div>
       <div class="field"><label>Inicio estimado</label><input id="f_start" type="date" value="${e.start||''}" ${dis}></div>
     </div></div>`;
   const secL2=lock(2)?lockedBox('L2 · Caso de negocio','Se completa al aprobar el gate L1.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">L2 · Caso de negocio <span style="font-weight:400;color:var(--muted)">— ${STAGES[1].desc}</span></div>
@@ -1233,8 +1313,8 @@ function renderIniModal(){
   // historial de aprobaciones
   const hist=(e.approvals&&e.approvals.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Historial de aprobaciones</div>${e.approvals.map(a=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><span class="flag ${a.decision==='aprobado'?'green':'red'}">${a.decision}</span> ${a.stage} · ${a.nombre||a.por||''} · ${new Date(a.fecha).toLocaleString()} ${a.comentario?`<span style="color:var(--muted)">— ${a.comentario}</span>`:''}</div>`).join('')}</div>`:'';
   document.getElementById('iniModal').innerHTML=`
-    <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span></h3>
-    <div class="msub">Ciclo gobernado por stage-gates. Solo completas los campos de la etapa actual; al aprobarse el gate, avanza a la siguiente.</div>
+    <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span> ${e.enabler?'<span class="flag gray">🧩 Habilitadora</span>':''}</h3>
+    <div class="msub">Ciclo gobernado por stage-gates. Solo completas los campos de la etapa actual; al aprobarse el gate, avanza a la siguiente.${parentIni?` · <b>Hija de:</b> <a href="#" onclick="openIniModal('${parentIni.id}');return false" style="color:var(--blue)">${parentIni.name}</a>`:''}</div>
     ${stepper}
     <div class="card" style="background:#f6f9fb;margin:0 0 12px"><div class="row" style="text-align:center">
       <div style="flex:1"><div class="bignum">${money(d.runRate)}</div><small style="color:var(--muted)">run-rate</small></div>
@@ -1246,10 +1326,12 @@ function renderIniModal(){
     ${hist}
     ${secL1}${secL2}${secL3}${secL4}
     <div class="field"><label>Notas</label><textarea id="f_notes" ${dis}>${e.notes||''}</textarea></div>
+    ${kids.length?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">🔗 Iniciativas hijas (${kids.length}) · valor combinado ${money(kids.reduce((s,k)=>s+iniDerived(k).runRate,0))}</div>${kids.map(k=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer;display:flex;justify-content:space-between" onclick="openIniModal('${k.id}')"><span>• ${k.name} <span class="tag">${k.stage}</span> ${k.enabler?'<span class="tag">habilitadora</span>':''}</span><span>${money(iniDerived(k).runRate)}</span></div>`).join('')}</div>`:''}
+    ${(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">🕓 Historial de la iniciativa</div>${e.history.slice(0,25).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:''}
     <div class="modal-foot">${footer}</div>`;
   if(cur>=3&&!lock(3)){renderMsList();renderDepsEditor();}
   if(cur>=2)renderMiniCurve(e);
-  ['f_name','f_owner','f_macro','f_desc','f_rr','f_start','f_palanca','f_supuestos','f_cap','f_end','f_curve','f_prog','f_notes'].forEach(id=>{
+  ['f_name','f_owner','f_macro','f_parent','f_desc','f_rr','f_start','f_palanca','f_supuestos','f_cap','f_end','f_curve','f_prog','f_notes'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.addEventListener('input',syncIni);el.addEventListener('change',syncIni);}
   });
 }
@@ -1258,6 +1340,8 @@ function syncIni(){
   if((v=g('f_name'))!==undefined)e.name=v;
   if((v=g('f_owner'))!==undefined)e.owner=v;
   if((v=g('f_macro'))!==undefined)e.macroId=v;
+  if((v=g('f_parent'))!==undefined)e.parentId=v;
+  const eb=document.getElementById('f_enabler'); if(eb)e.enabler=eb.checked;
   if((v=g('f_desc'))!==undefined)e.descripcion=v;
   if((v=g('f_rr'))!==undefined)e.runRate=+v||0;
   if((v=g('f_start'))!==undefined)e.start=v;
@@ -1307,8 +1391,8 @@ function saveIni(){
   const idx=db.inis.findIndex(i=>i.id===editingIni.id);
   const wasBaseline=idx>=0&&db.inis[idx].baseline;
   ensureBaseline(editingIni);
-  if(idx>=0){logAudit('editar','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')'+(!wasBaseline&&editingIni.baseline?' · baseline congelado':''));db.inis[idx]=editingIni;}
-  else{logAudit('crear','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')');db.inis.push(editingIni);}
+  if(idx>=0){logAudit('editar','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')'+(!wasBaseline&&editingIni.baseline?' · baseline congelado':''));iniHist(editingIni,'editada',editingIni.stage+' · '+money(editingIni.runRate));db.inis[idx]=editingIni;}
+  else{logAudit('crear','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')');iniHist(editingIni,'creada',editingIni.stage);db.inis.push(editingIni);}
   save();closeIni();refreshAll();
 }
 function deleteIni(){if(confirm('¿Eliminar esta iniciativa?')){logAudit('eliminar','Iniciativa "'+editingIni.name+'"');db.inis=db.inis.filter(i=>i.id!==editingIni.id);save();closeIni();refreshAll();}}
@@ -1317,6 +1401,8 @@ function closeIni(){document.getElementById('iniOverlay').classList.remove('on')
 /* ============ STAGE-GATES & APROBACIONES ============ */
 let aprobadores=[];
 function iniAreaGrupo(ini){const m=db.macros.find(x=>x.id===ini.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);return {a,g,m};}
+function iniChildren(id){return db.inis.filter(i=>i.parentId===id);}
+function iniDescendants(id){let out=[];iniChildren(id).forEach(c=>{out.push(c.id);out=out.concat(iniDescendants(c.id));});return out;}
 function approverFor(ini){const {a,g}=iniAreaGrupo(ini);if(!a||!g)return null;const row=aprobadores.find(r=>String(r.area||'').trim().toLowerCase()===a.name.trim().toLowerCase()&&String(r.sub_area||'').trim().toLowerCase()===g.name.trim().toLowerCase());return row?{usuario:row.usuario,nombre:row.nombre}:null;}
 function isAdmin(){return ((currentSession()||{}).rol||'').toLowerCase()==='admin';}
 function canApprove(ini){if(isAdmin())return true;const s=currentSession();const ap=approverFor(ini);return !!(s&&ap&&s.usuario&&ap.usuario&&s.usuario.toLowerCase()===ap.usuario.toLowerCase());}
@@ -1332,22 +1418,25 @@ function missingForStage(ini,stage){
 function approveGate(ini,comentario){
   ini.approvals=ini.approvals||[]; const s=currentSession()||{};
   ini.approvals.unshift({stage:ini.stage,decision:'aprobado',por:s.usuario||'',nombre:s.nombre||'admin',fecha:new Date().toISOString(),comentario:comentario||''});
-  const nx=nextStage(ini.stage);
+  const prev=ini.stage; const nx=nextStage(ini.stage);
   if(nx){ini.stage=nx;ensureBaseline(ini);ini.gateStatus='borrador';} else {ini.gateStatus='completada';}
   ini.submittedBy='';ini.submittedAt='';
+  iniHist(ini,'gate aprobado','Gate '+prev+' aprobado → '+(nx||'completada'));
   logAudit('aprobar','Gate aprobado: "'+ini.name+'" → '+(nx||'completada'));
 }
 function rejectGate(ini,comentario){
   ini.approvals=ini.approvals||[]; const s=currentSession()||{};
   ini.approvals.unshift({stage:ini.stage,decision:'rechazado',por:s.usuario||'',nombre:s.nombre||'admin',fecha:new Date().toISOString(),comentario:comentario||''});
   ini.gateStatus='borrador';ini.submittedBy='';ini.submittedAt='';
+  iniHist(ini,'gate rechazado',(comentario||'').slice(0,80));
   logAudit('rechazar','Gate rechazado: "'+ini.name+'" ('+ini.stage+')');
 }
 function submitFromModal(){
   syncIni();
   const miss=missingForStage(editingIni,editingIni.stage);
   if(miss.length){alert('Faltan campos para enviar '+editingIni.stage+' a aprobación:\n\n• '+miss.join('\n• '));return;}
-  editingIni.gateStatus='pendiente';editingIni.submittedBy=(currentSession()||{}).nombre||(db.meta&&db.meta.user)||'—';editingIni.submittedAt=fmtD(today());
+  editingIni.gateStatus='pendiente';editingIni.submittedBy=curUserName();editingIni.submittedAt=fmtD(today());
+  iniHist(editingIni,'enviada a aprobación',editingIni.stage);
   logAudit('enviar','"'+editingIni.name+'" enviada a aprobación de '+editingIni.stage);
   const idx=db.inis.findIndex(i=>i.id===editingIni.id);
   if(idx>=0)db.inis[idx]=editingIni; else db.inis.push(editingIni);
@@ -1448,22 +1537,22 @@ function parseCSV(text){
   return rows.filter(r=>r.some(c=>c.trim()!==''));
 }
 function csvCell(v){v=(v==null?'':''+v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
-const CSV_HEADERS=['area','grupo','macroiniciativa','meta_macro','iniciativa','responsable','etapa','run_rate_anual','avance_pct','inicio','captura','cierre','curva','notas','hitos'];
+const CSV_HEADERS=['area','grupo','macroiniciativa','meta_macro','iniciativa','responsable','etapa','habilitadora','run_rate_anual','avance_pct','inicio','captura','cierre','curva','notas','hitos'];
 
 /* ============ CSV: GENERAR ============ */
 function iniToRow(ini){
   const m=db.macros.find(x=>x.id===ini.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
   const st=stageOf(ini.stage);
   const hitos=(ini.milestones||[]).map(ms=>`${ms.name}~${ms.owner||''}~${ms.due||''}~${ms.done?'ok':'pend'}`).join(' ; ');
-  return [a?.name||'',g?.name||'',m?.name||'',m?.target||'',ini.name,ini.owner||'',st.id,ini.runRate||0,Math.round((ini.progress||0)*100),ini.start||'',ini.captureDate||'',ini.end||'',ini.curve||'linear',ini.notes||'',hitos];
+  return [a?.name||'',g?.name||'',m?.name||'',m?.target||'',ini.name,ini.owner||'',st.id,ini.enabler?'si':'no',ini.runRate||0,Math.round((ini.progress||0)*100),ini.start||'',ini.captureDate||'',ini.end||'',ini.curve||'linear',ini.notes||'',hitos];
 }
 function buildCSV(rows){return [CSV_HEADERS.join(','),...rows.map(r=>r.map(csvCell).join(','))].join('\n');}
 function dl(name,content,type){const blob=new Blob(['﻿'+content],{type});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
 function exportCSV(){dl('wavepmo_iniciativas_'+today().toISOString().slice(0,10)+'.csv',buildCSV(db.inis.map(iniToRow)),'text/csv');}
 function downloadTemplate(withData){
   const rows=withData?db.inis.map(iniToRow):[
-    ['Operaciones','Compras','Procurement / clean-sheet',3800000,'Renegociación energía','J. Fuentes','L3',420000,55,'2026-02-01','2026-06-01','2026-08-01','linear','Contrato PPA a evaluar','Kickoff & baseline~J. Fuentes~2026-03-01~ok ; Licitación~J. Fuentes~2026-05-15~pend'],
-    ['Comercial','Ventas','Motor de crecimiento comercial',5100000,'Recuperación de churn','A. Silva','L2',300000,20,'2026-03-01','2026-08-01','2026-10-01','s','Modelo predictivo de fuga','Definir cohorte~A. Silva~2026-04-10~pend']
+    ['Operaciones','Compras','Procurement / clean-sheet',3800000,'Renegociación energía','J. Fuentes','L3','no',420000,55,'2026-02-01','2026-06-01','2026-08-01','linear','Contrato PPA a evaluar','Kickoff & baseline~J. Fuentes~2026-03-01~ok ; Licitación~J. Fuentes~2026-05-15~pend'],
+    ['Comercial','Ventas','Motor de crecimiento comercial',5100000,'Recuperación de churn','A. Silva','L2','no',300000,20,'2026-03-01','2026-08-01','2026-10-01','s','Modelo predictivo de fuga','Definir cohorte~A. Silva~2026-04-10~pend']
   ];
   dl('wavepmo_plantilla.csv',buildCSV(rows),'text/csv');
 }
@@ -1488,7 +1577,8 @@ function importCSV(text,mode){
     const obj={id:uid('ini'),macroId:m.id,name:iniName,owner:get('responsable'),stage:normStage(get('etapa')),
       runRate:+(get('run_rate_anual').replace(/[^0-9.-]/g,''))||0,progress:Math.min(1,Math.max(0,(+get('avance_pct')||0)/100)),
       start:get('inicio'),captureDate:get('captura'),end:get('cierre'),curve:/^s/i.test(get('curva'))?'s':'linear',
-      notes:get('notas'),descripcion:'',palanca:'',supuestos:'',gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
+      notes:get('notas'),descripcion:'',palanca:'',supuestos:'',enabler:/^(si|sí|true|1|x)$/i.test(get('habilitadora')),parentId:'',history:[{action:'importada',user:(db.meta&&db.meta.user)||'CSV',fecha:fmtD(today()),detail:'Carga masiva'}],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
+    if(obj.enabler)obj.runRate=0;
     ensureBaseline(obj);
     db.inis.push(obj);
     added++;
