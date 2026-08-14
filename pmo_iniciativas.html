@@ -247,12 +247,10 @@ body.locked{overflow:hidden}
     <div class="card">
       <h2>Cartera de iniciativas
         <span class="tools">
-          <button class="btn sm ghost" onclick="expandAll(true)">Expandir todo</button>
-          <button class="btn sm ghost" onclick="expandAll(false)">Colapsar</button>
           <button class="btn sm" onclick="openIniModal()">+ Iniciativa</button>
         </span>
       </h2>
-      <div class="hint">Árbol Área → Grupo → Macroiniciativa → Iniciativa. Los montos son <b>run-rate anual pleno</b> (impacto una vez implementado). Click en una iniciativa para editarla.</div>
+      <div class="hint">Tabla de todas las iniciativas con <b>subtotal por área</b> y <b>total del programa</b>. Ordena por cualquier columna (clic en el encabezado). Los montos usan la métrica elegida.</div>
       <div class="toolbar">
         <label style="font-size:12px;font-weight:600">Ver monto:</label>
         <select id="carteraMetric" onchange="renderCartera()">
@@ -261,18 +259,9 @@ body.locked{overflow:hidden}
           <option value="captured">Capturado a la fecha</option>
           <option value="inYear">Impacto en el año</option>
         </select>
+        <span style="font-size:11px;color:var(--muted);align-self:center">Ordena con clic en los encabezados ↕</span>
       </div>
-      <div class="scrollY" style="max-height:none">
-        <div class="tree-row head">
-          <div class="nm">Estructura</div>
-          <div class="num">Monto</div>
-          <div class="num c-owner">Iniciativas</div>
-          <div class="num">Avance</div>
-          <div class="num">Etapa</div>
-          <div class="num">Salud</div>
-        </div>
-        <div id="tree"></div>
-      </div>
+      <div class="scroll"><table id="carteraTable"></table></div>
     </div>
   </section>
 
@@ -352,11 +341,7 @@ body.locked{overflow:hidden}
         <input type="text" id="iniSearch" placeholder="🔎 Buscar…" oninput="renderIniTable()" style="min-width:200px">
         <select id="iniAreaF" onchange="renderIniTable()"><option value="">Todas las áreas</option></select>
         <select id="iniStageF" onchange="renderIniTable()"><option value="">Todas las etapas</option></select>
-        <select id="iniSort" onchange="renderIniTable()">
-          <option value="impact">Ordenar: mayor impacto</option>
-          <option value="health">Ordenar: peor salud</option>
-          <option value="due">Ordenar: próximo hito</option>
-        </select>
+        <span style="font-size:11px;color:var(--muted);align-self:center">Ordena haciendo clic en los encabezados ↕</span>
       </div>
       <div class="scroll"><table id="iniTable"></table></div>
     </div>
@@ -523,6 +508,13 @@ const STAGES=[
 const GATES=['borrador','pendiente','completada'];
 const stageOf=id=>STAGES.find(s=>s.id===id)||STAGES[0];
 function gatePill(gs){gs=gs||'borrador';const map={borrador:['gray','Borrador'],pendiente:['amber','En aprobación'],completada:['green','Completada']};const x=map[gs]||map.borrador;return `<span class="flag ${x[0]}">${x[1]}</span>`;}
+/* ===== Motor de tablas ordenables (flechita tipo Excel) ===== */
+const tsort={};
+const tRenderers={};
+function tSort(key,col){const st=tsort[key]||{col:null,dir:-1};if(st.col===col){st.dir=-st.dir;}else{st.col=col;st.dir=['name','owner','area','grupo','hito','ini','macro'].includes(col)?1:-1;}tsort[key]=st;if(tRenderers[key])tRenderers[key]();}
+function tArrow(key,col){const st=tsort[key];if(!st||st.col!==col)return '<span style="color:#c3ccd6">↕</span>';return st.dir===1?'▲':'▼';}
+function tTh(key,col,label,align){return `<th class="${align==='num'?'num':''}" style="cursor:pointer;user-select:none;white-space:nowrap" onclick="tSort('${key}','${col}')">${label} <span style="font-size:8.5px">${tArrow(key,col)}</span></th>`;}
+function tApply(key,rows,acc){const st=tsort[key];if(!st||!st.col||!acc[st.col])return rows;const g=acc[st.col],dir=st.dir;return rows.slice().sort((a,b)=>{let x=g(a),y=g(b);const xs=typeof x==='string',ys=typeof y==='string';if(xs||ys){x=(x==null?'':x).toString().toLowerCase();y=(y==null?'':y).toString().toLowerCase();return x<y?-dir:x>y?dir:0;}return ((x||0)-(y||0))*dir;});}
 const AREA_COLORS=['#2251ff','#00a9f4','#00b8a2','#f5a623','#7b61ff','#e5546c','#0a7d5a','#9c27b0'];
 let db=null;
 const uid=p=>p+Math.random().toString(36).slice(2,8);
@@ -1228,59 +1220,27 @@ function renderMiniCurve(ini){
   el.innerHTML=svg;
 }
 
-/* ============ CARTERA (árbol) ============ */
-let expanded={};
-function expandAll(v){db.areas.forEach(a=>{expanded['a'+a.id]=v;});db.grupos.forEach(g=>{expanded['g'+g.id]=v;});db.macros.forEach(m=>{expanded['m'+m.id]=v;});renderCartera();}
-function toggleNode(k){expanded[k]=!expanded[k];renderCartera();}
+/* ============ CARTERA (tabla con subtotales) ============ */
 function renderCartera(){
-  const metric=document.getElementById('carteraMetric').value;
-  const box=document.getElementById('tree'); let h='';
-  db.areas.forEach(a=>{
-    const ainis=areaInis(a.id); if(!ainis.length && !db.grupos.some(g=>g.areaId===a.id))return;
-    const aVal=sumMetric(ainis,metric);
-    const aProg=ainis.length?ainis.reduce((s,i)=>s+(i.progress||0),0)/ainis.length:0;
-    const openA=expanded['a'+a.id];
-    h+=`<div class="tree-row tw lvl-area" onclick="toggleNode('a${a.id}')">
-      <div class="nm"><span class="caret ${openA?'open':''}">▶</span><span class="dot" style="background:${a.color}"></span>${a.name}</div>
-      <div class="num">${money(aVal)}</div><div class="num c-owner">${ainis.length}</div>
-      <div class="num">${pct(aProg)}</div><div class="num"></div><div class="num"></div></div>`;
-    if(openA){
-      db.grupos.filter(g=>g.areaId===a.id).forEach(g=>{
-        const ginis=grpInis(g.id); const gVal=sumMetric(ginis,metric);
-        const gProg=ginis.length?ginis.reduce((s,i)=>s+(i.progress||0),0)/ginis.length:0;
-        const openG=expanded['g'+g.id];
-        h+=`<div class="tree-row tw lvl-grupo" style="padding-left:20px" onclick="toggleNode('g${g.id}')">
-          <div class="nm"><span class="caret ${openG?'open':''}">▶</span>${g.name}</div>
-          <div class="num">${money(gVal)}</div><div class="num c-owner">${ginis.length}</div>
-          <div class="num">${pct(gProg)}</div><div class="num"></div><div class="num"></div></div>`;
-        if(openG){
-          db.macros.filter(m=>m.grupoId===g.id).forEach(m=>{
-            const minis=macroInis(m.id); const mVal=sumMetric(minis,metric);
-            const mProg=minis.length?minis.reduce((s,i)=>s+(i.progress||0),0)/minis.length:0;
-            const openM=expanded['m'+m.id];
-            const tgtPct=m.target?sumMetric(minis,'runRate')/m.target:0;
-            h+=`<div class="tree-row tw lvl-macro" style="padding-left:38px" onclick="toggleNode('m${m.id}')">
-              <div class="nm"><span class="caret ${openM?'open':''}">▶</span>${m.name} <span class="tag hidem">meta ${money(m.target)} · ${pct(tgtPct)}</span></div>
-              <div class="num">${money(mVal)}</div><div class="num c-owner">${minis.length}</div>
-              <div class="num">${pct(mProg)}</div><div class="num"></div><div class="num"></div></div>`;
-            if(openM){
-              minis.forEach(ini=>{
-                const d=iniDerived(ini); const hl=iniHealth(ini); const st=stageOf(ini.stage);
-                h+=`<div class="tree-row tw lvl-ini" style="padding-left:58px" onclick="event.stopPropagation();openIniModal('${ini.id}')">
-                  <div class="nm">• ${ini.name}<span class="tag hidem" style="margin-left:6px">${ini.owner||''}</span></div>
-                  <div class="num">${money(d[metric]||0)}</div>
-                  <div class="num c-owner"><div class="minibar" style="margin-left:auto;max-width:60px"><span style="width:${(ini.progress||0)*100}%;background:${st.c}"></span></div></div>
-                  <div class="num">${pct(ini.progress||0)}</div>
-                  <div class="num"><span class="stage" style="background:${st.c}">${st.id}</span></div>
-                  <div class="num"><span class="flag ${hl.key}">${hl.key==='green'?'✓':hl.key==='gray'?'–':'!'}</span></div></div>`;
-              });
-            }
-          });
-        }
-      });
-    }
+  tRenderers.cartera=renderCartera;
+  const el=document.getElementById('carteraTable'); if(!el)return;
+  const metric=(document.getElementById('carteraMetric')||{}).value||'runRate';
+  if(!tsort.cartera)tsort.cartera={col:'monto',dir:-1};
+  const rows=db.inis.map(i=>{const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);const d=iniDerived(i);return {i,a,areaName:a?a.name:'—',grupoName:g?g.name:'—',macroName:m?m.name:'',monto:d[metric]||0};});
+  const acc={ini:r=>r.i.name,area:r=>r.areaName,grupo:r=>r.grupoName,macro:r=>r.macroName,owner:r=>r.i.owner||'',nivel:r=>STAGE_ORDER[r.i.stage]||0,estado:r=>({borrador:0,pendiente:1,completada:2}[r.i.gateStatus||'borrador']),monto:r=>r.monto,avance:r=>r.i.progress||0};
+  const head='<thead><tr>'+tTh('cartera','ini','Iniciativa')+tTh('cartera','area','Área')+tTh('cartera','grupo','Sub-área')+tTh('cartera','macro','Macro')+tTh('cartera','owner','Responsable')+tTh('cartera','nivel','Nivel')+tTh('cartera','estado','Estado')+tTh('cartera','monto','Monto','num')+tTh('cartera','avance','Avance','num')+'</tr></thead>';
+  let body='',grand=0,grandN=0;
+  const areasWith=[...db.areas].filter(a=>rows.some(r=>r.a&&r.a.id===a.id));
+  // orden de áreas por su subtotal (desc)
+  areasWith.map(a=>({a,sub:rows.filter(r=>r.a&&r.a.id===a.id).reduce((s,r)=>s+r.monto,0)})).sort((x,y)=>y.sub-x.sub).forEach(({a})=>{
+    let inisA=rows.filter(r=>r.a&&r.a.id===a.id); inisA=tApply('cartera',inisA,acc);
+    const sub=inisA.reduce((s,r)=>s+r.monto,0); grand+=sub; grandN+=inisA.length;
+    body+=`<tr style="background:#eef3f8;font-weight:700"><td><span class="dot" style="background:${a.color};display:inline-block;margin-right:6px"></span>${a.name}</td><td colspan="6" style="color:var(--muted);font-weight:400;font-size:11px">subtotal área</td><td class="num">${money(sub)}</td><td class="num">${inisA.length} inic.</td></tr>`;
+    inisA.forEach(r=>{const st=stageOf(r.i.stage);
+      body+=`<tr class="clk" onclick="openIniModal('${r.i.id}')"><td style="padding-left:16px"><b>${r.i.name}</b>${r.i.enabler?' <span class="tag">habilitadora</span>':''}</td><td>${r.areaName}</td><td>${r.grupoName}</td><td style="font-size:11px;color:var(--muted)">${r.macroName}</td><td>${r.i.owner||'—'}</td><td><span class="stage" style="background:${st.c}">${r.i.stage}</span></td><td>${gatePill(r.i.gateStatus)}</td><td class="num">${money(r.monto)}</td><td class="num">${pct(r.i.progress||0)}</td></tr>`;});
   });
-  box.innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--muted)">Sin datos. Crea un área y una iniciativa.</div>';
+  body+=`<tr class="tot"><td>Total programa</td><td colspan="6" style="font-weight:400;font-size:11px">${grandN} iniciativas</td><td class="num">${money(grand)}</td><td class="num"></td></tr>`;
+  el.innerHTML=head+'<tbody>'+(rows.length?body:'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Sin iniciativas.</td></tr>')+'</tbody>';
 }
 
 /* ============ SEGUIMIENTO ============ */
@@ -1307,9 +1267,12 @@ function renderSeguimiento(){
   else if(filter==='soon14')rows=rows.filter(r=>r.st.key==='late'||(r.st.days!=null&&r.st.days<=14));
   else if(filter==='soon30')rows=rows.filter(r=>r.st.key==='late'||(r.st.days!=null&&r.st.days<=30));
   if(ownerF)rows=rows.filter(r=>r.m.owner===ownerF);
-  rows.sort((a,b)=>(a.st.days??9999)-(b.st.days??9999));
-  let h='<thead><tr><th>Estado</th><th>Hito</th><th>Iniciativa / área</th><th>Responsable</th><th class="num">Vence</th><th class="num">Días</th><th>Impacto inic.</th></tr></thead><tbody>';
-  if(!rows.length)h+='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--good)">✓ Nada pendiente en este filtro</td></tr>';
+  tRenderers.seg=renderSeguimiento;
+  if(!tsort.seg)tsort.seg={col:'dias',dir:1};
+  const accS={estado:r=>({late:0,soon:1,open:2}[r.st.key]??3),hito:r=>r.m.name||'',ini:r=>r.m.ini.name||'',owner:r=>r.m.owner||'',vence:r=>r.m.due||'',dias:r=>r.st.days??9999,impacto:r=>r.m.ini.runRate||0};
+  rows=tApply('seg',rows,accS);
+  let h='<thead><tr>'+tTh('seg','estado','Estado')+tTh('seg','hito','Hito')+tTh('seg','ini','Iniciativa / área')+tTh('seg','owner','Responsable')+tTh('seg','vence','Vence','num')+tTh('seg','dias','Días','num')+tTh('seg','impacto','Impacto','num')+'</tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--good)">Nada pendiente en este filtro</td></tr>';
   rows.forEach(({m,st})=>{
     const flag=st.key==='late'?`<span class="flag red">Atrasado</span>`:st.key==='soon'?`<span class="flag amber">Por vencer</span>`:`<span class="flag gray">Abierto</span>`;
     h+=`<tr class="clk" onclick="openIniModal('${m.ini.id}')"><td>${flag}</td><td><b>${m.name}</b></td>
@@ -1349,9 +1312,9 @@ function renderRanking(){
   const arr=Object.values(by).map(p=>({...p,delta:p.wSum?p.dSum/p.wSum:0})).filter(p=>p.n);
   const bucket=p=>p.delta>0.05?'ahead':(p.delta<-0.05||p.late>0)?'behind':'ontrack';
   const cols=[
-    {key:'ahead',title:'🟢 Adelantados',cls:'green',sort:(a,b)=>b.delta-a.delta},
-    {key:'ontrack',title:'⚪ En línea',cls:'gray',sort:(a,b)=>b.rr-a.rr},
-    {key:'behind',title:'🔴 Atrasados',cls:'red',sort:(a,b)=>a.delta-b.delta}
+    {key:'ahead',title:'Adelantados',cls:'green',sort:(a,b)=>b.delta-a.delta},
+    {key:'ontrack',title:'En línea',cls:'gray',sort:(a,b)=>b.rr-a.rr},
+    {key:'behind',title:'Atrasados',cls:'red',sort:(a,b)=>a.delta-b.delta}
   ];
   box.innerHTML=cols.map(c=>{
     const list=arr.filter(p=>bucket(p)===c.key).sort(c.sort);
@@ -1382,9 +1345,9 @@ function copyWeekly(){
 
 /* ============ TABLA INICIATIVAS ============ */
 function renderIniTable(){
+  tRenderers.ini=renderIniTable;
   const q=(document.getElementById('iniSearch').value||'').toLowerCase();
   const af=document.getElementById('iniAreaF').value, sf=document.getElementById('iniStageF').value;
-  const sort=document.getElementById('iniSort').value;
   let list=db.inis.filter(i=>{
     if(sf&&i.stage!==sf)return false;
     if(af){const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);if(!g||g.areaId!==af)return false;}
@@ -1392,12 +1355,11 @@ function renderIniTable(){
     return true;
   });
   const nextMs=i=>{const o=(i.milestones||[]).filter(m=>!m.done&&parseD(m.due)).sort((a,b)=>parseD(a.due)-parseD(b.due));return o[0];};
-  list.sort((a,b)=>{
-    if(sort==='impact')return b.runRate-a.runRate;
-    if(sort==='health'){const o={red:0,amber:1,gray:2,green:3};return o[iniHealth(a).key]-o[iniHealth(b).key];}
-    if(sort==='due'){const na=nextMs(a),nb=nextMs(b);return (na?parseD(na.due):9e15)-(nb?parseD(nb.due):9e15);}
-  });
-  let h='<thead><tr><th>Iniciativa</th><th>Área / grupo</th><th>Responsable</th><th>Etapa</th><th>Estado</th><th class="num">Run-rate</th><th class="num">Capturado</th><th style="width:110px">Avance</th><th>Salud</th><th class="num">Próx. hito</th></tr></thead><tbody>';
+  const areaName=i=>{const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);return a?a.name:'';};
+  const acc={ini:i=>i.name, area:areaName, owner:i=>i.owner||'', stage:i=>STAGE_ORDER[i.stage]||0, gate:i=>({borrador:0,pendiente:1,completada:2}[i.gateStatus||'borrador']), runRate:i=>iniDerived(i).runRate, captured:i=>iniDerived(i).captured, avance:i=>i.progress||0, salud:i=>({red:0,amber:1,gray:2,green:3}[iniHealth(i).key]), due:i=>{const n=nextMs(i);return n?parseD(n.due).getTime():9e15;}};
+  if(!tsort.ini)tsort.ini={col:'runRate',dir:-1};
+  list=tApply('ini',list,acc);
+  let h='<thead><tr>'+tTh('ini','ini','Iniciativa')+tTh('ini','area','Área / grupo')+tTh('ini','owner','Responsable')+tTh('ini','stage','Etapa')+tTh('ini','gate','Estado')+tTh('ini','runRate','Run-rate','num')+tTh('ini','captured','Capturado','num')+tTh('ini','avance','Avance','num')+tTh('ini','salud','Salud')+tTh('ini','due','Próx. hito','num')+'</tr></thead><tbody>';
   list.forEach(i=>{
     const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
     const d=iniDerived(i);const hl=iniHealth(i);const st=stageOf(i.stage);const nm=nextMs(i);
@@ -1408,7 +1370,7 @@ function renderIniTable(){
       <td class="num">${money(d.runRate)}</td><td class="num">${money(d.captured)}</td>
       <td><div class="minibar"><span style="width:${(i.progress||0)*100}%;background:${st.c}"></span></div><span style="font-size:10px;color:var(--muted)">${pct(i.progress||0)}</span></td>
       <td><span class="flag ${hl.key}">${hl.label}</span></td>
-      <td class="num" style="font-size:11px">${nm?nm.due:'—'}${nm&&msStatus(nm).key==='late'?' 🔴':''}</td></tr>`;
+      <td class="num" style="font-size:11px;${nm&&msStatus(nm).key==='late'?'color:var(--bad);font-weight:700':''}">${nm?nm.due:'—'}</td></tr>`;
   });
   h+='</tbody>';
   document.getElementById('iniTable').innerHTML=h;
