@@ -507,6 +507,9 @@ body.locked{overflow:hidden}
 <div class="overlay" id="wAddOverlay">
   <div class="modal" style="max-width:520px" id="wAddModal"></div>
 </div>
+<div class="overlay" id="drillOverlay">
+  <div class="modal" style="max-width:760px" id="drillModal"></div>
+</div>
 
 <script>
 /* ============ ESTADO / MODELO ============ */
@@ -880,20 +883,35 @@ let wResizing=null;
 function wResizeStart(ev,id){ev.preventDefault();ev.stopPropagation();const card=ev.target.closest('.card');const cont=document.getElementById('dashWidgets');if(!card||!cont)return;card.setAttribute('draggable','false');card.style.cursor='nwse-resize';wResizing={id,card,startX:ev.clientX,startW:card.offsetWidth,contW:cont.clientWidth};document.addEventListener('mousemove',wResizeMove);document.addEventListener('mouseup',wResizeEnd);}
 function wResizeMove(ev){if(!wResizing)return;let w=Math.max(220,wResizing.startW+(ev.clientX-wResizing.startX));w=Math.min(w,wResizing.contW);wResizing.card.style.flexBasis=w+'px';wResizing.card.style.maxWidth=w+'px';}
 function wResizeEnd(){if(!wResizing)return;document.removeEventListener('mousemove',wResizeMove);document.removeEventListener('mouseup',wResizeEnd);const frac=wResizing.card.offsetWidth/(wResizing.contW||1);const size=frac<0.42?'S':frac<0.78?'M':'L';const cfg=loadDash();const x=cfg.find(a=>a.id===wResizing.id);if(x){x.size=size;saveDashCfg(cfg);}wResizing=null;renderDashWidgets();}
+/* ---- Deep-dive: clic en un segmento del gráfico → iniciativas dentro ---- */
+let drillReg={}, drillN=0;
+function dReg(title,inis){const k='d'+(drillN++);drillReg[k]={title,ids:(inis||[]).map(i=>i.id)};return k;}
+function drillOpen(k,ev){if(ev&&ev.stopPropagation)ev.stopPropagation();const d=drillReg[k];if(!d)return;const inis=d.ids.map(id=>db.inis.find(i=>i.id===id)).filter(Boolean);renderDrill(d.title,inis);}
+function renderDrill(title,inis){
+  const rows=inis.slice().sort((a,b)=>iniDerived(b).runRate-iniDerived(a).runRate);
+  const tot=inis.reduce((s,i)=>s+iniDerived(i).runRate,0);
+  document.getElementById('drillModal').innerHTML=`<h3 style="font-size:16px">${title}</h3><div class="msub">${inis.length} iniciativa(s) · impacto total ${money(tot)}</div>
+    <div class="scroll" style="max-height:60vh"><table><thead><tr><th>Iniciativa</th><th>Área / sub-área</th><th>Nivel</th><th>Estado</th><th class="num">Impacto</th><th class="num">Avance</th></tr></thead><tbody>
+    ${rows.length?rows.map(i=>{const {a,g}=iniAreaGrupo(i);const st=stageOf(i.stage);return `<tr class="clk" onclick="document.getElementById('drillOverlay').classList.remove('on');openIniModal('${i.id}')"><td><b>${i.name}</b></td><td>${a?a.name:''} › ${g?g.name:''}</td><td><span class="stage" style="background:${st.c}">${i.stage}</span></td><td>${gatePill(i.gateStatus)}</td><td class="num">${money(iniDerived(i).runRate)}</td><td class="num">${pct(i.progress||0)}</td></tr>`;}).join(''):'<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--muted)">Sin iniciativas</td></tr>'}
+    </tbody></table></div>
+    <div class="modal-foot"><div></div><div><button class="btn gray" onclick="document.getElementById('drillOverlay').classList.remove('on')">Cerrar</button></div></div>`;
+  document.getElementById('drillOverlay').classList.add('on');
+}
 function renderDashWidgets(){
   const box=document.getElementById('dashWidgets'); if(!box)return;
   const widgets=loadDash();
+  drillReg={};drillN=0;
   box.innerHTML=widgets.map(w=>{
     const basis=w.size==='L'?'100%':w.size==='M'?'calc(50% - 8px)':'calc(33.33% - 11px)';
     const editable=['donut','bars','table','stackbars'].includes(w.type);
-    return `<div class="card" draggable="true" ondragstart="wDragStart(event,'${w.id}')" ondragover="wDragOver(event,'${w.id}')" ondrop="wDrop(event,'${w.id}')" ondragend="document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='')" style="flex:0 0 ${basis};max-width:${basis};min-width:230px;margin:0;display:flex;flex-direction:column;cursor:grab;position:relative;overflow:hidden">
+    return `<div class="card" draggable="true" ondragstart="wDragStart(event,'${w.id}')" ondragover="wDragOver(event,'${w.id}')" ondrop="wDrop(event,'${w.id}')" ondragend="document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='')" style="flex:0 0 ${basis};max-width:${basis};min-width:230px;margin:0;display:flex;flex-direction:column;cursor:grab;position:relative">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px">
         <div style="font-size:12.5px;font-weight:700;color:var(--navy);line-height:1.25">${w.title||wTitle(w)}${editable?` <span style="font-size:10px;color:var(--blue);cursor:pointer;font-weight:600" onclick="openWAdd('${w.id}')">configurar</span>`:''}</div>
         <div style="display:flex;gap:4px;flex:none">
           <span title="Quitar" onclick="wRemove('${w.id}')" style="cursor:pointer;font-size:11px;color:var(--bad);border:1px solid var(--line);border-radius:4px;padding:1px 5px">✕</span>
         </div>
       </div>
-      <div id="wb_${w.id}" style="flex:1" onclick="${editable?`openWAdd('${w.id}')`:''}">${editable?'':''}</div>
+      <div id="wb_${w.id}" style="flex:1;min-height:0">${editable?'':''}</div>
       <div class="wresize" title="Arrastra para redimensionar" onmousedown="wResizeStart(event,'${w.id}')"><svg viewBox="0 0 10 10" width="11" height="11"><path d="M9.5 3.5 L3.5 9.5 M9.5 6.5 L6.5 9.5 M9.5 9 L9 9.5" stroke="currentColor" stroke-width="1" fill="none"/></svg></div></div>`;
   }).join('');
   widgets.forEach(w=>{try{renderWidget(w);}catch(e){const el=document.getElementById('wb_'+w.id);if(el)el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px">—</div>';}});
@@ -924,22 +942,22 @@ function widgetKpis(el){
   ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('')+'</div>';
 }
 function widgetDonutGroups(el,data0,metric){
-  const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric)})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v);
+  const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric),inis:g.inis})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v);
   const total=data.reduce((s,d)=>s+d.v,0)||1; const R=70,r=44,cx=82,cy=88;let ang=-Math.PI/2;
   let svg=`<svg viewBox="0 0 340 180" width="100%">`;
-  data.forEach(d=>{const a2=ang+(d.v/total)*Math.PI*2;const x1=cx+R*Math.cos(ang),y1=cy+R*Math.sin(ang),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);const xi2=cx+r*Math.cos(a2),yi2=cy+r*Math.sin(a2),xi1=cx+r*Math.cos(ang),yi1=cy+r*Math.sin(ang);const large=(a2-ang)>Math.PI?1:0;svg+=`<path d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${xi2} ${yi2} A${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z" fill="${d.color}"/>`;ang=a2;});
+  data.forEach(d=>{const a2=ang+(d.v/total)*Math.PI*2;const x1=cx+R*Math.cos(ang),y1=cy+R*Math.sin(ang),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);const xi2=cx+r*Math.cos(a2),yi2=cy+r*Math.sin(a2),xi1=cx+r*Math.cos(ang),yi1=cy+r*Math.sin(ang);const large=(a2-ang)>Math.PI?1:0;const k=dReg(d.name,d.inis);svg+=`<path style="cursor:pointer" onclick="drillOpen('${k}',event)" d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${xi2} ${yi2} A${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z" fill="${d.color}"><title>${d.name}: ${money(d.v)} — clic para ver</title></path>`;ang=a2;});
   svg+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="15" font-weight="800" fill="#051c2c">${metric==='count'?total:money(total)}</text><text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="9" fill="#5b6a75">total</text>`;
-  data.slice(0,8).forEach((d,i)=>{const y=16+i*20;svg+=`<rect x="180" y="${y}" width="10" height="10" rx="2" fill="${d.color}"/><text x="196" y="${y+9}" font-size="10.5" fill="#051c2c">${d.name.length>20?d.name.slice(0,19)+'…':d.name}</text><text x="335" y="${y+9}" text-anchor="end" font-size="10" fill="#5b6a75">${pct(d.v/total)}</text>`;});
+  data.slice(0,8).forEach((d,i)=>{const y=16+i*20;const k=dReg(d.name,d.inis);svg+=`<g style="cursor:pointer" onclick="drillOpen('${k}',event)"><rect x="180" y="${y}" width="10" height="10" rx="2" fill="${d.color}"/><text x="196" y="${y+9}" font-size="10.5" fill="#051c2c">${d.name.length>20?d.name.slice(0,19)+'…':d.name}</text><text x="335" y="${y+9}" text-anchor="end" font-size="10" fill="#5b6a75">${pct(d.v/total)}</text></g>`;});
   el.innerHTML=svg+'</svg>';
 }
 function widgetBars(el,data0,metric){
-  const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric)})).sort((a,b)=>b.v-a.v).slice(0,12);
+  const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric),inis:g.inis})).sort((a,b)=>b.v-a.v).slice(0,12);
   const max=Math.max(1,...data.map(d=>d.v));
-  el.innerHTML='<table><tbody>'+data.map(d=>`<tr><td style="width:150px;font-size:11.5px">${d.name}</td><td><div class="minibar"><span style="width:${d.v/max*100}%;background:${d.color}"></span></div></td><td class="num" style="width:80px;font-size:11px">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table>';
+  el.innerHTML='<table><tbody>'+data.map(d=>`<tr class="clk" onclick="drillOpen('${dReg(d.name,d.inis)}',event)"><td style="width:150px;font-size:11.5px">${d.name}</td><td><div class="minibar"><span style="width:${d.v/max*100}%;background:${d.color}"></span></div></td><td class="num" style="width:80px;font-size:11px">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table>';
 }
 function widgetStackBars(el,data0,metric){
   // barras verticales por grupo (ej. sub-área), apiladas y coloreadas por nivel N1–N4
-  const data=data0.map(g=>({name:g.label, segs:STAGES.map(s=>({stage:s,v:metricOf(g.inis.filter(i=>i.stage===s.id),metric)})), tot:metricOf(g.inis,metric)}))
+  const data=data0.map(g=>({name:g.label, segs:STAGES.map(s=>({stage:s,inis:g.inis.filter(i=>i.stage===s.id),v:metricOf(g.inis.filter(i=>i.stage===s.id),metric)})), tot:metricOf(g.inis,metric)}))
     .filter(d=>d.tot>0).sort((a,b)=>b.tot-a.tot).slice(0,12);
   if(!data.length){el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px">Sin datos</div>';return;}
   const max=Math.max(1,...data.map(d=>d.tot));
@@ -948,7 +966,7 @@ function widgetStackBars(el,data0,metric){
   let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">`;
   for(let k=0;k<=3;k++){const y=padT+ih*(k/3);svg+=`<line x1="${padL}" y1="${y}" x2="${W-6}" y2="${y}" stroke="#eef2f6"/><text x="${padL-5}" y="${y+3}" text-anchor="end" font-size="8.5" fill="#9fb3c0">${money(max*(1-k/3))}</text>`;}
   data.forEach((d,i)=>{const x=padL+gap+i*(bw+gap); let acc=0;
-    d.segs.forEach(sg=>{ if(sg.v<=0)return; const h=sg.v/max*ih; const y=padT+ih-acc-h; svg+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${sg.stage.c}"><title>${d.name} · ${sg.stage.id} ${sg.stage.name}: ${money(sg.v)}</title></rect>`; acc+=h; });
+    d.segs.forEach(sg=>{ if(sg.v<=0)return; const h=sg.v/max*ih; const y=padT+ih-acc-h; const k=dReg(d.name+' · '+sg.stage.id+' '+sg.stage.name,sg.inis); svg+=`<rect style="cursor:pointer" onclick="drillOpen('${k}',event)" x="${x}" y="${y}" width="${bw}" height="${h}" fill="${sg.stage.c}"><title>${d.name} · ${sg.stage.id} ${sg.stage.name}: ${money(sg.v)} — clic para ver</title></rect>`; acc+=h; });
     const nm=d.name.length>10?d.name.slice(0,9)+'…':d.name;
     svg+=`<text x="${x+bw/2}" y="${H-padB+14}" text-anchor="end" font-size="8.5" fill="#5b6a75" transform="rotate(-35 ${x+bw/2} ${H-padB+14})">${nm}</text>`;
   });
@@ -957,8 +975,8 @@ function widgetStackBars(el,data0,metric){
   el.innerHTML=svg+leg;
 }
 function widgetTable(el,data0,metric){
-  const data=data0.map(g=>({name:g.label,v:metricOf(g.inis,metric),n:g.inis.length})).sort((a,b)=>b.v-a.v);
-  el.innerHTML='<div class="scroll"><table><thead><tr><th>Grupo</th><th class="num">#</th><th class="num">'+(METRICS[metric]||metric)+'</th></tr></thead><tbody>'+data.map(d=>`<tr><td>${d.name}</td><td class="num">${d.n}</td><td class="num">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table></div>';
+  const data=data0.map(g=>({name:g.label,v:metricOf(g.inis,metric),n:g.inis.length,inis:g.inis})).sort((a,b)=>b.v-a.v);
+  el.innerHTML='<div class="scroll"><table><thead><tr><th>Grupo</th><th class="num">#</th><th class="num">'+(METRICS[metric]||metric)+'</th></tr></thead><tbody>'+data.map(d=>`<tr class="clk" onclick="drillOpen('${dReg(d.name,d.inis)}',event)"><td>${d.name}</td><td class="num">${d.n}</td><td class="num">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table></div>';
 }
 function widgetMonthlyProgram(el){
   const mk=monthKeys(); const cm=curYm(); let cb=0,cf=0,cr=0; const B=[],F=[],R=[];
@@ -977,7 +995,7 @@ function widgetMonthlyProgram(el){
 function renderFunnel(box){
   box=box||document.getElementById('funnel'); if(!box)return;
   const byStage=STAGES.map(s=>{const inis=db.inis.filter(i=>i.stage===s.id);
-    return {s,rr:sumMetric(inis,'runRate'),w:sumMetric(inis,'weighted'),n:inis.length};});
+    return {s,inis,rr:sumMetric(inis,'runRate'),w:sumMetric(inis,'weighted'),n:inis.length};});
   const max=Math.max(1,...byStage.map(b=>b.rr));
   const W=440,rowH=52,pad=6;
   let svg=`<svg viewBox="0 0 ${W} ${byStage.length*rowH+10}" width="100%">`;
@@ -986,11 +1004,13 @@ function renderFunnel(box){
     const wFull=(b.rr/max)*(W-150);
     const wW=(b.w/max)*(W-150);
     const x=140;
+    const k=dReg(b.s.id+' · '+b.s.name,b.inis);
+    svg+=`<g style="cursor:pointer" onclick="drillOpen('${k}',event)"><rect x="0" y="${y}" width="${W}" height="34" fill="transparent"/>`;
     svg+=`<rect x="${x}" y="${y}" width="${Math.max(2,wFull)}" height="34" rx="5" fill="${b.s.c}" opacity=".28"/>`;
     svg+=`<rect x="${x}" y="${y}" width="${Math.max(2,wW)}" height="34" rx="5" fill="${b.s.c}"/>`;
     svg+=`<text x="${x-8}" y="${y+15}" text-anchor="end" font-size="11.5" font-weight="700" fill="#051c2c">${b.s.id} · ${b.s.name}</text>`;
     svg+=`<text x="${x-8}" y="${y+29}" text-anchor="end" font-size="10" fill="#5b6a75">${b.n} inic. · conf ${pct(b.s.conf)}</text>`;
-    svg+=`<text x="${x+Math.max(2,wFull)+8}" y="${y+22}" font-size="11.5" font-weight="700" fill="#051c2c">${money(b.rr)}</text>`;
+    svg+=`<text x="${x+Math.max(2,wFull)+8}" y="${y+22}" font-size="11.5" font-weight="700" fill="#051c2c">${money(b.rr)}</text></g>`;
   });
   svg+='</svg>';
   box.innerHTML=svg+`<div class="legend"><span><i style="background:#00a9f4;opacity:.3"></i>Run-rate pleno</span><span><i style="background:#00a9f4"></i>Ponderado por confianza</span></div>`;
