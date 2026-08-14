@@ -117,6 +117,11 @@ details.acc .body{padding:12px 14px}
 .login-sub{font-size:12.5px;color:var(--muted);text-align:center;margin:6px 0 22px;line-height:1.5}
 .login-msg{font-size:12.5px;margin-top:12px;text-align:center;min-height:17px;font-weight:600}
 body.locked{overflow:hidden}
+.itab{display:none}.itab.active{display:block;animation:fade .18s}
+.ini-tabbar{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px;overflow-x:auto}
+.ini-tabbar button{background:none;border:none;border-bottom:2px solid transparent;padding:7px 13px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.ini-tabbar button.on{color:var(--blue);border-bottom-color:var(--blue)}
+.ini-tabbar button.lk{color:#b9c3ce}
 .session-chip{background:var(--navy2);border-radius:8px;padding:8px 12px;font-size:11.5px;color:#cfe0ec;display:flex;align-items:center;gap:8px}
 .session-chip a{color:#ffc760;text-decoration:none;font-weight:700}
 /* Reporte de comité */
@@ -602,7 +607,7 @@ function seed(){
     else if(r<0.28)gateStatus='pendiente';
     return {id:uid('ini'),macroId,name,owner,stage:st.id,runRate:rr,progress:+progress.toFixed(2),
       start:fmtD(start),captureDate:fmtD(capture),end:fmtD(end),curve:'linear',notes:'',descripcion:'',palanca:'',supuestos:'',
-      enabler:false,parentId:'',businessCase:null,monthly:{budget:{},real:{},forecast:{}},history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
+      enabler:false,parentId:'',businessCase:null,maxStage:st.id,monthly:{budget:{},real:{},forecast:{}},history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
       gateStatus,submittedBy:gateStatus==='pendiente'?owner:'',submittedAt:gateStatus==='pendiente'?fmtD(today()):'',approvals:[],baseline
       ,milestones:ms};
   });
@@ -1381,6 +1386,7 @@ function openIniModal(id){
   if(!editingIni.gateStatus)editingIni.gateStatus='borrador';
   if(!editingIni.approvals)editingIni.approvals=[];
   if(!editingIni.history)editingIni.history=[];
+  if(!editingIni.maxStage)editingIni.maxStage=editingIni.stage;
   ensureMonthly(editingIni);
   if(editingIni.enabler===undefined)editingIni.enabler=false;
   if(editingIni.parentId===undefined)editingIni.parentId='';
@@ -1391,6 +1397,7 @@ let mEdit=true, mStage=1;
 function renderIniModal(){
   const e=editingIni;
   const cur=STAGE_ORDER[e.stage]||1;
+  const maxSId=(e.maxStage&&STAGE_ORDER[e.maxStage])?e.maxStage:e.stage; const maxS=STAGE_ORDER[maxSId]||cur;
   mEdit=e.gateStatus==='borrador'; mStage=cur;
   const dis=mEdit?'':'disabled';
   const macroOpts=db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);return `<option value="${m.id}" ${m.id===e.macroId?'selected':''}>${a?.name||'?'} › ${g?.name||'?'} › ${m.name}</option>`;}).join('');
@@ -1452,28 +1459,48 @@ function renderIniModal(){
     footer=`<div style="flex:1;font-size:12px;color:var(--good)"><b>Completada</b> — L4 aprobado. Valor capturado.</div><div><button class="btn gray" onclick="closeIni()">Cerrar</button></div>`;
   } else {
     const nx=nextStage(e.stage);
-    footer=`<div>${exists?`<button class="btn danger" onclick="deleteIni()">Eliminar</button>`:''}</div>
-      <div style="display:flex;gap:8px"><button class="btn gray" onclick="closeIni()">Cancelar</button><button class="btn ghost" onclick="saveIni()">Guardar borrador</button><button class="btn" onclick="submitFromModal()">📤 Enviar a aprobación (${e.stage}${nx?'→'+nx:' · cierre'})</button></div>`;
+    const downBtn=cur>1?`<button class="btn gray" onclick="downgradeIni()" title="Volver al nivel anterior para modificar">Bajar a N${cur-1}</button>`:'';
+    const advBtn = cur<maxS
+      ? `<button class="btn ghost" onclick="reupIni()" title="Restaurar el nivel ya alcanzado (sin re-aprobación)">Volver a subir a N${cur+1}</button>`
+      : (nx?`<button class="btn" onclick="submitFromModal()">Enviar a aprobación (${e.stage}→${nx})</button>`:'');
+    footer=`<div style="display:flex;gap:8px">${exists?`<button class="btn danger" onclick="deleteIni()">Eliminar</button>`:''}${downBtn}</div>
+      <div style="display:flex;gap:8px"><button class="btn gray" onclick="closeIni()">Cancelar</button><button class="btn ghost" onclick="saveIni()">Guardar borrador</button>${advBtn}</div>`;
   }
-  // historial de aprobaciones
-  const hist=(e.approvals&&e.approvals.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Historial de aprobaciones</div>${e.approvals.map(a=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><span class="flag ${a.decision==='aprobado'?'green':'red'}">${a.decision}</span> ${a.stage} · ${a.nombre||a.por||''} · ${new Date(a.fecha).toLocaleString()} ${a.comentario?`<span style="color:var(--muted)">— ${a.comentario}</span>`:''}</div>`).join('')}</div>`:'';
+  // paneles Resumen e Historial
+  const {a:iA,g:iG}=iniAreaGrupo(e);
+  const annualBox=`<div class="card" style="background:var(--navy);color:#fff;margin:0 0 12px;text-align:center;padding:15px 14px">
+    <div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.75">Impacto anualizado (run-rate)</div>
+    <div style="font-size:30px;font-weight:800;margin-top:2px">${money(d.runRate)}</div>
+    <div style="font-size:11px;opacity:.8;margin-top:2px">Ancla del presupuesto mensual · se reparte ÷ 12 desde ${e.start||'el inicio'}</div></div>`;
+  const bignums=`<div class="card" style="background:#f6f9fb;margin:0 0 12px"><div class="row" style="text-align:center">
+    <div style="flex:1"><div class="bignum">${money(d.runRate)}</div><small style="color:var(--muted)">run-rate</small></div>
+    <div style="flex:1"><div class="bignum" style="color:var(--purple)">${money(d.weighted)}</div><small style="color:var(--muted)">ponderado</small></div>
+    <div style="flex:1"><div class="bignum" style="color:var(--good)">${money(d.captured)}</div><small style="color:var(--muted)">capturado</small></div>
+    <div style="flex:1"><div class="bignum" style="color:var(--cyan)">${money(d.inYear)}</div><small style="color:var(--muted)">en el año</small></div></div></div>`;
+  const monthlyCard=cur>=2?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:2px">Presupuesto · Real · Forecast (mensual, 2026–2028)</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">El presupuesto se reparte automáticamente (impacto anual ÷ 12) desde el inicio; edita meses para ramp-up. El Real se carga a mano; el Forecast se actualiza según el Real.</div><div id="monthlyBox"></div></div>`:'<div class="card" style="color:var(--muted);font-size:12px">La proyección mensual se habilita al llegar a N2.</div>';
+  const ficha=`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Ficha</div><div style="font-size:12px;line-height:1.9"><b>Área:</b> ${iA?iA.name:'—'} › ${iG?iG.name:'—'} · <b>Responsable:</b> ${e.owner||'—'}<br><b>Palanca:</b> ${e.palanca||'—'} · <b>Caso de negocio:</b> ${e.businessCase?`<a href="${e.businessCase.data}" download="${e.businessCase.name}" style="color:var(--blue)">${e.businessCase.name}</a>`:'—'}${parentIni?`<br><b>Hija de:</b> <a href="#" onclick="openIniModal('${parentIni.id}');return false" style="color:var(--blue)">${parentIni.name}</a>`:''}${e.descripcion?`<br><b>Descripción:</b> ${e.descripcion}`:''}</div></div>`;
+  const kidsCard=kids.length?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Iniciativas hijas (${kids.length}) · valor combinado ${money(kids.reduce((s,k)=>s+iniDerived(k).runRate,0))}</div>${kids.map(k=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer;display:flex;justify-content:space-between" onclick="openIniModal('${k.id}')"><span>${k.name} <span class="tag">${k.stage}</span> ${k.enabler?'<span class="tag">habilitadora</span>':''}</span><span>${money(iniDerived(k).runRate)}</span></div>`).join('')}</div>`:'';
+  const resumenPanel=annualBox+bignums+monthlyCard+ficha+`<div class="field"><label>Notas</label><textarea id="f_notes" ${dis}>${e.notes||''}</textarea></div>`+kidsCard;
+  const aprHist=(e.approvals&&e.approvals.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Aprobaciones</div>${e.approvals.map(a=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><span class="flag ${a.decision==='aprobado'?'green':'red'}">${a.decision}</span> ${a.stage} · ${a.nombre||a.por||''} · ${new Date(a.fecha).toLocaleString()} ${a.comentario?`<span style="color:var(--muted)">— ${a.comentario}</span>`:''}</div>`).join('')}</div>`:'';
+  const iniHistCard=(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Modificaciones</div>${e.history.slice(0,40).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:'';
+  const historialPanel=(aprHist+iniHistCard)||'<div class="card" style="color:var(--muted);font-size:12px">Sin historial todavía.</div>';
+  // barra de pestañas
+  const tabDefs=[['N1','N1 · Idea'],['N2','N2 · Caso'],['N3','N3 · Plan'],['N4','N4 · Captura'],['resumen','Resumen'],['historial','Historial']];
+  const defTab='N'+cur;
+  const tabBar=`<div class="ini-tabbar">`+tabDefs.map(t=>{const isLvl=/^N\d$/.test(t[0]);const locked=isLvl&&STAGE_ORDER[t[0]]>cur;return `<button id="itb-${t[0]}" data-lk="${locked?1:0}" class="${t[0]===defTab?'on':''}${locked?' lk':''}" onclick="iniTab('${t[0]}')">${t[1]}</button>`;}).join('')+`</div>`;
   document.getElementById('iniModal').innerHTML=`
     <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span> ${e.enabler?'<span class="flag gray">Habilitadora</span>':''}</h3>
-    <div class="msub">Ciclo gobernado por stage-gates. Solo completas los campos de la etapa actual; al aprobarse el gate, avanza a la siguiente.${parentIni?` · <b>Hija de:</b> <a href="#" onclick="openIniModal('${parentIni.id}');return false" style="color:var(--blue)">${parentIni.name}</a>`:''}</div>
+    <div class="msub">Ciclo gobernado por niveles (stage-gates). Completa cada nivel en su pestaña; el nivel actual es <b>N${cur}</b>${maxS>cur?` (llegó a N${maxS})`:''}.</div>
     ${stepper}
-    <div class="card" style="background:#f6f9fb;margin:0 0 12px"><div class="row" style="text-align:center">
-      <div style="flex:1"><div class="bignum">${money(d.runRate)}</div><small style="color:var(--muted)">run-rate</small></div>
-      <div style="flex:1"><div class="bignum" style="color:var(--purple)">${money(d.weighted)}</div><small style="color:var(--muted)">ponderado</small></div>
-      <div style="flex:1"><div class="bignum" style="color:var(--good)">${money(d.captured)}</div><small style="color:var(--muted)">capturado</small></div>
-      <div style="flex:1"><div class="bignum" style="color:var(--cyan)">${money(d.inYear)}</div><small style="color:var(--muted)">en el año</small></div>
-    </div></div>
-    ${cur>=2?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:2px">Presupuesto · Real · Forecast (mensual, 2026–2028)</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">El presupuesto se reparte automáticamente (impacto anual ÷ 12) desde el inicio; edita meses para ramp-up. El Real se carga a mano; el Forecast se actualiza según el Real.</div><div id="monthlyBox"></div></div>`:''}
-    ${hist}
-    ${secL1}${secL2}${secL3}${secL4}
-    <div class="field"><label>Notas</label><textarea id="f_notes" ${dis}>${e.notes||''}</textarea></div>
-    ${kids.length?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Iniciativas hijas (${kids.length}) · valor combinado ${money(kids.reduce((s,k)=>s+iniDerived(k).runRate,0))}</div>${kids.map(k=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer;display:flex;justify-content:space-between" onclick="openIniModal('${k.id}')"><span>• ${k.name} <span class="tag">${k.stage}</span> ${k.enabler?'<span class="tag">habilitadora</span>':''}</span><span>${money(iniDerived(k).runRate)}</span></div>`).join('')}</div>`:''}
-    ${(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Historial de la iniciativa</div>${e.history.slice(0,25).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:''}
+    ${tabBar}
+    <div class="itab" id="itab-N1">${secL1}</div>
+    <div class="itab" id="itab-N2">${secL2}</div>
+    <div class="itab" id="itab-N3">${secL3}</div>
+    <div class="itab" id="itab-N4">${secL4}</div>
+    <div class="itab" id="itab-resumen">${resumenPanel}</div>
+    <div class="itab" id="itab-historial">${historialPanel}</div>
     <div class="modal-foot">${footer}</div>`;
+  iniTab(defTab);
   if(cur>=3&&!lock(3)){renderMsList();renderDepsEditor();}
   if(cur>=2)renderMonthly(e);
   ['f_name','f_owner','f_macro','f_parent','f_desc','f_rr','f_start','f_palanca','f_supuestos','f_cap','f_end','f_curve','f_prog','f_notes'].forEach(id=>{
@@ -1544,6 +1571,23 @@ function deleteIni(){if(confirm('¿Eliminar esta iniciativa?')){logAudit('elimin
 function closeIni(){document.getElementById('iniOverlay').classList.remove('on');editingIni=null;}
 function attachBC(input){const f=input.files[0];if(!f)return;if(f.size>2*1024*1024){alert('El archivo supera 2 MB. Sube uno más liviano.');input.value='';return;}const r=new FileReader();r.onload=()=>{editingIni.businessCase={name:f.name,size:f.size,type:f.type||'',data:r.result};iniHist(editingIni,'adjuntó caso de negocio',f.name);renderIniModal();};r.readAsDataURL(f);}
 function removeBC(){if(editingIni){editingIni.businessCase=null;renderIniModal();}}
+function iniTab(name){document.querySelectorAll('#iniModal .itab').forEach(p=>p.classList.toggle('active',p.id==='itab-'+name));document.querySelectorAll('#iniModal .ini-tabbar button').forEach(b=>b.classList.toggle('on',b.id==='itb-'+name));}
+function persistEditing(){const idx=db.inis.findIndex(i=>i.id===editingIni.id);if(idx>=0)db.inis[idx]=editingIni;else db.inis.push(editingIni);save();refreshAll();renderIniModal();}
+function downgradeIni(){
+  if(!editingIni)return; syncIni(); const cur=STAGE_ORDER[editingIni.stage]||1;
+  if(editingIni.gateStatus!=='borrador'){alert('Solo se puede bajar de nivel en borrador.');return;}
+  if(cur<=1)return;
+  if(!confirm('¿Bajar la iniciativa a N'+(cur-1)+'? Podrás modificar ese nivel y luego volver a subirla sin re-aprobar.'))return;
+  if(!editingIni.maxStage||STAGE_ORDER[editingIni.maxStage]<cur)editingIni.maxStage=editingIni.stage;
+  editingIni.stage='N'+(cur-1); editingIni.gateStatus='borrador';
+  iniHist(editingIni,'bajó de nivel','a N'+(cur-1)); persistEditing();
+}
+function reupIni(){
+  if(!editingIni)return; syncIni(); const cur=STAGE_ORDER[editingIni.stage]||1; const mx=STAGE_ORDER[editingIni.maxStage]||cur;
+  if(cur>=mx)return;
+  editingIni.stage='N'+(cur+1); editingIni.gateStatus='borrador';
+  iniHist(editingIni,'volvió a subir','a N'+(cur+1)); persistEditing();
+}
 
 /* ============ STAGE-GATES & APROBACIONES ============ */
 let aprobadores=[];
@@ -1568,6 +1612,7 @@ function approveGate(ini,comentario){
   ini.approvals.unshift({stage:ini.stage,decision:'aprobado',por:s.usuario||'',nombre:s.nombre||'admin',fecha:new Date().toISOString(),comentario:comentario||''});
   const prev=ini.stage; const nx=nextStage(ini.stage);
   if(nx){ini.stage=nx;ensureBaseline(ini);ini.gateStatus='borrador';} else {ini.gateStatus='completada';}
+  if(!ini.maxStage||STAGE_ORDER[ini.maxStage]<STAGE_ORDER[ini.stage])ini.maxStage=ini.stage;
   ini.submittedBy='';ini.submittedAt='';
   iniHist(ini,'gate aprobado','Gate '+prev+' aprobado → '+(nx||'completada'));
   logAudit('aprobar','Gate aprobado: "'+ini.name+'" → '+(nx||'completada'));
@@ -1725,7 +1770,7 @@ function importCSV(text,mode){
     const obj={id:uid('ini'),macroId:m.id,name:iniName,owner:get('responsable'),stage:normStage(get('etapa')),
       runRate:+(get('run_rate_anual').replace(/[^0-9.-]/g,''))||0,progress:Math.min(1,Math.max(0,(+get('avance_pct')||0)/100)),
       start:get('inicio'),captureDate:get('captura'),end:get('cierre'),curve:/^s/i.test(get('curva'))?'s':'linear',
-      notes:get('notas'),descripcion:'',palanca:'',supuestos:'',enabler:/^(si|sí|true|1|x)$/i.test(get('habilitadora')),parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[{action:'importada',user:(db.meta&&db.meta.user)||'CSV',fecha:fmtD(today()),detail:'Carga masiva'}],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
+      notes:get('notas'),descripcion:'',palanca:'',supuestos:'',businessCase:null,enabler:/^(si|sí|true|1|x)$/i.test(get('habilitadora')),parentId:'',maxStage:normStage(get('etapa')),monthly:{budget:{},real:{},forecast:{}},history:[{action:'importada',user:(db.meta&&db.meta.user)||'CSV',fecha:fmtD(today()),detail:'Carga masiva'}],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
     if(obj.enabler)obj.runRate=0;
     ensureBaseline(obj);
     db.inis.push(obj);
