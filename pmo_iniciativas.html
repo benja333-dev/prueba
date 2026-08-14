@@ -156,22 +156,22 @@ body.locked{overflow:hidden}
   <div class="kpi-strip" id="hdrKpis"></div>
 </header>
 <nav id="nav">
-  <button data-tab="guia">📖 Guía</button>
-  <button data-tab="dash" class="active">📊 Dashboard</button>
-  <button data-tab="cartera">🗂️ Cartera</button>
-  <button data-tab="captura">📈 Escalón de captura</button>
-  <button data-tab="seguimiento">⏱️ Seguimiento semanal</button>
-  <button data-tab="aprob">✅ Aprobaciones<span id="aprobBadge" style="display:none;background:var(--bad);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;margin-left:6px;font-weight:700"></span></button>
-  <button data-tab="iniciativas">📋 Iniciativas</button>
-  <button data-tab="deps">🔗 Dependencias</button>
-  <button data-tab="comite">📑 Comité</button>
-  <button data-tab="config">⚙️ Estructura &amp; datos</button>
+  <button data-tab="guia">Guía</button>
+  <button data-tab="dash" class="active">Dashboard</button>
+  <button data-tab="cartera">Cartera</button>
+  <button data-tab="captura">Escalón de captura</button>
+  <button data-tab="seguimiento">Seguimiento</button>
+  <button data-tab="aprob">Aprobaciones<span id="aprobBadge" style="display:none;background:var(--bad);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;margin-left:6px;font-weight:700"></span></button>
+  <button data-tab="iniciativas">Iniciativas</button>
+  <button data-tab="deps">Dependencias</button>
+  <button data-tab="comite">Comité</button>
+  <button data-tab="config">Estructura y datos</button>
 </nav>
 <main>
   <!-- GUIA -->
   <section class="tab" id="tab-guia">
     <div class="card" style="border-top:4px solid var(--blue)">
-      <h2 style="font-size:18px">📖 Cómo funciona Altus Consulting PMO</h2>
+      <h2 style="font-size:18px">Cómo funciona Altus Consulting PMO</h2>
       <div class="hint" style="font-size:13px">Herramienta de captura de valor: organiza iniciativas de mejora, les hace seguimiento financiero y de hitos, y las gobierna con <b>stage-gates por nivel (N1–N4)</b> (aprobaciones por etapa).</div>
       <div class="grid g2" style="margin-top:8px">
         <div>
@@ -203,20 +203,20 @@ body.locked{overflow:hidden}
           <tr><td><span class="stage" style="background:#3c9b7a">N4</span> <b>Nivel 4 · Capturado</b></td><td>Hitos completados; se valida la captura del valor.</td><td>Avance real de captura.</td><td>~28% N3→N4</td></tr>
         </tbody>
       </table></div>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">Estados de una iniciativa: <span class="flag gray">✎ Borrador</span> (editable) → <span class="flag amber">⏳ En aprobación</span> (bloqueada, esperando al aprobador) → al aprobar avanza de etapa; al aprobar L4 queda <span class="flag green">✓ Completada</span>.</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">Estados de una iniciativa: <span class="flag gray">Borrador</span> (editable) → <span class="flag amber">En aprobación</span> (bloqueada, esperando al aprobador) → al aprobar avanza de etapa; al aprobar L4 queda <span class="flag green">Completada</span>.</div>
     </div>
     <div class="card">
       <h2>Las pestañas</h2>
       <div class="grid g3" style="font-size:12.5px;line-height:1.7">
-        <div><b>📊 Dashboard</b> — resumen del programa; personalizable con tus gráficos.</div>
-        <div><b>🗂️ Cartera</b> — árbol área→grupo→macro→iniciativa con montos.</div>
-        <div><b>📈 Escalón de captura</b> — proyección financiera y baseline/forecast/real.</div>
-        <div><b>⏱️ Seguimiento semanal</b> — hitos atrasados y ranking de responsables.</div>
-        <div><b>✅ Aprobaciones</b> — lo que te toca aprobar (si eres aprobador/admin).</div>
-        <div><b>📋 Iniciativas</b> — tabla filtrable de todas las iniciativas.</div>
-        <div><b>🔗 Dependencias</b> — Gantt de hitos y ruta crítica.</div>
-        <div><b>📑 Comité</b> — reporte ejecutivo imprimible / PDF.</div>
-        <div><b>⚙️ Estructura &amp; datos</b> — áreas, respaldo, carga masiva, usuarios.</div>
+        <div><b>Dashboard</b> — resumen del programa; personalizable con tus gráficos.</div>
+        <div><b>Cartera</b> — árbol área→grupo→macro→iniciativa con montos.</div>
+        <div><b>Escalón de captura</b> — proyección financiera y baseline/forecast/real.</div>
+        <div><b>Seguimiento semanal</b> — hitos atrasados y ranking de responsables.</div>
+        <div><b>Aprobaciones</b> — lo que te toca aprobar (si eres aprobador/admin).</div>
+        <div><b>Iniciativas</b> — tabla filtrable de todas las iniciativas.</div>
+        <div><b>Dependencias</b> — Gantt de hitos y ruta crítica.</div>
+        <div><b>Comité</b> — reporte ejecutivo imprimible / PDF.</div>
+        <div><b>Estructura &amp; datos</b> — áreas, respaldo, carga masiva, usuarios.</div>
       </div>
     </div>
   </section>
@@ -228,8 +228,8 @@ body.locked{overflow:hidden}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div style="font-size:14px;font-weight:700;color:var(--navy)">Mi panel <span style="font-size:11px;color:var(--muted);font-weight:400">— personalizable: agrega, mueve, agranda o quita gráficos</span></div>
       <div style="display:flex;gap:8px">
-        <button class="btn sm" onclick="openWAdd()">➕ Agregar gráfico</button>
-        <button class="btn sm gray" onclick="resetDash()">↺ Panel por defecto</button>
+        <button class="btn sm" onclick="openWAdd()">Agregar gráfico</button>
+        <button class="btn sm gray" onclick="resetDash()">Panel por defecto</button>
       </div>
     </div>
     <div id="dashWidgets" style="display:flex;flex-wrap:wrap;gap:16px;align-items:stretch"></div>
@@ -310,7 +310,7 @@ body.locked{overflow:hidden}
   <section class="tab" id="tab-seguimiento">
     <div class="grid t4" id="segStats" style="margin-bottom:16px"></div>
     <div class="card">
-      <h2>📅 Reporte semanal de hitos <span class="tools"><span class="tag" id="weekStamp"></span></span></h2>
+      <h2>Reporte semanal de hitos <span class="tools"><span class="tag" id="weekStamp"></span></span></h2>
       <div class="hint">Qué está atrasado, quién lo tenía, cuándo vencía, y qué viene. Ordenado por criticidad.</div>
       <div class="toolbar">
         <label style="font-size:12px;font-weight:600">Filtro:</label>
@@ -322,7 +322,7 @@ body.locked{overflow:hidden}
         </select>
         <label style="font-size:12px;font-weight:600">Responsable:</label>
         <select id="segOwner" onchange="renderSeguimiento()"><option value="">Todos</option></select>
-        <button class="btn sm ghost" onclick="copyWeekly()">📋 Copiar resumen</button>
+        <button class="btn sm ghost" onclick="copyWeekly()">Copiar resumen</button>
       </div>
       <div class="scroll"><table id="segTable"></table></div>
     </div>
@@ -359,12 +359,12 @@ body.locked{overflow:hidden}
   <section class="tab" id="tab-aprob">
     <div class="grid t4" id="aprobStats" style="margin-bottom:16px"></div>
     <div class="card">
-      <h2>✅ Iniciativas que debo aprobar <span class="tag" id="aprobWho"></span></h2>
+      <h2>Iniciativas que debo aprobar <span class="tag" id="aprobWho"></span></h2>
       <div class="hint">Como aprobador (o admin) revisas cada <b>stage-gate</b> pendiente de tus áreas/sub-áreas. Aprobar hace avanzar la iniciativa a la siguiente etapa; rechazar la devuelve a borrador. Click en la fila para ver el detalle completo.</div>
       <div class="scroll"><table id="aprobTable"></table></div>
     </div>
     <div class="card">
-      <h2>🗺️ Mapa de aprobadores <span class="tag">por área / sub-área</span></h2>
+      <h2>Mapa de aprobadores <span class="tag">por área / sub-área</span></h2>
       <div class="hint">Quién aprueba cada sub-área (fuente: Google Sheet «aprobadores»).</div>
       <div class="scroll"><table id="aprobMap"></table></div>
     </div>
@@ -374,7 +374,7 @@ body.locked{overflow:hidden}
   <section class="tab" id="tab-deps">
     <div class="grid t4" id="depsStats" style="margin-bottom:16px"></div>
     <div class="card">
-      <h2>🔗 Dependencias &amp; ruta crítica
+      <h2>Dependencias &amp; ruta crítica
         <span class="tools">
           <label style="font-size:12px;font-weight:600">Área:</label>
           <select id="depsArea" onchange="renderDeps()" style="padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px"><option value="">Todas</option></select>
@@ -385,15 +385,15 @@ body.locked{overflow:hidden}
       <div class="legend"><span><i style="background:#00b8a2"></i>Cerrado</span><span><i style="background:#e5546c"></i>Atrasado</span><span><i style="background:#f5a623"></i>Por vencer</span><span><i style="background:#8a99a8"></i>Abierto</span><span><i style="background:#2251ff;border-radius:50%"></i>Ruta crítica</span></div>
     </div>
     <div class="grid g2">
-      <div class="card"><h2>🧭 Ruta crítica (secuencia)</h2><div class="hint">Cadena de hitos dependientes que marca el fin. Vigílala de cerca.</div><div id="critPath"></div></div>
-      <div class="card"><h2>⚠️ Conflictos de dependencia</h2><div class="hint">Hitos que vencen antes o el mismo día que su predecesor: imposible de cumplir.</div><div id="depConflicts"></div></div>
+      <div class="card"><h2>Ruta crítica (secuencia)</h2><div class="hint">Cadena de hitos dependientes que marca el fin. Vigílala de cerca.</div><div id="critPath"></div></div>
+      <div class="card"><h2>Conflictos de dependencia</h2><div class="hint">Hitos que vencen antes o el mismo día que su predecesor: imposible de cumplir.</div><div id="depConflicts"></div></div>
     </div>
   </section>
 
   <!-- COMITE -->
   <section class="tab" id="tab-comite">
     <div class="toolbar" style="justify-content:flex-end" id="comiteTools">
-      <button class="btn ghost" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+      <button class="btn ghost" onclick="window.print()">Imprimir / Guardar PDF</button>
     </div>
     <div id="comiteReport"></div>
   </section>
@@ -418,41 +418,41 @@ body.locked{overflow:hidden}
     </div>
     <div class="grid g2">
       <div class="card">
-        <h2>💾 Respaldo completo (JSON)</h2>
+        <h2>Respaldo completo (JSON)</h2>
         <div class="hint">Copia fiel de <b>todo</b> (estructura + iniciativas + hitos). Úsalo como backup maestro: nunca pierdes nada. Se guarda solo en este navegador (localStorage); exporta seguido.</div>
         <div class="row">
-          <button class="btn ghost" onclick="exportJSON()">⬇️ Exportar JSON</button>
-          <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆️ Importar JSON</button>
+          <button class="btn ghost" onclick="exportJSON()">Exportar JSON</button>
+          <button class="btn ghost" onclick="document.getElementById('importFile').click()">Importar JSON</button>
           <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importJSON(event)">
-          <button class="btn gray" onclick="loadSeed(true)">🔄 Datos de ejemplo</button>
-          <button class="btn danger" onclick="wipe()">🗑️ Borrar todo</button>
+          <button class="btn gray" onclick="loadSeed(true)">Datos de ejemplo</button>
+          <button class="btn danger" onclick="wipe()">Borrar todo</button>
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:8px" id="lastSaved"></div>
       </div>
       <div class="card">
-        <h2>☁️ Datos compartidos <span class="tag" id="syncBadge">nube</span></h2>
+        <h2>Datos compartidos <span class="tag" id="syncBadge">nube</span></h2>
         <div class="hint">Estás conectado al servidor seguro. Tus cambios se guardan automáticamente y los comparte todo el equipo autorizado.</div>
         <div id="sessionInfo" style="font-size:12.5px;margin-bottom:12px;color:var(--muted)"></div>
         <div class="row">
-          <button class="btn" onclick="cloudSave()">⬆️ Guardar ahora</button>
-          <button class="btn ghost" onclick="cloudLoad()">⬇️ Recargar de la nube</button>
+          <button class="btn" onclick="cloudSave()">Guardar ahora</button>
+          <button class="btn ghost" onclick="cloudLoad()">Recargar de la nube</button>
           <button class="btn gray" onclick="logout()">🔒 Cerrar sesión</button>
         </div>
         <div style="font-size:11px;margin-top:8px" id="syncStatus"></div>
       </div>
     </div>
     <div class="card">
-      <h2>📥 Carga masiva de iniciativas (CSV / Excel)</h2>
+      <h2>Carga masiva de iniciativas (CSV / Excel)</h2>
       <div class="hint">Sube un lote de iniciativas de una vez. El CSV crea automáticamente las áreas, grupos y macroiniciativas que no existan (por nombre). Descarga la plantilla para ver el formato exacto — se abre en Excel.</div>
       <div class="row" style="margin-bottom:12px">
-        <button class="btn ghost" onclick="downloadTemplate(false)">📄 Plantilla vacía (ejemplo)</button>
-        <button class="btn ghost" onclick="downloadTemplate(true)">📄 Plantilla con mis datos actuales</button>
-        <button class="btn ghost" onclick="exportCSV()">⬇️ Exportar iniciativas a CSV</button>
+        <button class="btn ghost" onclick="downloadTemplate(false)">Plantilla vacía (ejemplo)</button>
+        <button class="btn ghost" onclick="downloadTemplate(true)">Plantilla con mis datos actuales</button>
+        <button class="btn ghost" onclick="exportCSV()">Exportar iniciativas a CSV</button>
       </div>
       <div class="row" style="align-items:flex-end">
         <div class="field" style="flex:0 0 auto;margin:0"><label>Al importar</label>
           <select id="csvMode"><option value="append">Agregar a lo existente</option><option value="replace">Reemplazar todo</option></select></div>
-        <button class="btn" onclick="document.getElementById('csvFile').click()">📥 Subir CSV</button>
+        <button class="btn" onclick="document.getElementById('csvFile').click()">Subir CSV</button>
         <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
       </div>
       <details class="acc" style="margin-top:14px"><summary><span>ℹ️ Columnas del CSV</span></summary><div class="body" style="font-size:12px;line-height:1.7">
@@ -472,7 +472,7 @@ body.locked{overflow:hidden}
       <div class="scroll" style="max-height:320px;overflow:auto"><table id="auditTable"></table></div>
     </div>
     <div class="card" id="adminCard" style="display:none">
-      <h2>🔐 Gestión de usuarios (admin) <span class="tools"><span class="tag">Data Table en Railway</span><button class="btn sm ghost" onclick="adminListUsers()">↻ Refrescar</button></span></h2>
+      <h2>Gestión de usuarios (admin) <span class="tools"><span class="tag">Data Table en Railway</span><button class="btn sm ghost" onclick="adminListUsers()">↻ Refrescar</button></span></h2>
       <div class="hint">Los usuarios viven en la Data Table <code>pmo_usuarios</code> de tu n8n en Railway (ya no en Google Drive). Crea, edita o desactiva usuarios acá; la contraseña se guarda solo como hash.</div>
       <div class="row" style="align-items:flex-end;background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px">
         <div class="field" style="flex:1;margin:0"><label>Usuario (email) *</label><input id="au_user" placeholder="persona@altus.com"></div>
@@ -512,7 +512,7 @@ const STAGES=[
 ];
 const GATES=['borrador','pendiente','completada'];
 const stageOf=id=>STAGES.find(s=>s.id===id)||STAGES[0];
-function gatePill(gs){gs=gs||'borrador';const map={borrador:['gray','✎ Borrador'],pendiente:['amber','⏳ En aprobación'],completada:['green','✓ Completada']};const x=map[gs]||map.borrador;return `<span class="flag ${x[0]}">${x[1]}</span>`;}
+function gatePill(gs){gs=gs||'borrador';const map={borrador:['gray','Borrador'],pendiente:['amber','En aprobación'],completada:['green','Completada']};const x=map[gs]||map.borrador;return `<span class="flag ${x[0]}">${x[1]}</span>`;}
 const AREA_COLORS=['#2251ff','#00a9f4','#00b8a2','#f5a623','#7b61ff','#e5546c','#0a7d5a','#9c27b0'];
 let db=null;
 const uid=p=>p+Math.random().toString(36).slice(2,8);
@@ -780,18 +780,18 @@ function renderHeaderKpis(){
     <div class="kpi"><div class="lbl">Iniciativas</div><div class="val">${db.inis.length}</div></div>
     <div class="kpi"><div class="lbl">Hitos atrasados</div><div class="val ${late?'bad':'good'}">${late}</div></div>`;
   const s=currentSession();
-  if(s)el.innerHTML+=`<div class="session-chip">👤 ${s.nombre||s.usuario} <a href="#" onclick="logout();return false">Salir</a></div>`;
+  if(s)el.innerHTML+=`<div class="session-chip">${s.nombre||s.usuario} <a href="#" onclick="logout();return false">Salir</a></div>`;
 }
 
 /* ============ DASHBOARD ============ */
 function renderDash(){
   const dw=document.getElementById('dashWelcome');
-  if(dw){const s=currentSession();const hr=new Date().getHours();const saludo=hr<12?'Buenos días':hr<19?'Buenas tardes':'Buenas noches';
-    dw.innerHTML=`<div style="margin-bottom:16px"><div style="font-size:22px;font-weight:800;color:var(--navy)">${saludo}, ${s?(s.nombre||s.usuario):'—'} 👋</div><div style="font-size:13px;color:var(--muted)">${db.meta.name||'Programa'} · ${new Date().toLocaleDateString('es',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div></div>`;}
+  if(dw){const s=currentSession();
+    dw.innerHTML=`<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)"><div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600">${db.meta.name||'Programa'}</div><div style="font-size:21px;font-weight:700;color:var(--navy);margin-top:3px">${s?(s.nombre||s.usuario):''}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${new Date().toLocaleDateString('es',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div></div>`;}
   const da=document.getElementById('dashAprob');
   if(da){const mine=myPending();
     da.innerHTML=mine.length?`<div class="card" style="background:linear-gradient(90deg,#fff7e6,#fff);border-left:4px solid var(--warn);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-      <div><b style="font-size:15px">⏳ Tienes ${mine.length} iniciativa${mine.length>1?'s':''} por aprobar</b><div style="font-size:12px;color:var(--muted)">${mine.slice(0,3).map(i=>i.name).join(' · ')}${mine.length>3?' …':''}</div></div>
+      <div><b style="font-size:15px">Tienes ${mine.length} iniciativa${mine.length>1?'s':''} por aprobar</b><div style="font-size:12px;color:var(--muted)">${mine.slice(0,3).map(i=>i.name).join(' · ')}${mine.length>3?' …':''}</div></div>
       <button class="btn" onclick="document.querySelector('[data-tab=aprob]').click()">Ir a Aprobaciones →</button></div>`:'';}
   renderDashWidgets();
 }
@@ -802,32 +802,38 @@ function loadDash(){try{const d=JSON.parse(localStorage.getItem(dashKey())||'nul
 function saveDashCfg(w){localStorage.setItem(dashKey(),JSON.stringify(w));}
 function defaultDash(){return [
   {id:uid('w'),type:'kpis',size:'L',title:'Indicadores clave'},
-  {id:uid('w'),type:'funnel',size:'M',title:'Pipeline por etapa (N1–N4)'},
-  {id:uid('w'),type:'donut',dim:'area',metric:'runRate',size:'M',title:'Valor por área'},
-  {id:uid('w'),type:'monthly',size:'M',title:'Presupuesto vs Real vs Forecast (programa)'},
-  {id:uid('w'),type:'gatedonut',size:'M',title:'Estado de gates'},
-  {id:uid('w'),type:'risks',size:'M',title:'Hitos en riesgo'},
-  {id:uid('w'),type:'bars',dim:'grupo',metric:'runRate',size:'L',title:'Valor por sub-área'}
+  {id:uid('w'),type:'stackbars',dim:'grupo',metric:'runRate',size:'S',title:'Impacto por sub-área (por nivel)'},
+  {id:uid('w'),type:'donut',dim:'area',metric:'runRate',size:'S',title:'Valor por área'},
+  {id:uid('w'),type:'funnel',size:'S',title:'Pipeline por nivel'},
+  {id:uid('w'),type:'monthly',size:'S',title:'Presupuesto / Real / Forecast'},
+  {id:uid('w'),type:'gatedonut',size:'S',title:'Estado de gates'},
+  {id:uid('w'),type:'risks',size:'S',title:'Hitos en riesgo'}
 ];}
 function resetDash(){if(confirm('¿Volver al panel por defecto? Se pierde tu configuración.')){localStorage.removeItem(dashKey());renderDashWidgets();}}
-function openWAdd(){
-  document.getElementById('wAddModal').innerHTML=`<h3>➕ Agregar gráfico</h3><div class="msub">Elige el tipo; para dona/barras/tabla, la dimensión y la métrica.</div>
-    <div class="field"><label>Tipo de gráfico</label><select id="wa_type" onchange="waTypeChange()">
-      <option value="donut">🍩 Dona (proporción)</option><option value="bars">📊 Barras (ranking)</option><option value="table">🔢 Tabla</option>
-      <option value="funnel">🫙 Embudo por etapa</option><option value="gatedonut">🚦 Estado de gates</option>
-      <option value="monthly">📅 Presupuesto/Real/Forecast (programa)</option><option value="kpis">🎯 Indicadores clave</option>
-      <option value="risks">🚩 Hitos en riesgo</option><option value="macros">📦 Salud de macroiniciativas</option></select></div>
+const NEEDS_DIM=['donut','bars','table','stackbars'];
+function openWAdd(editId){
+  const editing = editId ? loadDash().find(w=>w.id===editId) : null;
+  const cur = editing||{type:'stackbars',dim:'grupo',metric:'runRate',size:'S',title:''};
+  const opt=(v,l)=>`<option value="${v}" ${cur.type===v?'selected':''}>${l}</option>`;
+  document.getElementById('wAddModal').innerHTML=`<h3>${editing?'Configurar gráfico':'Agregar gráfico'}</h3><div class="msub">Elige el tipo; para barras/dona/apiladas/tabla, define la dimensión y la métrica.</div>
+    <div class="field"><label>Tipo</label><select id="wa_type" onchange="waTypeChange()">
+      ${opt('stackbars','Barras apiladas por nivel')}${opt('bars','Barras (ranking)')}${opt('donut','Dona (proporción)')}${opt('table','Tabla')}
+      ${opt('funnel','Embudo por nivel')}${opt('gatedonut','Estado de gates')}${opt('monthly','Presupuesto/Real/Forecast')}${opt('kpis','Indicadores clave')}${opt('risks','Hitos en riesgo')}${opt('macros','Salud de macroiniciativas')}</select></div>
     <div class="row" id="wa_dimmetric">
-      <div class="field"><label>Dimensión</label><select id="wa_dim">${Object.entries(DIMS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
-      <div class="field"><label>Métrica</label><select id="wa_metric">${Object.entries(METRICS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+      <div class="field"><label>Dimensión</label><select id="wa_dim">${Object.entries(DIMS).map(([k,v])=>`<option value="${k}" ${cur.dim===k?'selected':''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label>Métrica</label><select id="wa_metric">${Object.entries(METRICS).map(([k,v])=>`<option value="${k}" ${cur.metric===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
-    <div class="row"><div class="field"><label>Título (opcional)</label><input id="wa_title" placeholder="(automático)"></div>
-    <div class="field" style="flex:0 0 130px"><label>Tamaño</label><select id="wa_size"><option value="S">Chico</option><option value="M" selected>Mediano</option><option value="L">Grande</option></select></div></div>
-    <div class="modal-foot"><div></div><div style="display:flex;gap:8px"><button class="btn gray" onclick="document.getElementById('wAddOverlay').classList.remove('on')">Cancelar</button><button class="btn" onclick="addWidget()">Agregar</button></div></div>`;
+    <div class="row"><div class="field"><label>Título (opcional)</label><input id="wa_title" value="${(cur.title||'').replace(/"/g,'&quot;')}" placeholder="(automático)"></div>
+    <div class="field" style="flex:0 0 130px"><label>Tamaño</label><select id="wa_size">${['S','M','L'].map(s=>`<option value="${s}" ${cur.size===s?'selected':''}>${({S:'Chico',M:'Mediano',L:'Grande'})[s]}</option>`).join('')}</select></div></div>
+    <div class="modal-foot"><div>${editing?`<button class="btn danger" onclick="document.getElementById('wAddOverlay').classList.remove('on');wRemove('${editId}')">Quitar</button>`:''}</div><div style="display:flex;gap:8px"><button class="btn gray" onclick="document.getElementById('wAddOverlay').classList.remove('on')">Cancelar</button><button class="btn" onclick="addWidget('${editId||''}')">${editing?'Guardar':'Agregar'}</button></div></div>`;
   document.getElementById('wAddOverlay').classList.add('on'); waTypeChange();
 }
-function waTypeChange(){const t=document.getElementById('wa_type').value;document.getElementById('wa_dimmetric').style.display=['donut','bars','table'].includes(t)?'':'none';}
-function addWidget(){const t=document.getElementById('wa_type').value;const w=loadDash();const nw={id:uid('w'),type:t,size:document.getElementById('wa_size').value,title:document.getElementById('wa_title').value.trim()};if(['donut','bars','table'].includes(t)){nw.dim=document.getElementById('wa_dim').value;nw.metric=document.getElementById('wa_metric').value;}w.push(nw);saveDashCfg(w);document.getElementById('wAddOverlay').classList.remove('on');renderDashWidgets();}
+function waTypeChange(){const t=document.getElementById('wa_type').value;document.getElementById('wa_dimmetric').style.display=NEEDS_DIM.includes(t)?'':'none';}
+function addWidget(editId){const t=document.getElementById('wa_type').value;const w=loadDash();const needs=NEEDS_DIM.includes(t);
+  const dim=document.getElementById('wa_dim').value, metric=document.getElementById('wa_metric').value, size=document.getElementById('wa_size').value, title=document.getElementById('wa_title').value.trim();
+  if(editId){const x=w.find(a=>a.id===editId);if(x){x.type=t;x.size=size;x.title=title;if(needs){x.dim=dim;x.metric=metric;}else{delete x.dim;delete x.metric;}}}
+  else{const nw={id:uid('w'),type:t,size,title};if(needs){nw.dim=dim;nw.metric=metric;}w.push(nw);}
+  saveDashCfg(w);document.getElementById('wAddOverlay').classList.remove('on');renderDashWidgets();}
 function wResize(id){const w=loadDash();const x=w.find(a=>a.id===id);if(!x)return;x.size={S:'M',M:'L',L:'S'}[x.size]||'M';saveDashCfg(w);renderDashWidgets();}
 function wMove(id,dir){const w=loadDash();const i=w.findIndex(a=>a.id===id);if(i<0)return;const j=i+dir;if(j<0||j>=w.length)return;[w[i],w[j]]=[w[j],w[i]];saveDashCfg(w);renderDashWidgets();}
 function wRemove(id){const w=loadDash().filter(a=>a.id!==id);saveDashCfg(w);renderDashWidgets();}
@@ -845,20 +851,26 @@ function groupsBy(dim){
   return arr.filter(g=>g.inis.length);
 }
 function metricOf(inis,metric){return metric==='count'?inis.length:sumMetric(inis,metric);}
+let wDragId=null;
+function wDragStart(ev,id){wDragId=id;ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',id);}catch(e){}}
+function wDragOver(ev,id){ev.preventDefault();ev.dataTransfer.dropEffect='move';const c=ev.currentTarget;document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='');if(wDragId&&wDragId!==id)c.style.outline='2px dashed var(--blue)';}
+function wDrop(ev,id){ev.preventDefault();const w=loadDash();const from=w.findIndex(a=>a.id===wDragId);const to=w.findIndex(a=>a.id===id);if(from<0||to<0||from===to){wDragId=null;renderDashWidgets();return;}const [m]=w.splice(from,1);w.splice(to,0,m);saveDashCfg(w);wDragId=null;renderDashWidgets();}
+function wSize(id){const w=loadDash();const x=w.find(a=>a.id===id);if(!x)return;x.size={S:'M',M:'L',L:'S'}[x.size]||'S';saveDashCfg(w);renderDashWidgets();}
 function renderDashWidgets(){
   const box=document.getElementById('dashWidgets'); if(!box)return;
   const widgets=loadDash();
   box.innerHTML=widgets.map(w=>{
     const basis=w.size==='S'?'calc(33.33% - 11px)':w.size==='L'?'100%':'calc(50% - 8px)';
-    return `<div class="card" style="flex:1 1 ${basis};min-width:270px;margin:0;display:flex;flex-direction:column">
-      <h2 style="font-size:13px">${w.title||wTitle(w)}
-        <span class="tools">
-          <button class="btn sm gray" title="Tamaño" onclick="wResize('${w.id}')">${w.size}</button>
-          <button class="btn sm gray" title="Mover ←" onclick="wMove('${w.id}',-1)">←</button>
-          <button class="btn sm gray" title="Mover →" onclick="wMove('${w.id}',1)">→</button>
-          <button class="btn sm danger" title="Quitar" onclick="wRemove('${w.id}')">✕</button>
-        </span></h2>
-      <div id="wb_${w.id}" style="flex:1"></div></div>`;
+    const editable=['donut','bars','table','stackbars'].includes(w.type);
+    return `<div class="card" draggable="true" ondragstart="wDragStart(event,'${w.id}')" ondragover="wDragOver(event,'${w.id}')" ondrop="wDrop(event,'${w.id}')" ondragend="document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='')" style="flex:1 1 ${basis};min-width:250px;margin:0;display:flex;flex-direction:column;cursor:grab">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px">
+        <div style="font-size:12.5px;font-weight:700;color:var(--navy);line-height:1.25">${w.title||wTitle(w)}${editable?` <span style="font-size:10px;color:var(--blue);cursor:pointer;font-weight:600" onclick="openWAdd('${w.id}')">configurar</span>`:''}</div>
+        <div style="display:flex;gap:4px;flex:none">
+          <span title="Tamaño" onclick="wSize('${w.id}')" style="cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px">${w.size}</span>
+          <span title="Quitar" onclick="wRemove('${w.id}')" style="cursor:pointer;font-size:11px;color:var(--bad);border:1px solid var(--line);border-radius:4px;padding:1px 5px">✕</span>
+        </div>
+      </div>
+      <div id="wb_${w.id}" style="flex:1" onclick="${editable?`openWAdd('${w.id}')`:''}">${editable?'':''}</div></div>`;
   }).join('');
   widgets.forEach(w=>{try{renderWidget(w);}catch(e){const el=document.getElementById('wb_'+w.id);if(el)el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px">—</div>';}});
 }
@@ -870,7 +882,8 @@ function renderWidget(w){
   if(w.type==='risks')return renderRiskList(el);
   if(w.type==='macros')return renderMacroHealth(el);
   if(w.type==='gatedonut')return widgetDonutGroups(el,groupsBy('gate'),'count');
-  const groups=groupsBy(w.dim||'area'); const metric=w.metric||'runRate';
+  const groups=groupsBy(w.dim||'grupo'); const metric=w.metric||'runRate';
+  if(w.type==='stackbars')return widgetStackBars(el,groups,metric);
   if(w.type==='donut')return widgetDonutGroups(el,groups,metric);
   if(w.type==='bars')return widgetBars(el,groups,metric);
   if(w.type==='table')return widgetTable(el,groups,metric);
@@ -899,6 +912,25 @@ function widgetBars(el,data0,metric){
   const data=data0.map(g=>({name:g.label,color:g.color,v:metricOf(g.inis,metric)})).sort((a,b)=>b.v-a.v).slice(0,12);
   const max=Math.max(1,...data.map(d=>d.v));
   el.innerHTML='<table><tbody>'+data.map(d=>`<tr><td style="width:150px;font-size:11.5px">${d.name}</td><td><div class="minibar"><span style="width:${d.v/max*100}%;background:${d.color}"></span></div></td><td class="num" style="width:80px;font-size:11px">${metric==='count'?d.v:money(d.v)}</td></tr>`).join('')+'</tbody></table>';
+}
+function widgetStackBars(el,data0,metric){
+  // barras verticales por grupo (ej. sub-área), apiladas y coloreadas por nivel N1–N4
+  const data=data0.map(g=>({name:g.label, segs:STAGES.map(s=>({stage:s,v:metricOf(g.inis.filter(i=>i.stage===s.id),metric)})), tot:metricOf(g.inis,metric)}))
+    .filter(d=>d.tot>0).sort((a,b)=>b.tot-a.tot).slice(0,12);
+  if(!data.length){el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px">Sin datos</div>';return;}
+  const max=Math.max(1,...data.map(d=>d.tot));
+  const W=Math.max(300,data.length*52+40), H=210, padB=42, padT=8, padL=40, ih=H-padB-padT, bw=Math.min(40,(W-padL-10)/data.length-8);
+  const gap=((W-padL-10)-data.length*bw)/(data.length+1);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">`;
+  for(let k=0;k<=3;k++){const y=padT+ih*(k/3);svg+=`<line x1="${padL}" y1="${y}" x2="${W-6}" y2="${y}" stroke="#eef2f6"/><text x="${padL-5}" y="${y+3}" text-anchor="end" font-size="8.5" fill="#9fb3c0">${money(max*(1-k/3))}</text>`;}
+  data.forEach((d,i)=>{const x=padL+gap+i*(bw+gap); let acc=0;
+    d.segs.forEach(sg=>{ if(sg.v<=0)return; const h=sg.v/max*ih; const y=padT+ih-acc-h; svg+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${sg.stage.c}"><title>${d.name} · ${sg.stage.id} ${sg.stage.name}: ${money(sg.v)}</title></rect>`; acc+=h; });
+    const nm=d.name.length>10?d.name.slice(0,9)+'…':d.name;
+    svg+=`<text x="${x+bw/2}" y="${H-padB+14}" text-anchor="end" font-size="8.5" fill="#5b6a75" transform="rotate(-35 ${x+bw/2} ${H-padB+14})">${nm}</text>`;
+  });
+  svg+='</svg>';
+  const leg='<div class="legend" style="margin-top:2px">'+STAGES.map(s=>`<span><i style="background:${s.c}"></i>${s.id}</span>`).join('')+'</div>';
+  el.innerHTML=svg+leg;
 }
 function widgetTable(el,data0,metric){
   const data=data0.map(g=>({name:g.label,v:metricOf(g.inis,metric),n:g.inis.length})).sort((a,b)=>b.v-a.v);
@@ -1184,7 +1216,7 @@ function renderCartera(){
             const openM=expanded['m'+m.id];
             const tgtPct=m.target?sumMetric(minis,'runRate')/m.target:0;
             h+=`<div class="tree-row tw lvl-macro" style="padding-left:38px" onclick="toggleNode('m${m.id}')">
-              <div class="nm"><span class="caret ${openM?'open':''}">▶</span>📦 ${m.name} <span class="tag hidem">meta ${money(m.target)} · ${pct(tgtPct)}</span></div>
+              <div class="nm"><span class="caret ${openM?'open':''}">▶</span>${m.name} <span class="tag hidem">meta ${money(m.target)} · ${pct(tgtPct)}</span></div>
               <div class="num">${money(mVal)}</div><div class="num c-owner">${minis.length}</div>
               <div class="num">${pct(mProg)}</div><div class="num"></div><div class="num"></div></div>`;
             if(openM){
@@ -1369,7 +1401,7 @@ function renderIniModal(){
   const parentOpts='<option value="">— Ninguna (iniciativa madre) —</option>'+db.inis.filter(x=>x.id!==e.id&&!desc.includes(x.id)).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${x.id===e.parentId?'selected':''}>${x.name}</option>`).join('');
   const kids=iniChildren(e.id);
   const parentIni=e.parentId?db.inis.find(x=>x.id===e.parentId):null;
-  const gb=e.gateStatus==='pendiente'?`<span class="flag amber">⏳ En aprobación</span>`:e.gateStatus==='completada'?`<span class="flag green">✓ Completada</span>`:`<span class="flag gray">✎ Borrador</span>`;
+  const gb=e.gateStatus==='pendiente'?`<span class="flag amber">En aprobación</span>`:e.gateStatus==='completada'?`<span class="flag green">Completada</span>`:`<span class="flag gray">Borrador</span>`;
   // stepper
   const stepper=`<div style="display:flex;align-items:center;margin:2px 0 14px">`+STAGES.map((s,i)=>{const n=i+1;const state=n<cur?'done':n===cur?'cur':'future';const bg=state==='done'?'#00b8a2':state==='cur'?'#2251ff':'#e7edf2';const col=state==='future'?'#8a99a8':'#fff';
     return `<div style="display:flex;align-items:center;${i<STAGES.length-1?'flex:1':''}"><div style="width:26px;height:26px;border-radius:50%;background:${bg};color:${col};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex:none">${s.id}</div><div style="font-size:10px;margin-left:5px;color:${state==='cur'?'#051c2c':'#8a99a8'};font-weight:${state==='cur'?700:400};white-space:nowrap">${s.name}</div>${i<STAGES.length-1?`<div style="flex:1;height:2px;background:${n<cur?'#00b8a2':'#e7edf2'};margin:0 8px"></div>`:''}</div>`;}).join('')+`</div>`;
@@ -1395,8 +1427,8 @@ function renderIniModal(){
   const secL2=lock(2)?lockedBox('N2 · Caso de negocio','Se completa al aprobar el gate N1.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N2 · Caso de negocio <span style="font-weight:400;color:var(--muted)">— ${STAGES[1].desc}</span></div>
     <div class="field"><label>Palanca / categoría de valor *</label><input id="f_palanca" value="${e.palanca||''}" ${dis} placeholder="Ej: Clean-sheet, renegociación, pricing…"></div>
     <div class="field"><label>Supuestos del caso (baseline) *</label><textarea id="f_supuestos" ${dis}>${e.supuestos||''}</textarea></div>
-    <div class="field"><label>📎 Documento del caso de negocio * (obligatorio para enviar a aprobación)</label>
-      ${bc?`<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;background:#f6f8fa;border:1px solid var(--line);border-radius:6px;padding:8px 10px"><span>📄 <b>${bc.name}</b> <span style="color:var(--muted)">(${(bc.size/1024).toFixed(0)} KB)</span></span><a href="${bc.data}" download="${bc.name}" style="color:var(--blue);font-weight:600">Descargar</a>${dis?'':`<span style="cursor:pointer;color:var(--bad)" onclick="removeBC()">✕ quitar</span>`}</div>`
+    <div class="field"><label>Documento del caso de negocio * (obligatorio para enviar a aprobación)</label>
+      ${bc?`<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;background:#f6f8fa;border:1px solid var(--line);border-radius:6px;padding:8px 10px"><span><b>${bc.name}</b> <span style="color:var(--muted)">(${(bc.size/1024).toFixed(0)} KB)</span></span><a href="${bc.data}" download="${bc.name}" style="color:var(--blue);font-weight:600">Descargar</a>${dis?'':`<span style="cursor:pointer;color:var(--bad)" onclick="removeBC()">✕ quitar</span>`}</div>`
       :`<input type="file" id="f_bc" ${dis} onchange="attachBC(this)" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg" style="font-size:12px">`}
       <div style="font-size:10.5px;color:var(--muted);margin-top:3px">Máx. 2 MB. Se guarda con la iniciativa en la nube.</div></div>
     <div style="font-size:11px;color:var(--muted)">Al aprobar N2 se <b>congela el baseline</b> (valor objetivo comprometido).</div></div>`;
@@ -1417,7 +1449,7 @@ function renderIniModal(){
     footer=`<div style="flex:1;font-size:12px;color:var(--warn)"><b>En aprobación</b> · aprobador: ${ap?ap.nombre:'(sin asignar)'} · enviada por ${e.submittedBy||'—'} ${e.submittedAt||''}</div>
       <div style="display:flex;gap:8px">${isAdmin()?`<button class="btn gray" onclick="cancelSubmit()">Cancelar envío</button>`:''}${canA?`<button class="btn danger" onclick="rejectFromModal()">Rechazar</button><button class="btn" onclick="approveFromModal()">✓ Aprobar ${e.stage}${nextStage(e.stage)?'→'+nextStage(e.stage):' · cierre'}</button>`:`<button class="btn gray" onclick="closeIni()">Cerrar</button>`}</div>`;
   } else if(e.gateStatus==='completada'){
-    footer=`<div style="flex:1;font-size:12px;color:var(--good)"><b>✓ Completada</b> — L4 aprobado. Valor capturado.</div><div><button class="btn gray" onclick="closeIni()">Cerrar</button></div>`;
+    footer=`<div style="flex:1;font-size:12px;color:var(--good)"><b>Completada</b> — L4 aprobado. Valor capturado.</div><div><button class="btn gray" onclick="closeIni()">Cerrar</button></div>`;
   } else {
     const nx=nextStage(e.stage);
     footer=`<div>${exists?`<button class="btn danger" onclick="deleteIni()">Eliminar</button>`:''}</div>
@@ -1426,7 +1458,7 @@ function renderIniModal(){
   // historial de aprobaciones
   const hist=(e.approvals&&e.approvals.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Historial de aprobaciones</div>${e.approvals.map(a=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><span class="flag ${a.decision==='aprobado'?'green':'red'}">${a.decision}</span> ${a.stage} · ${a.nombre||a.por||''} · ${new Date(a.fecha).toLocaleString()} ${a.comentario?`<span style="color:var(--muted)">— ${a.comentario}</span>`:''}</div>`).join('')}</div>`:'';
   document.getElementById('iniModal').innerHTML=`
-    <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span> ${e.enabler?'<span class="flag gray">🧩 Habilitadora</span>':''}</h3>
+    <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span> ${e.enabler?'<span class="flag gray">Habilitadora</span>':''}</h3>
     <div class="msub">Ciclo gobernado por stage-gates. Solo completas los campos de la etapa actual; al aprobarse el gate, avanza a la siguiente.${parentIni?` · <b>Hija de:</b> <a href="#" onclick="openIniModal('${parentIni.id}');return false" style="color:var(--blue)">${parentIni.name}</a>`:''}</div>
     ${stepper}
     <div class="card" style="background:#f6f9fb;margin:0 0 12px"><div class="row" style="text-align:center">
@@ -1435,12 +1467,12 @@ function renderIniModal(){
       <div style="flex:1"><div class="bignum" style="color:var(--good)">${money(d.captured)}</div><small style="color:var(--muted)">capturado</small></div>
       <div style="flex:1"><div class="bignum" style="color:var(--cyan)">${money(d.inYear)}</div><small style="color:var(--muted)">en el año</small></div>
     </div></div>
-    ${cur>=2?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:2px">📅 Presupuesto · Real · Forecast (mensual, 2026–2028)</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">El presupuesto se reparte automáticamente (impacto anual ÷ 12) desde el inicio; edita meses para ramp-up. El Real se carga a mano; el Forecast se actualiza según el Real.</div><div id="monthlyBox"></div></div>`:''}
+    ${cur>=2?`<div class="card" style="margin:0 0 12px"><div style="font-weight:700;font-size:12px;margin-bottom:2px">Presupuesto · Real · Forecast (mensual, 2026–2028)</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">El presupuesto se reparte automáticamente (impacto anual ÷ 12) desde el inicio; edita meses para ramp-up. El Real se carga a mano; el Forecast se actualiza según el Real.</div><div id="monthlyBox"></div></div>`:''}
     ${hist}
     ${secL1}${secL2}${secL3}${secL4}
     <div class="field"><label>Notas</label><textarea id="f_notes" ${dis}>${e.notes||''}</textarea></div>
-    ${kids.length?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">🔗 Iniciativas hijas (${kids.length}) · valor combinado ${money(kids.reduce((s,k)=>s+iniDerived(k).runRate,0))}</div>${kids.map(k=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer;display:flex;justify-content:space-between" onclick="openIniModal('${k.id}')"><span>• ${k.name} <span class="tag">${k.stage}</span> ${k.enabler?'<span class="tag">habilitadora</span>':''}</span><span>${money(iniDerived(k).runRate)}</span></div>`).join('')}</div>`:''}
-    ${(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">🕓 Historial de la iniciativa</div>${e.history.slice(0,25).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:''}
+    ${kids.length?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Iniciativas hijas (${kids.length}) · valor combinado ${money(kids.reduce((s,k)=>s+iniDerived(k).runRate,0))}</div>${kids.map(k=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer;display:flex;justify-content:space-between" onclick="openIniModal('${k.id}')"><span>• ${k.name} <span class="tag">${k.stage}</span> ${k.enabler?'<span class="tag">habilitadora</span>':''}</span><span>${money(iniDerived(k).runRate)}</span></div>`).join('')}</div>`:''}
+    ${(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Historial de la iniciativa</div>${e.history.slice(0,25).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:''}
     <div class="modal-foot">${footer}</div>`;
   if(cur>=3&&!lock(3)){renderMsList();renderDepsEditor();}
   if(cur>=2)renderMonthly(e);
@@ -1491,7 +1523,7 @@ function renderDepsEditor(){
   const others=[];
   mine.forEach(m=>others.push({id:m.id,label:'(este hito) '+(m.name||'sin nombre')}));
   db.inis.forEach(i=>{if(i.id===editingIni.id)return;(i.milestones||[]).forEach(m=>others.push({id:m.id,label:i.name+' · '+(m.name||'sin nombre')}));});
-  box.innerHTML='<details class="acc" style="margin-top:10px"><summary><span>🔗 Dependencias (predecesores)</span></summary><div class="body">'+
+  box.innerHTML='<details class="acc" style="margin-top:10px"><summary><span>Dependencias (predecesores)</span></summary><div class="body">'+
     mine.map((m,i)=>{
       const opts=others.filter(o=>o.id!==m.id).map(o=>`<option value="${o.id}" ${(m.deps||[]).includes(o.id)?'selected':''}>${o.label}</option>`).join('');
       return `<div style="margin-bottom:9px"><div style="font-size:12px;font-weight:600;margin-bottom:3px">${m.name||'Hito '+(i+1)} <span style="color:var(--muted);font-weight:400">depende de:</span></div>
@@ -1634,7 +1666,7 @@ function renderMacroEditor(){
   const box=document.getElementById('macroEditor');
   box.innerHTML='<table><thead><tr><th>Macroiniciativa</th><th>Grupo</th><th class="num">Meta</th><th class="num">Inic.</th><th></th></tr></thead><tbody>'+
     db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
-      return `<tr class="clk" onclick="openMacroModal('${m.id}')"><td><b>${m.name}</b></td><td>${a?.name||''} › ${g?.name||''}</td><td class="num">${money(m.target)}</td><td class="num">${macroInis(m.id).length}</td><td>✎</td></tr>`;}).join('')+'</tbody></table>';
+      return `<tr class="clk" onclick="openMacroModal('${m.id}')"><td><b>${m.name}</b></td><td>${a?.name||''} › ${g?.name||''}</td><td class="num">${money(m.target)}</td><td class="num">${macroInis(m.id).length}</td><td>editar</td></tr>`;}).join('')+'</tbody></table>';
 }
 
 /* ============ IMPORT/EXPORT ============ */
@@ -1717,7 +1749,7 @@ function currentSession(){try{const s=JSON.parse(sessionStorage.getItem('wavepmo
 function syncStatus(msg,cls){const el=document.getElementById('syncStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
 function loadSyncPanel(){
   const s=currentSession();
-  const badge=document.getElementById('syncBadge'); if(badge)badge.textContent=s?'conectado ☁️':'local';
+  const badge=document.getElementById('syncBadge'); if(badge)badge.textContent=s?'conectado ':'local';
   const info=document.getElementById('sessionInfo');
   if(info&&s)info.innerHTML=`Conectado como <b>${s.nombre||s.usuario}</b> (${s.rol||'user'}). Sesión válida hasta ${new Date(s.expiresAt).toLocaleString()}.`;
 }
@@ -1788,7 +1820,7 @@ function renderAdminUsers(){
   const t=document.getElementById('adminUsersTable'); if(!t)return;
   t.innerHTML='<thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Activo</th><th></th></tr></thead><tbody>'+
     adminUsers.map(u=>`<tr><td><b>${u.usuario}</b></td><td>${u.nombre||''}</td><td><span class="tag">${u.rol||'usuario'}</span></td><td>${/^(si|sí|yes|true|1|x)$/i.test(u.activo)?'<span class="flag green">sí</span>':'<span class="flag gray">no</span>'}</td>
-      <td><button class="btn sm gray" onclick="adminEditUser('${u.usuario}')">✎</button> <button class="btn sm danger" onclick="adminDeleteUser('${u.usuario}')">✕</button></td></tr>`).join('')+'</tbody>';
+      <td><button class="btn sm gray" onclick="adminEditUser('${u.usuario}')">editar</button> <button class="btn sm danger" onclick="adminDeleteUser('${u.usuario}')">✕</button></td></tr>`).join('')+'</tbody>';
 }
 function adminEditUser(usuario){const u=adminUsers.find(x=>x.usuario===usuario);if(!u)return;document.getElementById('au_user').value=u.usuario;document.getElementById('au_nombre').value=u.nombre||'';document.getElementById('au_rol').value=u.rol||'usuario';document.getElementById('au_activo').checked=/^(si|sí|yes|true|1|x)$/i.test(u.activo);document.getElementById('au_pass').value='';document.getElementById('au_pass').placeholder='(dejar vacío = mantener contraseña)';adminStatus('Editando '+usuario+' — deja la contraseña vacía para no cambiarla.');}
 function adminClearForm(){['au_user','au_nombre','au_pass'].forEach(id=>document.getElementById(id).value='');document.getElementById('au_rol').value='usuario';document.getElementById('au_activo').checked=true;document.getElementById('au_pass').placeholder='(dejar vacío = sin cambio)';adminStatus('');}
@@ -1894,7 +1926,7 @@ function renderMonthly(ini){
   const box=document.getElementById('monthlyBox'); if(!box)return; ensureMonthly(ini);
   const ed=ini.gateStatus==='borrador';
   box.innerHTML=`<div class="toolbar" style="margin-bottom:6px">
-    ${ed?`<button class="btn sm ghost" onclick="resetBudget()">↺ Reiniciar presupuesto (anual÷12)</button><button class="btn sm ghost" onclick="forecastFromReal()">Forecast ← Real</button>`:'<span style="font-size:11px;color:var(--muted)">Solo lectura (en aprobación/completada)</span>'}
+    ${ed?`<button class="btn sm ghost" onclick="resetBudget()">Reiniciar presupuesto (anual÷12)</button><button class="btn sm ghost" onclick="forecastFromReal()">Forecast ← Real</button>`:'<span style="font-size:11px;color:var(--muted)">Solo lectura (en aprobación/completada)</span>'}
     <span style="font-size:11px;color:var(--muted)">Acumulado ${new Date().getFullYear()}: Ppto ${money(ytdSum(ini,'budget'))} · Real ${money(ytdSum(ini,'real'))}</span></div>
     <div id="monthlyChart"></div>
     <div class="scroll" style="max-height:190px;overflow:auto;margin-top:6px;border:1px solid var(--line);border-radius:6px"><table id="monthlyGrid" style="font-size:10px"></table></div>`;
