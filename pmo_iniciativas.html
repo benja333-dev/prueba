@@ -472,15 +472,19 @@ body.locked{overflow:hidden}
       <div class="scroll" style="max-height:320px;overflow:auto"><table id="auditTable"></table></div>
     </div>
     <div class="card" id="adminCard" style="display:none">
-      <h2>🔑 Gestión de usuarios (admin)</h2>
-      <div class="hint">Para dar acceso a alguien: abre la Google Sheet de usuarios y agrega una fila con <code>usuario · password_hash · nombre · rol · activo</code>. El <code>password_hash</code> se genera aquí (nunca escribas la contraseña real en la Sheet). Para quitar acceso, pon <code>activo=no</code> o borra la fila.</div>
-      <div class="row" style="align-items:flex-end">
-        <div class="field" style="flex:1;margin:0"><label>Usuario (email)</label><input id="hg_user" placeholder="persona@empresa.com"></div>
-        <div class="field" style="flex:1;margin:0"><label>Contraseña temporal</label><input id="hg_pass"></div>
-        <button class="btn" onclick="genHash()">Generar hash</button>
+      <h2>🔐 Gestión de usuarios (admin) <span class="tools"><span class="tag">Data Table en Railway</span><button class="btn sm ghost" onclick="adminListUsers()">↻ Refrescar</button></span></h2>
+      <div class="hint">Los usuarios viven en la Data Table <code>pmo_usuarios</code> de tu n8n en Railway (ya no en Google Drive). Crea, edita o desactiva usuarios acá; la contraseña se guarda solo como hash.</div>
+      <div class="row" style="align-items:flex-end;background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div class="field" style="flex:1;margin:0"><label>Usuario (email) *</label><input id="au_user" placeholder="persona@altus.com"></div>
+        <div class="field" style="flex:1;margin:0"><label>Nombre</label><input id="au_nombre" placeholder="Nombre Apellido"></div>
+        <div class="field" style="flex:0 0 130px;margin:0"><label>Rol</label><select id="au_rol"><option value="usuario">Usuario</option><option value="aprobador">Aprobador</option><option value="admin">Admin</option></select></div>
+        <div class="field" style="flex:0 0 150px;margin:0"><label>Contraseña</label><input id="au_pass" placeholder="(dejar vacío = sin cambio)"></div>
+        <label style="display:flex;gap:5px;align-items:center;font-size:12px;font-weight:600;padding-bottom:8px"><input type="checkbox" id="au_activo" checked style="width:auto"> Activo</label>
+        <button class="btn" onclick="adminSaveUser()">Guardar</button>
+        <button class="btn gray" onclick="adminClearForm()">Limpiar</button>
       </div>
-      <div class="field" style="margin-top:10px"><label>password_hash (cópialo a la columna de la Sheet)</label><input id="hg_out" readonly onclick="this.select()" style="font-family:monospace;font-size:11px"></div>
-      <a id="sheetLink" href="#" target="_blank" style="font-size:12px;font-weight:600">📄 Abrir Google Sheet de usuarios ↗</a>
+      <div id="adminStatus" style="font-size:11.5px;margin-bottom:8px"></div>
+      <div class="scroll"><table id="adminUsersTable"></table></div>
     </div>
   </section>
 </main>
@@ -1703,6 +1707,8 @@ function importCSV(text,mode){
 const DATA_URL='https://n8n-production-121a.up.railway.app/webhook/pmo';
 const LOGIN_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-login';
 const APROB_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-aprobadores';
+const ADMIN_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-admin';
+let adminUsers=[];
 const SHEET_URL='https://docs.google.com/spreadsheets/d/1pmRS0iZ0jNULR3GhZZglGnWpei0oEsgbbKKwlXdzhgY/edit';
 let sync={url:DATA_URL,token:'',auto:true};
 let syncTimer=null;
@@ -1768,14 +1774,45 @@ async function bootApp(){
   refreshAll();
   const admin=(s.rol||'').toLowerCase()==='admin';
   const ac=document.getElementById('adminCard'); if(ac)ac.style.display=admin?'':'none';
-  const sl=document.getElementById('sheetLink'); if(sl)sl.href=SHEET_URL;
+  if(admin)adminListUsers();
   loadSyncPanel();
 }
-async function genHash(){
-  const u=(document.getElementById('hg_user').value||'').trim();
-  const p=document.getElementById('hg_pass').value||'';
-  if(!u||!p){alert('Ingresa usuario y contraseña');return;}
-  document.getElementById('hg_out').value=await sha256(u.toLowerCase()+':'+p);
+function adminStatus(msg,cls){const el=document.getElementById('adminStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
+async function adminApi(body){const s=currentSession();const r=await fetch(ADMIN_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((s&&s.token)||'')},body:JSON.stringify(body)});if(r.status===403){throw new Error('Solo admin');}return r;}
+async function adminListUsers(){
+  try{adminStatus('Cargando usuarios…');const r=await adminApi({action:'listUsers'});const j=await r.json();
+    adminUsers=Array.isArray(j)?j:[]; renderAdminUsers(); adminStatus('');
+  }catch(e){adminStatus('✗ '+e.message,'err');}
+}
+function renderAdminUsers(){
+  const t=document.getElementById('adminUsersTable'); if(!t)return;
+  t.innerHTML='<thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Activo</th><th></th></tr></thead><tbody>'+
+    adminUsers.map(u=>`<tr><td><b>${u.usuario}</b></td><td>${u.nombre||''}</td><td><span class="tag">${u.rol||'usuario'}</span></td><td>${/^(si|sí|yes|true|1|x)$/i.test(u.activo)?'<span class="flag green">sí</span>':'<span class="flag gray">no</span>'}</td>
+      <td><button class="btn sm gray" onclick="adminEditUser('${u.usuario}')">✎</button> <button class="btn sm danger" onclick="adminDeleteUser('${u.usuario}')">✕</button></td></tr>`).join('')+'</tbody>';
+}
+function adminEditUser(usuario){const u=adminUsers.find(x=>x.usuario===usuario);if(!u)return;document.getElementById('au_user').value=u.usuario;document.getElementById('au_nombre').value=u.nombre||'';document.getElementById('au_rol').value=u.rol||'usuario';document.getElementById('au_activo').checked=/^(si|sí|yes|true|1|x)$/i.test(u.activo);document.getElementById('au_pass').value='';document.getElementById('au_pass').placeholder='(dejar vacío = mantener contraseña)';adminStatus('Editando '+usuario+' — deja la contraseña vacía para no cambiarla.');}
+function adminClearForm(){['au_user','au_nombre','au_pass'].forEach(id=>document.getElementById(id).value='');document.getElementById('au_rol').value='usuario';document.getElementById('au_activo').checked=true;document.getElementById('au_pass').placeholder='(dejar vacío = sin cambio)';adminStatus('');}
+async function adminSaveUser(){
+  const usuario=(document.getElementById('au_user').value||'').trim().toLowerCase();
+  const nombre=document.getElementById('au_nombre').value.trim();
+  const rol=document.getElementById('au_rol').value;
+  const activo=document.getElementById('au_activo').checked?'si':'no';
+  const pass=document.getElementById('au_pass').value;
+  if(!usuario){alert('Ingresa el email del usuario');return;}
+  const existing=adminUsers.find(x=>x.usuario===usuario);
+  let password_hash;
+  if(pass){ password_hash=await sha256(usuario+':'+pass); }
+  else if(existing){ password_hash=existing.password_hash; }
+  else { alert('Para un usuario nuevo debes ingresar una contraseña.'); return; }
+  try{ adminStatus('Guardando…'); await adminApi({action:'saveUser',usuario,password_hash,nombre,rol,activo});
+    adminStatus('✓ Usuario guardado','ok'); adminClearForm(); await adminListUsers();
+  }catch(e){ adminStatus('✗ '+e.message,'err'); }
+}
+async function adminDeleteUser(usuario){
+  if(usuario===(currentSession()||{}).usuario){alert('No puedes eliminar tu propio usuario admin.');return;}
+  if(!confirm('¿Eliminar el acceso de '+usuario+'?'))return;
+  try{ adminStatus('Eliminando…'); await adminApi({action:'deleteUser',usuario}); adminStatus('✓ Eliminado','ok'); await adminListUsers(); }
+  catch(e){ adminStatus('✗ '+e.message,'err'); }
 }
 
 /* ============ DEPENDENCIAS & RUTA CRÍTICA ============ */
