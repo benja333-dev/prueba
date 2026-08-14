@@ -828,14 +828,13 @@ function openWAdd(editId){
       <div class="field"><label>Dimensión</label><select id="wa_dim">${Object.entries(DIMS).map(([k,v])=>`<option value="${k}" ${cur.dim===k?'selected':''}>${v}</option>`).join('')}</select></div>
       <div class="field"><label>Métrica</label><select id="wa_metric">${Object.entries(METRICS).map(([k,v])=>`<option value="${k}" ${cur.metric===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
-    <div class="row"><div class="field"><label>Título (opcional)</label><input id="wa_title" value="${(cur.title||'').replace(/"/g,'&quot;')}" placeholder="(automático)"></div>
-    <div class="field" style="flex:0 0 130px"><label>Tamaño</label><select id="wa_size">${['S','M','L'].map(s=>`<option value="${s}" ${cur.size===s?'selected':''}>${({S:'Chico',M:'Mediano',L:'Grande'})[s]}</option>`).join('')}</select></div></div>
+    <div class="field"><label>Título (opcional)</label><input id="wa_title" value="${(cur.title||'').replace(/"/g,'&quot;')}" placeholder="(automático)"></div>
     <div class="modal-foot"><div>${editing?`<button class="btn danger" onclick="document.getElementById('wAddOverlay').classList.remove('on');wRemove('${editId}')">Quitar</button>`:''}</div><div style="display:flex;gap:8px"><button class="btn gray" onclick="document.getElementById('wAddOverlay').classList.remove('on')">Cancelar</button><button class="btn" onclick="addWidget('${editId||''}')">${editing?'Guardar':'Agregar'}</button></div></div>`;
   document.getElementById('wAddOverlay').classList.add('on'); waTypeChange();
 }
 function waTypeChange(){const t=document.getElementById('wa_type').value;document.getElementById('wa_dimmetric').style.display=NEEDS_DIM.includes(t)?'':'none';}
 function addWidget(editId){const t=document.getElementById('wa_type').value;const w=loadDash();const needs=NEEDS_DIM.includes(t);
-  const dim=document.getElementById('wa_dim').value, metric=document.getElementById('wa_metric').value, size=document.getElementById('wa_size').value, title=document.getElementById('wa_title').value.trim();
+  const dim=document.getElementById('wa_dim').value, metric=document.getElementById('wa_metric').value, size='S', title=document.getElementById('wa_title').value.trim();
   if(editId){const x=w.find(a=>a.id===editId);if(x){x.type=t;x.size=size;x.title=title;if(needs){x.dim=dim;x.metric=metric;}else{delete x.dim;delete x.metric;}}}
   else{const nw={id:uid('w'),type:t,size,title};if(needs){nw.dim=dim;nw.metric=metric;}w.push(nw);}
   saveDashCfg(w);document.getElementById('wAddOverlay').classList.remove('on');renderDashWidgets();}
@@ -865,13 +864,12 @@ function renderDashWidgets(){
   const box=document.getElementById('dashWidgets'); if(!box)return;
   const widgets=loadDash();
   box.innerHTML=widgets.map(w=>{
-    const basis=w.size==='S'?'calc(33.33% - 11px)':w.size==='L'?'100%':'calc(50% - 8px)';
+    const basis='calc(33.33% - 11px)';
     const editable=['donut','bars','table','stackbars'].includes(w.type);
     return `<div class="card" draggable="true" ondragstart="wDragStart(event,'${w.id}')" ondragover="wDragOver(event,'${w.id}')" ondrop="wDrop(event,'${w.id}')" ondragend="document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='')" style="flex:1 1 ${basis};min-width:250px;margin:0;display:flex;flex-direction:column;cursor:grab">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px">
         <div style="font-size:12.5px;font-weight:700;color:var(--navy);line-height:1.25">${w.title||wTitle(w)}${editable?` <span style="font-size:10px;color:var(--blue);cursor:pointer;font-weight:600" onclick="openWAdd('${w.id}')">configurar</span>`:''}</div>
         <div style="display:flex;gap:4px;flex:none">
-          <span title="Tamaño" onclick="wSize('${w.id}')" style="cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px">${w.size}</span>
           <span title="Quitar" onclick="wRemove('${w.id}')" style="cursor:pointer;font-size:11px;color:var(--bad);border:1px solid var(--line);border-radius:4px;padding:1px 5px">✕</span>
         </div>
       </div>
