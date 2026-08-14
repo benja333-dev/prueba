@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WavePMO — Gestión de Iniciativas &amp; Captura de Impacto</title>
+<title>Altus Consulting PMO — Gestión de Iniciativas &amp; Captura de Valor</title>
 <style>
 :root{
-  --navy:#051c2c; --navy2:#0a2e44; --blue:#2251ff; --cyan:#00a9f4; --teal:#00b8a2;
-  --bg:#f4f6f8; --card:#ffffff; --ink:#051c2c; --muted:#5b6a75; --line:#e1e7ec;
-  --good:#00b8a2; --bad:#e5546c; --warn:#f5a623; --purple:#7b61ff;
-  --c1:#051c2c; --c2:#2251ff; --c3:#00a9f4; --c4:#00b8a2; --c5:#f5a623; --c6:#7b61ff; --c7:#e5546c;
-  --l1:#c9d3dd; --l2:#7b61ff; --l3:#00a9f4; --l4:#00b8a2; --l5:#0a7d5a;
+  --navy:#16294a; --navy2:#22375c; --blue:#2f7d95; --cyan:#4aa3b8; --teal:#3c9b7a;
+  --bg:#f5f5f2; --card:#ffffff; --ink:#16294a; --muted:#5f6b78; --line:#e4e6ea;
+  --good:#3c9b7a; --bad:#c0554f; --warn:#c99a3a; --purple:#6b6ea3;
+  --c1:#16294a; --c2:#2f7d95; --c3:#4aa3b8; --c4:#3c9b7a; --c5:#c99a3a; --c6:#6b6ea3; --c7:#c0554f;
+  --l1:#b9c3ce; --l2:#7b8fb0; --l3:#2f7d95; --l4:#3c9b7a; --l5:#0a7d5a;
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Helvetica Neue',Arial,sans-serif}
 body{background:var(--bg);color:var(--ink)}
@@ -140,7 +140,7 @@ body.locked{overflow:hidden}
 <body class="locked">
 <div id="loginGate" class="login-gate">
   <div class="login-box">
-    <div class="login-logo">🌊 Wave<span>PMO</span></div>
+    <div class="login-logo" style="font-family:Georgia,'Times New Roman',serif"><div style="font-size:30px;font-weight:700;letter-spacing:1px">ALTUS</div><div style="font-size:15px;letter-spacing:5px;color:var(--muted);margin-top:-2px">CONSULTING</div><div style="font-size:13px;letter-spacing:1px;color:var(--blue);font-family:'Helvetica Neue',Arial,sans-serif;font-weight:700;margin-top:6px">PMO</div></div>
     <div class="login-sub">Acceso restringido. Ingresa con tu usuario y contraseña autorizados.</div>
     <div class="field"><label>Usuario</label><input id="lg_user" type="text" autocomplete="username" placeholder="tu-email@empresa.com"></div>
     <div class="field"><label>Contraseña</label><input id="lg_pass" type="password" autocomplete="current-password"></div>
@@ -150,8 +150,8 @@ body.locked{overflow:hidden}
 </div>
 <header>
   <div>
-    <h1>🌊 Wave<span>PMO</span></h1>
-    <div class="sub">Motor de captura de valor tipo McKinsey Wave: macroiniciativas → iniciativas → hitos, con stage-gates L1–L4 y aprobación por etapa, proyección financiera y seguimiento semanal.</div>
+    <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:23px;letter-spacing:.4px;gap:10px"><span style="font-weight:700">ALTUS</span><span style="font-weight:400;font-size:14px;letter-spacing:2.5px;color:#c4cedb">CONSULTING</span><span style="color:var(--cyan);font-family:'Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:15px;letter-spacing:0;border-left:1px solid #3a4d6e;padding-left:10px">PMO</span></h1>
+    <div class="sub">Gestión de captura de valor: macroiniciativas → iniciativas → hitos, con stage-gates por nivel (N1–N4) y aprobación por etapa, proyección financiera y seguimiento semanal.</div>
   </div>
   <div class="kpi-strip" id="hdrKpis"></div>
 </header>
@@ -171,8 +171,8 @@ body.locked{overflow:hidden}
   <!-- GUIA -->
   <section class="tab" id="tab-guia">
     <div class="card" style="border-top:4px solid var(--blue)">
-      <h2 style="font-size:18px">📖 Cómo funciona WavePMO</h2>
-      <div class="hint" style="font-size:13px">Herramienta de captura de valor tipo <b>McKinsey Wave</b>: organiza iniciativas de mejora, les hace seguimiento financiero y de hitos, y las gobierna con <b>stage-gates</b> (aprobaciones por etapa).</div>
+      <h2 style="font-size:18px">📖 Cómo funciona Altus Consulting PMO</h2>
+      <div class="hint" style="font-size:13px">Herramienta de captura de valor: organiza iniciativas de mejora, les hace seguimiento financiero y de hitos, y las gobierna con <b>stage-gates por nivel (N1–N4)</b> (aprobaciones por etapa).</div>
       <div class="grid g2" style="margin-top:8px">
         <div>
           <h3 style="font-size:14px;color:var(--navy);border-left:4px solid var(--blue);padding-left:9px;margin-bottom:8px">La jerarquía</h3>
@@ -185,22 +185,22 @@ body.locked{overflow:hidden}
           <h3 style="font-size:14px;color:var(--navy);border-left:4px solid var(--blue);padding-left:9px;margin-bottom:8px">Los roles</h3>
           <div style="font-size:12.5px;line-height:1.9">
             <b>Dueño</b>: crea y completa la iniciativa, la envía a aprobación.<br>
-            <b>Aprobador</b> (por área/sub-área): aprueba o rechaza cada gate; ve su cola en el tab «Aprobaciones».<br>
-            <b>Admin</b>: puede aprobar cualquier gate y gestionar usuarios.
+            <b>Aprobador</b>: en esta configuración, el <b>administrador es el único aprobador</b> de todos los gates. Cuando un usuario envía una iniciativa, el admin la ve en su tab «Aprobaciones».<br>
+            <b>Admin</b>: aprueba/rechaza todos los gates y gestiona usuarios.
           </div>
         </div>
       </div>
     </div>
     <div class="card">
       <h2>Los stage-gates: L1 → L4</h2>
-      <div class="hint">Cada iniciativa avanza etapa por etapa. En cada etapa solo completas los campos de esa etapa; al <b>aprobarse el gate</b> se habilita la siguiente. McKinsey observa que el impacto estimado «se fuga» en el camino (por eso se refina en cada etapa).</div>
+      <div class="hint">Cada iniciativa avanza etapa por etapa. En cada etapa solo completas los campos de esa etapa; al <b>aprobarse el gate</b> se habilita la siguiente. Se observa que el impacto estimado «se fuga» en el camino (por eso se refina en cada etapa).</div>
       <div class="scroll"><table>
         <thead><tr><th>Etapa</th><th>Qué significa</th><th>Qué completas</th><th>Gate</th></tr></thead>
         <tbody>
-          <tr><td><span class="stage" style="background:#c9d3dd;color:#051c2c">L1</span> <b>Idea</b></td><td>Oportunidad identificada con estimación temprana; el dueño valida supuestos.</td><td>Nombre, área, responsable, descripción, impacto estimado.</td><td>—</td></tr>
-          <tr><td><span class="stage" style="background:#7b61ff">L2</span> <b>Caso de negocio</b></td><td>Caso sólido y aprobado (Finanzas); se fija el valor objetivo.</td><td>Palanca, supuestos → <b>congela el baseline</b>.</td><td>~45% de fuga L1→L2</td></tr>
-          <tr><td><span class="stage" style="background:#00a9f4">L3</span> <b>Plan / Implementación</b></td><td>Hitos robustos + calendario de captura; en ejecución.</td><td>Hitos, fechas de captura/cierre, curva.</td><td>~13% L2→L3</td></tr>
-          <tr><td><span class="stage" style="background:#00b8a2">L4</span> <b>Capturado</b></td><td>Hitos completados; Finanzas valida la captura del valor.</td><td>Avance real de captura.</td><td>~28% L3→L4</td></tr>
+          <tr><td><span class="stage" style="background:#b9c3ce;color:#16294a">N1</span> <b>Nivel 1 · Idea</b></td><td>Oportunidad identificada con estimación temprana; el dueño valida supuestos.</td><td>Nombre, área, responsable, descripción, impacto estimado.</td><td>—</td></tr>
+          <tr><td><span class="stage" style="background:#7b8fb0">N2</span> <b>Nivel 2 · Caso de negocio</b></td><td>Caso sólido y aprobado; se fija el valor objetivo. <b>Adjuntar el caso de negocio (obligatorio).</b></td><td>Palanca, supuestos, documento → <b>congela el baseline</b>.</td><td>~45% de fuga N1→N2</td></tr>
+          <tr><td><span class="stage" style="background:#2f7d95">N3</span> <b>Nivel 3 · Plan / Implementación</b></td><td>Hitos robustos + calendario de captura; en ejecución.</td><td>Hitos, fechas de captura/cierre, curva.</td><td>~13% N2→N3</td></tr>
+          <tr><td><span class="stage" style="background:#3c9b7a">N4</span> <b>Nivel 4 · Capturado</b></td><td>Hitos completados; se valida la captura del valor.</td><td>Avance real de captura.</td><td>~28% N3→N4</td></tr>
         </tbody>
       </table></div>
       <div style="font-size:11.5px;color:var(--muted);margin-top:8px">Estados de una iniciativa: <span class="flag gray">✎ Borrador</span> (editable) → <span class="flag amber">⏳ En aprobación</span> (bloqueada, esperando al aprobador) → al aprobar avanza de etapa; al aprobar L4 queda <span class="flag green">✓ Completada</span>.</div>
@@ -280,7 +280,7 @@ body.locked{overflow:hidden}
         <label style="font-size:12px;font-weight:600">Apilar por:</label>
         <select id="capStack" onchange="renderCaptura()">
           <option value="area">Área</option>
-          <option value="stage">Etapa (L1–L4)</option>
+          <option value="stage">Etapa (N1–N4)</option>
         </select>
         <label style="font-size:12px;font-weight:600">Escenario:</label>
         <select id="capScen" onchange="renderCaptura()">
@@ -501,10 +501,10 @@ body.locked{overflow:hidden}
 /* ============ ESTADO / MODELO ============ */
 const LS='wavepmo_v1';
 const STAGES=[
-  {id:'L1',name:'Idea',conf:.15,c:'#c9d3dd',desc:'Oportunidad identificada con estimación temprana; el dueño valida supuestos.'},
-  {id:'L2',name:'Caso de negocio',conf:.40,c:'#7b61ff',desc:'Caso sólido y aprobado (Finanzas); se fija el valor objetivo (baseline).'},
-  {id:'L3',name:'Plan / Implementación',conf:.70,c:'#00a9f4',desc:'Hitos robustos + calendario mensual de captura; en ejecución.'},
-  {id:'L4',name:'Capturado',conf:1.0,c:'#00b8a2',desc:'Hitos completados; Finanzas valida la captura del valor.'}
+  {id:'N1',name:'Idea',conf:.15,c:'#b9c3ce',desc:'Oportunidad identificada con estimación temprana; el dueño valida supuestos.'},
+  {id:'N2',name:'Caso de negocio',conf:.40,c:'#7b8fb0',desc:'Caso sólido y aprobado (Finanzas); se fija el valor objetivo (baseline). Requiere adjuntar el caso de negocio.'},
+  {id:'N3',name:'Plan / Implementación',conf:.70,c:'#2f7d95',desc:'Hitos robustos + calendario mensual de captura; en ejecución.'},
+  {id:'N4',name:'Capturado',conf:1.0,c:'#3c9b7a',desc:'Hitos completados; Finanzas valida la captura del valor.'}
 ];
 const GATES=['borrador','pendiente','completada'];
 const stageOf=id=>STAGES.find(s=>s.id===id)||STAGES[0];
@@ -594,11 +594,11 @@ function seed(){
     // estado del gate: la mayoría en borrador; ~1 de cada 4 pendiente de aprobación; L4 muy avanzadas completadas
     let gateStatus='borrador';
     const r=Math.random();
-    if(st.id==='L4'&&progress>0.85)gateStatus='completada';
+    if(st.id==='N4'&&progress>0.85)gateStatus='completada';
     else if(r<0.28)gateStatus='pendiente';
     return {id:uid('ini'),macroId,name,owner,stage:st.id,runRate:rr,progress:+progress.toFixed(2),
       start:fmtD(start),captureDate:fmtD(capture),end:fmtD(end),curve:'linear',notes:'',descripcion:'',palanca:'',supuestos:'',
-      enabler:false,parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
+      enabler:false,parentId:'',businessCase:null,monthly:{budget:{},real:{},forecast:{}},history:[{action:'creada',user:owner,fecha:fmtD(start),detail:'Creada en '+st.id}],
       gateStatus,submittedBy:gateStatus==='pendiente'?owner:'',submittedAt:gateStatus==='pendiente'?fmtD(today()):'',approvals:[],baseline
       ,milestones:ms};
   });
@@ -609,6 +609,8 @@ function seed(){
   setChild('Optimización de rutas','Consolidación de CDs');
   setChild('Gestión de descuentos','Pricing dinámico');
   setChild('Cross-sell portafolio','Cobertura de nuevos clientes');
+  // demo: adjuntar un caso de negocio placeholder a las que ya pasaron N2
+  inis.forEach(i=>{ if(STAGE_ORDER[i.stage]>=2&&!i.enabler){ i.businessCase={name:'caso_negocio.txt',size:64,type:'text/plain',data:'data:text/plain;base64,'+btoa('Business case demo')}; } });
   // demo: cargar Real mensual (con ramp-up) para iniciativas en ejecución/capturadas
   const cm=today().getFullYear()+'-'+String(today().getMonth()+1).padStart(2,'0');
   inis.forEach(i=>{ if(i.enabler||STAGE_ORDER[i.stage]<3)return;
@@ -633,12 +635,14 @@ function renderAudit(){
   el.innerHTML='<thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead><tbody>'+
    (rows.length?rows.map(a=>`<tr><td style="font-size:11px">${new Date(a.ts).toLocaleString()}</td><td>${a.user||'—'}</td><td><span class="tag">${a.action}</span></td><td style="white-space:normal">${a.detail||''}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">Sin movimientos aún</td></tr>')+'</tbody>';
 }
-function loadSeed(force){ if(force||!localStorage.getItem(LS)){db=seed(); if(force)logAudit('reset','Datos de ejemplo recargados'); save();} else db=JSON.parse(localStorage.getItem(LS)); refreshAll(); }
+function loadSeed(force){ if(force||!localStorage.getItem(LS)){db=seed(); if(force)logAudit('reset','Datos de ejemplo recargados'); save();} else {db=migrateStages(JSON.parse(localStorage.getItem(LS)));} refreshAll(); }
 function wipe(){ if(confirm('¿Borrar todos los datos y empezar de cero (vacío)?')){db={areas:[],grupos:[],macros:[],inis:[],meta:{name:'Programa',currency:'USD'}};save();refreshAll();} }
 
 /* ============ CÁLCULOS FINANCIEROS ============ */
-const STAGE_ORDER={L1:1,L2:2,L3:3,L4:4};
-const nextStage=id=>({L1:'L2',L2:'L3',L3:'L4',L4:null})[id];
+const STAGE_ORDER={N1:1,N2:2,N3:3,N4:4};
+const nextStage=id=>({N1:'N2',N2:'N3',N3:'N4',N4:null})[id];
+function migLN(s){return typeof s==='string'?({L1:'N1',L2:'N2',L3:'N3',L4:'N4',L5:'N4'}[s]||s):s;}
+function migrateStages(d){ if(!d||!d.inis)return d; d.inis.forEach(i=>{ i.stage=migLN(i.stage); (i.approvals||[]).forEach(a=>a.stage=migLN(a.stage)); }); return d; }
 // rampa mensual genérica de run-rate acumulado dados parámetros explícitos
 function rampCurve(runRate,startS,capS,curve,months){
   const s=parseD(startS), c=parseD(capS)||s;
@@ -794,7 +798,7 @@ function loadDash(){try{const d=JSON.parse(localStorage.getItem(dashKey())||'nul
 function saveDashCfg(w){localStorage.setItem(dashKey(),JSON.stringify(w));}
 function defaultDash(){return [
   {id:uid('w'),type:'kpis',size:'L',title:'Indicadores clave'},
-  {id:uid('w'),type:'funnel',size:'M',title:'Pipeline por etapa (L1–L4)'},
+  {id:uid('w'),type:'funnel',size:'M',title:'Pipeline por etapa (N1–N4)'},
   {id:uid('w'),type:'donut',dim:'area',metric:'runRate',size:'M',title:'Valor por área'},
   {id:uid('w'),type:'monthly',size:'M',title:'Presupuesto vs Real vs Forecast (programa)'},
   {id:uid('w'),type:'gatedonut',size:'M',title:'Estado de gates'},
@@ -875,7 +879,7 @@ function widgetKpis(el){
     ['Run-rate objetivo',money(rr),'impacto anual pleno',''],
     ['Capturado',money(cap),pct(rr?cap/rr:0)+' del objetivo','good'],
     ['Impacto en el año',money(inYear),'reconocido este año',''],
-    ['Iniciativas',db.inis.filter(i=>['L2','L3','L4'].includes(i.stage)).length+' / '+db.inis.length,late+' hitos atrasados',late?'bad':'']
+    ['Iniciativas',db.inis.filter(i=>['N2','N3','N4'].includes(i.stage)).length+' / '+db.inis.length,late+' hitos atrasados',late?'bad':'']
   ].map(s=>`<div class="statcard"><div class="lbl">${s[0]}</div><div class="v ${s[3]}">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('')+'</div>';
 }
 function widgetDonutGroups(el,data0,metric){
@@ -1334,9 +1338,9 @@ function renderIniTable(){
 let editingIni=null;
 function openIniModal(id){
   editingIni=id?JSON.parse(JSON.stringify(db.inis.find(i=>i.id===id))):{
-    id:uid('ini'),macroId:db.macros[0]?.id||'',name:'',owner:'',stage:'L1',runRate:0,progress:0,
+    id:uid('ini'),macroId:db.macros[0]?.id||'',name:'',owner:'',stage:'N1',runRate:0,progress:0,
     start:fmtD(today()),captureDate:fmtD(new Date(today().getTime()+120*864e5)),end:fmtD(new Date(today().getTime()+180*864e5)),curve:'linear',notes:'',
-    descripcion:'',palanca:'',supuestos:'',enabler:false,parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],milestones:[]};
+    descripcion:'',palanca:'',supuestos:'',businessCase:null,enabler:false,parentId:'',monthly:{budget:{},real:{},forecast:{}},history:[],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],milestones:[]};
   // normaliza registros viejos
   if(!editingIni.gateStatus)editingIni.gateStatus='borrador';
   if(!editingIni.approvals)editingIni.approvals=[];
@@ -1368,7 +1372,7 @@ function renderIniModal(){
   const lock=n=>n>cur;
   const lockedBox=(id,txt)=>`<div class="card" style="background:#f8fafc;border-style:dashed;color:var(--muted);text-align:center;padding:14px;margin-bottom:12px">🔒 <b>${id}</b> — ${txt}</div>`;
   // secciones por etapa
-  const secL1=`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">L1 · Idea <span style="font-weight:400;color:var(--muted)">— ${STAGES[0].desc}</span></div>
+  const secL1=`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N1 · Idea <span style="font-weight:400;color:var(--muted)">— ${STAGES[0].desc}</span></div>
     <div class="field"><label>Nombre de la iniciativa *</label><input id="f_name" value="${e.name||''}" ${dis} placeholder="Ej: Renegociación de energía"></div>
     <div class="row">
       <div class="field"><label>Macroiniciativa (área › sub-área) *</label><select id="f_macro" ${dis}>${macroOpts}</select></div>
@@ -1383,11 +1387,16 @@ function renderIniModal(){
       <div class="field"><label>${e.enabler?'Impacto (habilitadora, sin valor)':'Impacto anual estimado (run-rate $) *'}</label><input id="f_rr" type="number" value="${e.runRate||0}" ${dis||(e.enabler?'disabled':'')}></div>
       <div class="field"><label>Inicio estimado</label><input id="f_start" type="date" value="${e.start||''}" ${dis}></div>
     </div></div>`;
-  const secL2=lock(2)?lockedBox('L2 · Caso de negocio','Se completa al aprobar el gate L1.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">L2 · Caso de negocio <span style="font-weight:400;color:var(--muted)">— ${STAGES[1].desc}</span></div>
+  const bc=e.businessCase;
+  const secL2=lock(2)?lockedBox('N2 · Caso de negocio','Se completa al aprobar el gate N1.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N2 · Caso de negocio <span style="font-weight:400;color:var(--muted)">— ${STAGES[1].desc}</span></div>
     <div class="field"><label>Palanca / categoría de valor *</label><input id="f_palanca" value="${e.palanca||''}" ${dis} placeholder="Ej: Clean-sheet, renegociación, pricing…"></div>
     <div class="field"><label>Supuestos del caso (baseline) *</label><textarea id="f_supuestos" ${dis}>${e.supuestos||''}</textarea></div>
-    <div style="font-size:11px;color:var(--muted)">Al aprobar L2 se <b>congela el baseline</b> (valor objetivo comprometido).</div></div>`;
-  const secL3=lock(3)?lockedBox('L3 · Plan / Implementación','Se completa al aprobar el gate L2.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">L3 · Plan / Implementación <span style="font-weight:400;color:var(--muted)">— ${STAGES[2].desc}</span></div>
+    <div class="field"><label>📎 Documento del caso de negocio * (obligatorio para enviar a aprobación)</label>
+      ${bc?`<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;background:#f6f8fa;border:1px solid var(--line);border-radius:6px;padding:8px 10px"><span>📄 <b>${bc.name}</b> <span style="color:var(--muted)">(${(bc.size/1024).toFixed(0)} KB)</span></span><a href="${bc.data}" download="${bc.name}" style="color:var(--blue);font-weight:600">Descargar</a>${dis?'':`<span style="cursor:pointer;color:var(--bad)" onclick="removeBC()">✕ quitar</span>`}</div>`
+      :`<input type="file" id="f_bc" ${dis} onchange="attachBC(this)" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg" style="font-size:12px">`}
+      <div style="font-size:10.5px;color:var(--muted);margin-top:3px">Máx. 2 MB. Se guarda con la iniciativa en la nube.</div></div>
+    <div style="font-size:11px;color:var(--muted)">Al aprobar N2 se <b>congela el baseline</b> (valor objetivo comprometido).</div></div>`;
+  const secL3=lock(3)?lockedBox('N3 · Plan / Implementación','Se completa al aprobar el gate N2.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N3 · Plan / Implementación <span style="font-weight:400;color:var(--muted)">— ${STAGES[2].desc}</span></div>
     <div class="row">
       <div class="field"><label>Full run-rate (captura)</label><input id="f_cap" type="date" value="${e.captureDate||''}" ${dis}></div>
       <div class="field"><label>Cierre</label><input id="f_end" type="date" value="${e.end||''}" ${dis}></div>
@@ -1395,7 +1404,7 @@ function renderIniModal(){
     </div>
     <div style="font-weight:700;font-size:12px;margin:8px 0 6px;display:flex;justify-content:space-between;align-items:center">Hitos * ${mEdit?`<button class="btn sm ghost" onclick="addMs()">+ Hito</button>`:''}</div>
     <div id="msList"></div><div id="depsEditor"></div></div>`;
-  const secL4=lock(4)?lockedBox('L4 · Capturado','Se completa al aprobar el gate L3.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">L4 · Capturado <span style="font-weight:400;color:var(--muted)">— ${STAGES[3].desc}</span></div>
+  const secL4=lock(4)?lockedBox('N4 · Capturado','Se completa al aprobar el gate N3.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N4 · Capturado <span style="font-weight:400;color:var(--muted)">— ${STAGES[3].desc}</span></div>
     <div class="field"><label>Avance real de captura % (0–100) *</label><input id="f_prog" type="number" min="0" max="100" value="${Math.round((e.progress||0)*100)}" ${dis}></div></div>`;
   // footer según estado
   let footer='';
@@ -1497,6 +1506,8 @@ function saveIni(){
 }
 function deleteIni(){if(confirm('¿Eliminar esta iniciativa?')){logAudit('eliminar','Iniciativa "'+editingIni.name+'"');db.inis=db.inis.filter(i=>i.id!==editingIni.id);save();closeIni();refreshAll();}}
 function closeIni(){document.getElementById('iniOverlay').classList.remove('on');editingIni=null;}
+function attachBC(input){const f=input.files[0];if(!f)return;if(f.size>2*1024*1024){alert('El archivo supera 2 MB. Sube uno más liviano.');input.value='';return;}const r=new FileReader();r.onload=()=>{editingIni.businessCase={name:f.name,size:f.size,type:f.type||'',data:r.result};iniHist(editingIni,'adjuntó caso de negocio',f.name);renderIniModal();};r.readAsDataURL(f);}
+function removeBC(){if(editingIni){editingIni.businessCase=null;renderIniModal();}}
 
 /* ============ STAGE-GATES & APROBACIONES ============ */
 let aprobadores=[];
@@ -1505,12 +1516,13 @@ function iniChildren(id){return db.inis.filter(i=>i.parentId===id);}
 function iniDescendants(id){let out=[];iniChildren(id).forEach(c=>{out.push(c.id);out=out.concat(iniDescendants(c.id));});return out;}
 function approverFor(ini){const {a,g}=iniAreaGrupo(ini);if(!a||!g)return null;const row=aprobadores.find(r=>String(r.area||'').trim().toLowerCase()===a.name.trim().toLowerCase()&&String(r.sub_area||'').trim().toLowerCase()===g.name.trim().toLowerCase());return row?{usuario:row.usuario,nombre:row.nombre}:null;}
 function isAdmin(){return ((currentSession()||{}).rol||'').toLowerCase()==='admin';}
-function canApprove(ini){if(isAdmin())return true;const s=currentSession();const ap=approverFor(ini);return !!(s&&ap&&s.usuario&&ap.usuario&&s.usuario.toLowerCase()===ap.usuario.toLowerCase());}
+// Único aprobador: el administrador. (Todas las iniciativas las aprueba el admin.)
+function canApprove(ini){return isAdmin();}
 function myPending(){return db.inis.filter(i=>i.gateStatus==='pendiente'&&canApprove(i));}
 function missingForStage(ini,stage){
   const m=[];
   if(!ini.name)m.push('Nombre'); if(!ini.macroId)m.push('Macroiniciativa'); if(!ini.owner)m.push('Responsable'); if(!(ini.runRate>0))m.push('Impacto estimado (>0)');
-  if(STAGE_ORDER[stage]>=2){ if(!ini.palanca)m.push('Palanca / categoría'); if(!ini.supuestos)m.push('Supuestos del caso'); }
+  if(STAGE_ORDER[stage]>=2){ if(!ini.palanca)m.push('Palanca / categoría'); if(!ini.supuestos)m.push('Supuestos del caso'); if(!ini.businessCase)m.push('Documento del caso de negocio (adjunto)'); }
   if(STAGE_ORDER[stage]>=3){ if(!(ini.milestones&&ini.milestones.length))m.push('Al menos un hito'); if(!ini.captureDate)m.push('Fecha de captura'); }
   if(STAGE_ORDER[stage]>=4){ if(!(ini.progress>0))m.push('Avance real (>0)'); }
   return m;
@@ -1651,8 +1663,8 @@ function dl(name,content,type){const blob=new Blob(['﻿'+content],{type});const
 function exportCSV(){dl('wavepmo_iniciativas_'+today().toISOString().slice(0,10)+'.csv',buildCSV(db.inis.map(iniToRow)),'text/csv');}
 function downloadTemplate(withData){
   const rows=withData?db.inis.map(iniToRow):[
-    ['Operaciones','Compras','Procurement / clean-sheet',3800000,'Renegociación energía','J. Fuentes','L3','no',420000,55,'2026-02-01','2026-06-01','2026-08-01','linear','Contrato PPA a evaluar','Kickoff & baseline~J. Fuentes~2026-03-01~ok ; Licitación~J. Fuentes~2026-05-15~pend'],
-    ['Comercial','Ventas','Motor de crecimiento comercial',5100000,'Recuperación de churn','A. Silva','L2','no',300000,20,'2026-03-01','2026-08-01','2026-10-01','s','Modelo predictivo de fuga','Definir cohorte~A. Silva~2026-04-10~pend']
+    ['Operaciones','Compras','Procurement / clean-sheet',3800000,'Renegociación energía','J. Fuentes','N3','no',420000,55,'2026-02-01','2026-06-01','2026-08-01','linear','Contrato PPA a evaluar','Kickoff & baseline~J. Fuentes~2026-03-01~ok ; Licitación~J. Fuentes~2026-05-15~pend'],
+    ['Comercial','Ventas','Motor de crecimiento comercial',5100000,'Recuperación de churn','A. Silva','N2','no',300000,20,'2026-03-01','2026-08-01','2026-10-01','s','Modelo predictivo de fuga','Definir cohorte~A. Silva~2026-04-10~pend']
   ];
   dl('wavepmo_plantilla.csv',buildCSV(rows),'text/csv');
 }
@@ -1661,7 +1673,7 @@ function downloadTemplate(withData){
 function findOrCreateArea(name){name=(name||'Sin área').trim();let a=db.areas.find(x=>x.name.trim().toLowerCase()===name.toLowerCase());if(!a){a={id:uid('a'),name,color:AREA_COLORS[db.areas.length%AREA_COLORS.length]};db.areas.push(a);}return a;}
 function findOrCreateGrupo(areaId,name){name=(name||'General').trim();let g=db.grupos.find(x=>x.areaId===areaId&&x.name.trim().toLowerCase()===name.toLowerCase());if(!g){g={id:uid('g'),areaId,name};db.grupos.push(g);}return g;}
 function findOrCreateMacro(grupoId,name,target){name=(name||'General').trim();let m=db.macros.find(x=>x.grupoId===grupoId&&x.name.trim().toLowerCase()===name.toLowerCase());if(!m){m={id:uid('m'),grupoId,name,owner:'',sponsor:'',target:+target||0};db.macros.push(m);}else if(target&&!m.target)m.target=+target;return m;}
-function normStage(v){v=(v||'').trim().toLowerCase();if(v==='l5')return 'L4';const byId=STAGES.find(s=>s.id.toLowerCase()===v);if(byId)return byId.id;const byName=STAGES.find(s=>s.name.toLowerCase().includes(v)&&v);return byName?byName.id:'L1';}
+function normStage(v){v=(v||'').trim().toLowerCase();const map={l1:'N1',l2:'N2',l3:'N3',l4:'N4',l5:'N4',n1:'N1',n2:'N2',n3:'N3',n4:'N4'};if(map[v])return map[v];const byName=STAGES.find(s=>s.name.toLowerCase().includes(v)&&v);return byName?byName.id:'N1';}
 function parseHitos(v){if(!v||!v.trim())return [];return v.split(';').map(chunk=>{const p=chunk.split('~').map(s=>s.trim());if(!p[0])return null;const done=/^(ok|si|sí|done|true|1|x)$/i.test(p[3]||'');return {id:uid('ms'),name:p[0],owner:p[1]||'',due:p[2]||'',done,doneDate:done?(p[2]||fmtD(today())):''};}).filter(Boolean);}
 function importCSVFile(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{importCSV(r.result,document.getElementById('csvMode').value);}catch(e){alert('Error al leer el CSV: '+e.message);}};r.readAsText(f);ev.target.value='';}
 function importCSV(text,mode){
@@ -1721,7 +1733,7 @@ async function cloudLoad(silent){
     if(!res.ok)throw new Error('HTTP '+res.status);
     let d=await res.json();if(d.data)d=d.data;if(d.body)d=d.body;
     if(!d.areas||!d.inis){if(silent){syncStatus('Nube vacía; usando datos locales','');return;}throw new Error('Respuesta sin estructura válida');}
-    db=d;logAudit('nube','Programa cargado desde la nube');save();refreshAll();syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
+    db=migrateStages(d);logAudit('nube','Programa cargado desde la nube');save();refreshAll();syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
   }catch(e){syncStatus('✗ '+e.message,'err');}
 }
 function autoPush(){if(!sync.auto||!currentSession())return;clearTimeout(syncTimer);syncTimer=setTimeout(cloudSave,2500);}
@@ -1962,7 +1974,7 @@ function renderComite(){
       <h3>6 · Ruta crítica del programa</h3>
       ${critical.length?`<div style="font-size:12.5px;line-height:2">${critical.map((id,k)=>{const m=byId[id];return `<span class="chip" style="margin-right:4px">${k+1}. ${m.name} <span style="color:var(--muted)">(${m.due||'s/f'})</span></span>${k<critical.length-1?' <span style="color:var(--muted)">→</span> ':''}`;}).join('')}</div>`:'<div style="color:var(--muted)">Sin dependencias definidas.</div>'}
     </div>
-    <div style="text-align:center;font-size:10px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px">Generado por WavePMO · ${new Date().toLocaleString()}</div>
+    <div style="text-align:center;font-size:10px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px">Generado por Altus Consulting PMO · ${new Date().toLocaleString()}</div>
   </div>`;
 }
 
