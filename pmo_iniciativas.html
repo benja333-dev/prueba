@@ -102,6 +102,9 @@ svg text{font-family:'Helvetica Neue',Arial,sans-serif}
 .statcard .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
 .statcard .v{font-size:24px;font-weight:800;margin-top:4px}
 .statcard .d{font-size:11px;color:var(--muted);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .toolbar select,.toolbar input{padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px;background:#fff}
 .tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:#eef2f6;color:#5b6a75}
@@ -172,6 +175,7 @@ body.locked{overflow:hidden}
   .rep-sec{page-break-inside:avoid}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="locked">
 <div id="loginGate" class="login-gate">
@@ -195,9 +199,11 @@ body.locked{overflow:hidden}
 <nav id="nav">
   <button data-tab="dash" class="active">Dashboard</button>
   <button data-tab="captura">Escalón de captura</button>
+  <button data-tab="metas">Metas</button>
   <button data-tab="cartera">Cartera</button>
   <button data-tab="iniciativas">Iniciativas</button>
   <button data-tab="seguimiento">Seguimiento</button>
+  <button data-tab="riesgos">Riesgos</button>
   <button data-tab="deps">Dependencias</button>
   <button data-tab="aprob">Aprobaciones<span id="aprobBadge" style="display:none;background:var(--bad);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;margin-left:6px;font-weight:700"></span></button>
   <button data-tab="comite">Comité</button>
@@ -205,6 +211,35 @@ body.locked{overflow:hidden}
   <button data-tab="guia">Guía</button>
 </nav>
 <main>
+  <!-- METAS / GAP-TO-TARGET -->
+  <section class="tab" id="tab-metas">
+    <div class="card" style="border-top:4px solid var(--blue)">
+      <h2>Metas y captura (top-down vs bottom-up)</h2>
+      <div class="hint">Fija la <b>meta de valor</b> del programa y por área (top-down) y compárala con lo que las iniciativas cubren (bottom-up): <b>identificado</b> (todas), <b>validado</b> (N2+), <b>ponderado</b> por confianza del nivel y <b>capturado</b> (N4). La brecha muestra cuánto falta por originar.</div>
+      <div id="metasKpis" class="statgrid" style="margin-top:12px"></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>Brecha por área</h2><div id="metasBars"></div></div>
+      <div class="card"><h2>Cobertura de la meta</h2><div id="metasTableWrap" class="scroll"></div></div>
+    </div>
+    <div class="card">
+      <h2>Deriva del forecast (snapshots) <span class="tools"><button class="btn sm adminOnly" onclick="takeSnapshot()">Tomar snapshot hoy</button></span></h2>
+      <div class="hint">Un snapshot congela el forecast total del programa en una fecha. Comparar snapshots muestra el <b>«leakage»</b>: cómo se mueve la proyección con el tiempo.</div>
+      <div id="snapWrap" style="margin-top:10px"></div>
+    </div>
+  </section>
+  <!-- RIESGOS -->
+  <section class="tab" id="tab-riesgos">
+    <div class="card" style="border-top:4px solid var(--blue)">
+      <h2>Mapa de riesgos <span class="tools"><select id="riskArea" onchange="renderRiesgos()" style="padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px"><option value="">Todas las áreas</option></select></span></h2>
+      <div class="hint">Cada riesgo se califica por <b>probabilidad</b> e <b>impacto</b> (1–5); la severidad es su producto. Los riesgos se registran dentro de cada iniciativa (pestaña «Riesgos y KPIs»). El mapa cuenta riesgos abiertos por celda.</div>
+      <div id="riskKpis" class="statgrid" style="margin-top:12px"></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>Matriz probabilidad × impacto</h2><div id="riskHeat"></div></div>
+      <div class="card"><h2>Top riesgos abiertos</h2><div id="riskTableWrap" class="scroll" style="max-height:420px;overflow:auto"></div></div>
+    </div>
+  </section>
   <!-- GUIA -->
   <section class="tab" id="tab-guia">
     <div class="card" style="border-top:4px solid var(--blue)">
@@ -446,12 +481,6 @@ body.locked{overflow:hidden}
           <button class="btn sm ghost" onclick="addArea()">+ Área</button>
         </div>
       </div>
-      <div class="card">
-        <h2>Macroiniciativas</h2>
-        <div class="hint">Agrupan iniciativas y fijan la meta de valor del bloque.</div>
-        <div id="macroEditor"></div>
-        <button class="btn sm ghost" style="margin-top:10px" onclick="openMacroModal()">+ Macroiniciativa</button>
-      </div>
     </div>
     <div class="grid g2">
       <div class="card">
@@ -481,27 +510,35 @@ body.locked{overflow:hidden}
       </div>
     </div>
     <div class="card">
-      <h2>Carga masiva de iniciativas (CSV / Excel)</h2>
-      <div class="hint">Sube un lote de iniciativas de una vez. El CSV crea automáticamente las áreas, grupos y macroiniciativas que no existan (por nombre). Descarga la plantilla para ver el formato exacto — se abre en Excel.</div>
-      <div class="row" style="margin-bottom:12px">
-        <button class="btn ghost" onclick="downloadTemplate(false)">Plantilla vacía (ejemplo)</button>
-        <button class="btn ghost" onclick="downloadTemplate(true)">Plantilla con mis datos actuales</button>
-        <button class="btn ghost" onclick="exportCSV()">Exportar iniciativas a CSV</button>
+      <h2>Carga masiva de iniciativas (Excel)</h2>
+      <div class="hint">Trabaja en Excel (.xlsx) y sube un lote de una vez. El libro tiene <b>4 hojas</b>: <b>Iniciativas</b> (una fila por iniciativa, con todas las columnas), <b>Hitos</b>, <b>Riesgos</b> y <b>KPIs</b> (los sub-ítems se vinculan por el nombre de la iniciativa). Las áreas y sub-áreas que no existan se crean solas. Descarga la plantilla o exporta tus datos, edita y vuelve a subir.</div>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn" onclick="exportXLSX()">Exportar todo a Excel (.xlsx)</button>
+        <button class="btn ghost" onclick="downloadXLSXTemplate()">Descargar plantilla Excel</button>
       </div>
       <div class="row" style="align-items:flex-end">
         <div class="field" style="flex:0 0 auto;margin:0"><label>Al importar</label>
           <select id="csvMode"><option value="append">Agregar a lo existente</option><option value="replace" class="csvReplaceOpt">Reemplazar todo (admin)</option></select></div>
-        <button class="btn" onclick="document.getElementById('csvFile').click()">Subir CSV</button>
-        <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
+        <button class="btn" onclick="document.getElementById('xlsxFile').click()">Subir Excel</button>
+        <input type="file" id="xlsxFile" accept=".xlsx,.xls" style="display:none" onchange="importXLSXFile(event)">
       </div>
-      <details class="acc" style="margin-top:14px"><summary><span>Columnas del CSV</span></summary><div class="body" style="font-size:12px;line-height:1.7">
-        <code>area, grupo, macroiniciativa, meta_macro, iniciativa, responsable, etapa, run_rate_anual, avance_pct, inicio, captura, cierre, curva, notas, hitos</code>
+      <details class="acc" style="margin-top:14px"><summary><span>Columnas de la plantilla</span></summary><div class="body" style="font-size:12px;line-height:1.7">
+        <b>Hoja «Iniciativas»:</b> <code>area, subarea, iniciativa, responsable, nivel, run_rate_anual, avance_pct, inicio, captura, cierre, curva, habilitadora, descripcion, palanca, supuestos, notas</code><br>
+        <b>Hoja «Hitos»:</b> <code>iniciativa, hito, responsable, inicio, fin, estado</code> (estado = no/parcial/completo)<br>
+        <b>Hoja «Riesgos»:</b> <code>iniciativa, riesgo, probabilidad, impacto, dueño, estado</code> (1–5; estado = abierto/mitigado)<br>
+        <b>Hoja «KPIs»:</b> <code>iniciativa, kpi, unidad, base, meta, actual</code>
         <ul style="margin:10px 0 0 18px;color:var(--muted)">
-          <li><b>etapa</b>: L1 a L4 (Idea, Caso de negocio, Plan/Implementación, Capturado).</li>
-          <li><b>run_rate_anual</b>: impacto anual pleno en $ (solo número). <b>avance_pct</b>: 0–100.</li>
-          <li><b>fechas</b>: formato AAAA-MM-DD. <b>curva</b>: linear o s.</li>
-          <li><b>hitos</b>: <code>nombre~responsable~vence~estado</code> separando cada hito con <code>;</code>. Estado = ok o pend. Ej: <code>Kickoff~M. Díaz~2026-03-15~ok ; Piloto~M. Díaz~2026-05-20~pend</code></li>
+          <li><b>nivel</b>: N1 a N4. <b>fechas</b>: AAAA-MM-DD. <b>curva</b>: linear o s.</li>
+          <li>Los sub-ítems (hitos, riesgos, KPIs) se asocian por el <b>nombre exacto</b> de la iniciativa.</li>
         </ul>
+      </div></details>
+      <details class="acc" style="margin-top:8px"><summary><span>Alternativa CSV (una sola hoja, sin sub-ítems)</span></summary><div class="body" style="padding-top:8px">
+        <div class="row">
+          <button class="btn ghost sm" onclick="downloadTemplate(false)">Plantilla CSV</button>
+          <button class="btn ghost sm" onclick="exportCSV()">Exportar CSV</button>
+          <button class="btn sm" onclick="document.getElementById('csvFile').click()">Subir CSV</button>
+          <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
+        </div>
       </div></details>
     </div>
     <div class="card">
@@ -677,13 +714,26 @@ function seed(){
     for(let y=2026;y<=2028;y++)for(let mo=1;mo<=12;mo++){const ym=y+'-'+String(mo).padStart(2,'0'); if(ym<sYm)continue; if(ym>cm)break;
       const ramp=Math.min(1,0.4+k*0.12); i.monthly.real[ym]=Math.round(base*ramp*(0.85+Math.random()*0.3)); k++;}
   });
-  return {areas,grupos,macros,inis,meta:{name:'Programa de Transformación 2026',currency:'USD',user:''},audit:[]};
+  // demo: metas por área (~10% sobre el pipeline de sus macros) y meta de programa
+  areas.forEach(a=>{const gs=grupos.filter(g=>g.areaId===a.id).map(g=>g.id);const mt=macros.filter(m=>gs.includes(m.grupoId)).reduce((s,m)=>s+(m.target||0),0);a.target=Math.round(mt*1.1/100000)*100000;});
+  const programTarget=Math.round(areas.reduce((s,a)=>s+(a.target||0),0)/100000)*100000;
+  // demo: dependencias entre iniciativas (reutiliza madre→hija + un par extra)
+  inis.forEach(i=>{i.risks=[];i.kpis=[];i.deps=i.parentId?[i.parentId]:[];});
+  const link=(a,b)=>{const x=byName(a),y=byName(b);if(x&&y&&!x.deps.includes(y.id))x.deps.push(y.id);};
+  link('Optimización de rutas','Carga de camiones 3D'); link('Mix de productos','Pricing dinámico'); link('Optimización de spans','De-layering estructura');
+  // demo: riesgos en ~45% de las iniciativas (prob/impacto 1-5)
+  const riskCat=[['Disponibilidad de datos','Datos incompletos retrasan el baseline'],['Capacidad del equipo','Recurso clave sobre-asignado'],['Adopción / cambio','Resistencia de usuarios finales'],['Dependencia de TI','Integración de sistemas en cola'],['Proveedor','Lead time del proveedor mayor al plan'],['Regulatorio','Aprobación externa pendiente'],['Estimación','Impacto podría estar sobreestimado']];
+  inis.forEach((i,idx)=>{ if(i.enabler)return; const n=(idx%20<9)?((idx%3)+1):0; for(let k=0;k<n;k++){const c=riskCat[(idx+k)%riskCat.length];const prob=1+((idx+k*2)%5);const imp=1+((idx*2+k)%5);i.risks.push({id:uid('rk'),desc:c[0],detail:c[1],prob,impact:imp,mit:'Plan de mitigación en curso',owner:i.owner,status:(idx+k)%4===0?'mitigado':'abierto'});} });
+  // demo: KPIs no-financieros en algunas iniciativas
+  const kpiFor={'Reducción de mermas':{name:'Merma',unit:'%',baseline:4.2,target:2.5,actual:3.4},'Optimización de rutas':{name:'Km por entrega',unit:'km',baseline:18,target:14,actual:15.5},'Recuperación de churn':{name:'Churn',unit:'%',baseline:9,target:5,actual:7.2},'Renegociación energía':{name:'CO₂',unit:'ton',baseline:1200,target:900,actual:1010},'Automatización RRHH':{name:'Tiempo de proceso','unit':'d','baseline':6,'target':2,'actual':4}};
+  Object.entries(kpiFor).forEach(([nm,k])=>{const i=byName(nm);if(i)i.kpis.push({id:uid('kp'),...k});});
+  return {areas,grupos,macros,inis,meta:{name:'Programa de Transformación 2026',currency:'USD',user:'',programTarget,snapshots:[]},audit:[]};
 }
 
 /* ============ PERSISTENCIA ============ */
 /* Saneo anti-XSS: los campos de texto se pintan con innerHTML, así que se quitan < > (nombres/responsables no los necesitan). Centralizado en entrada/salida de datos. */
 function stripT(s){return s==null?s:String(s).replace(/[<>]/g,'');}
-function sanitizeIni(i){if(!i)return i;['name','owner','descripcion','palanca','supuestos','notes'].forEach(k=>{if(i[k]!=null)i[k]=stripT(i[k]);});if(i.businessCase&&i.businessCase.name)i.businessCase.name=stripT(i.businessCase.name);(i.milestones||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);if(m&&m.owner!=null)m.owner=stripT(m.owner);});(i.approvals||[]).forEach(a=>{if(a){['comment','reason','by','nombre'].forEach(k=>{if(a[k]!=null)a[k]=stripT(a[k]);});}});return i;}
+function sanitizeIni(i){if(!i)return i;['name','owner','descripcion','palanca','supuestos','notes'].forEach(k=>{if(i[k]!=null)i[k]=stripT(i[k]);});if(i.businessCase&&i.businessCase.name)i.businessCase.name=stripT(i.businessCase.name);(i.milestones||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);if(m&&m.owner!=null)m.owner=stripT(m.owner);});(i.approvals||[]).forEach(a=>{if(a){['comment','reason','by','nombre'].forEach(k=>{if(a[k]!=null)a[k]=stripT(a[k]);});}});(i.risks||[]).forEach(r=>{if(r){['desc','detail','mit','owner','status'].forEach(k=>{if(r[k]!=null)r[k]=stripT(r[k]);});}});(i.kpis||[]).forEach(k=>{if(k){['name','unit'].forEach(f=>{if(k[f]!=null)k[f]=stripT(k[f]);});}});return i;}
 function sanitizeDb(d){if(!d)return d;(d.inis||[]).forEach(sanitizeIni);(d.areas||[]).forEach(a=>{if(a&&a.name!=null)a.name=stripT(a.name);});(d.grupos||[]).forEach(g=>{if(g&&g.name!=null)g.name=stripT(g.name);});(d.macros||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);});if(d.meta){if(d.meta.name!=null)d.meta.name=stripT(d.meta.name);if(d.meta.user!=null)d.meta.user=stripT(d.meta.user);}return d;}
 function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio (local): '+new Date().toLocaleString();}
 function logAudit(action,detail){if(!db.audit)db.audit=[];const entry={ts:new Date().toISOString(),user:curUserName(),action,detail};db.audit.unshift(entry);if(db.audit.length>500)db.audit.length=500;if(typeof pushAudit==='function')pushAudit(entry);}
@@ -705,7 +755,8 @@ function wipe(){ if(confirm('¿Borrar todos los datos y empezar de cero (vacío)
 const STAGE_ORDER={N1:1,N2:2,N3:3,N4:4};
 const nextStage=id=>({N1:'N2',N2:'N3',N3:'N4',N4:null})[id];
 function migLN(s){return typeof s==='string'?({L1:'N1',L2:'N2',L3:'N3',L4:'N4',L5:'N4'}[s]||s):s;}
-function migrateStages(d){ if(!d||!d.inis)return d; d.inis.forEach(i=>{ i.stage=migLN(i.stage); (i.approvals||[]).forEach(a=>a.stage=migLN(a.stage)); normMs(i); }); return d; }
+function migrateStages(d){ if(!d||!d.inis)return d; if(!d.meta)d.meta={name:'Programa',currency:'USD',user:''}; if(d.meta.programTarget===undefined)d.meta.programTarget=0; if(!Array.isArray(d.meta.snapshots))d.meta.snapshots=[]; (d.areas||[]).forEach(a=>{if(a.target===undefined)a.target=0;}); d.inis.forEach(i=>{ i.stage=migLN(i.stage); (i.approvals||[]).forEach(a=>a.stage=migLN(a.stage)); normMs(i); normIni(i); }); return d; }
+function normIni(i){ if(!Array.isArray(i.risks))i.risks=[]; if(!Array.isArray(i.kpis))i.kpis=[]; if(!Array.isArray(i.deps))i.deps=[]; }
 function normMs(ini){ (ini.milestones||[]).forEach(m=>{ if(m.end===undefined)m.end=m.due||''; if(m.due===undefined)m.due=m.end||''; if(m.start===undefined)m.start=''; if(m.comp===undefined)m.comp=m.done?'completo':'no'; m.done=m.comp==='completo'; }); }
 // rampa mensual genérica de run-rate acumulado dados parámetros explícitos
 function rampCurve(runRate,startS,capS,curve,months){
@@ -814,6 +865,8 @@ function refreshAll(){
   renderStruct();
   renderMacroEditor();
   renderAudit();
+  renderMetas();
+  renderRiesgos();
   renderDeps();
   renderComite();
   renderAprobaciones();
@@ -826,8 +879,68 @@ function fillSelectors(){
   const owners=[...new Set(allMilestones().map(m=>m.owner).concat(db.inis.map(i=>i.owner)))].filter(Boolean).sort();
   document.getElementById('segOwner').innerHTML='<option value="">Todos</option>'+owners.map(o=>`<option>${o}</option>`).join('');
   const dA=document.getElementById('depsArea'); if(dA)dA.innerHTML='<option value="">Todas</option>'+db.areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  const rA=document.getElementById('riskArea'); if(rA){const cur=rA.value;rA.innerHTML='<option value="">Todas las áreas</option>'+db.areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');rA.value=cur;}
 }
 
+/* ---- METAS / GAP-TO-TARGET ---- */
+function coverageOf(list){const ne=(list||[]).filter(i=>!i.enabler);
+  const identificado=ne.reduce((s,i)=>s+(iniDerived(i).runRate||0),0);
+  const validado=ne.filter(i=>STAGE_ORDER[i.stage]>=2).reduce((s,i)=>s+(iniDerived(i).runRate||0),0);
+  const ponderado=ne.reduce((s,i)=>s+(iniDerived(i).weighted||0),0);
+  const capturado=ne.reduce((s,i)=>s+(iniDerived(i).captured||0),0);
+  return {identificado,validado,ponderado,capturado,n:ne.length};}
+function setProgramTarget(v){db.meta.programTarget=Math.max(0,+v||0);save();pushEstructura();renderMetas();renderDash();}
+function renderMetas(){ if(!db||!document.getElementById('metasKpis'))return;
+  const tot=coverageOf(db.inis);const target=(db.meta&&+db.meta.programTarget)||0;const gap=target-tot.identificado;const cov=target>0?tot.identificado/target:0;const isAdm=isAdmin();
+  document.getElementById('metasKpis').innerHTML=[
+    ['Meta del programa', isAdm?`<input type="number" value="${target}" onchange="setProgramTarget(this.value)" style="width:135px;font-size:18px;font-weight:800;border:1px solid var(--line);border-radius:6px;padding:2px 6px">`:money(target),'top-down'],
+    ['Identificado',money(tot.identificado),tot.n+' iniciativas'],
+    ['Ponderado (confianza)',money(tot.ponderado),'ajustado por nivel'],
+    ['Capturado (N4)',money(tot.capturado),''],
+    ['Brecha',`<span style="color:${gap>0?'var(--bad)':'var(--good)'}">${money(gap)}</span>`,gap>0?'por originar':'meta cubierta']
+  ].map(k=>`<div class="statcard"><div class="lbl">${k[0]}</div><div class="v" style="font-size:20px">${k[1]}</div><div class="d">${k[2]}</div></div>`).join('')
+   +`<div class="statcard" style="grid-column:1/-1"><div class="lbl">Cobertura de la meta (identificado / meta)</div><div style="height:14px;background:#eef2f6;border-radius:8px;overflow:hidden;margin-top:6px"><span style="display:block;height:100%;width:${Math.min(100,cov*100).toFixed(0)}%;background:var(--blue)"></span></div><div class="d">${pct(cov)} cubierto · ponderado ${target>0?pct(tot.ponderado/target):'—'}</div></div>`;
+  const rows=db.areas.map(a=>({a,c:coverageOf(areaInis(a.id)),target:+a.target||0}));
+  const maxV=Math.max(1,...rows.map(r=>Math.max(r.target,r.c.identificado,r.c.ponderado)));
+  document.getElementById('metasBars').innerHTML=rows.map(r=>`<div style="margin:11px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><b>${r.a.name}</b><span style="color:var(--muted)">${money(r.c.identificado)} / ${money(r.target)}</span></div>
+    <div style="position:relative;height:18px;background:#eef2f6;border-radius:9px;margin-top:3px">
+      <span style="position:absolute;left:0;top:0;height:100%;width:${(r.c.ponderado/maxV*100).toFixed(1)}%;background:${r.a.color};opacity:.4;border-radius:9px"></span>
+      <span style="position:absolute;left:0;top:0;height:100%;width:${(r.c.identificado/maxV*100).toFixed(1)}%;background:${r.a.color};border-radius:9px"></span>
+      <span style="position:absolute;left:calc(${(r.target/maxV*100).toFixed(1)}% - 1px);top:-3px;height:24px;width:2px;background:var(--navy)"></span>
+    </div></div>`).join('')+`<div style="font-size:10.5px;color:var(--muted);margin-top:8px">Barra sólida = identificado · barra tenue = ponderado · línea = meta.</div>`;
+  const trows=rows.map(r=>{const gapA=r.target-r.c.identificado;const covA=r.target>0?r.c.identificado/r.target:0;
+    return `<tr><td><b>${r.a.name}</b></td><td class="num">${money(r.target)}</td><td class="num">${money(r.c.identificado)}</td><td class="num">${money(r.c.validado)}</td><td class="num">${money(r.c.ponderado)}</td><td class="num">${money(r.c.capturado)}</td><td class="num" style="color:${gapA>0?'var(--bad)':'var(--good)'}">${money(gapA)}</td><td class="num">${pct(covA)}</td></tr>`;}).join('');
+  document.getElementById('metasTableWrap').innerHTML=`<table><thead><tr><th>Área</th><th class="num">Meta</th><th class="num">Identif.</th><th class="num">Validado</th><th class="num">Ponder.</th><th class="num">Capturado</th><th class="num">Brecha</th><th class="num">Cob.</th></tr></thead><tbody>${trows}<tr style="background:#f1f5f9;font-weight:700"><td>Programa</td><td class="num">${money(target)}</td><td class="num">${money(tot.identificado)}</td><td class="num">${money(tot.validado)}</td><td class="num">${money(tot.ponderado)}</td><td class="num">${money(tot.capturado)}</td><td class="num">${money(target-tot.identificado)}</td><td class="num">${target>0?pct(tot.identificado/target):'—'}</td></tr></tbody></table>`;
+  renderSnapshots();
+}
+function takeSnapshot(){ if(!isAdmin())return; if(!db.meta.snapshots)db.meta.snapshots=[]; const tot=coverageOf(db.inis);
+  const snap={date:fmtD(today()),identificado:Math.round(tot.identificado),ponderado:Math.round(tot.ponderado),capturado:Math.round(tot.capturado),target:+db.meta.programTarget||0};
+  db.meta.snapshots=db.meta.snapshots.filter(s=>s.date!==snap.date); db.meta.snapshots.push(snap); db.meta.snapshots.sort((a,b)=>a.date<b.date?-1:1); if(db.meta.snapshots.length>60)db.meta.snapshots=db.meta.snapshots.slice(-60);
+  logAudit('snapshot','Ponderado '+money(snap.ponderado)+' · '+snap.date); save(); pushEstructura(); renderSnapshots(); }
+function renderSnapshots(){ const el=document.getElementById('snapWrap'); if(!el)return; const s=(db.meta&&db.meta.snapshots)||[];
+  if(!s.length){el.innerHTML='<div style="color:var(--muted);font-size:12.5px">Aún no hay snapshots. Toma el primero para empezar a medir la deriva del forecast.</div>';return;}
+  const rows=s.slice().reverse().slice(0,12).map((x,idx,arr)=>{const prev=arr[idx+1];const d=prev?x.ponderado-prev.ponderado:0;
+    return `<tr><td>${x.date}</td><td class="num">${money(x.identificado)}</td><td class="num">${money(x.ponderado)}</td><td class="num">${money(x.capturado)}</td><td class="num" style="color:${d>0?'var(--good)':d<0?'var(--bad)':'var(--muted)'}">${prev?(d>=0?'+':'')+money(d):'—'}</td></tr>`;}).join('');
+  el.innerHTML=`<div class="scroll"><table><thead><tr><th>Fecha</th><th class="num">Identificado</th><th class="num">Ponderado</th><th class="num">Capturado</th><th class="num">Δ Ponderado</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+/* ---- RIESGOS ---- */
+function riskSev(r){return (+r.prob||0)*(+r.impact||0);}
+function riskColor(sev){ if(sev>=15)return '#c0392b'; if(sev>=8)return '#e67e22'; if(sev>=4)return '#e2b007'; return '#7fb069'; }
+function allRisks(areaId){ const list=[]; db.inis.forEach(i=>{ if(areaId){const g=iniAreaGrupo(i); if(!g.a||g.a.id!==areaId)return;} (i.risks||[]).forEach(r=>list.push({r,i})); }); return list; }
+function renderRiesgos(){ if(!db||!document.getElementById('riskHeat'))return;
+  const areaId=(document.getElementById('riskArea')||{}).value||''; const all=allRisks(areaId); const open=all.filter(x=>x.r.status!=='mitigado');
+  const high=open.filter(x=>riskSev(x.r)>=15).length; const avg=open.length?open.reduce((s,x)=>s+riskSev(x.r),0)/open.length:0; const mit=all.length-open.length;
+  document.getElementById('riskKpis').innerHTML=[
+    ['Riesgos abiertos',open.length,''],['Altos (sev ≥ 15)',`<span style="color:${high?'var(--bad)':'inherit'}">${high}</span>`,''],['Severidad media',avg.toFixed(1),'prob × impacto'],['Mitigados',mit,'']
+  ].map(k=>`<div class="statcard"><div class="lbl">${k[0]}</div><div class="v" style="font-size:22px">${k[1]}</div><div class="d">${k[2]}</div></div>`).join('');
+  const grid={}; open.forEach(x=>{const p=Math.min(5,Math.max(1,+x.r.prob||1)),im=Math.min(5,Math.max(1,+x.r.impact||1));grid[p+'-'+im]=(grid[p+'-'+im]||0)+1;});
+  let h='<table style="border-collapse:separate;border-spacing:3px"><tbody>';
+  for(let p=5;p>=1;p--){ h+='<tr><td style="font-size:10px;color:var(--muted);text-align:right;padding-right:4px">P'+p+'</td>'; for(let im=1;im<=5;im++){const n=grid[p+'-'+im]||0;const c=riskColor(p*im);h+=`<td style="width:46px;height:38px;background:${n?c:'#f4f6f9'};color:${n?'#fff':'#c3ccd6'};text-align:center;border-radius:5px;font-weight:700;font-size:13px">${n||''}</td>`;} h+='</tr>'; }
+  h+='<tr><td></td>'+[1,2,3,4,5].map(im=>`<td style="font-size:10px;color:var(--muted);text-align:center">I${im}</td>`).join('')+'</tr></tbody></table><div style="font-size:10.5px;color:var(--muted);margin-top:6px">Filas = probabilidad (P), columnas = impacto (I). Número = riesgos abiertos.</div>';
+  document.getElementById('riskHeat').innerHTML=h;
+  const sorted=open.slice().sort((a,b)=>riskSev(b.r)-riskSev(a.r)).slice(0,40);
+  document.getElementById('riskTableWrap').innerHTML= sorted.length? `<table><thead><tr><th>Riesgo</th><th>Iniciativa</th><th class="num">P</th><th class="num">I</th><th class="num">Sev</th><th>Dueño</th></tr></thead><tbody>`+sorted.map(x=>{const sev=riskSev(x.r);return `<tr class="clk" onclick="openIniModal('${x.i.id}')"><td><b>${x.r.desc||'—'}</b><div style="font-size:10px;color:var(--muted)">${x.r.detail||''}</div></td><td style="font-size:11.5px">${x.i.name}</td><td class="num">${x.r.prob}</td><td class="num">${x.r.impact}</td><td class="num"><span style="background:${riskColor(sev)};color:#fff;border-radius:4px;padding:1px 6px;font-weight:700">${sev}</span></td><td style="font-size:11px">${x.r.owner||'—'}</td></tr>`;}).join('')+'</tbody></table>' : '<div style="color:var(--good);font-size:12.5px;padding:10px">Sin riesgos abiertos'+(areaId?' en esta área.':'.')+'</div>';
+}
 /* ---- HEADER KPIs ---- */
 function renderHeaderKpis(){
   const rr=sumMetric(db.inis,'runRate'), w=sumMetric(db.inis,'weighted'), cap=sumMetric(db.inis,'captured');
@@ -1485,7 +1598,7 @@ function renderIniModal(){
   const maxSId=(e.maxStage&&STAGE_ORDER[e.maxStage])?e.maxStage:e.stage; const maxS=STAGE_ORDER[maxSId]||cur;
   mEdit=e.gateStatus==='borrador'; mStage=cur;
   const dis=mEdit?'':'disabled';
-  const macroOpts=db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);return `<option value="${m.id}" ${m.id===e.macroId?'selected':''}>${a?.name||'?'} › ${g?.name||'?'} › ${m.name}</option>`;}).join('');
+  const macroOpts=db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);return `<option value="${m.id}" ${m.id===e.macroId?'selected':''}>${a?.name||'?'} › ${g?.name||'?'}</option>`;}).join('');
   const d=iniDerived(e);
   const exists=db.inis.find(i=>i.id===e.id);
   const ap=approverFor(e);
@@ -1503,7 +1616,7 @@ function renderIniModal(){
   const secL1=`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N1 · Idea <span style="font-weight:400;color:var(--muted)">— ${STAGES[0].desc}</span></div>
     <div class="field"><label>Nombre de la iniciativa *</label><input id="f_name" value="${e.name||''}" ${dis} placeholder="Ej: Renegociación de energía"></div>
     <div class="row">
-      <div class="field"><label>Macroiniciativa (área › sub-área) *</label><select id="f_macro" ${dis}>${macroOpts}</select></div>
+      <div class="field"><label>Área › Sub-área *</label><select id="f_macro" ${dis}>${macroOpts}</select></div>
       <div class="field"><label>Responsable *</label><input id="f_owner" value="${e.owner||''}" ${dis}></div>
     </div>
     <div class="field"><label>Descripción / oportunidad</label><textarea id="f_desc" ${dis}>${e.descripcion||''}</textarea></div>
@@ -1571,7 +1684,11 @@ function renderIniModal(){
   const iniHistCard=(e.history&&e.history.length)?`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Modificaciones</div>${e.history.slice(0,40).map(h=>`<div style="font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><b>${h.action}</b> · ${h.user} · ${new Date(h.fecha).toLocaleString()} ${h.detail?`<span style="color:var(--muted)">— ${h.detail}</span>`:''}</div>`).join('')}</div>`:'';
   const historialPanel=(aprHist+iniHistCard)||'<div class="card" style="color:var(--muted);font-size:12px">Sin historial todavía.</div>';
   // barra de pestañas
-  const tabDefs=[['N1','N1 · Idea'],['N2','N2 · Caso'],['N3','N3 · Plan'],['N4','N4 · Captura'],['resumen','Resumen'],['historial','Historial']];
+  const riesgosPanel=`
+    <div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-weight:700;font-size:12px">Riesgos</div><button class="btn sm" onclick="riskAdd()">+ Riesgo</button></div><div id="riskEditor"></div></div>
+    <div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-weight:700;font-size:12px">KPIs no-financieros</div><button class="btn sm" onclick="kpiAdd()">+ KPI</button></div><div id="kpiEditor"></div></div>
+    <div class="card"><div style="font-weight:700;font-size:12px;margin-bottom:6px">Depende de (otras iniciativas)</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Marca las iniciativas que deben avanzar antes que esta.</div><div id="iniDepsEditor" style="max-height:220px;overflow:auto"></div></div>`;
+  const tabDefs=[['N1','N1 · Idea'],['N2','N2 · Caso'],['N3','N3 · Plan'],['N4','N4 · Captura'],['riesgos','Riesgos y KPIs'],['resumen','Resumen'],['historial','Historial']];
   const defTab='N'+cur;
   const tabBar=`<div class="ini-tabbar">`+tabDefs.map(t=>{const isLvl=/^N\d$/.test(t[0]);const locked=isLvl&&STAGE_ORDER[t[0]]>cur;return `<button id="itb-${t[0]}" data-lk="${locked?1:0}" class="${t[0]===defTab?'on':''}${locked?' lk':''}" onclick="iniTab('${t[0]}')">${t[1]}</button>`;}).join('')+`</div>`;
   document.getElementById('iniModal').innerHTML=`
@@ -1585,10 +1702,12 @@ function renderIniModal(){
     <div class="itab" id="itab-N2">${secL2}</div>
     <div class="itab" id="itab-N3">${secL3}</div>
     <div class="itab" id="itab-N4">${secL4}</div>
+    <div class="itab" id="itab-riesgos">${riesgosPanel}</div>
     <div class="itab" id="itab-resumen">${resumenPanel}</div>
     <div class="itab" id="itab-historial">${historialPanel}</div>
     <div class="modal-foot">${footer}</div>`;
   iniTab(defTab);
+  renderRiskEditor(e);renderKpiEditor(e);renderIniDepsEditor(e);
   if(cur>=3&&!lock(3)){renderMsList();renderDepsEditor();}
   if(cur>=4&&!lock(4))renderMsComplete(e);
   if(cur>=2)renderMonthly(e);
@@ -1676,6 +1795,41 @@ function attachBC(input){const f=input.files[0];if(!f)return;if(f.size>2*1024*10
 function removeBC(){if(editingIni){editingIni.businessCase=null;renderIniModal();}}
 function iniTab(name){document.querySelectorAll('#iniModal .itab').forEach(p=>p.classList.toggle('active',p.id==='itab-'+name));document.querySelectorAll('#iniModal .ini-tabbar button').forEach(b=>b.classList.toggle('on',b.id==='itb-'+name));}
 function persistEditing(){const idx=db.inis.findIndex(i=>i.id===editingIni.id);if(idx>=0)db.inis[idx]=editingIni;else db.inis.push(editingIni);save();refreshAll();renderIniModal();}
+function persistIniLocal(){if(!editingIni)return;const idx=db.inis.findIndex(i=>i.id===editingIni.id);if(idx>=0)db.inis[idx]=editingIni;save();}
+/* ---- Editores de Riesgos / KPIs / Dependencias (dentro del modal) ---- */
+const _q=s=>String(s==null?'':s).replace(/"/g,'&quot;');
+function renderRiskEditor(e){const box=document.getElementById('riskEditor');if(!box)return;e.risks=e.risks||[];
+  const gc='grid-template-columns:1.5fr 48px 48px 1fr 92px 20px';
+  const head=`<div style="display:grid;${gc};gap:6px;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px"><span>Riesgo</span><span>Prob</span><span>Imp</span><span>Dueño</span><span>Estado</span><span></span></div>`;
+  const rows=e.risks.map((r,i)=>`<div style="display:grid;${gc};gap:6px;align-items:center;margin-bottom:5px">
+    <input value="${_q(r.desc)}" placeholder="Descripción del riesgo" onchange="riskSet(${i},'desc',this.value)">
+    <input type="number" min="1" max="5" value="${r.prob||1}" onchange="riskSet(${i},'prob',this.value)">
+    <input type="number" min="1" max="5" value="${r.impact||1}" onchange="riskSet(${i},'impact',this.value)">
+    <input value="${_q(r.owner)}" placeholder="Dueño" onchange="riskSet(${i},'owner',this.value)">
+    <select onchange="riskSet(${i},'status',this.value)"><option value="abierto" ${r.status!=='mitigado'?'selected':''}>Abierto</option><option value="mitigado" ${r.status==='mitigado'?'selected':''}>Mitigado</option></select>
+    <span style="cursor:pointer;color:var(--bad)" onclick="riskDel(${i})">✕</span></div>`).join('');
+  box.innerHTML=e.risks.length?head+rows:'<div style="color:var(--muted);font-size:12px">Sin riesgos. Agrega el primero con «+ Riesgo».</div>';}
+function riskSet(i,f,v){const r=editingIni.risks[i];if(!r)return;if(f==='prob'||f==='impact')r[f]=Math.min(5,Math.max(1,Math.round(+v||1)));else r[f]=v;sanitizeIni(editingIni);persistIniLocal();if(typeof renderRiesgos==='function')renderRiesgos();}
+function riskAdd(){editingIni.risks=editingIni.risks||[];editingIni.risks.push({id:uid('rk'),desc:'',detail:'',prob:3,impact:3,mit:'',owner:editingIni.owner||'',status:'abierto'});persistIniLocal();renderRiskEditor(editingIni);renderRiesgos();}
+function riskDel(i){editingIni.risks.splice(i,1);persistIniLocal();renderRiskEditor(editingIni);renderRiesgos();}
+function renderKpiEditor(e){const box=document.getElementById('kpiEditor');if(!box)return;e.kpis=e.kpis||[];
+  const gc='grid-template-columns:1.4fr 70px 80px 80px 80px 20px';
+  const head=`<div style="display:grid;${gc};gap:6px;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px"><span>KPI</span><span>Unidad</span><span>Base</span><span>Meta</span><span>Actual</span><span></span></div>`;
+  const rows=e.kpis.map((k,i)=>`<div style="display:grid;${gc};gap:6px;align-items:center;margin-bottom:5px">
+    <input value="${_q(k.name)}" placeholder="Nombre" onchange="kpiSet(${i},'name',this.value)">
+    <input value="${_q(k.unit)}" placeholder="u." onchange="kpiSet(${i},'unit',this.value)">
+    <input type="number" value="${k.baseline??''}" onchange="kpiSet(${i},'baseline',this.value)">
+    <input type="number" value="${k.target??''}" onchange="kpiSet(${i},'target',this.value)">
+    <input type="number" value="${k.actual??''}" onchange="kpiSet(${i},'actual',this.value)">
+    <span style="cursor:pointer;color:var(--bad)" onclick="kpiDel(${i})">✕</span></div>`).join('');
+  box.innerHTML=e.kpis.length?head+rows:'<div style="color:var(--muted);font-size:12px">Sin KPIs. Agrega métricas no-financieras (p. ej. CO₂, NPS, tiempo de proceso).</div>';}
+function kpiSet(i,f,v){const k=editingIni.kpis[i];if(!k)return;k[f]=(f==='name'||f==='unit')?v:(v===''?undefined:(+v||0));sanitizeIni(editingIni);persistIniLocal();}
+function kpiAdd(){editingIni.kpis=editingIni.kpis||[];editingIni.kpis.push({id:uid('kp'),name:'',unit:'',baseline:undefined,target:undefined,actual:undefined});persistIniLocal();renderKpiEditor(editingIni);}
+function kpiDel(i){editingIni.kpis.splice(i,1);persistIniLocal();renderKpiEditor(editingIni);}
+function renderIniDepsEditor(e){const box=document.getElementById('iniDepsEditor');if(!box)return;e.deps=e.deps||[];
+  const others=db.inis.filter(i=>i.id!==e.id).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  box.innerHTML=others.length?others.map(o=>`<label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:3px 0;cursor:pointer"><input type="checkbox" ${e.deps.includes(o.id)?'checked':''} onchange="iniDepToggle('${o.id}',this.checked)"> <span>${o.name}</span> <span class="tag">${o.stage}</span></label>`).join(''):'<div style="color:var(--muted);font-size:12px">No hay otras iniciativas.</div>';}
+function iniDepToggle(id,on){editingIni.deps=editingIni.deps||[];if(on){if(!editingIni.deps.includes(id))editingIni.deps.push(id);}else editingIni.deps=editingIni.deps.filter(x=>x!==id);persistIniLocal();if(typeof renderDeps==='function')renderDeps();}
 function downgradeIni(){
   if(!editingIni)return; syncIni(); const cur=STAGE_ORDER[editingIni.stage]||1;
   if(editingIni.gateStatus!=='borrador'){alert('Solo se puede bajar de nivel en borrador.');return;}
@@ -1704,7 +1858,7 @@ function canApprove(ini){return isAdmin();}
 function myPending(){return db.inis.filter(i=>i.gateStatus==='pendiente'&&canApprove(i));}
 function missingForStage(ini,stage){
   const m=[];
-  if(!ini.name)m.push('Nombre'); if(!ini.macroId)m.push('Macroiniciativa'); if(!ini.owner)m.push('Responsable'); if(!ini.enabler&&!(ini.runRate>0))m.push('Impacto estimado (>0)');
+  if(!ini.name)m.push('Nombre'); if(!ini.macroId)m.push('Área › Sub-área'); if(!ini.owner)m.push('Responsable'); if(!ini.enabler&&!(ini.runRate>0))m.push('Impacto estimado (>0)');
   if(STAGE_ORDER[stage]>=2){ if(!ini.palanca)m.push('Palanca / categoría'); if(!ini.supuestos)m.push('Supuestos del caso'); if(!ini.businessCase)m.push('Documento del caso de negocio (adjunto)'); }
   // N3: proyecto con inicio y cierre; todos los hitos con nombre, responsable, inicio y fin válidos
   if(STAGE_ORDER[stage]>=3){
@@ -1821,12 +1975,14 @@ function addArea(){db.areas.push({id:uid('a'),name:'Nueva área',color:AREA_COLO
 function renameArea(id,v){db.areas.find(a=>a.id===id).name=v;save();pushEstructura();refreshAll();}
 function colorArea(id,v){db.areas.find(a=>a.id===id).color=v;save();pushEstructura();refreshAll();}
 function delArea(id){if(db.grupos.some(g=>g.areaId===id)){alert('Elimina primero sus grupos.');return;}db.areas=db.areas.filter(a=>a.id!==id);save();pushEstructura();refreshAll();}
-function addGrp(aid){db.grupos.push({id:uid('g'),areaId:aid,name:'Nuevo grupo'});save();pushEstructura();renderStruct();fillSelectors();}
+function addGrp(aid){const g={id:uid('g'),areaId:aid,name:'Nuevo grupo'};db.grupos.push(g);ensureMacroForGrupo(g.id);save();pushEstructura();renderStruct();fillSelectors();}
+/* Cada sub-área tiene una macro por defecto (invisible para el usuario) para que se puedan crear iniciativas sin manejar el concepto de macroiniciativa. */
+function ensureMacroForGrupo(gid){if(!db.macros.some(m=>m.grupoId===gid)){const g=db.grupos.find(x=>x.id===gid);db.macros.push({id:uid('m'),grupoId:gid,name:(g&&g.name)||'General',owner:'',sponsor:'',target:0});}}
 function renameGrp(id,v){db.grupos.find(g=>g.id===id).name=v;save();pushEstructura();refreshAll();}
 function delGrp(id){if(db.macros.some(m=>m.grupoId===id)){alert('Tiene macroiniciativas. Reasígnalas primero.');return;}db.grupos=db.grupos.filter(g=>g.id!==id);save();pushEstructura();refreshAll();}
 
 function renderMacroEditor(){
-  const box=document.getElementById('macroEditor');
+  const box=document.getElementById('macroEditor'); if(!box)return;
   box.innerHTML='<table><thead><tr><th>Macroiniciativa</th><th>Grupo</th><th class="num">Meta</th><th class="num">Inic.</th><th></th></tr></thead><tbody>'+
     db.macros.map(m=>{const g=db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);
       return `<tr class="clk" onclick="openMacroModal('${m.id}')"><td><b>${m.name}</b></td><td>${a?.name||''} › ${g?.name||''}</td><td class="num">${money(m.target)}</td><td class="num">${macroInis(m.id).length}</td><td>editar</td></tr>`;}).join('')+'</tbody></table>';
@@ -1875,6 +2031,71 @@ function findOrCreateMacro(grupoId,name,target){name=(name||'General').trim();le
 function normStage(v){v=(v||'').trim().toLowerCase();const map={l1:'N1',l2:'N2',l3:'N3',l4:'N4',l5:'N4',n1:'N1',n2:'N2',n3:'N3',n4:'N4'};if(map[v])return map[v];const byName=STAGES.find(s=>s.name.toLowerCase().includes(v)&&v);return byName?byName.id:'N1';}
 function parseHitos(v){if(!v||!v.trim())return [];return v.split(';').map(chunk=>{const p=chunk.split('~').map(s=>s.trim());if(!p[0])return null;const done=/^(ok|si|sí|done|true|1|x)$/i.test(p[3]||'');return {id:uid('ms'),name:p[0],owner:p[1]||'',due:p[2]||'',done,doneDate:done?(p[2]||fmtD(today())):''};}).filter(Boolean);}
 function importCSVFile(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{importCSV(r.result,document.getElementById('csvMode').value);}catch(e){alert('Error al leer el CSV: '+e.message);}};r.readAsText(f);ev.target.value='';}
+/* ============ EXCEL (.xlsx) IMPORT/EXPORT (SheetJS) ============ */
+function xdate(v){ if(v==null||v==='')return ''; if(typeof v==='number'){const d=new Date(Math.round((v-25569)*86400*1000));return isNaN(d)?'':d.toISOString().slice(0,10);} const s=String(v).trim(); if(/^\d{4}-\d{1,2}-\d{1,2}/.test(s))return s.slice(0,10); const d=new Date(s); return isNaN(d)?'':d.toISOString().slice(0,10); }
+function xnum(v){ if(v==null||v==='')return undefined; const n=+String(v).replace(/[^0-9.\-]/g,''); return isNaN(n)?undefined:n; }
+function iniAG(i){const g=iniAreaGrupo(i);return {area:g.a?g.a.name:'',sub:g.g?g.g.name:''};}
+function buildWorkbook(list){
+  const S1=list.map(i=>{const ag=iniAG(i);return {area:ag.area,subarea:ag.sub,iniciativa:i.name,responsable:i.owner||'',nivel:i.stage,estado:({borrador:'En preparación',pendiente:'En aprobación',completada:'Completada'})[i.gateStatus||'borrador'],run_rate_anual:i.enabler?0:(i.runRate||0),avance_pct:Math.round((i.progress||0)*100),inicio:i.start||'',captura:i.captureDate||'',cierre:i.end||'',curva:i.curve||'linear',habilitadora:i.enabler?'si':'',descripcion:i.descripcion||'',palanca:i.palanca||'',supuestos:i.supuestos||'',notas:i.notes||''};});
+  const H=[],R=[],K=[]; list.forEach(i=>{ (i.milestones||[]).forEach(m=>H.push({iniciativa:i.name,hito:m.name||'',responsable:m.owner||'',inicio:m.start||'',fin:m.end||m.due||'',estado:m.comp||(m.done?'completo':'no')}));
+    (i.risks||[]).forEach(r=>R.push({iniciativa:i.name,riesgo:r.desc||'',probabilidad:r.prob||'',impacto:r.impact||'',dueno:r.owner||'',estado:r.status||'abierto'}));
+    (i.kpis||[]).forEach(k=>K.push({iniciativa:i.name,kpi:k.name||'',unidad:k.unit||'',base:k.baseline??'',meta:k.target??'',actual:k.actual??''})); });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(S1.length?S1:[{area:'',subarea:'',iniciativa:'',responsable:'',nivel:'',estado:'',run_rate_anual:'',avance_pct:'',inicio:'',captura:'',cierre:'',curva:'',habilitadora:'',descripcion:'',palanca:'',supuestos:'',notas:''}]),'Iniciativas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(H.length?H:[{iniciativa:'',hito:'',responsable:'',inicio:'',fin:'',estado:''}]),'Hitos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(R.length?R:[{iniciativa:'',riesgo:'',probabilidad:'',impacto:'',dueno:'',estado:''}]),'Riesgos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(K.length?K:[{iniciativa:'',kpi:'',unidad:'',base:'',meta:'',actual:''}]),'KPIs');
+  return wb;
+}
+function exportXLSX(){ if(typeof XLSX==='undefined'){alert('La librería de Excel no cargó (revisa tu conexión a internet).');return;} XLSX.writeFile(buildWorkbook(db.inis),'AltusPMO_iniciativas_'+today().toISOString().slice(0,10)+'.xlsx'); }
+function downloadXLSXTemplate(){ if(typeof XLSX==='undefined'){alert('La librería de Excel no cargó.');return;}
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{area:'Operaciones',subarea:'Manufactura',iniciativa:'Ejemplo: reducir mermas',responsable:'Nombre Apellido',nivel:'N2',run_rate_anual:250000,avance_pct:20,inicio:'2026-03-01',captura:'2026-06-01',cierre:'2026-09-01',curva:'linear',habilitadora:'',descripcion:'Reducir mermas de proceso',palanca:'Eficiencia',supuestos:'',notas:''}]),'Iniciativas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{iniciativa:'Ejemplo: reducir mermas',hito:'Kickoff & baseline',responsable:'Nombre Apellido',inicio:'2026-03-01',fin:'2026-03-20',estado:'completo'},{iniciativa:'Ejemplo: reducir mermas',hito:'Piloto',responsable:'Nombre Apellido',inicio:'2026-03-21',fin:'2026-05-30',estado:'parcial'}]),'Hitos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{iniciativa:'Ejemplo: reducir mermas',riesgo:'Disponibilidad de datos',probabilidad:3,impacto:4,dueno:'Nombre Apellido',estado:'abierto'}]),'Riesgos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{iniciativa:'Ejemplo: reducir mermas',kpi:'Merma',unidad:'%',base:4.2,meta:2.5,actual:3.4}]),'KPIs');
+  XLSX.writeFile(wb,'AltusPMO_plantilla.xlsx');
+}
+function importXLSXFile(ev){ const f=ev.target.files[0]; if(!f)return; if(typeof XLSX==='undefined'){alert('La librería de Excel no cargó.');ev.target.value='';return;}
+  const mode=document.getElementById('csvMode').value; const r=new FileReader();
+  r.onload=()=>{ try{ importWorkbook(XLSX.read(r.result,{type:'array'}),mode); }catch(e){ alert('Error al leer el Excel: '+e.message); } };
+  r.readAsArrayBuffer(f); ev.target.value='';
+}
+function sheetRows(wb,name){ const key=Object.keys(wb.Sheets).find(k=>k.toLowerCase()===name.toLowerCase()); return key?XLSX.utils.sheet_to_json(wb.Sheets[key],{defval:''}):[]; }
+function gvOf(o,keys){ for(const want of keys){ for(const kk in o){ if(kk.toLowerCase().trim()===want){ return o[kk]; } } } return ''; }
+function importWorkbook(wb,mode){
+  if(mode==='replace'&&!isAdmin()){alert('Solo el administrador puede reemplazar todos los datos. Se agregará a lo existente.');mode='append';}
+  const inisRows=sheetRows(wb,'Iniciativas'); if(!inisRows.length)throw new Error('La hoja «Iniciativas» está vacía o no existe.');
+  if(mode==='replace'){db.areas=[];db.grupos=[];db.macros=[];db.inis=[];}
+  const byName={}, added=[];
+  inisRows.forEach(r=>{ const name=String(gvOf(r,['iniciativa','nombre'])||'').trim(); if(!name)return;
+    const a=findOrCreateArea(String(gvOf(r,['area','área'])||'General').trim());
+    const g=findOrCreateGrupo(a.id,String(gvOf(r,['subarea','sub-area','sub-área','grupo'])||'General').trim());
+    const m=findOrCreateMacro(g.id,g.name,0);
+    const stage=normStage(String(gvOf(r,['nivel','etapa'])||'N1'));
+    const obj={id:uid('ini'),macroId:m.id,name,owner:String(gvOf(r,['responsable'])||'').trim(),stage,
+      runRate:+String(gvOf(r,['run_rate_anual','impacto'])).replace(/[^0-9.\-]/g,'')||0,
+      progress:Math.min(1,Math.max(0,(+gvOf(r,['avance_pct','avance'])||0)/100)),
+      start:xdate(gvOf(r,['inicio'])),captureDate:xdate(gvOf(r,['captura'])),end:xdate(gvOf(r,['cierre','fin'])),
+      curve:/^s/i.test(String(gvOf(r,['curva'])))?'s':'linear',
+      enabler:/^(si|sí|true|1|x)$/i.test(String(gvOf(r,['habilitadora']))),
+      descripcion:String(gvOf(r,['descripcion','descripción'])||''),palanca:String(gvOf(r,['palanca'])||''),supuestos:String(gvOf(r,['supuestos'])||''),notes:String(gvOf(r,['notas','notes'])||''),
+      parentId:'',businessCase:null,maxStage:stage,monthly:{budget:{},real:{},forecast:{}},
+      history:[{action:'importada',user:curUserName(),fecha:fmtD(today()),detail:'Carga Excel'}],
+      gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:[],risks:[],kpis:[],deps:[]};
+    if(obj.enabler)obj.runRate=0; ensureBaseline(obj); normIni(obj);
+    db.inis.push(obj); byName[name.toLowerCase()]=obj; added.push(obj);
+  });
+  const findIni=nm=>{const k=String(nm||'').toLowerCase().trim();return byName[k]||db.inis.find(i=>(i.name||'').toLowerCase()===k);};
+  sheetRows(wb,'Hitos').forEach(r=>{const i=findIni(gvOf(r,['iniciativa']));if(!i)return;const nm=String(gvOf(r,['hito'])||'').trim();if(!nm)return;const end=xdate(gvOf(r,['fin','vence']));const c=String(gvOf(r,['estado'])||'no').toLowerCase();const cc=/comp/.test(c)?'completo':/parc/.test(c)?'parcial':'no';i.milestones.push({id:uid('ms'),name:nm,owner:String(gvOf(r,['responsable'])||''),start:xdate(gvOf(r,['inicio'])),end,due:end,comp:cc,done:cc==='completo',doneDate:cc==='completo'?end:''});});
+  sheetRows(wb,'Riesgos').forEach(r=>{const i=findIni(gvOf(r,['iniciativa']));if(!i)return;const d=String(gvOf(r,['riesgo'])||'').trim();if(!d)return;i.risks.push({id:uid('rk'),desc:d,detail:'',prob:Math.min(5,Math.max(1,+gvOf(r,['probabilidad','prob'])||3)),impact:Math.min(5,Math.max(1,+gvOf(r,['impacto','impact'])||3)),mit:'',owner:String(gvOf(r,['dueno','dueño','owner'])||''),status:/mitig/.test(String(gvOf(r,['estado'])).toLowerCase())?'mitigado':'abierto'});});
+  sheetRows(wb,'KPIs').forEach(r=>{const i=findIni(gvOf(r,['iniciativa']));if(!i)return;const nm=String(gvOf(r,['kpi'])||'').trim();if(!nm)return;i.kpis.push({id:uid('kp'),name:nm,unit:String(gvOf(r,['unidad'])||''),baseline:xnum(gvOf(r,['base'])),target:xnum(gvOf(r,['meta'])),actual:xnum(gvOf(r,['actual']))});});
+  db.inis.forEach(i=>sanitizeIni(i));
+  logAudit('importar',added.length+' iniciativas por Excel ('+(mode==='replace'?'reemplazo':'agregadas')+')');
+  save();refreshAll();
+  if(currentSession()){ if(mode==='replace')pushReplaceAll(); else { pushEstructura(); Promise.all(added.map(ini=>apiData({action:'saveIni',ini:sanitizeIni(ini)}).catch(()=>{}))).then(()=>syncStatus('✓ '+added.length+' iniciativas subidas a la nube','ok')); } }
+  alert('✓ '+added.length+' iniciativas importadas desde Excel'+(mode==='replace'?' (reemplazo total)':'')+'.');
+}
 function importCSV(text,mode){
   const rows=parseCSV(text);if(rows.length<2)throw new Error('CSV vacío o sin filas de datos.');
   const head=rows[0].map(h=>h.trim().toLowerCase());
@@ -2321,13 +2542,18 @@ function aiContext(){
     if(nx)o.proximo_hito={hito:nx.name,vence:nx.due,en_dias:nx.days};
     const ms=(i.milestones||[]).filter(m=>m.name).map(m=>({hito:m.name,resp:m.owner||'',inicio:m.start||'',fin:m.end||m.due||'',estado:m.comp||(m.done?'completo':'no')}));
     if(ms.length)o.hitos=ms;
+    const rk=(i.risks||[]).filter(r=>r.status!=='mitigado'&&r.desc).map(r=>({riesgo:r.desc,prob:r.prob,impacto:r.impact,sev:(r.prob||0)*(r.impact||0)}));
+    if(rk.length)o.riesgos_abiertos=rk;
+    const kp=(i.kpis||[]).filter(k=>k.name).map(k=>({kpi:k.name,unidad:k.unit,base:k.baseline,meta:k.target,actual:k.actual}));
+    if(kp.length)o.kpis=kp;
     return o;});
   const late=inis.filter(i=>i.dias_atraso).length;
-  const base={programa:db.meta&&db.meta.name||'Programa',fecha_hoy:fmtD(t),total_iniciativas:inis.length,con_atraso:late};
+  const tgt=(db.meta&&+db.meta.programTarget)||0; const cov=coverageOf(db.inis);
+  const base={programa:db.meta&&db.meta.name||'Programa',fecha_hoy:fmtD(t),total_iniciativas:inis.length,con_atraso:late,meta_programa:tgt,identificado:Math.round(cov.identificado),ponderado:Math.round(cov.ponderado),brecha:Math.round(tgt-cov.identificado)};
   let out=JSON.stringify({...base,iniciativas:inis});
-  if(out.length>22000){ // degradar: quitar detalle de hitos para no truncar el JSON
-    const slim=inis.map(({hitos,...rest})=>rest);
-    out=JSON.stringify({...base,nota:'hitos omitidos por tamaño',iniciativas:slim});
+  if(out.length>22000){ // degradar: quitar sub-detalle para no truncar el JSON
+    const slim=inis.map(({hitos,riesgos_abiertos,kpis,...rest})=>rest);
+    out=JSON.stringify({...base,nota:'sub-detalle omitido por tamaño',iniciativas:slim});
   }
   return out.slice(0,23000);
 }
