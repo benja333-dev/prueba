@@ -366,6 +366,21 @@ body.locked{overflow:hidden}
 
   <!-- DEPENDENCIAS -->
   <section class="tab" id="tab-deps">
+    <div class="card" style="border-left:4px solid var(--blue)">
+      <h2>Cómo funcionan las dependencias</h2>
+      <div class="grid g2" style="font-size:12.5px;line-height:1.7;margin-top:4px">
+        <div>
+          <b>Qué es.</b> Una dependencia dice que un hito (sucesor) <b>no puede completarse hasta cerrar</b> otro (predecesor). Ej: «Roll-out» depende de «Piloto» → primero cierras el piloto.<br>
+          <b>Cómo se define.</b> En el modal de la iniciativa, pestaña N3, sección «Dependencias (predecesores)»: por cada hito eliges de cuál(es) depende (dentro o entre iniciativas).
+        </div>
+        <div>
+          <b>Para qué sirve.</b> Tres cosas concretas:<br>
+          • <b>Ruta crítica</b>: la cadena de hitos encadenados más larga; si se atrasa un hito ahí, se atrasa <b>todo el cierre</b>. Es lo que hay que vigilar.<br>
+          • <b>Conflictos</b>: detecta fechas imposibles (un hito que vence antes que su predecesor).<br>
+          • <b>Orden de ataque</b>: sabes qué desbloquear primero para no frenar la cadena.
+        </div>
+      </div>
+    </div>
     <div class="grid t4" id="depsStats" style="margin-bottom:16px"></div>
     <div class="card">
       <h2>Dependencias &amp; ruta crítica
@@ -2141,7 +2156,19 @@ function renderComite(){
       </tbody></table></div>
     </div>
     <div class="rep-sec">
-      <h3>3 · Top iniciativas por impacto</h3>
+      <h3>3 · Valor por nivel (N1–N4)</h3>
+      <div class="scroll"><table><thead><tr><th>Nivel</th><th class="num">Iniciativas</th><th class="num">Valor (run-rate)</th><th class="num">% del total</th></tr></thead><tbody>
+      ${STAGES.map(s=>{const si=db.inis.filter(i=>i.stage===s.id);const v=sumMetric(si,'runRate');return `<tr><td><span class="stage" style="background:${s.c}">${s.id}</span> ${s.name}</td><td class="num">${si.length}</td><td class="num">${money(v)}</td><td class="num">${pct(rr?v/rr:0)}</td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>
+    <div class="rep-sec">
+      <h3>4 · Watch-outs · alertas</h3>
+      <div class="hint" style="margin-bottom:6px">Iniciativas con forecast bajo lo comprometido o con hitos atrasados. Foco del comité.</div>
+      ${(()=>{const wl=db.inis.map(i=>({i,dv:iniDev(i),ld:iniLateDays(i)})).filter(x=>x.dv<0||x.ld>0).sort((a,b)=>(a.dv-b.dv)+(b.ld-a.ld)).slice(0,10);
+      return wl.length?`<div class="scroll"><table><thead><tr><th>Iniciativa</th><th>Área</th><th>Responsable</th><th class="num">Δ Fc-Base</th><th class="num">Atraso</th></tr></thead><tbody>${wl.map(x=>{const {a}=iniAreaGrupo(x.i);return `<tr><td><b>${x.i.name}</b></td><td>${a?a.name:''}</td><td>${x.i.owner||'—'}</td><td class="num" style="color:${x.dv>=0?'var(--good)':'var(--bad)'}">${x.dv>=0?'+':''}${money(x.dv)}</td><td class="num" style="color:${x.ld>0?'var(--bad)':'var(--muted)'}">${x.ld>0?x.ld+' d':'—'}</td></tr>`;}).join('')}</tbody></table></div>`:'<div style="color:var(--good);font-weight:600;padding:6px">Sin watch-outs: forecast alineado y sin atrasos.</div>';})()}
+    </div>
+    <div class="rep-sec">
+      <h3>5 · Top iniciativas por impacto</h3>
       <div class="scroll"><table><thead><tr><th>Iniciativa</th><th>Área</th><th>Responsable</th><th>Etapa</th><th class="num">Run-rate</th><th class="num">Avance</th><th class="num">Δ Fc-Base</th><th>Salud</th></tr></thead><tbody>
       ${topInis.map(i=>{const m=db.macros.find(x=>x.id===i.macroId);const g=m&&db.grupos.find(x=>x.id===m.grupoId);const a=g&&db.areas.find(x=>x.id===g.areaId);const st=stageOf(i.stage);const hl=iniHealth(i);const dv=iniDev(i);
         return `<tr><td><b>${i.name}</b></td><td>${a?a.name:''}</td><td>${i.owner||'—'}</td><td><span class="stage" style="background:${st.c}">${st.id}</span></td><td class="num">${money(i.runRate)}</td><td class="num">${pct(i.progress||0)}</td><td class="num" style="color:${dv>=0?'var(--good)':'var(--bad)'}">${dv>=0?'+':''}${money(dv)}</td><td><span class="flag ${hl.key}">${hl.label}</span></td></tr>`;}).join('')}
@@ -2149,16 +2176,16 @@ function renderComite(){
     </div>
     <div class="grid g2">
       <div class="rep-sec">
-        <h3>4 · Riesgos — hitos atrasados</h3>
+        <h3>6 · Riesgos — hitos atrasados</h3>
         ${late.length?`<div class="scroll"><table><thead><tr><th>Hito</th><th>Iniciativa</th><th>Responsable</th><th class="num">Venció</th></tr></thead><tbody>${late.slice(0,10).sort((a,b)=>msStatus(a).days-msStatus(b).days).map(m=>`<tr><td><b>${m.name}</b></td><td>${m.ini.name}</td><td>${m.owner||'—'}</td><td class="num" style="color:var(--bad)">${m.due} (${Math.abs(msStatus(m).days)}d)</td></tr>`).join('')}</tbody></table></div>`:'<div style="color:var(--good);font-weight:600;padding:8px">✓ Sin hitos atrasados</div>'}
       </div>
       <div class="rep-sec">
-        <h3>5 · Próximos hitos (≤14 días)</h3>
+        <h3>7 · Próximos hitos (≤14 días)</h3>
         ${soon.length?`<div class="scroll"><table><thead><tr><th>Hito</th><th>Iniciativa</th><th>Responsable</th><th class="num">Vence</th></tr></thead><tbody>${soon.sort((a,b)=>msStatus(a).days-msStatus(b).days).map(m=>`<tr><td><b>${m.name}</b></td><td>${m.ini.name}</td><td>${m.owner||'—'}</td><td class="num" style="color:var(--warn)">${m.due} (${msStatus(m).days}d)</td></tr>`).join('')}</tbody></table></div>`:'<div style="color:var(--muted);padding:8px">Nada en los próximos 14 días.</div>'}
       </div>
     </div>
     <div class="rep-sec">
-      <h3>6 · Ruta crítica del programa</h3>
+      <h3>8 · Ruta crítica del programa</h3>
       ${critical.length?`<div style="font-size:12.5px;line-height:2">${critical.map((id,k)=>{const m=byId[id];return `<span class="chip" style="margin-right:4px">${k+1}. ${m.name} <span style="color:var(--muted)">(${m.due||'s/f'})</span></span>${k<critical.length-1?' <span style="color:var(--muted)">→</span> ':''}`;}).join('')}</div>`:'<div style="color:var(--muted)">Sin dependencias definidas.</div>'}
     </div>
     <div style="text-align:center;font-size:10px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px">Generado por Altus Consulting PMO · ${new Date().toLocaleString()}</div>
