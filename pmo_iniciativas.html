@@ -83,12 +83,14 @@ tbody tr.clk{cursor:pointer}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .overlay{position:fixed;inset:0;background:rgba(5,28,44,.55);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow:auto}
 .overlay.on{display:flex}
-.modal{background:#fff;border-radius:12px;max-width:760px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal{background:#fff;border-radius:12px;max-width:760px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative}
+.mx{position:absolute;top:12px;right:14px;width:26px;height:26px;border:none;border-radius:6px;background:#eef2f6;color:var(--muted);font-size:15px;cursor:pointer;line-height:1;z-index:5}
+.mx:hover{background:var(--bad);color:#fff}
 .modal h3{font-size:17px;margin-bottom:3px}
 .modal .msub{font-size:12px;color:var(--muted);margin-bottom:16px}
 .modal-foot{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
 .chip{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;background:#eef2f6;color:var(--ink)}
-.ms-row{display:grid;grid-template-columns:22px 1fr 120px 120px 30px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.ms-row{display:grid;grid-template-columns:1fr 100px 120px 120px 22px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12px}
 .ms-row input{padding:5px 7px}
 .bignum{font-size:26px;font-weight:800;line-height:1.1}
 .bignum small{font-size:12px;font-weight:600;color:var(--muted)}
@@ -210,7 +212,7 @@ body.locked{overflow:hidden}
           <tr><td><span class="stage" style="background:#3c9b7a">N4</span> <b>Nivel 4 · Capturado</b></td><td>Hitos completados; se valida la captura del valor.</td><td>Avance real de captura.</td><td>~28% N3→N4</td></tr>
         </tbody>
       </table></div>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">Estados de una iniciativa: <span class="flag gray">Borrador</span> (editable) → <span class="flag amber">En aprobación</span> (bloqueada, esperando al aprobador) → al aprobar avanza de etapa; al aprobar L4 queda <span class="flag green">Completada</span>.</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px">Estados de una iniciativa: <span class="flag gray">En preparación</span> (editable) → <span class="flag amber">En aprobación</span> (bloqueada, esperando al aprobador) → al aprobar avanza de nivel; al aprobar N4 queda <span class="flag green">Completada</span>.</div>
     </div>
     <div class="card">
       <h2>Las pestañas</h2>
@@ -507,7 +509,7 @@ const STAGES=[
 ];
 const GATES=['borrador','pendiente','completada'];
 const stageOf=id=>STAGES.find(s=>s.id===id)||STAGES[0];
-function gatePill(gs){gs=gs||'borrador';const map={borrador:['gray','Borrador'],pendiente:['amber','En aprobación'],completada:['green','Completada']};const x=map[gs]||map.borrador;return `<span class="flag ${x[0]}">${x[1]}</span>`;}
+function gatePill(gs){gs=gs||'borrador';const map={borrador:['gray','En preparación'],pendiente:['amber','En aprobación'],completada:['green','Completada']};const x=map[gs]||map.borrador;return `<span class="flag ${x[0]}">${x[1]}</span>`;}
 /* ===== Motor de tablas ordenables (flechita tipo Excel) ===== */
 const tsort={};
 const tRenderers={};
@@ -582,13 +584,14 @@ function seed(){
     const stIdx=STAGES.indexOf(st);
     const progress=Math.min(1,Math.max(.05, stIdx/3 + rnd(-.12,.12)));
     const owner=pick(owners);
-    // milestones
+    // milestones (cada uno con fecha inicio y fin, y estado No/Parcial/Completo)
     const nMs=Math.floor(rnd(3,6)); const ms=[];
     for(let k=0;k<nMs;k++){
-      const due=new Date(start); due.setMonth(due.getMonth()+k+1); due.setDate(Math.floor(rnd(1,27)));
-      const done=(k/nMs)<progress;
-      const dd=done?new Date(due.getTime()+rnd(-6,10)*864e5):null;
-      ms.push({id:uid('ms'),name:['Kickoff & baseline','Diseño de solución','Piloto','Roll-out','Estabilización','Cierre & captura'][k]||('Hito '+(k+1)),owner:Math.random()<.6?owner:pick(owners),due:fmtD(due),done,doneDate:done?fmtD(dd):''});
+      const end=new Date(start); end.setMonth(end.getMonth()+k+1); end.setDate(Math.floor(rnd(1,27)));
+      let st2=new Date(end); st2.setDate(st2.getDate()-Math.floor(rnd(12,45))); if(st2<start)st2=new Date(start);
+      const frac=(k+0.5)/nMs; let comp='no'; if(frac<progress-0.12)comp='completo'; else if(frac<progress+0.08)comp='parcial';
+      const done=comp==='completo';
+      ms.push({id:uid('ms'),name:['Kickoff & baseline','Diseño de solución','Piloto','Roll-out','Estabilización','Cierre & captura'][k]||('Hito '+(k+1)),owner:Math.random()<.6?owner:pick(owners),start:fmtD(st2),end:fmtD(end),due:fmtD(end),comp,done,doneDate:done?fmtD(end):''});
     }
     for(let k=1;k<ms.length;k++)ms[k].deps=[ms[k-1].id]; // cadena secuencial de hitos
     // baseline congelado (presupuesto inicial) para iniciativas en L2+ con desviación vs forecast
@@ -648,7 +651,8 @@ function wipe(){ if(confirm('¿Borrar todos los datos y empezar de cero (vacío)
 const STAGE_ORDER={N1:1,N2:2,N3:3,N4:4};
 const nextStage=id=>({N1:'N2',N2:'N3',N3:'N4',N4:null})[id];
 function migLN(s){return typeof s==='string'?({L1:'N1',L2:'N2',L3:'N3',L4:'N4',L5:'N4'}[s]||s):s;}
-function migrateStages(d){ if(!d||!d.inis)return d; d.inis.forEach(i=>{ i.stage=migLN(i.stage); (i.approvals||[]).forEach(a=>a.stage=migLN(a.stage)); }); return d; }
+function migrateStages(d){ if(!d||!d.inis)return d; d.inis.forEach(i=>{ i.stage=migLN(i.stage); (i.approvals||[]).forEach(a=>a.stage=migLN(a.stage)); normMs(i); }); return d; }
+function normMs(ini){ (ini.milestones||[]).forEach(m=>{ if(m.end===undefined)m.end=m.due||''; if(m.due===undefined)m.due=m.end||''; if(m.start===undefined)m.start=''; if(m.comp===undefined)m.comp=m.done?'completo':'no'; m.done=m.comp==='completo'; }); }
 // rampa mensual genérica de run-rate acumulado dados parámetros explícitos
 function rampCurve(runRate,startS,capS,curve,months){
   const s=parseD(startS), c=parseD(capS)||s;
@@ -817,7 +821,7 @@ function openWAdd(editId){
   const editing = editId ? loadDash().find(w=>w.id===editId) : null;
   const cur = editing||{type:'stackbars',dim:'grupo',metric:'runRate',size:'S',title:''};
   const opt=(v,l)=>`<option value="${v}" ${cur.type===v?'selected':''}>${l}</option>`;
-  document.getElementById('wAddModal').innerHTML=`<h3>${editing?'Configurar gráfico':'Agregar gráfico'}</h3><div class="msub">Elige el tipo; para barras/dona/apiladas/tabla, define la dimensión y la métrica.</div>
+  document.getElementById('wAddModal').innerHTML=`<button class="mx" onclick="document.getElementById('wAddOverlay').classList.remove('on')">×</button><h3>${editing?'Configurar gráfico':'Agregar gráfico'}</h3><div class="msub">Elige el tipo; para barras/dona/apiladas/tabla, define la dimensión y la métrica.</div>
     <div class="field"><label>Tipo</label><select id="wa_type" onchange="waTypeChange()">
       ${opt('stackbars','Barras apiladas por nivel')}${opt('bars','Barras (ranking)')}${opt('donut','Dona (proporción)')}${opt('table','Tabla')}
       ${opt('funnel','Embudo por nivel')}${opt('gatedonut','Estado de gates')}${opt('monthly','Presupuesto/Real/Forecast')}${opt('kpis','Indicadores clave')}${opt('risks','Hitos en riesgo')}${opt('macros','Salud de macroiniciativas')}</select></div>
@@ -882,7 +886,7 @@ function drillOpen(k,ev){if(ev&&ev.stopPropagation)ev.stopPropagation();const d=
 function renderDrill(title,inis){
   const rows=inis.slice().sort((a,b)=>iniDerived(b).runRate-iniDerived(a).runRate);
   const tot=inis.reduce((s,i)=>s+iniDerived(i).runRate,0);
-  document.getElementById('drillModal').innerHTML=`<h3 style="font-size:16px">${title}</h3><div class="msub">${inis.length} iniciativa(s) · impacto total ${money(tot)}</div>
+  document.getElementById('drillModal').innerHTML=`<button class="mx" onclick="document.getElementById('drillOverlay').classList.remove('on')">×</button><h3 style="font-size:16px">${title}</h3><div class="msub">${inis.length} iniciativa(s) · impacto total ${money(tot)}</div>
     <div class="scroll" style="max-height:60vh"><table><thead><tr><th>Iniciativa</th><th>Área / sub-área</th><th>Nivel</th><th>Estado</th><th class="num">Impacto</th><th class="num">Avance</th></tr></thead><tbody>
     ${rows.length?rows.map(i=>{const {a,g}=iniAreaGrupo(i);const st=stageOf(i.stage);return `<tr class="clk" onclick="document.getElementById('drillOverlay').classList.remove('on');openIniModal('${i.id}')"><td><b>${i.name}</b></td><td>${a?a.name:''} › ${g?g.name:''}</td><td><span class="stage" style="background:${st.c}">${i.stage}</span></td><td>${gatePill(i.gateStatus)}</td><td class="num">${money(iniDerived(i).runRate)}</td><td class="num">${pct(i.progress||0)}</td></tr>`;}).join(''):'<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--muted)">Sin iniciativas</td></tr>'}
     </tbody></table></div>
@@ -1388,6 +1392,7 @@ function openIniModal(id){
   if(!editingIni.approvals)editingIni.approvals=[];
   if(!editingIni.history)editingIni.history=[];
   if(!editingIni.maxStage)editingIni.maxStage=editingIni.stage;
+  normMs(editingIni);
   ensureMonthly(editingIni);
   if(editingIni.enabler===undefined)editingIni.enabler=false;
   if(editingIni.parentId===undefined)editingIni.parentId='';
@@ -1409,7 +1414,7 @@ function renderIniModal(){
   const parentOpts='<option value="">— Ninguna (iniciativa madre) —</option>'+db.inis.filter(x=>x.id!==e.id&&!desc.includes(x.id)).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${x.id===e.parentId?'selected':''}>${x.name}</option>`).join('');
   const kids=iniChildren(e.id);
   const parentIni=e.parentId?db.inis.find(x=>x.id===e.parentId):null;
-  const gb=e.gateStatus==='pendiente'?`<span class="flag amber">En aprobación</span>`:e.gateStatus==='completada'?`<span class="flag green">Completada</span>`:`<span class="flag gray">Borrador</span>`;
+  const gb=gatePill(e.gateStatus);
   // stepper
   const stepper=`<div style="display:flex;align-items:center;margin:2px 0 14px">`+STAGES.map((s,i)=>{const n=i+1;const state=n<cur?'done':n===cur?'cur':'future';const bg=state==='done'?'#00b8a2':state==='cur'?'#2251ff':'#e7edf2';const col=state==='future'?'#8a99a8':'#fff';
     return `<div style="display:flex;align-items:center;${i<STAGES.length-1?'flex:1':''}"><div style="width:26px;height:26px;border-radius:50%;background:${bg};color:${col};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex:none">${s.id}</div><div style="font-size:10px;margin-left:5px;color:${state==='cur'?'#051c2c':'#8a99a8'};font-weight:${state==='cur'?700:400};white-space:nowrap">${s.name}</div>${i<STAGES.length-1?`<div style="flex:1;height:2px;background:${n<cur?'#00b8a2':'#e7edf2'};margin:0 8px"></div>`:''}</div>`;}).join('')+`</div>`;
@@ -1448,8 +1453,9 @@ function renderIniModal(){
     </div>
     <div style="font-weight:700;font-size:12px;margin:8px 0 6px;display:flex;justify-content:space-between;align-items:center">Hitos * ${mEdit?`<button class="btn sm ghost" onclick="addMs()">+ Hito</button>`:''}</div>
     <div id="msList"></div><div id="depsEditor"></div></div>`;
-  const secL4=lock(4)?lockedBox('N4 · Capturado','Se completa al aprobar el gate N3.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N4 · Capturado <span style="font-weight:400;color:var(--muted)">— ${STAGES[3].desc}</span></div>
-    <div class="field"><label>Avance real de captura % (0–100) *</label><input id="f_prog" type="number" min="0" max="100" value="${Math.round((e.progress||0)*100)}" ${dis}></div></div>`;
+  const secL4=lock(4)?lockedBox('N4 · Capturado','Se completa al aprobar el gate N3.'):`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--navy)">N4 · Capturado <span style="font-weight:400;color:var(--muted)">— ${STAGES[3].desc}</span></div>
+    <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px">Los mismos hitos definidos en N3. Marca cada uno como <b>No / Parcial / Completo</b>. La iniciativa llega a 100% solo cuando todos están <b>Completo</b>.</div>
+    <div id="msComplete"></div><div id="msProgress" style="margin-top:8px"></div></div>`;
   // footer según estado
   let footer='';
   if(e.gateStatus==='pendiente'){
@@ -1490,7 +1496,9 @@ function renderIniModal(){
   const defTab='N'+cur;
   const tabBar=`<div class="ini-tabbar">`+tabDefs.map(t=>{const isLvl=/^N\d$/.test(t[0]);const locked=isLvl&&STAGE_ORDER[t[0]]>cur;return `<button id="itb-${t[0]}" data-lk="${locked?1:0}" class="${t[0]===defTab?'on':''}${locked?' lk':''}" onclick="iniTab('${t[0]}')">${t[1]}</button>`;}).join('')+`</div>`;
   document.getElementById('iniModal').innerHTML=`
-    <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span> ${e.enabler?'<span class="flag gray">Habilitadora</span>':''}</h3>
+    <button class="mx" onclick="closeIni()">×</button>
+    <h3>${exists?'Iniciativa':'Nueva iniciativa'} <span style="font-size:13px">${gb}</span> ${e.enabler?'<span class="flag gray">Habilitadora</span>':''}</h3>`;
+  document.getElementById('iniModal').innerHTML+=`
     <div class="msub">Ciclo gobernado por niveles (stage-gates). Completa cada nivel en su pestaña; el nivel actual es <b>N${cur}</b>${maxS>cur?` (llegó a N${maxS})`:''}.</div>
     ${stepper}
     ${tabBar}
@@ -1503,6 +1511,7 @@ function renderIniModal(){
     <div class="modal-foot">${footer}</div>`;
   iniTab(defTab);
   if(cur>=3&&!lock(3)){renderMsList();renderDepsEditor();}
+  if(cur>=4&&!lock(4))renderMsComplete(e);
   if(cur>=2)renderMonthly(e);
   ['f_name','f_owner','f_macro','f_parent','f_desc','f_rr','f_start','f_palanca','f_supuestos','f_cap','f_end','f_curve','f_prog','f_notes'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.addEventListener('input',syncIni);el.addEventListener('change',syncIni);}
@@ -1531,17 +1540,30 @@ function syncIni(){
 const val=id=>{const el=document.getElementById(id);return el?el.value:'';};
 function renderMsList(){
   const box=document.getElementById('msList'); if(!box)return;
-  const dis=mEdit?'':'disabled';
-  box.innerHTML=`<div class="ms-row" style="font-weight:700;color:var(--muted);border:none"><div></div><div>Hito</div><div>Responsable</div><div>Vence</div><div></div></div>`+
-    (editingIni.milestones||[]).map((m,i)=>`<div class="ms-row">
-      <input type="checkbox" ${m.done?'checked':''} ${dis} onchange="msSet(${i},'done',this.checked)">
-      <input value="${m.name||''}" ${dis} oninput="msSet(${i},'name',this.value)">
+  const dis=mEdit?'':'disabled'; const pmin=editingIni.start||'';
+  box.innerHTML=`<div class="ms-row" style="font-weight:700;color:var(--muted);border:none"><div>Hito</div><div>Responsable</div><div>Inicio</div><div>Fin</div><div></div></div>`+
+    (editingIni.milestones||[]).map((m,i)=>{const badStart=m.start&&pmin&&m.start<pmin;const badOrder=m.start&&m.end&&m.end<m.start;
+    return `<div class="ms-row">
+      <input value="${m.name||''}" ${dis} oninput="msSet(${i},'name',this.value)" placeholder="nombre del hito">
       <input value="${m.owner||''}" ${dis} oninput="msSet(${i},'owner',this.value)" placeholder="resp.">
-      <input type="date" value="${m.due||''}" ${dis} onchange="msSet(${i},'due',this.value)">
-      ${mEdit?`<span style="cursor:pointer;color:var(--bad)" onclick="msDel(${i})">✕</span>`:'<span></span>'}</div>`).join('');
+      <input type="date" min="${pmin}" value="${m.start||''}" ${dis} onchange="msSet(${i},'start',this.value)" style="${badStart?'border-color:var(--bad)':''}" title="${badStart?'Antes del inicio del proyecto ('+pmin+')':''}">
+      <input type="date" min="${m.start||pmin}" value="${m.end||''}" ${dis} onchange="msSet(${i},'end',this.value)" style="${badOrder?'border-color:var(--bad)':''}" title="${badOrder?'El fin no puede ser antes del inicio':''}">
+      ${mEdit?`<span style="cursor:pointer;color:var(--bad)" onclick="msDel(${i})">✕</span>`:'<span></span>'}</div>`;}).join('');
 }
-function addMs(){editingIni.milestones=editingIni.milestones||[];editingIni.milestones.push({id:uid('ms'),name:'',owner:editingIni.owner||'',due:'',done:false,doneDate:'',deps:[]});renderMsList();renderDepsEditor();}
-function msSet(i,k,v){const m=editingIni.milestones[i];m[k]=v;if(k==='done')m.doneDate=v?fmtD(today()):'';}
+function addMs(){editingIni.milestones=editingIni.milestones||[];editingIni.milestones.push({id:uid('ms'),name:'',owner:editingIni.owner||'',start:editingIni.start||'',end:'',due:'',comp:'no',done:false,doneDate:'',deps:[]});renderMsList();renderDepsEditor();}
+function msSet(i,k,v){const m=editingIni.milestones[i];m[k]=v;if(k==='end')m.due=v;if(k==='done'){m.comp=v?'completo':'no';m.doneDate=v?fmtD(today()):'';}}
+function msComp(i,s){const m=editingIni.milestones[i];m.comp=s;m.done=(s==='completo');m.doneDate=m.done?fmtD(today()):'';editingIni.progress=iniProgressFromMs(editingIni);persistMonthly();renderMsComplete(editingIni);}
+function iniProgressFromMs(ini){const ms=ini.milestones||[];if(!ms.length)return ini.progress||0;const w={completo:1,parcial:0.5,no:0};return +(ms.reduce((s,m)=>s+(w[m.comp]??(m.done?1:0)),0)/ms.length).toFixed(2);}
+function renderMsComplete(ini){
+  const box=document.getElementById('msComplete'); if(!box)return; const t=today(); const ed=ini.gateStatus==='borrador'; const ms=ini.milestones||[];
+  box.innerHTML=ms.length?ms.map((m,i)=>{const end=parseD(m.end||m.due);const late=m.comp!=='completo'&&end&&end<t;
+    const btn=(s,lbl,col)=>`<button ${ed?'':'disabled'} onclick="msComp(${i},'${s}')" class="btn sm" style="padding:3px 8px;${m.comp===s?`background:${col};color:#fff`:'background:#eef2f6;color:var(--ink)'}">${lbl}</button>`;
+    return `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)">
+      <div style="font-size:12px"><b>${m.name||'Hito '+(i+1)}</b> <span style="color:var(--muted);font-size:10.5px">${m.owner||''} · ${m.start||'?'} → ${m.end||m.due||'?'}</span> ${late?'<span class="flag red">atrasado</span>':''}</div>
+      <div style="display:flex;gap:3px">${btn('no','No','#8a99a8')}${btn('parcial','Parcial','#c99a3a')}${btn('completo','Completo','#3c9b7a')}</div></div>`;}).join(''):'<div style="color:var(--muted);font-size:12px">No hay hitos. Créalos en la pestaña N3.</div>';
+  const p=iniProgressFromMs(ini); const allDone=ms.length&&ms.every(m=>m.comp==='completo');
+  const pe=document.getElementById('msProgress'); if(pe)pe.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><div class="minibar" style="flex:1"><span style="width:${p*100}%;background:${allDone?'var(--good)':'var(--blue)'}"></span></div><b>${pct(p)}</b> ${allDone?'<span class="flag green">todos completos: listo para cerrar N4</span>':'<span class="flag amber">en avance</span>'}</div>`;
+}
 function msDel(i){editingIni.milestones.splice(i,1);renderMsList();renderDepsEditor();}
 function msSetDeps(i,sel){editingIni.milestones[i].deps=Array.from(sel.selectedOptions).map(o=>o.value);}
 function renderDepsEditor(){
@@ -1604,21 +1626,23 @@ function missingForStage(ini,stage){
   const m=[];
   if(!ini.name)m.push('Nombre'); if(!ini.macroId)m.push('Macroiniciativa'); if(!ini.owner)m.push('Responsable'); if(!ini.enabler&&!(ini.runRate>0))m.push('Impacto estimado (>0)');
   if(STAGE_ORDER[stage]>=2){ if(!ini.palanca)m.push('Palanca / categoría'); if(!ini.supuestos)m.push('Supuestos del caso'); if(!ini.businessCase)m.push('Documento del caso de negocio (adjunto)'); }
-  // N3: todos los hitos creados, con responsable y fecha
+  // N3: proyecto con inicio y cierre; todos los hitos con nombre, responsable, inicio y fin válidos
   if(STAGE_ORDER[stage]>=3){
+    if(!ini.start)m.push('Fecha de inicio del proyecto');
+    if(!ini.end)m.push('Fecha de cierre del proyecto');
     const ms=ini.milestones||[];
     if(!ms.length)m.push('Al menos un hito');
     else{
-      const incompletos=ms.filter(x=>!x.name||!x.owner||!x.due).length;
-      if(incompletos)m.push(incompletos+' hito(s) sin nombre / responsable / fecha');
+      if(ms.filter(x=>!x.name||!x.owner||!x.start||!x.end).length)m.push('Hitos sin nombre / responsable / inicio / fin');
+      if(ini.start&&ms.filter(x=>x.start&&x.start<ini.start).length)m.push('Hay hito(s) que inician antes que el proyecto');
+      if(ms.filter(x=>x.start&&x.end&&x.end<x.start).length)m.push('Hay hito(s) con fin anterior al inicio');
     }
-    if(!ini.captureDate)m.push('Fecha de captura');
   }
-  // N4: todos los hitos completados (chequeados)
+  // N4: todos los hitos en estado Completo
   if(STAGE_ORDER[stage]>=4){
     const ms=ini.milestones||[];
-    const pend=ms.filter(x=>!x.done).length;
-    if(pend)m.push(pend+' hito(s) sin completar (N4 requiere todos los hitos realizados)');
+    const pend=ms.filter(x=>x.comp!=='completo').length;
+    if(pend)m.push(pend+' hito(s) sin marcar Completo (N4 requiere todos completos)');
   }
   return m;
 }
