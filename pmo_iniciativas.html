@@ -631,11 +631,11 @@ function seed(){
 }
 
 /* ============ PERSISTENCIA ============ */
-function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio guardado local: '+new Date().toLocaleString();autoPush();}
-function logAudit(action,detail){if(!db.audit)db.audit=[];db.audit.unshift({ts:new Date().toISOString(),user:(db.meta&&db.meta.user)||'—',action,detail});if(db.audit.length>500)db.audit.length=500;}
+function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio (local): '+new Date().toLocaleString();}
+function logAudit(action,detail){if(!db.audit)db.audit=[];const entry={ts:new Date().toISOString(),user:curUserName(),action,detail};db.audit.unshift(entry);if(db.audit.length>500)db.audit.length=500;if(typeof pushAudit==='function')pushAudit(entry);}
 function curUserName(){return (currentSession()||{}).nombre||(db.meta&&db.meta.user)||'—';}
 function iniHist(ini,action,detail){ini.history=ini.history||[];ini.history.unshift({action,user:curUserName(),fecha:new Date().toISOString(),detail:detail||''});}
-function setAuditUser(v){db.meta.user=v;save();}
+function setAuditUser(v){db.meta.user=v;save();pushEstructura();}
 function clearAudit(){if(confirm('¿Vaciar el log de auditoría?')){db.audit=[];save();renderAudit();}}
 function renderAudit(){
   const el=document.getElementById('auditTable'); if(!el)return;
@@ -644,8 +644,8 @@ function renderAudit(){
   el.innerHTML='<thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead><tbody>'+
    (rows.length?rows.map(a=>`<tr><td style="font-size:11px">${new Date(a.ts).toLocaleString()}</td><td>${a.user||'—'}</td><td><span class="tag">${a.action}</span></td><td style="white-space:normal">${a.detail||''}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">Sin movimientos aún</td></tr>')+'</tbody>';
 }
-function loadSeed(force){ if(force||!localStorage.getItem(LS)){db=seed(); if(force)logAudit('reset','Datos de ejemplo recargados'); save();} else {db=migrateStages(JSON.parse(localStorage.getItem(LS)));} refreshAll(); }
-function wipe(){ if(confirm('¿Borrar todos los datos y empezar de cero (vacío)?')){db={areas:[],grupos:[],macros:[],inis:[],meta:{name:'Programa',currency:'USD'}};save();refreshAll();} }
+function loadSeed(force){ if(force||!localStorage.getItem(LS)){db=seed(); if(force){logAudit('reset','Datos de ejemplo recargados'); save(); if(currentSession())pushReplaceAll();} else save();} else {db=migrateStages(JSON.parse(localStorage.getItem(LS)));} refreshAll(); }
+function wipe(){ if(confirm('¿Borrar todos los datos y empezar de cero (vacío)?')){db={areas:[],grupos:[],macros:[],inis:[],meta:{name:'Programa',currency:'USD',user:''},audit:[]};save();if(currentSession())pushReplaceAll();refreshAll();} }
 
 /* ============ CÁLCULOS FINANCIEROS ============ */
 const STAGE_ORDER={N1:1,N2:2,N3:3,N4:4};
@@ -804,16 +804,18 @@ function renderDash(){
 
 /* ============ DASHBOARD CONFIGURABLE (por usuario) ============ */
 function dashKey(){const s=currentSession();return 'wavepmo_dash_'+((s&&s.usuario)||'anon');}
-function loadDash(){try{const d=JSON.parse(localStorage.getItem(dashKey())||'null');if(Array.isArray(d)&&d.length)return d;}catch(e){}return defaultDash();}
+function loadDash(){try{const d=JSON.parse(localStorage.getItem(dashKey())||'null');if(Array.isArray(d)&&d.length)return d;}catch(e){}const def=defaultDash();saveDashCfg(def);return def;}
 function saveDashCfg(w){localStorage.setItem(dashKey(),JSON.stringify(w));}
 function defaultDash(){return [
   {id:uid('w'),type:'kpis',size:'L',title:'Indicadores clave'},
   {id:uid('w'),type:'stackbars',dim:'grupo',metric:'runRate',size:'S',title:'Impacto por sub-área (por nivel)'},
   {id:uid('w'),type:'donut',dim:'area',metric:'runRate',size:'S',title:'Valor por área'},
   {id:uid('w'),type:'funnel',size:'S',title:'Pipeline por nivel'},
+  {id:uid('w'),type:'topvalue',size:'S',title:'Top iniciativas por valor'},
+  {id:uid('w'),type:'late',size:'S',title:'Iniciativas atrasadas'},
+  {id:uid('w'),type:'upcoming',size:'S',title:'Iniciativas por vencer'},
   {id:uid('w'),type:'monthly',size:'S',title:'Presupuesto / Real / Forecast'},
-  {id:uid('w'),type:'gatedonut',size:'S',title:'Estado de gates'},
-  {id:uid('w'),type:'risks',size:'S',title:'Hitos en riesgo'}
+  {id:uid('w'),type:'people',size:'S',title:'Cumplimiento por persona'}
 ];}
 function resetDash(){if(confirm('¿Volver al panel por defecto? Se pierde tu configuración.')){localStorage.removeItem(dashKey());renderDashWidgets();}}
 const NEEDS_DIM=['donut','bars','table','stackbars'];
@@ -824,22 +826,25 @@ function openWAdd(editId){
   document.getElementById('wAddModal').innerHTML=`<button class="mx" onclick="document.getElementById('wAddOverlay').classList.remove('on')">×</button><h3>${editing?'Configurar gráfico':'Agregar gráfico'}</h3><div class="msub">Elige el tipo; para barras/dona/apiladas/tabla, define la dimensión y la métrica.</div>
     <div class="field"><label>Tipo</label><select id="wa_type" onchange="waTypeChange()">
       ${opt('stackbars','Barras apiladas por nivel')}${opt('bars','Barras (ranking)')}${opt('donut','Dona (proporción)')}${opt('table','Tabla')}
-      ${opt('funnel','Embudo por nivel')}${opt('gatedonut','Estado de gates')}${opt('monthly','Presupuesto/Real/Forecast')}${opt('kpis','Indicadores clave')}${opt('risks','Hitos en riesgo')}${opt('macros','Salud de macroiniciativas')}</select></div>
+      ${opt('funnel','Embudo por nivel')}${opt('gatedonut','Estado de gates')}${opt('monthly','Presupuesto/Real/Forecast')}${opt('kpis','Indicadores clave')}
+      ${opt('late','Iniciativas atrasadas')}${opt('upcoming','Iniciativas por vencer')}${opt('topvalue','Top iniciativas por valor')}${opt('people','Cumplimiento por persona')}
+      ${opt('risks','Hitos en riesgo')}${opt('macros','Salud de macroiniciativas')}</select></div>
     <div style="text-align:center;font-size:10.5px;color:var(--muted);margin-bottom:2px">Vista previa</div>
     <div id="wa_preview" style="display:flex;justify-content:center;align-items:center;height:96px;background:#f6f8fa;border:1px solid var(--line);border-radius:8px;margin-bottom:10px"></div>
     <div class="row" id="wa_dimmetric">
       <div class="field"><label>Dimensión</label><select id="wa_dim" onchange="waTypeChange()">${Object.entries(DIMS).map(([k,v])=>`<option value="${k}" ${cur.dim===k?'selected':''}>${v}</option>`).join('')}</select></div>
       <div class="field"><label>Métrica</label><select id="wa_metric" onchange="waTypeChange()">${Object.entries(METRICS).map(([k,v])=>`<option value="${k}" ${cur.metric===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
-    <div class="field"><label>Título (opcional)</label><input id="wa_title" value="${(cur.title||'').replace(/"/g,'&quot;')}" placeholder="(automático)"></div>
+    <div class="row"><div class="field"><label>Título (opcional)</label><input id="wa_title" value="${(cur.title||'').replace(/"/g,'&quot;')}" placeholder="(automático)"></div>
+    <div class="field" style="flex:0 0 190px"><label>Ancho</label><select id="wa_size">${['S','M','L'].map(s=>`<option value="${s}" ${cur.size===s?'selected':''}>${({S:'1 columna',M:'2 columnas',L:'3 columnas (ancho)'})[s]}</option>`).join('')}</select></div></div>
     <div class="modal-foot"><div>${editing?`<button class="btn danger" onclick="document.getElementById('wAddOverlay').classList.remove('on');wRemove('${editId}')">Quitar</button>`:''}</div><div style="display:flex;gap:8px"><button class="btn gray" onclick="document.getElementById('wAddOverlay').classList.remove('on')">Cancelar</button><button class="btn" onclick="addWidget('${editId||''}')">${editing?'Guardar':'Agregar'}</button></div></div>`;
   document.getElementById('wAddOverlay').classList.add('on'); waTypeChange();
 }
 function waTypeChange(){const t=document.getElementById('wa_type').value;const dm=document.getElementById('wa_dimmetric');if(dm)dm.style.display=NEEDS_DIM.includes(t)?'':'none';const pv=document.getElementById('wa_preview');if(pv)pv.innerHTML=chartPreview(t);}
 function addWidget(editId){const t=document.getElementById('wa_type').value;const w=loadDash();const needs=NEEDS_DIM.includes(t);
-  const dim=document.getElementById('wa_dim').value, metric=document.getElementById('wa_metric').value, title=document.getElementById('wa_title').value.trim();
-  if(editId){const x=w.find(a=>a.id===editId);if(x){x.type=t;x.title=title;if(needs){x.dim=dim;x.metric=metric;}else{delete x.dim;delete x.metric;}}}
-  else{const nw={id:uid('w'),type:t,size:'S',title};if(needs){nw.dim=dim;nw.metric=metric;}w.push(nw);}
+  const dim=document.getElementById('wa_dim').value, metric=document.getElementById('wa_metric').value, title=document.getElementById('wa_title').value.trim(), size=(document.getElementById('wa_size')||{}).value||'S';
+  if(editId){const x=w.find(a=>a.id===editId);if(x){x.type=t;x.title=title;x.size=size;if(needs){x.dim=dim;x.metric=metric;}else{delete x.dim;delete x.metric;}}}
+  else{const nw={id:uid('w'),type:t,size,title};if(needs){nw.dim=dim;nw.metric=metric;}w.push(nw);}
   saveDashCfg(w);document.getElementById('wAddOverlay').classList.remove('on');renderDashWidgets();}
 function chartPreview(t){const C={navy:'#16294a',teal:'#2f7d95',green:'#3c9b7a',gold:'#c99a3a',gray:'#b9c3ce',cyan:'#4aa3b8'};
   const S='<svg viewBox="0 0 120 70" width="150" height="88">';
@@ -852,6 +857,9 @@ function chartPreview(t){const C={navy:'#16294a',teal:'#2f7d95',green:'#3c9b7a',
   if(t==='table'){let s=S+`<rect x="10" y="10" width="100" height="10" fill="${C.navy}"/>`;for(let i=0;i<4;i++)s+=`<line x1="10" y1="${24+i*10}" x2="110" y2="${24+i*10}" stroke="#e4e6ea"/><rect x="14" y="${20+i*10}" width="40" height="4" fill="${C.gray}"/><rect x="80" y="${20+i*10}" width="24" height="4" fill="${C.teal}"/>`;return s+'</svg>';}
   if(t==='risks'){let s=S;for(let i=0;i<4;i++)s+=`<circle cx="16" cy="${16+i*13}" r="4" fill="${i<2?C.gold:C.gray}"/><rect x="26" y="${13+i*13}" width="80" height="5" rx="1" fill="#e4e6ea"/>`;return s+'</svg>';}
   if(t==='macros'){let s=S;for(let i=0;i<4;i++)s+=`<rect x="10" y="${12+i*13}" width="30" height="6" fill="${C.navy}"/><rect x="44" y="${12+i*13}" width="${20+i*15}" height="6" rx="1" fill="${C.green}"/>`;return s+'</svg>';}
+  if(t==='topvalue'){let s=S;[[58,C.teal],[46,C.green],[38,C.gold],[30,C.navy]].forEach(([w,c],i)=>{s+=`<rect x="10" y="${10+i*13}" width="60" height="7" rx="1" fill="#eef2f6"/><rect x="10" y="${10+i*13}" width="${w}" height="7" rx="1" fill="${c}"/>`;});return s+'</svg>';}
+  if(t==='late'||t==='upcoming'){const c=t==='late'?C.gold:C.teal;let s=S;for(let i=0;i<4;i++)s+=`<circle cx="15" cy="${16+i*13}" r="3.5" fill="${t==='late'?'#c0554f':c}"/><rect x="24" y="${13+i*13}" width="70" height="5" rx="1" fill="#e4e6ea"/><rect x="100" y="${13+i*13}" width="12" height="5" rx="1" fill="${c}"/>`;return s+'</svg>';}
+  if(t==='people'){let s=S;[[52,C.green],[40,C.green],[30,C.gold],[18,'#c0554f']].forEach(([w,c],i)=>{s+=`<rect x="30" y="${11+i*13}" width="20" height="6" fill="${C.gray}"/><rect x="54" y="${11+i*13}" width="${w}" height="6" rx="1" fill="${c}"/>`;});return s+'</svg>';}
   return S+`<text x="60" y="38" text-anchor="middle" font-size="11" fill="${C.gray}">vista previa</text></svg>`;}
 function wResize(id){const w=loadDash();const x=w.find(a=>a.id===id);if(!x)return;x.size={S:'M',M:'L',L:'S'}[x.size]||'M';saveDashCfg(w);renderDashWidgets();}
 function wMove(id,dir){const w=loadDash();const i=w.findIndex(a=>a.id===id);if(i<0)return;const j=i+dir;if(j<0||j>=w.length)return;[w[i],w[j]]=[w[j],w[i]];saveDashCfg(w);renderDashWidgets();}
@@ -875,6 +883,7 @@ function wDragStart(ev,id){wDragId=id;ev.dataTransfer.effectAllowed='move';try{e
 function wDragOver(ev,id){ev.preventDefault();ev.dataTransfer.dropEffect='move';const c=ev.currentTarget;document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='');if(wDragId&&wDragId!==id)c.style.outline='2px dashed var(--blue)';}
 function wDrop(ev,id){ev.preventDefault();const w=loadDash();const from=w.findIndex(a=>a.id===wDragId);const to=w.findIndex(a=>a.id===id);if(from<0||to<0||from===to){wDragId=null;renderDashWidgets();return;}const [m]=w.splice(from,1);w.splice(to,0,m);saveDashCfg(w);wDragId=null;renderDashWidgets();}
 function wSize(id){const w=loadDash();const x=w.find(a=>a.id===id);if(!x)return;x.size={S:'M',M:'L',L:'S'}[x.size]||'S';saveDashCfg(w);renderDashWidgets();}
+function wSetSize(id,s){const w=loadDash();const x=w.find(a=>a.id===id);if(!x)return;x.size=s;saveDashCfg(w);renderDashWidgets();}
 let wResizing=null;
 function wResizeStart(ev,id){ev.preventDefault();ev.stopPropagation();const card=ev.target.closest('.card');const cont=document.getElementById('dashWidgets');if(!card||!cont)return;card.setAttribute('draggable','false');card.style.cursor='nwse-resize';wResizing={id,card,startX:ev.clientX,startW:card.offsetWidth,contW:cont.clientWidth};document.addEventListener('mousemove',wResizeMove);document.addEventListener('mouseup',wResizeEnd);}
 function wResizeMove(ev){if(!wResizing)return;let w=Math.max(220,wResizing.startW+(ev.clientX-wResizing.startX));w=Math.min(w,wResizing.contW);wResizing.card.style.flexBasis=w+'px';wResizing.card.style.maxWidth=w+'px';}
@@ -903,8 +912,9 @@ function renderDashWidgets(){
     return `<div class="card" draggable="true" ondragstart="wDragStart(event,'${w.id}')" ondragover="wDragOver(event,'${w.id}')" ondrop="wDrop(event,'${w.id}')" ondragend="document.querySelectorAll('#dashWidgets .card').forEach(x=>x.style.outline='')" style="flex:0 0 ${basis};max-width:${basis};min-width:230px;margin:0;display:flex;flex-direction:column;cursor:grab;position:relative">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px">
         <div style="font-size:12.5px;font-weight:700;color:var(--navy);line-height:1.25">${w.title||wTitle(w)}${editable?` <span style="font-size:10px;color:var(--blue);cursor:pointer;font-weight:600" onclick="openWAdd('${w.id}')">configurar</span>`:''}</div>
-        <div style="display:flex;gap:4px;flex:none">
-          <span title="Quitar" onclick="wRemove('${w.id}')" style="cursor:pointer;font-size:11px;color:var(--bad);border:1px solid var(--line);border-radius:4px;padding:1px 5px">✕</span>
+        <div style="display:flex;gap:3px;flex:none;align-items:center">
+          ${['S','M','L'].map(s=>`<span title="${({S:'1 columna',M:'2 columnas',L:'3 columnas'})[s]}" onclick="wSetSize('${w.id}','${s}')" style="cursor:pointer;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;${w.size===s?'background:var(--blue);color:#fff':'background:#eef2f6;color:var(--muted)'}">${s}</span>`).join('')}
+          <span title="Quitar" onclick="wRemove('${w.id}')" style="cursor:pointer;font-size:11px;color:var(--bad);border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:2px">✕</span>
         </div>
       </div>
       <div id="wb_${w.id}" style="flex:1;min-height:0">${editable?'':''}</div>
@@ -919,6 +929,10 @@ function renderWidget(w){
   if(w.type==='monthly')return widgetMonthlyProgram(el);
   if(w.type==='risks')return renderRiskList(el);
   if(w.type==='macros')return renderMacroHealth(el);
+  if(w.type==='late')return widgetLate(el);
+  if(w.type==='upcoming')return widgetUpcoming(el);
+  if(w.type==='topvalue')return widgetTopValue(el);
+  if(w.type==='people')return widgetPeople(el);
   if(w.type==='gatedonut')return widgetDonutGroups(el,groupsBy('gate'),'count');
   const groups=groupsBy(w.dim||'grupo'); const metric=w.metric||'runRate';
   if(w.type==='stackbars')return widgetStackBars(el,groups,metric);
@@ -988,6 +1002,17 @@ function widgetMonthlyProgram(el){
   el.innerHTML=svg+'<div class="legend"><span><i style="background:#8a99a8"></i>Ppto</span><span><i style="background:#051c2c"></i>Forecast</span><span><i style="background:#00b8a2"></i>Real</span></div>';
 }
 
+function iniLateDays(i){const t=today();let mx=0;(i.milestones||[]).forEach(m=>{if(m.comp!=='completo'){const e=parseD(m.end||m.due);if(e&&e<t)mx=Math.max(mx,Math.round((t-e)/864e5));}});return mx;}
+function iniNextDue(i){const t=today();let best=null;(i.milestones||[]).forEach(m=>{if(m.comp!=='completo'){const e=parseD(m.end||m.due);if(e&&e>=t){const days=Math.round((e-t)/864e5);if(!best||days<best.days)best={days,due:m.end||m.due,name:m.name};}}});return best;}
+function widgetLate(el){const list=db.inis.map(i=>({i,d:iniLateDays(i)})).filter(x=>x.d>0).sort((a,b)=>b.d-a.d).slice(0,12);
+  el.innerHTML=list.length?'<div class="scroll"><table><tbody>'+list.map(x=>{const {a}=iniAreaGrupo(x.i);return `<tr class="clk" onclick="openIniModal('${x.i.id}')"><td style="font-size:11.5px"><b>${x.i.name}</b><div style="font-size:10px;color:var(--muted)">${a?a.name:''}</div></td><td class="num" style="color:var(--bad);font-weight:700;width:52px">${x.d} d</td><td class="num" style="font-size:11px;width:66px">${money(iniDerived(x.i).runRate)}</td></tr>`;}).join('')+'</tbody></table></div>':'<div style="color:var(--good);font-size:12px;padding:10px">Sin iniciativas atrasadas</div>';}
+function widgetUpcoming(el){const list=db.inis.map(i=>({i,n:iniNextDue(i)})).filter(x=>x.n&&x.n.days<=30).sort((a,b)=>a.n.days-b.n.days).slice(0,12);
+  el.innerHTML=list.length?'<div class="scroll"><table><tbody>'+list.map(x=>{const {a}=iniAreaGrupo(x.i);return `<tr class="clk" onclick="openIniModal('${x.i.id}')"><td style="font-size:11.5px"><b>${x.i.name}</b><div style="font-size:10px;color:var(--muted)">${a?a.name:''} · ${x.n.name||''}</div></td><td class="num" style="color:var(--warn);font-weight:700;width:44px">${x.n.days} d</td><td class="num" style="font-size:11px;width:80px">${x.n.due}</td></tr>`;}).join('')+'</tbody></table></div>':'<div style="color:var(--muted);font-size:12px;padding:10px">Nada por vencer en 30 días</div>';}
+function widgetTopValue(el){const list=db.inis.filter(i=>!i.enabler).slice().sort((a,b)=>iniDerived(b).runRate-iniDerived(a).runRate).slice(0,12);const max=Math.max(1,...list.map(i=>iniDerived(i).runRate));
+  el.innerHTML='<div class="scroll"><table><tbody>'+list.map(i=>{const {a}=iniAreaGrupo(i);const v=iniDerived(i).runRate;return `<tr class="clk" onclick="openIniModal('${i.id}')"><td style="width:150px;font-size:11.5px">${i.name}</td><td><div class="minibar"><span style="width:${v/max*100}%;background:${a?a.color:'var(--blue)'}"></span></div></td><td class="num" style="font-size:11px;width:66px">${money(v)}</td></tr>`;}).join('')+'</tbody></table></div>';}
+function widgetPeople(el){const by={};allMilestones().forEach(m=>{if(m.done){const o=m.owner||'—';by[o]=by[o]||{ot:0,d:0};by[o].d++;const dd=parseD(m.doneDate),due=parseD(m.end||m.due);if(dd&&due&&dd<=new Date(due.getTime()+864e5))by[o].ot++;}});
+  const arr=Object.entries(by).map(([o,v])=>({o,p:v.d?v.ot/v.d:0,d:v.d})).sort((a,b)=>b.p-a.p).slice(0,12);
+  el.innerHTML=arr.length?'<div class="scroll"><table><tbody>'+arr.map(x=>`<tr><td style="width:130px;font-size:11.5px">${x.o}</td><td><div class="minibar"><span style="width:${x.p*100}%;background:${x.p>=.8?'var(--good)':x.p>=.6?'var(--warn)':'var(--bad)'}"></span></div></td><td class="num" style="font-size:11px;width:66px">${pct(x.p)} · ${x.d}</td></tr>`).join('')+'</tbody></table></div>':'<div style="color:var(--muted);font-size:12px;padding:10px">Sin hitos cerrados aún</div>';}
 function renderFunnel(box){
   box=box||document.getElementById('funnel'); if(!box)return;
   const byStage=STAGES.map(s=>{const inis=db.inis.filter(i=>i.stage===s.id);
@@ -1588,9 +1613,9 @@ function saveIni(){
   ensureBaseline(editingIni);
   if(idx>=0){logAudit('editar','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')'+(!wasBaseline&&editingIni.baseline?' · baseline congelado':''));iniHist(editingIni,'editada',editingIni.stage+' · '+money(editingIni.runRate));db.inis[idx]=editingIni;}
   else{logAudit('crear','Iniciativa "'+editingIni.name+'" ('+editingIni.stage+', '+money(editingIni.runRate)+')');iniHist(editingIni,'creada',editingIni.stage);db.inis.push(editingIni);}
-  save();closeIni();refreshAll();
+  save();pushIni(editingIni);closeIni();refreshAll();
 }
-function deleteIni(){if(confirm('¿Eliminar esta iniciativa?')){logAudit('eliminar','Iniciativa "'+editingIni.name+'"');db.inis=db.inis.filter(i=>i.id!==editingIni.id);save();closeIni();refreshAll();}}
+function deleteIni(){if(confirm('¿Eliminar esta iniciativa?')){logAudit('eliminar','Iniciativa "'+editingIni.name+'"');const id=editingIni.id;db.inis=db.inis.filter(i=>i.id!==id);save();pushDeleteIni(id);closeIni();refreshAll();}}
 function closeIni(){document.getElementById('iniOverlay').classList.remove('on');editingIni=null;}
 function attachBC(input){const f=input.files[0];if(!f)return;if(f.size>2*1024*1024){alert('El archivo supera 2 MB. Sube uno más liviano.');input.value='';return;}const r=new FileReader();r.onload=()=>{editingIni.businessCase={name:f.name,size:f.size,type:f.type||'',data:r.result};iniHist(editingIni,'adjuntó caso de negocio',f.name);renderIniModal();};r.readAsDataURL(f);}
 function removeBC(){if(editingIni){editingIni.businessCase=null;renderIniModal();}}
@@ -1672,24 +1697,23 @@ function submitFromModal(){
   logAudit('enviar','"'+editingIni.name+'" enviada a aprobación de '+editingIni.stage);
   const idx=db.inis.findIndex(i=>i.id===editingIni.id);
   if(idx>=0)db.inis[idx]=editingIni; else db.inis.push(editingIni);
-  save();closeIni();refreshAll();
-  const ap=approverFor(editingIni||{});
+  save();pushIni(editingIni);closeIni();refreshAll();
 }
 function approveFromModal(){approveIni(editingIni.id,true);}
 function rejectFromModal(){rejectIni(editingIni.id,true);}
-function cancelSubmit(){const idx=db.inis.findIndex(i=>i.id===editingIni.id);if(idx>=0){db.inis[idx].gateStatus='borrador';db.inis[idx].submittedBy='';db.inis[idx].submittedAt='';logAudit('cancelar','Envío cancelado: "'+db.inis[idx].name+'"');save();closeIni();refreshAll();}}
+function cancelSubmit(){const idx=db.inis.findIndex(i=>i.id===editingIni.id);if(idx>=0){db.inis[idx].gateStatus='borrador';db.inis[idx].submittedBy='';db.inis[idx].submittedAt='';logAudit('cancelar','Envío cancelado: "'+db.inis[idx].name+'"');save();pushIni(db.inis[idx]);closeIni();refreshAll();}}
 function approveIni(iniId,fromModal){
   const ini=db.inis.find(i=>i.id===iniId); if(!ini){alert('No encontrada');return;}
   if(!canApprove(ini)){alert('No tienes permiso para aprobar esta iniciativa.');return;}
   const c=prompt('Comentario de aprobación (opcional):','')||'';
-  approveGate(ini,c);save();if(fromModal)closeIni();refreshAll();
+  approveGate(ini,c);save();pushIni(ini);if(fromModal)closeIni();refreshAll();
 }
 function rejectIni(iniId,fromModal){
   const ini=db.inis.find(i=>i.id===iniId); if(!ini){alert('No encontrada');return;}
   if(!canApprove(ini)){alert('No tienes permiso para rechazar esta iniciativa.');return;}
   const c=prompt('Motivo del rechazo:','');
   if(c===null)return;
-  rejectGate(ini,c);save();if(fromModal)closeIni();refreshAll();
+  rejectGate(ini,c);save();pushIni(ini);if(fromModal)closeIni();refreshAll();
 }
 async function fetchAprobadores(){
   const s=currentSession(); if(!s)return;
@@ -1722,9 +1746,9 @@ function saveMacro(){
   const idx=db.macros.findIndex(m=>m.id===editingMacro.id);
   logAudit(idx>=0?'editar':'crear','Macroiniciativa "'+editingMacro.name+'" (meta '+money(editingMacro.target)+')');
   if(idx>=0)db.macros[idx]=editingMacro;else db.macros.push(editingMacro);
-  save();document.getElementById('macroOverlay').classList.remove('on');refreshAll();
+  save();pushEstructura();document.getElementById('macroOverlay').classList.remove('on');refreshAll();
 }
-function deleteMacro(id){if(db.inis.some(i=>i.macroId===id)){alert('Tiene iniciativas asociadas. Reasígnalas o elimínalas primero.');return;}if(confirm('¿Eliminar macroiniciativa?')){db.macros=db.macros.filter(m=>m.id!==id);save();document.getElementById('macroOverlay').classList.remove('on');refreshAll();}}
+function deleteMacro(id){if(db.inis.some(i=>i.macroId===id)){alert('Tiene iniciativas asociadas. Reasígnalas o elimínalas primero.');return;}if(confirm('¿Eliminar macroiniciativa?')){db.macros=db.macros.filter(m=>m.id!==id);save();pushEstructura();document.getElementById('macroOverlay').classList.remove('on');refreshAll();}}
 
 /* ============ EDITOR ESTRUCTURA ============ */
 function renderStruct(){
@@ -1738,13 +1762,13 @@ function renderStruct(){
       <button class="btn sm ghost" onclick="addGrp('${a.id}')" style="margin-left:14px;margin-top:4px">+ Grupo</button>
     </div></details>`).join('');
 }
-function addArea(){db.areas.push({id:uid('a'),name:'Nueva área',color:AREA_COLORS[db.areas.length%AREA_COLORS.length]});save();renderStruct();fillSelectors();}
-function renameArea(id,v){db.areas.find(a=>a.id===id).name=v;save();refreshAll();}
-function colorArea(id,v){db.areas.find(a=>a.id===id).color=v;save();refreshAll();}
-function delArea(id){if(db.grupos.some(g=>g.areaId===id)){alert('Elimina primero sus grupos.');return;}db.areas=db.areas.filter(a=>a.id!==id);save();refreshAll();}
-function addGrp(aid){db.grupos.push({id:uid('g'),areaId:aid,name:'Nuevo grupo'});save();renderStruct();fillSelectors();}
-function renameGrp(id,v){db.grupos.find(g=>g.id===id).name=v;save();refreshAll();}
-function delGrp(id){if(db.macros.some(m=>m.grupoId===id)){alert('Tiene macroiniciativas. Reasígnalas primero.');return;}db.grupos=db.grupos.filter(g=>g.id!==id);save();refreshAll();}
+function addArea(){db.areas.push({id:uid('a'),name:'Nueva área',color:AREA_COLORS[db.areas.length%AREA_COLORS.length]});save();pushEstructura();renderStruct();fillSelectors();}
+function renameArea(id,v){db.areas.find(a=>a.id===id).name=v;save();pushEstructura();refreshAll();}
+function colorArea(id,v){db.areas.find(a=>a.id===id).color=v;save();pushEstructura();refreshAll();}
+function delArea(id){if(db.grupos.some(g=>g.areaId===id)){alert('Elimina primero sus grupos.');return;}db.areas=db.areas.filter(a=>a.id!==id);save();pushEstructura();refreshAll();}
+function addGrp(aid){db.grupos.push({id:uid('g'),areaId:aid,name:'Nuevo grupo'});save();pushEstructura();renderStruct();fillSelectors();}
+function renameGrp(id,v){db.grupos.find(g=>g.id===id).name=v;save();pushEstructura();refreshAll();}
+function delGrp(id){if(db.macros.some(m=>m.grupoId===id)){alert('Tiene macroiniciativas. Reasígnalas primero.');return;}db.grupos=db.grupos.filter(g=>g.id!==id);save();pushEstructura();refreshAll();}
 
 function renderMacroEditor(){
   const box=document.getElementById('macroEditor');
@@ -1816,7 +1840,7 @@ function importCSV(text,mode){
     added++;
   }
   logAudit('importar',added+' iniciativas por CSV ('+(mode==='replace'?'reemplazo total':'agregadas')+')');
-  save();refreshAll();alert(`✓ ${added} iniciativas importadas (${mode==='replace'?'reemplazo total':'agregadas'}).`);
+  save();refreshAll();if(currentSession()){if(mode==='replace')pushReplaceAll();else pushAll();}alert(`✓ ${added} iniciativas importadas (${mode==='replace'?'reemplazo total':'agregadas'}).`);
 }
 
 /* ============ AUTENTICACIÓN & NUBE ============ */
@@ -1837,28 +1861,29 @@ function loadSyncPanel(){
   const info=document.getElementById('sessionInfo');
   if(info&&s)info.innerHTML=`Conectado como <b>${s.nombre||s.usuario}</b> (${s.rol||'user'}). Sesión válida hasta ${new Date(s.expiresAt).toLocaleString()}.`;
 }
-async function cloudSave(){
-  const s=currentSession(); if(!s){syncStatus('Sesión expirada','err');return;}
-  syncStatus('Guardando…');
-  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.token},body:JSON.stringify({action:'save',data:db})});
-    if(res.status===401){sessionExpired();return;}
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    syncStatus('✓ Guardado en la nube · '+new Date().toLocaleTimeString(),'ok');
-  }catch(e){syncStatus('✗ '+e.message,'err');}
-}
-async function cloudLoad(silent){
+/* Guardado GRANULAR: cada iniciativa se guarda por separado (concurrencia segura). */
+async function apiData(body){const s=currentSession();const r=await fetch(DATA_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((s&&s.token)||'')},body:JSON.stringify(body)});if(r.status===401)throw new Error('401');if(!r.ok)throw new Error('HTTP '+r.status);return r;}
+function estructuraObj(){return {areas:db.areas,grupos:db.grupos,macros:db.macros,meta:db.meta};}
+async function pushIni(ini){if(!ini||!currentSession())return;try{await apiData({action:'saveIni',ini});syncStatus('✓ Guardado · '+new Date().toLocaleTimeString(),'ok');}catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ guardar «'+(ini.name||'')+'»: '+e.message,'err');}}
+async function pushDeleteIni(id){if(!id||!currentSession())return;try{await apiData({action:'deleteIni',id});}catch(e){}}
+async function pushEstructura(){if(!currentSession())return;try{await apiData({action:'saveEstructura',estructura:estructuraObj()});syncStatus('✓ Estructura guardada','ok');}catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ estructura: '+e.message,'err');}}
+async function pushAudit(entry){if(!currentSession())return;try{await apiData({action:'logAudit',entry});}catch(e){}}
+async function pushAll(){if(!currentSession()){syncStatus('Sesión expirada','err');return;}syncStatus('Guardando todo…');await pushEstructura();for(const i of db.inis){try{await apiData({action:'saveIni',ini:i});}catch(e){}}syncStatus('✓ Todo guardado en la nube · '+new Date().toLocaleTimeString(),'ok');}
+async function pushReplaceAll(){if(!currentSession())return;try{const r=await apiData({action:'loadAll'});const d=await r.json();const localIds=new Set(db.inis.map(i=>i.id));for(const si of (d.inis||[])){if(!localIds.has(si.id))await pushDeleteIni(si.id);}}catch(e){}await pushAll();}
+async function cloudSave(){await pushAll();}
+async function cloudLoad(silent){await cloudLoadAll(silent);}
+async function cloudLoadAll(silent){
   const s=currentSession(); if(!s){if(!silent)syncStatus('Sesión expirada','err');return;}
-  if(!silent&&!confirm('Esto reemplazará tus datos locales con los de la nube. ¿Continuar?'))return;
+  if(!silent&&!confirm('Esto recarga los datos desde la nube. ¿Continuar?'))return;
   syncStatus('Cargando…');
-  try{const res=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.token},body:JSON.stringify({action:'load'})});
-    if(res.status===401){sessionExpired();return;}
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    let d=await res.json();if(d.data)d=d.data;if(d.body)d=d.body;
-    if(!d.areas||!d.inis){if(silent){syncStatus('Nube vacía; usando datos locales','');return;}throw new Error('Respuesta sin estructura válida');}
-    db=migrateStages(d);logAudit('nube','Programa cargado desde la nube');save();refreshAll();syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
-  }catch(e){syncStatus('✗ '+e.message,'err');}
+  try{const r=await apiData({action:'loadAll'}); const d=await r.json();
+    const est=d.estructura||{};
+    db={areas:est.areas||[],grupos:est.grupos||[],macros:est.macros||[],meta:est.meta||{name:'Programa',currency:'USD',user:''},inis:d.inis||[],audit:d.audit||[]};
+    migrateStages(db); localStorage.setItem(LS,JSON.stringify(db)); refreshAll();
+    syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ '+e.message,'err');}
 }
-function autoPush(){if(!sync.auto||!currentSession())return;clearTimeout(syncTimer);syncTimer=setTimeout(cloudSave,2500);}
+function autoPush(){}
 function sessionExpired(){alert('Tu sesión expiró. Vuelve a iniciar sesión.');logout();}
 async function doLogin(){
   const user=(document.getElementById('lg_user').value||'').trim();
