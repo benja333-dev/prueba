@@ -422,7 +422,7 @@ body.locked{overflow:hidden}
     </div>
     <div class="card">
       <h2>Mapa de aprobadores <span class="tag">por área / sub-área</span></h2>
-      <div class="hint">Quién aprueba cada sub-área (fuente: Google Sheet «aprobadores»).</div>
+      <div class="hint">Quién aprueba cada sub-área. El <b>administrador</b> aprueba todas; además, el <b>aprobador asignado</b> aquí puede aprobar las iniciativas de su área/sub-área.</div>
       <div class="scroll"><table id="aprobMap"></table></div>
     </div>
   </section>
@@ -1853,8 +1853,8 @@ function iniChildren(id){return db.inis.filter(i=>i.parentId===id);}
 function iniDescendants(id){let out=[];iniChildren(id).forEach(c=>{out.push(c.id);out=out.concat(iniDescendants(c.id));});return out;}
 function approverFor(ini){const {a,g}=iniAreaGrupo(ini);if(!a||!g)return null;const row=aprobadores.find(r=>String(r.area||'').trim().toLowerCase()===a.name.trim().toLowerCase()&&String(r.sub_area||'').trim().toLowerCase()===g.name.trim().toLowerCase());return row?{usuario:row.usuario,nombre:row.nombre}:null;}
 function isAdmin(){return ((currentSession()||{}).rol||'').toLowerCase()==='admin';}
-// Único aprobador: el administrador. (Todas las iniciativas las aprueba el admin.)
-function canApprove(ini){return isAdmin();}
+// Aprueba el admin (todas) o el aprobador asignado a esa área/sub-área en el mapa de aprobadores.
+function canApprove(ini){if(isAdmin())return true;const s=currentSession();if(!s)return false;const ap=approverFor(ini);return !!(ap&&String(ap.usuario||'').toLowerCase().trim()===String(s.usuario||'').toLowerCase().trim());}
 function myPending(){return db.inis.filter(i=>i.gateStatus==='pendiente'&&canApprove(i));}
 function missingForStage(ini,stage){
   const m=[];
