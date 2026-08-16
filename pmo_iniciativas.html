@@ -148,6 +148,13 @@ body.locked{overflow:hidden}
 .ai-foot textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;height:38px;max-height:96px}
 .ai-foot button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:0 15px;font-weight:700;font-size:12.5px;cursor:pointer}
 .ai-foot button:disabled{opacity:.5;cursor:default}
+/* Footer / copyright */
+.app-foot{border-top:1px solid var(--line);margin-top:10px;padding:20px 30px 34px;text-align:center;color:var(--muted);font-size:11.5px;line-height:1.7}
+.app-foot .brand{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:.5px;color:var(--navy)}
+.app-foot .sep{margin:0 6px;opacity:.5}
+.login-foot{margin-top:16px;text-align:center;font-size:10.5px;color:var(--muted);line-height:1.6}
+.login-foot .brand{font-family:Georgia,'Times New Roman',serif;font-weight:700;color:var(--navy)}
+@media print{.app-foot{display:none !important}}
 /* Reporte de comité */
 .rep-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .rep-head h1{font-size:22px;color:var(--navy)}
@@ -175,6 +182,7 @@ body.locked{overflow:hidden}
     <div class="field"><label>Contraseña</label><input id="lg_pass" type="password" autocomplete="current-password"></div>
     <button class="btn" id="lg_btn" style="width:100%;margin-top:4px" onclick="doLogin()">Ingresar</button>
     <div id="lg_msg" class="login-msg"></div>
+    <div class="login-foot">© <span class="foot-year">2026</span> <span class="brand">Altus Consulting</span>. Todos los derechos reservados.<br>Plataforma elaborada por Altus Consulting. Uso interno y confidencial.</div>
   </div>
 </div>
 <header>
@@ -519,6 +527,11 @@ body.locked{overflow:hidden}
     </div>
   </section>
 </main>
+
+<footer class="app-foot">
+  <div>© <span class="foot-year">2026</span> <span class="brand">Altus Consulting</span>. Todos los derechos reservados.</div>
+  <div>Plataforma PMO de captura de valor — elaborada por Altus Consulting.<span class="sep">·</span>Documento y datos de uso interno y confidencial.</div>
+</footer>
 
 <!-- MODAL INICIATIVA -->
 <div class="overlay" id="iniOverlay">
@@ -2257,6 +2270,7 @@ function renderComite(){
   const lp=document.getElementById('lg_pass'), lu=document.getElementById('lg_user');
   if(lp)lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
   if(lu)lu.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lp.focus();}});
+  document.querySelectorAll('.foot-year').forEach(e=>e.textContent=new Date().getFullYear());
   if(currentSession()){ bootApp(); } else { showGate(); }
 })();
 </script>
