@@ -128,6 +128,26 @@ body.locked{overflow:hidden}
 .ini-tabbar button.lk{color:#b9c3ce}
 .session-chip{background:var(--navy2);border-radius:8px;padding:8px 12px;font-size:11.5px;color:#cfe0ec;display:flex;align-items:center;gap:8px}
 .session-chip a{color:#ffc760;text-decoration:none;font-weight:700}
+/* Asistente IA */
+#aiFab{position:fixed;right:24px;bottom:24px;z-index:60;background:var(--navy);color:#fff;border:1px solid var(--blue);border-radius:26px;padding:12px 20px;font-size:13px;font-weight:700;letter-spacing:.02em;cursor:pointer;box-shadow:0 6px 20px rgba(22,41,74,.28);display:none}
+#aiFab:hover{background:var(--navy2)}
+#aiPanel{position:fixed;right:24px;bottom:24px;z-index:61;width:396px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 40px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 44px rgba(22,41,74,.32);display:none;flex-direction:column;overflow:hidden}
+#aiPanel.on{display:flex}
+.ai-head{background:var(--navy);color:#fff;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
+.ai-head .t{font-size:13.5px;font-weight:700}
+.ai-head .s{font-size:10.5px;color:#a9bdd4;margin-top:1px}
+.ai-head button{background:transparent;border:none;color:#cfe0ec;font-size:20px;line-height:1;cursor:pointer}
+.ai-body{flex:1;overflow-y:auto;padding:14px;background:var(--bg,#f4f6f9);display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:86%;padding:9px 12px;border-radius:11px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.ai-msg.u{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:3px}
+.ai-msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line);color:var(--navy);border-bottom-left-radius:3px}
+.ai-sugg{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.ai-sugg span{font-size:11px;background:#eef2f6;color:var(--navy);border:1px solid var(--line);border-radius:14px;padding:5px 10px;cursor:pointer}
+.ai-sugg span:hover{background:#e2e9f0}
+.ai-foot{border-top:1px solid var(--line);padding:10px;display:flex;gap:8px;background:#fff}
+.ai-foot textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;height:38px;max-height:96px}
+.ai-foot button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:0 15px;font-weight:700;font-size:12.5px;cursor:pointer}
+.ai-foot button:disabled{opacity:.5;cursor:default}
 /* Reporte de comité */
 .rep-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .rep-head h1{font-size:22px;color:var(--navy)}
@@ -1863,6 +1883,7 @@ const DATA_URL='https://n8n-production-121a.up.railway.app/webhook/pmo';
 const LOGIN_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-login';
 const APROB_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-aprobadores';
 const ADMIN_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-admin';
+const CHAT_URL='https://n8n-production-121a.up.railway.app/webhook/pmo-chat';
 let adminUsers=[];
 const SHEET_URL='https://docs.google.com/spreadsheets/d/1pmRS0iZ0jNULR3GhZZglGnWpei0oEsgbbKKwlXdzhgY/edit';
 let sync={url:DATA_URL,token:'',auto:true};
@@ -1918,7 +1939,7 @@ async function doLogin(){
   }catch(e){msg.style.color='var(--bad)';msg.textContent='✗ '+e.message;btn.disabled=false;}
 }
 function logout(){sessionStorage.removeItem('wavepmo_session');location.reload();}
-function showGate(){document.getElementById('loginGate').style.display='flex';document.body.classList.add('locked');const u=document.getElementById('lg_user');if(u)u.focus();}
+function showGate(){document.getElementById('loginGate').style.display='flex';document.body.classList.add('locked');const f=document.getElementById('aiFab');if(f)f.style.display='none';const p=document.getElementById('aiPanel');if(p)p.classList.remove('on');const u=document.getElementById('lg_user');if(u)u.focus();}
 async function bootApp(){
   const s=currentSession(); if(!s){showGate();return;}
   document.getElementById('loginGate').style.display='none';
@@ -1932,6 +1953,7 @@ async function bootApp(){
   const ac=document.getElementById('adminCard'); if(ac)ac.style.display=admin?'':'none';
   if(admin)adminListUsers();
   loadSyncPanel();
+  const fab=document.getElementById('aiFab');if(fab&&!document.getElementById('aiPanel').classList.contains('on'))fab.style.display='';
 }
 function adminStatus(msg,cls){const el=document.getElementById('adminStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
 async function adminApi(body){const s=currentSession();const r=await fetch(ADMIN_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((s&&s.token)||'')},body:JSON.stringify(body)});if(r.status===403){throw new Error('Solo admin');}return r;}
@@ -2199,6 +2221,69 @@ function renderComite(){
   if(lu)lu.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lp.focus();}});
   if(currentSession()){ bootApp(); } else { showGate(); }
 })();
+</script>
+
+<button id="aiFab" onclick="aiOpen()">Asistente de transformación</button>
+<div id="aiPanel">
+  <div class="ai-head">
+    <div><div class="t">Asistente de transformación</div><div class="s">Pregunta sobre el estado del programa</div></div>
+    <button onclick="aiClose()" title="Cerrar">×</button>
+  </div>
+  <div class="ai-body" id="aiBody"></div>
+  <div class="ai-sugg" id="aiSugg">
+    <span onclick="aiAsk('¿Qué iniciativas están atrasadas y cuántos días?')">Iniciativas atrasadas</span>
+    <span onclick="aiAsk('¿Qué hitos vencen en los próximos 30 días?')">Próximos vencimientos</span>
+    <span onclick="aiAsk('¿Cuáles son las 5 iniciativas de mayor impacto anual?')">Mayor impacto</span>
+    <span onclick="aiAsk('Dame un resumen ejecutivo del avance del programa.')">Resumen ejecutivo</span>
+  </div>
+  <div class="ai-foot">
+    <textarea id="aiInput" placeholder="Escribe tu pregunta…" onkeydown="aiKey(event)"></textarea>
+    <button id="aiSend" onclick="aiSend()">Enviar</button>
+  </div>
+</div>
+<script>
+/* ============ ASISTENTE IA ============ */
+let aiBusy=false, aiWelcomed=false;
+function aiOpen(){document.getElementById('aiFab').style.display='none';document.getElementById('aiPanel').classList.add('on');
+  if(!aiWelcomed){aiWelcomed=true;aiMsg('a','Hola. Soy el asistente de transformación del PMO. Puedo responder sobre el estado, atrasos, próximos hitos e impacto de las iniciativas. ¿Qué necesitas?');}
+  setTimeout(()=>{const t=document.getElementById('aiInput');if(t)t.focus();},50);}
+function aiClose(){document.getElementById('aiPanel').classList.remove('on');document.getElementById('aiFab').style.display='';}
+function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();aiSend();}}
+function aiMsg(role,text){const b=document.getElementById('aiBody');const d=document.createElement('div');d.className='ai-msg '+role;d.textContent=text;b.appendChild(d);b.scrollTop=b.scrollHeight;return d;}
+function aiAsk(q){if(aiBusy)return;document.getElementById('aiInput').value=q;aiSend();}
+function aiContext(){
+  if(!db||!db.inis)return '{}';
+  const t=today();
+  const inis=db.inis.map(i=>{const {a,g}=iniAreaGrupo(i);const d=iniDerived(i);const nx=iniNextDue(i);const ld=iniLateDays(i);
+    const st={borrador:'En preparación',pendiente:'En aprobación',completada:'Completada'}[i.gateStatus||'borrador'];
+    const o={nombre:i.name,area:a?a.name:'',subarea:g?g.name:'',responsable:i.owner||'',nivel:i.stage,estado:st,
+      impacto_anual:Math.round(d.runRate||0),avance_pct:i.progress||0};
+    if(i.enabler)o.habilitadora=true;
+    if(ld>0)o.dias_atraso=ld;
+    if(nx)o.proximo_hito={hito:nx.name,vence:nx.due,en_dias:nx.days};
+    const ms=(i.milestones||[]).filter(m=>m.name).map(m=>({hito:m.name,resp:m.owner||'',inicio:m.start||'',fin:m.end||m.due||'',estado:m.comp||(m.done?'completo':'no')}));
+    if(ms.length)o.hitos=ms;
+    return o;});
+  const late=inis.filter(i=>i.dias_atraso).length;
+  return JSON.stringify({programa:db.meta&&db.meta.name||'Programa',fecha_hoy:fmtD(t),
+    total_iniciativas:inis.length,con_atraso:late,iniciativas:inis});
+}
+async function aiSend(){
+  const inp=document.getElementById('aiInput');const q=(inp.value||'').trim();
+  if(!q||aiBusy)return;
+  inp.value='';aiMsg('u',q);aiBusy=true;
+  const btn=document.getElementById('aiSend');btn.disabled=true;
+  const th=aiMsg('a','Pensando…');
+  try{
+    const s=currentSession();
+    const r=await fetch(CHAT_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((s&&s.token)||'')},
+      body:JSON.stringify({question:q,context:aiContext()})});
+    if(r.status===401){th.textContent='Tu sesión expiró. Vuelve a iniciar sesión.';}
+    else if(!r.ok){th.textContent='No pude responder (error '+r.status+'). Intenta de nuevo.';}
+    else{const j=await r.json();th.textContent=(j&&j.answer)?j.answer:'(sin respuesta)';}
+  }catch(e){th.textContent='Error de conexión con el asistente.';}
+  finally{aiBusy=false;btn.disabled=false;document.getElementById('aiBody').scrollTop=1e9;inp.focus();}
+}
 </script>
 </body>
 </html>
