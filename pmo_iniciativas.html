@@ -345,7 +345,7 @@ body.locked{overflow:hidden}
       <div class="scroll"><table id="segTable"></table></div>
     </div>
     <div class="card">
-      <h2>🏁 Ranking de responsables <span class="tag">adelantado · en línea · atrasado</span></h2>
+      <h2>Ranking de responsables <span class="tag">adelantado · en línea · atrasado</span></h2>
       <div class="hint">Desempeño de cada dueño según el avance real de sus iniciativas vs. lo esperado por calendario (Δ = avance real − avance esperado). Verde = adelantado, gris = en línea, rojo = atrasado. Considera además hitos vencidos.</div>
       <div class="grid g3" id="rankingCols"></div>
     </div>
@@ -360,7 +360,7 @@ body.locked{overflow:hidden}
     <div class="card">
       <h2>Todas las iniciativas <span class="tools"><button class="btn sm" onclick="openIniModal()">+ Nueva iniciativa</button></span></h2>
       <div class="toolbar">
-        <input type="text" id="iniSearch" placeholder="🔎 Buscar…" oninput="renderIniTable()" style="min-width:200px">
+        <input type="text" id="iniSearch" placeholder="Buscar…" oninput="renderIniTable()" style="min-width:200px">
         <select id="iniAreaF" onchange="renderIniTable()"><option value="">Todas las áreas</option></select>
         <select id="iniStageF" onchange="renderIniTable()"><option value="">Todas las etapas</option></select>
         <span style="font-size:11px;color:var(--muted);align-self:center">Ordena haciendo clic en los encabezados ↕</span>
@@ -451,22 +451,24 @@ body.locked{overflow:hidden}
         <div class="hint">Copia fiel de <b>todo</b> (estructura + iniciativas + hitos). Úsalo como backup maestro: nunca pierdes nada. Se guarda solo en este navegador (localStorage); exporta seguido.</div>
         <div class="row">
           <button class="btn ghost" onclick="exportJSON()">Exportar JSON</button>
-          <button class="btn ghost" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+          <button class="btn ghost adminOnly" onclick="document.getElementById('importFile').click()">Importar JSON</button>
           <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importJSON(event)">
-          <button class="btn gray" onclick="loadSeed(true)">Datos de ejemplo</button>
-          <button class="btn danger" onclick="wipe()">Borrar todo</button>
+          <button class="btn gray adminOnly" onclick="loadSeed(true)">Datos de ejemplo</button>
+          <button class="btn danger adminOnly" onclick="wipe()">Borrar todo</button>
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:8px" id="lastSaved"></div>
+        <div class="hint adminOnly" style="margin-top:6px;font-size:11px">Importar/reemplazar y borrar afectan a <b>todo el equipo</b>; por eso solo el administrador los ve.</div>
       </div>
       <div class="card">
         <h2>Datos compartidos <span class="tag" id="syncBadge">nube</span></h2>
-        <div class="hint">Estás conectado al servidor seguro. Tus cambios se guardan automáticamente y los comparte todo el equipo autorizado.</div>
+        <div class="hint">Cada iniciativa se guarda por separado al presionar <b>Guardar</b> dentro de ella, así que 30+ personas pueden trabajar a la vez sin pisarse. Los datos se <b>actualizan solos cada minuto</b> (y al volver a la pestaña) para que veas el trabajo del equipo.</div>
         <div id="sessionInfo" style="font-size:12.5px;margin-bottom:12px;color:var(--muted)"></div>
         <div class="row">
-          <button class="btn" onclick="cloudSave()">Guardar ahora</button>
-          <button class="btn ghost" onclick="cloudLoad()">Recargar de la nube</button>
-          <button class="btn gray" onclick="logout()">🔒 Cerrar sesión</button>
+          <button class="btn" onclick="manualRefresh()">Actualizar datos</button>
+          <button class="btn ghost adminOnly" onclick="cloudSave()">Forzar guardado de todo</button>
+          <button class="btn gray" onclick="logout()">Cerrar sesión</button>
         </div>
+        <div class="hint adminOnly" style="margin-top:6px;font-size:11px">«Forzar guardado de todo» sube tu copia local completa y puede sobrescribir cambios recientes de otros. Úsalo solo para recuperación.</div>
         <div style="font-size:11px;margin-top:8px" id="syncStatus"></div>
       </div>
     </div>
@@ -480,11 +482,11 @@ body.locked{overflow:hidden}
       </div>
       <div class="row" style="align-items:flex-end">
         <div class="field" style="flex:0 0 auto;margin:0"><label>Al importar</label>
-          <select id="csvMode"><option value="append">Agregar a lo existente</option><option value="replace">Reemplazar todo</option></select></div>
+          <select id="csvMode"><option value="append">Agregar a lo existente</option><option value="replace" class="csvReplaceOpt">Reemplazar todo (admin)</option></select></div>
         <button class="btn" onclick="document.getElementById('csvFile').click()">Subir CSV</button>
         <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
       </div>
-      <details class="acc" style="margin-top:14px"><summary><span>ℹ️ Columnas del CSV</span></summary><div class="body" style="font-size:12px;line-height:1.7">
+      <details class="acc" style="margin-top:14px"><summary><span>Columnas del CSV</span></summary><div class="body" style="font-size:12px;line-height:1.7">
         <code>area, grupo, macroiniciativa, meta_macro, iniciativa, responsable, etapa, run_rate_anual, avance_pct, inicio, captura, cierre, curva, notas, hitos</code>
         <ul style="margin:10px 0 0 18px;color:var(--muted)">
           <li><b>etapa</b>: L1 a L4 (Idea, Caso de negocio, Plan/Implementación, Capturado).</li>
@@ -495,7 +497,7 @@ body.locked{overflow:hidden}
       </div></details>
     </div>
     <div class="card">
-      <h2>🧾 Log de auditoría <span class="tools"><button class="btn sm gray" onclick="clearAudit()">Limpiar</button></span></h2>
+      <h2>Log de auditoría <span class="tools"><button class="btn sm gray" onclick="clearAudit()">Limpiar</button></span></h2>
       <div class="hint">Registro de cambios (crear/editar/eliminar/importar/nube). Pon tu nombre para que quede firmado quién hizo cada cambio; se guarda con la data.</div>
       <div class="field" style="max-width:280px"><label>Tu nombre (para firmar los cambios)</label><input id="auditUser" placeholder="Ej: Benjamín Brunet" onchange="setAuditUser(this.value)"></div>
       <div class="scroll" style="max-height:320px;overflow:auto"><table id="auditTable"></table></div>
@@ -666,6 +668,10 @@ function seed(){
 }
 
 /* ============ PERSISTENCIA ============ */
+/* Saneo anti-XSS: los campos de texto se pintan con innerHTML, así que se quitan < > (nombres/responsables no los necesitan). Centralizado en entrada/salida de datos. */
+function stripT(s){return s==null?s:String(s).replace(/[<>]/g,'');}
+function sanitizeIni(i){if(!i)return i;['name','owner','descripcion','palanca','supuestos','notes'].forEach(k=>{if(i[k]!=null)i[k]=stripT(i[k]);});if(i.businessCase&&i.businessCase.name)i.businessCase.name=stripT(i.businessCase.name);(i.milestones||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);if(m&&m.owner!=null)m.owner=stripT(m.owner);});(i.approvals||[]).forEach(a=>{if(a){['comment','reason','by','nombre'].forEach(k=>{if(a[k]!=null)a[k]=stripT(a[k]);});}});return i;}
+function sanitizeDb(d){if(!d)return d;(d.inis||[]).forEach(sanitizeIni);(d.areas||[]).forEach(a=>{if(a&&a.name!=null)a.name=stripT(a.name);});(d.grupos||[]).forEach(g=>{if(g&&g.name!=null)g.name=stripT(g.name);});(d.macros||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);});if(d.meta){if(d.meta.name!=null)d.meta.name=stripT(d.meta.name);if(d.meta.user!=null)d.meta.user=stripT(d.meta.user);}return d;}
 function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio (local): '+new Date().toLocaleString();}
 function logAudit(action,detail){if(!db.audit)db.audit=[];const entry={ts:new Date().toISOString(),user:curUserName(),action,detail};db.audit.unshift(entry);if(db.audit.length>500)db.audit.length=500;if(typeof pushAudit==='function')pushAudit(entry);}
 function curUserName(){return (currentSession()||{}).nombre||(db.meta&&db.meta.user)||'—';}
@@ -1479,7 +1485,7 @@ function renderIniModal(){
   const stepper=`<div style="display:flex;align-items:center;margin:2px 0 14px">`+STAGES.map((s,i)=>{const n=i+1;const state=n<cur?'done':n===cur?'cur':'future';const bg=state==='done'?'#00b8a2':state==='cur'?'#2251ff':'#e7edf2';const col=state==='future'?'#8a99a8':'#fff';
     return `<div style="display:flex;align-items:center;${i<STAGES.length-1?'flex:1':''}"><div style="width:26px;height:26px;border-radius:50%;background:${bg};color:${col};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex:none">${s.id}</div><div style="font-size:10px;margin-left:5px;color:${state==='cur'?'#051c2c':'#8a99a8'};font-weight:${state==='cur'?700:400};white-space:nowrap">${s.name}</div>${i<STAGES.length-1?`<div style="flex:1;height:2px;background:${n<cur?'#00b8a2':'#e7edf2'};margin:0 8px"></div>`:''}</div>`;}).join('')+`</div>`;
   const lock=n=>n>cur;
-  const lockedBox=(id,txt)=>`<div class="card" style="background:#f8fafc;border-style:dashed;color:var(--muted);text-align:center;padding:14px;margin-bottom:12px">🔒 <b>${id}</b> — ${txt}</div>`;
+  const lockedBox=(id,txt)=>`<div class="card" style="background:#f8fafc;border-style:dashed;color:var(--muted);text-align:center;padding:14px;margin-bottom:12px"><b>${id}</b> — ${txt}</div>`;
   // secciones por etapa
   const secL1=`<div class="card" style="margin-bottom:12px"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--navy)">N1 · Idea <span style="font-weight:400;color:var(--muted)">— ${STAGES[0].desc}</span></div>
     <div class="field"><label>Nombre de la iniciativa *</label><input id="f_name" value="${e.name||''}" ${dis} placeholder="Ej: Renegociación de energía"></div>
@@ -1521,7 +1527,7 @@ function renderIniModal(){
   if(e.gateStatus==='pendiente'){
     const canA=canApprove(e);
     footer=`<div style="flex:1;font-size:12px;color:var(--warn)"><b>En aprobación</b> · aprobador: ${ap?ap.nombre:'(sin asignar)'} · enviada por ${e.submittedBy||'—'} ${e.submittedAt||''}</div>
-      <div style="display:flex;gap:8px">${isAdmin()?`<button class="btn gray" onclick="cancelSubmit()">Cancelar envío</button>`:''}${canA?`<button class="btn danger" onclick="rejectFromModal()">Rechazar</button><button class="btn" onclick="approveFromModal()">✓ Aprobar ${e.stage}${nextStage(e.stage)?'→'+nextStage(e.stage):' · cierre'}</button>`:`<button class="btn gray" onclick="closeIni()">Cerrar</button>`}</div>`;
+      <div style="display:flex;gap:8px">${isAdmin()?`<button class="btn gray" onclick="cancelSubmit()">Cancelar envío</button>`:''}${canA?`<button class="btn danger" onclick="rejectFromModal()">Rechazar</button><button class="btn" onclick="approveFromModal()">Aprobar ${e.stage}${nextStage(e.stage)?'→'+nextStage(e.stage):' · cierre'}</button>`:`<button class="btn gray" onclick="closeIni()">Cerrar</button>`}</div>`;
   } else if(e.gateStatus==='completada'){
     footer=`<div style="flex:1;font-size:12px;color:var(--good)"><b>Completada</b> — L4 aprobado. Valor capturado.</div><div><button class="btn gray" onclick="closeIni()">Cerrar</button></div>`;
   } else {
@@ -1531,7 +1537,7 @@ function renderIniModal(){
       ? `<button class="btn ghost" onclick="reupIni()" title="Restaurar el nivel ya alcanzado (sin re-aprobación)">Volver a subir a N${cur+1}</button>`
       : (nx?`<button class="btn" onclick="submitFromModal()">Enviar a aprobación (${e.stage}→${nx})</button>`:'');
     footer=`<div style="display:flex;gap:8px">${exists?`<button class="btn danger" onclick="deleteIni()">Eliminar</button>`:''}${downBtn}</div>
-      <div style="display:flex;gap:8px"><button class="btn gray" onclick="closeIni()">Cancelar</button><button class="btn ghost" onclick="saveIni()">Guardar borrador</button>${advBtn}</div>`;
+      <div style="display:flex;gap:8px"><button class="btn gray" onclick="closeIni()">Cancelar</button><button class="btn" onclick="saveIni()">Guardar iniciativa</button>${advBtn}</div>`;
   }
   // paneles Resumen e Historial
   const {a:iA,g:iG}=iniAreaGrupo(e);
@@ -1594,6 +1600,7 @@ function syncIni(){
   if((v=g('f_curve'))!==undefined)e.curve=v;
   if((v=g('f_prog'))!==undefined)e.progress=Math.min(1,Math.max(0,(+v||0)/100));
   if((v=g('f_notes'))!==undefined)e.notes=v;
+  sanitizeIni(e);
   const d=iniDerived(e); const nums=document.querySelectorAll('#iniModal .bignum');
   if(nums.length>=4){nums[0].textContent=money(d.runRate);nums[1].textContent=money(d.weighted);nums[2].textContent=money(d.captured);nums[3].textContent=money(d.inYear);}
 }
@@ -1860,8 +1867,9 @@ function importCSV(text,mode){
   const head=rows[0].map(h=>h.trim().toLowerCase());
   const col=n=>head.indexOf(n);
   if(col('iniciativa')<0)throw new Error('Falta la columna "iniciativa". Descarga la plantilla.');
+  if(mode==='replace'&&!isAdmin()){alert('Solo el administrador puede reemplazar todos los datos. Se agregará a lo existente.');mode='append';}
   if(mode==='replace'){db.areas=[];db.grupos=[];db.macros=[];db.inis=[];}
-  let added=0;
+  let added=0; const addedInis=[];
   for(let i=1;i<rows.length;i++){const r=rows[i];const get=n=>{const c=col(n);return c>=0?(r[c]||'').trim():'';};
     const iniName=get('iniciativa');if(!iniName)continue;
     const a=findOrCreateArea(get('area'));const g=findOrCreateGrupo(a.id,get('grupo'));const m=findOrCreateMacro(g.id,get('macroiniciativa'),get('meta_macro'));
@@ -1871,11 +1879,19 @@ function importCSV(text,mode){
       notes:get('notas'),descripcion:'',palanca:'',supuestos:'',businessCase:null,enabler:/^(si|sí|true|1|x)$/i.test(get('habilitadora')),parentId:'',maxStage:normStage(get('etapa')),monthly:{budget:{},real:{},forecast:{}},history:[{action:'importada',user:(db.meta&&db.meta.user)||'CSV',fecha:fmtD(today()),detail:'Carga masiva'}],gateStatus:'borrador',submittedBy:'',submittedAt:'',approvals:[],baseline:null,milestones:parseHitos(get('hitos'))};
     if(obj.enabler)obj.runRate=0;
     ensureBaseline(obj);
-    db.inis.push(obj);
+    db.inis.push(obj);addedInis.push(obj);
     added++;
   }
   logAudit('importar',added+' iniciativas por CSV ('+(mode==='replace'?'reemplazo total':'agregadas')+')');
-  save();refreshAll();if(currentSession()){if(mode==='replace')pushReplaceAll();else pushAll();}alert(`✓ ${added} iniciativas importadas (${mode==='replace'?'reemplazo total':'agregadas'}).`);
+  save();refreshAll();
+  if(currentSession()){
+    if(mode==='replace'){pushReplaceAll();} // reemplazo total (solo admin)
+    else{ // agregar: subir SOLO las nuevas + estructura, sin pisar filas de otros
+      pushEstructura();
+      Promise.all(addedInis.map(ini=>apiData({action:'saveIni',ini:sanitizeIni(ini)}).catch(()=>{}))).then(()=>syncStatus('✓ '+addedInis.length+' iniciativas agregadas a la nube','ok'));
+    }
+  }
+  alert(`✓ ${added} iniciativas importadas (${mode==='replace'?'reemplazo total':'agregadas'}).`);
 }
 
 /* ============ AUTENTICACIÓN & NUBE ============ */
@@ -1899,28 +1915,47 @@ function loadSyncPanel(){
 }
 /* Guardado GRANULAR: cada iniciativa se guarda por separado (concurrencia segura). */
 async function apiData(body){const s=currentSession();const r=await fetch(DATA_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((s&&s.token)||'')},body:JSON.stringify(body)});if(r.status===401)throw new Error('401');if(!r.ok)throw new Error('HTTP '+r.status);return r;}
-function estructuraObj(){return {areas:db.areas,grupos:db.grupos,macros:db.macros,meta:db.meta};}
-async function pushIni(ini){if(!ini||!currentSession())return;try{await apiData({action:'saveIni',ini});syncStatus('✓ Guardado · '+new Date().toLocaleTimeString(),'ok');}catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ guardar «'+(ini.name||'')+'»: '+e.message,'err');}}
+function estructuraObj(){sanitizeDb(db);return {areas:db.areas,grupos:db.grupos,macros:db.macros,meta:db.meta};}
+async function pushIni(ini){if(!ini||!currentSession())return;sanitizeIni(ini);try{await apiData({action:'saveIni',ini});syncStatus('✓ Guardado · '+new Date().toLocaleTimeString(),'ok');}catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ guardar «'+(ini.name||'')+'»: '+e.message,'err');}}
 async function pushDeleteIni(id){if(!id||!currentSession())return;try{await apiData({action:'deleteIni',id});}catch(e){}}
 async function pushEstructura(){if(!currentSession())return;try{await apiData({action:'saveEstructura',estructura:estructuraObj()});syncStatus('✓ Estructura guardada','ok');}catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ estructura: '+e.message,'err');}}
 async function pushAudit(entry){if(!currentSession())return;try{await apiData({action:'logAudit',entry});}catch(e){}}
-async function pushAll(){if(!currentSession()){syncStatus('Sesión expirada','err');return;}syncStatus('Guardando todo…');await pushEstructura();await Promise.all(db.inis.map(i=>apiData({action:'saveIni',ini:i}).catch(()=>{})));syncStatus('✓ Todo guardado en la nube · '+new Date().toLocaleTimeString(),'ok');}
+async function pushAll(){if(!currentSession()){syncStatus('Sesión expirada','err');return;}syncStatus('Guardando todo…');await pushEstructura();await Promise.all(db.inis.map(i=>apiData({action:'saveIni',ini:sanitizeIni(i)}).catch(()=>{})));syncStatus('✓ Todo guardado en la nube · '+new Date().toLocaleTimeString(),'ok');}
 async function pushReplaceAll(){if(!currentSession())return;try{const r=await apiData({action:'loadAll'});const d=await r.json();const localIds=new Set(db.inis.map(i=>i.id));await Promise.all((d.inis||[]).filter(si=>!localIds.has(si.id)).map(si=>pushDeleteIni(si.id)));}catch(e){}await pushAll();}
 async function cloudSave(){await pushAll();}
 async function cloudLoad(silent){await cloudLoadAll(silent);}
 async function cloudLoadAll(silent){
   const s=currentSession(); if(!s){if(!silent)syncStatus('Sesión expirada','err');return;}
-  if(!silent&&!confirm('Esto recarga los datos desde la nube. ¿Continuar?'))return;
-  syncStatus('Cargando…');
+  if(!silent)syncStatus('Cargando…');
   try{const r=await apiData({action:'loadAll'}); const d=await r.json();
     const est=d.estructura||{};
     db={areas:est.areas||[],grupos:est.grupos||[],macros:est.macros||[],meta:est.meta||{name:'Programa',currency:'USD',user:''},inis:d.inis||[],audit:d.audit||[]};
-    migrateStages(db); localStorage.setItem(LS,JSON.stringify(db)); refreshAll();
-    syncStatus('✓ Cargado de la nube · '+new Date().toLocaleTimeString(),'ok');
-  }catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ '+e.message,'err');}
+    migrateStages(db); sanitizeDb(db); localStorage.setItem(LS,JSON.stringify(db)); refreshAll();
+    syncStatus('Datos al día · '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){if(e.message==='401'){if(!silent)sessionExpired();return;}if(!silent)syncStatus('✗ '+e.message,'err');}
 }
 function autoPush(){}
-function sessionExpired(){alert('Tu sesión expiró. Vuelve a iniciar sesión.');logout();}
+/* Refresco en vivo: para 30+ usuarios, traer cambios del equipo sin pisar lo que se está editando. */
+let liveTimer=null;
+function editorOpen(){ // un modal de edición está abierto → no recargar (se perderían cambios sin guardar)
+  if(editingIni)return true;
+  const ov=document.querySelector('.overlay.on'); if(ov&&ov.id!=='drillOverlay')return true; // drill es solo lectura
+  return false;
+}
+function busyEditing(){ // guarda del refresco AUTOMÁTICO: además evita interrumpir mientras se escribe
+  if(editorOpen())return true;
+  const a=document.activeElement; if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.id!=='iniSearch')return true;
+  return false;
+}
+async function autoRefresh(){ if(!currentSession()||busyEditing())return; try{await cloudLoadAll(true);}catch(e){} }
+async function manualRefresh(){ if(editorOpen()){alert('Cierra o guarda la iniciativa abierta antes de actualizar.');return;} await cloudLoadAll(false); }
+function startLiveSync(){
+  if(liveTimer)clearInterval(liveTimer);
+  liveTimer=setInterval(autoRefresh,60000);
+  window.addEventListener('visibilitychange',()=>{if(!document.hidden)autoRefresh();});
+  window.addEventListener('focus',autoRefresh);
+}
+function sessionExpired(){if(liveTimer)clearInterval(liveTimer);alert('Tu sesión expiró. Vuelve a iniciar sesión.');logout();}
 async function doLogin(){
   const user=(document.getElementById('lg_user').value||'').trim();
   const pass=document.getElementById('lg_pass').value||'';
@@ -1952,7 +1987,10 @@ async function bootApp(){
   const admin=(s.rol||'').toLowerCase()==='admin';
   const ac=document.getElementById('adminCard'); if(ac)ac.style.display=admin?'':'none';
   if(admin)adminListUsers();
+  document.querySelectorAll('.adminOnly').forEach(el=>{el.style.display=admin?'':'none';});
+  if(!admin){const ro=document.querySelector('#csvMode option.csvReplaceOpt');if(ro)ro.remove();}
   loadSyncPanel();
+  startLiveSync();
   const fab=document.getElementById('aiFab');if(fab&&!document.getElementById('aiPanel').classList.contains('on'))fab.style.display='';
 }
 function adminStatus(msg,cls){const el=document.getElementById('adminStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
@@ -2249,7 +2287,13 @@ function aiOpen(){document.getElementById('aiFab').style.display='none';document
   setTimeout(()=>{const t=document.getElementById('aiInput');if(t)t.focus();},50);}
 function aiClose(){document.getElementById('aiPanel').classList.remove('on');document.getElementById('aiFab').style.display='';}
 function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();aiSend();}}
-function aiMsg(role,text){const b=document.getElementById('aiBody');const d=document.createElement('div');d.className='ai-msg '+role;d.textContent=text;b.appendChild(d);b.scrollTop=b.scrollHeight;return d;}
+function aiEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function aiFormat(t){let h=aiEsc(t);h=h.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  h=h.split('\n').map(l=>{const m=l.match(/^\s*[\*\-•]\s+(.*)$/);return m?'• '+m[1]:l;}).join('\n');return h;}
+function aiMsg(role,text){const b=document.getElementById('aiBody');const d=document.createElement('div');d.className='ai-msg '+role;
+  if(role==='a')d.innerHTML=aiFormat(text);else d.textContent=text;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;return d;}
+function aiSet(d,text){if(!d)return;d.innerHTML=aiFormat(text);document.getElementById('aiBody').scrollTop=1e9;}
 function aiAsk(q){if(aiBusy)return;document.getElementById('aiInput').value=q;aiSend();}
 function aiContext(){
   if(!db||!db.inis)return '{}';
@@ -2265,8 +2309,13 @@ function aiContext(){
     if(ms.length)o.hitos=ms;
     return o;});
   const late=inis.filter(i=>i.dias_atraso).length;
-  return JSON.stringify({programa:db.meta&&db.meta.name||'Programa',fecha_hoy:fmtD(t),
-    total_iniciativas:inis.length,con_atraso:late,iniciativas:inis});
+  const base={programa:db.meta&&db.meta.name||'Programa',fecha_hoy:fmtD(t),total_iniciativas:inis.length,con_atraso:late};
+  let out=JSON.stringify({...base,iniciativas:inis});
+  if(out.length>22000){ // degradar: quitar detalle de hitos para no truncar el JSON
+    const slim=inis.map(({hitos,...rest})=>rest);
+    out=JSON.stringify({...base,nota:'hitos omitidos por tamaño',iniciativas:slim});
+  }
+  return out.slice(0,23000);
 }
 async function aiSend(){
   const inp=document.getElementById('aiInput');const q=(inp.value||'').trim();
@@ -2280,7 +2329,7 @@ async function aiSend(){
       body:JSON.stringify({question:q,context:aiContext()})});
     if(r.status===401){th.textContent='Tu sesión expiró. Vuelve a iniciar sesión.';}
     else if(!r.ok){th.textContent='No pude responder (error '+r.status+'). Intenta de nuevo.';}
-    else{const j=await r.json();th.textContent=(j&&j.answer)?j.answer:'(sin respuesta)';}
+    else{const j=await r.json();aiSet(th,(j&&j.answer)?j.answer:'(sin respuesta)');}
   }catch(e){th.textContent='Error de conexión con el asistente.';}
   finally{aiBusy=false;btn.disabled=false;document.getElementById('aiBody').scrollTop=1e9;inp.focus();}
 }
