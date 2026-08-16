@@ -1883,8 +1883,8 @@ async function pushIni(ini){if(!ini||!currentSession())return;try{await apiData(
 async function pushDeleteIni(id){if(!id||!currentSession())return;try{await apiData({action:'deleteIni',id});}catch(e){}}
 async function pushEstructura(){if(!currentSession())return;try{await apiData({action:'saveEstructura',estructura:estructuraObj()});syncStatus('✓ Estructura guardada','ok');}catch(e){if(e.message==='401')return sessionExpired();syncStatus('✗ estructura: '+e.message,'err');}}
 async function pushAudit(entry){if(!currentSession())return;try{await apiData({action:'logAudit',entry});}catch(e){}}
-async function pushAll(){if(!currentSession()){syncStatus('Sesión expirada','err');return;}syncStatus('Guardando todo…');await pushEstructura();for(const i of db.inis){try{await apiData({action:'saveIni',ini:i});}catch(e){}}syncStatus('✓ Todo guardado en la nube · '+new Date().toLocaleTimeString(),'ok');}
-async function pushReplaceAll(){if(!currentSession())return;try{const r=await apiData({action:'loadAll'});const d=await r.json();const localIds=new Set(db.inis.map(i=>i.id));for(const si of (d.inis||[])){if(!localIds.has(si.id))await pushDeleteIni(si.id);}}catch(e){}await pushAll();}
+async function pushAll(){if(!currentSession()){syncStatus('Sesión expirada','err');return;}syncStatus('Guardando todo…');await pushEstructura();await Promise.all(db.inis.map(i=>apiData({action:'saveIni',ini:i}).catch(()=>{})));syncStatus('✓ Todo guardado en la nube · '+new Date().toLocaleTimeString(),'ok');}
+async function pushReplaceAll(){if(!currentSession())return;try{const r=await apiData({action:'loadAll'});const d=await r.json();const localIds=new Set(db.inis.map(i=>i.id));await Promise.all((d.inis||[]).filter(si=>!localIds.has(si.id)).map(si=>pushDeleteIni(si.id)));}catch(e){}await pushAll();}
 async function cloudSave(){await pushAll();}
 async function cloudLoad(silent){await cloudLoadAll(silent);}
 async function cloudLoadAll(silent){
