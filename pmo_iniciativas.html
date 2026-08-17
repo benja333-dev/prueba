@@ -2213,6 +2213,7 @@ async function bootApp(){
   const s=currentSession(); if(!s){showGate();return;}
   document.getElementById('loginGate').style.display='none';
   document.body.classList.remove('locked');
+  showAiFab();
   sync.url=DATA_URL; sync.token=s.token; sync.auto=true;
   loadSeed(false);
   await cloudLoad(true);
@@ -2225,8 +2226,9 @@ async function bootApp(){
   if(!admin){const ro=document.querySelector('#csvMode option.csvReplaceOpt');if(ro)ro.remove();}
   loadSyncPanel();
   startLiveSync();
-  const fab=document.getElementById('aiFab');if(fab&&!document.getElementById('aiPanel').classList.contains('on'))fab.style.display='';
+  showAiFab();
 }
+function showAiFab(){const fab=document.getElementById('aiFab');const p=document.getElementById('aiPanel');if(fab&&!(p&&p.classList.contains('on')))fab.style.display='block';}
 function adminStatus(msg,cls){const el=document.getElementById('adminStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
 async function adminApi(body){const s=currentSession();const r=await fetch(ADMIN_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+((s&&s.token)||'')},body:JSON.stringify(body)});if(r.status===403){throw new Error('Solo admin');}return r;}
 async function adminListUsers(){
@@ -2520,7 +2522,7 @@ let aiBusy=false, aiWelcomed=false;
 function aiOpen(){document.getElementById('aiFab').style.display='none';document.getElementById('aiPanel').classList.add('on');
   if(!aiWelcomed){aiWelcomed=true;aiMsg('a','Hola. Soy el asistente de transformación del PMO. Puedo responder sobre el estado, atrasos, próximos hitos e impacto de las iniciativas. ¿Qué necesitas?');}
   setTimeout(()=>{const t=document.getElementById('aiInput');if(t)t.focus();},50);}
-function aiClose(){document.getElementById('aiPanel').classList.remove('on');document.getElementById('aiFab').style.display='';}
+function aiClose(){document.getElementById('aiPanel').classList.remove('on');document.getElementById('aiFab').style.display='block';}
 function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();aiSend();}}
 function aiEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function aiFormat(t){let h=aiEsc(t);h=h.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
