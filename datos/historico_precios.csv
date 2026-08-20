@@ -10938,3 +10938,450 @@ fecha,retailer,sku,ean,nombre,cantidad,unidad,precio_lista,precio_efectivo,mecan
 2026-08-19,Jumbo,82368,,Suflé Maní Cuisine & Co 250 g,0.25,kg,1490,1490,
 2026-08-19,Jumbo,147911,,Pack 5 un. Galletas Underfive Manzana 30 g,0.15,kg,3990,3990,
 2026-08-19,Jumbo,143346,,Pack Mix de Pasas y Cranberries Cuisine & Co 90 g,0.09,kg,1590,1590,
+2026-08-20,Unimarc,3269,7801610001660,Pack Bebida Coca Cola original lata 6 un de 350 ml,2.1,L,5990,5990,$4.290
+2026-08-20,Unimarc,3801,7801620017552,Bebida Pepsi no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,3781,7801620001223,Bebida Kem piña no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,3816,7801620001643,Bebida Limón Soda no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,3783,7801620001216,Bebida Pap no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,3782,7801620001193,Bebida Bilz no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,3876,7801620001896,Bebida Canada Dry ginger ale no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,97634,9990000000135,Bebida Coca Cola Original Retornable 2 L (Incluye envase),2,L,2090,1790,$1.790
+2026-08-20,Unimarc,3267,7801610005965,Pack Bebida Sprite lata 6 un de 350 ml,2.1,L,5990,5990,$4.290
+2026-08-20,Unimarc,90384,7801610003114,Pack bebida sabor original Fanta lata 6un de  350 ml,2.1,L,5990,5990,$4.290
+2026-08-20,Unimarc,96682,7801610003398,Pack bebida Coca Cola + Fanta 2 un de 3 L,6,L,5790,5190,$5.190
+2026-08-20,Unimarc,97653,9990000000128,Bebida Sprite Retornable 2 L (Incluye envase),2,L,2090,1690,$1.690
+2026-08-20,Unimarc,98035,9990000000129,Bebida Fanta Naranja Retornable 2 L (Incluye envase),2,L,2090,1690,$1.690
+2026-08-20,Unimarc,82351,7801620009373,Bebida Pepsi 600 ml,0.6,L,1290,1070,$1.070
+2026-08-20,Unimarc,592,7801610351000,Pack Bebida Coca Cola original 2 un de 3 L + Sprite 1 un de 3 L,9,L,9790,6990,$6.990
+2026-08-20,Unimarc,9838,7801620014513,Bebida Pepsi no retornable 1.5 L,1.5,L,2090,2090,
+2026-08-20,Unimarc,3886,7801610350003,Bebida Coca Cola original 2 un de 3 L + Fanta 3 L,9,L,9790,6990,$6.990
+2026-08-20,Unimarc,9944,7801620006891,Bebida Pepsi zero no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,55295,7801620008079,Bebida Canada Dry ginger ale zero no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,3365,7801610022894,Pack Bebida Coca Cola light lata 6 un de 350 ml,2.1,L,5990,5990,$4.290
+2026-08-20,Unimarc,96681,7801610002612,Pack bebida Coca Cola + Sprite sin azúcar 2 un 3 L,6,L,5890,5190,$5.190
+2026-08-20,Unimarc,12589,7801620002794,Bebida Limón Soda zero no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,6325,7801620005085,Bebida Bilz zero no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,98036,9990000000136,Bebida Coca Cola Zero Azúcar Retornable 2 L (Incluye envase),2,L,2090,1790,$1.790
+2026-08-20,Unimarc,6324,7801620005078,Bebida Pap zero no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,55693,7801610993200,Pack Bebida Coca Cola Zero 2 un de 3 L + Sprite 3 L,9,L,9790,6990,$6.990
+2026-08-20,Unimarc,98037,9990000000137,Bebida Sprite Zero Retornable 2 L (Incluye envase),2,L,2090,2090,$1.690
+2026-08-20,Unimarc,96680,7801610002599,Pack bebida Coca Cola + Fanta sin azúcar 2 un de 3 L,6,L,5890,5190,$5.190
+2026-08-20,Unimarc,97684,9990000000036,Bebida Fanta Zero Retornable 2 L (Incluye envase),2,L,2090,2090,$1.690
+2026-08-20,Unimarc,82350,7801620009342,Bebida Pepsi zero 600 ml,0.6,L,1290,1070,$1.070
+2026-08-20,Unimarc,98038,9990000000138,Bebida Coca Cola Light Retornable 2 L (Incluye envase),2,L,2090,1790,$1.790
+2026-08-20,Unimarc,6345,7801620005290,Bebida Kem zero no retornable 3 L,3,L,3190,2390,$2.390
+2026-08-20,Unimarc,13988,7801620006860,Bebida Pepsi zero no retornable 1.5 L,1.5,L,2090,2090,
+2026-08-20,Unimarc,479,7804658800158,Limón malla 1 Kg,1,kg,1950,1590,$1.590
+2026-08-20,Unimarc,280,2050003782500,Palta hass malla 1 Kg,1,kg,3990,3990,
+2026-08-20,Unimarc,83483,2050003588690,Naranja malla 2 Kg,2,kg,3590,2890,$2.890
+2026-08-20,Unimarc,510,781718789189,Champiñón bandeja 200 g,0.2,kg,1590,1590,
+2026-08-20,Unimarc,310,2200204101338,Papas malla 2 Kg,2,kg,3450,3450,
+2026-08-20,Unimarc,33532,2050003548182,Clementina malla 1 Kg,1,kg,2490,1990,$1.990
+2026-08-20,Unimarc,64379,2050003610896,Palta hass malla 700 g,0.7,kg,2990,2990,
+2026-08-20,Unimarc,33533,1261,Clementinas granel 500 g,1,kg,1395,995,$995
+2026-08-20,Unimarc,1122,7583,Limón granel 500 g,1,kg,1045,795,$795
+2026-08-20,Unimarc,62335,90741,Manzana royal gala granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,84424,7804606491292,Kiwi bolsa 1 Kg,1.0,kg,3290,3290,
+2026-08-20,Unimarc,52073,1295,Manzana verde granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,52146,2503252000005,Manzana pink lady granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,52071,2501284000000,Manzana fuji granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,278,2501480000002,Naranja granel 500 g,1,kg,1445,1445,
+2026-08-20,Unimarc,332,2506473000007,Manzana verde granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,3439,2501293000008,Manzana royal gala granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,275,1291,Manzana fuji granel 500 g,1,kg,1295,1295,
+2026-08-20,Unimarc,5330,7804068002050,Huesillos Fancy mediano Almifrut 400 g,0.4,kg,4690,4690,
+2026-08-20,Unimarc,80255,2050002241206,Lechuga hidropónica española regional,,,1790,1790,
+2026-08-20,Unimarc,89428,7803403003936,Pan de molde Ideal blanco 580 g,0.58,kg,2450,2450,$2.000
+2026-08-20,Unimarc,33930,7802095000209,Tortilla mexicana Pancho Villa quesavillas tamaño M 8 un,0.2,kg,1290,1150,$1.150
+2026-08-20,Unimarc,12281,7802095180123,Tortilla mexicana Pancho Villa burritos y wraps XL 8 un bolsa 350 g,0.35,kg,2650,2350,$2.350
+2026-08-20,Unimarc,13393,7802095000575,Pack Tortillas Pancho Villa tacos y fajitas M 24 un bolsa 600 g,0.6,kg,3890,3890,
+2026-08-20,Unimarc,78178,7803408040301,Sopaipillas Degustar con zapallo natural 8 un,,,3790,3290,$3.290
+2026-08-20,Unimarc,78177,7803408040103,Sopaipillas cocktail Degustar con zapallo natural 20 un,,,3490,2890,$2.890
+2026-08-20,Unimarc,97604,7803468005746,Brownie chips Castaño 4 un,0.248,kg,3190,2790,$2.790
+2026-08-20,Unimarc,91548,7803468005210,Brookie Castaño brownie más cookie 4 un,0.2,kg,3550,3150,$3.150
+2026-08-20,Unimarc,80548,7803468003568,Pan molde Kingsbury hi low integral bolsa 500 g,0.5,kg,3750,3750,
+2026-08-20,Unimarc,84603,7803468004534,Pan de molde Kingsbury perfecto bolsa 580 g,0.58,kg,3950,3950,
+2026-08-20,Unimarc,89847,7803500001118,Pan de molde blanco No + Gluten 600 g,0.6,kg,5450,5450,
+2026-08-20,Unimarc,81522,7803500000517,Tortillas Nutrisa No+Gluten 260 g,0.26,kg,2950,2950,
+2026-08-20,Unimarc,89848,7803500001101,Pan de molde integral No + Gluten 600 g,0.6,kg,6150,6150,
+2026-08-20,Unimarc,10083,7803495001759,Pan molde La Selecta integral familiar 580 g,0.58,kg,2290,2290,
+2026-08-20,Unimarc,97651,7803468005753,Pan de molde Kingsbury perfect proteína 500 gr,0.5,kg,2990,2990,
+2026-08-20,Unimarc,89264,7804602600667,Pan de papa La Selecta para hamburguesa 8 un,0.48,kg,3990,3990,
+2026-08-20,Unimarc,58729,7803468001649,Pan pita Kingsbury perfecto bolsa 300 g,0.3,kg,2290,2290,
+2026-08-20,Unimarc,97650,7803468005739,Pan de molde Kingsbury perfect integral 580 gr,0.58,kg,3790,3790,
+2026-08-20,Unimarc,80008,7803500000555,Pan pita No+Gluten 6 un 260 g,0.26,kg,4090,4090,
+2026-08-20,Unimarc,66488,7803500001002,Pan No+gluten hallulla 320 g,0.32,kg,4090,4090,
+2026-08-20,Unimarc,93463,8410087656465,Donas con cobertura de cacao Amada Masa 135gr,0.135,kg,2290,2290,
+2026-08-20,Unimarc,79980,7803500000869,Pan marraqueta No+Gluten 4 un 480 g,0.48,kg,4750,4750,
+2026-08-20,Unimarc,84289,7808709504347,Mantequilla Surlat con sal 200 g,0.2,kg,2690,2690,$2.000
+2026-08-20,Unimarc,410,7802920203300,Mantequilla Colun con sal pan 250 g,0.25,kg,3390,3390,$2.990
+2026-08-20,Unimarc,64623,7802910007260,Leche semidescremada Loncoleche sin tapa 1 L,1,L,1190,1190,$1.090
+2026-08-20,Unimarc,65430,17802910007250,Pack leche entera Loncoleche 12 un 1 L,12,L,14280,14280,$13.080
+2026-08-20,Unimarc,6189,7802955007799,Yoghurt griego Danone Oikos natural no endulzado 150 g,0.15,kg,600,500,2 x $1.000
+2026-08-20,Unimarc,459,7802920776163,Mantequilla Fundo Los Alerces con sal pan 250 g,0.25,kg,3250,3250,$2.950
+2026-08-20,Unimarc,2898,7802920000091,Leche semidescremada Colun sin tapa 1 L,1,L,1290,1290,$1.220
+2026-08-20,Unimarc,79208,7802930005352,Yoghurt griego Quillayes protein natural pote 800 g,0.8,kg,5250,4350,$4.350
+2026-08-20,Unimarc,3652,7893000394209,Margarina Qualy cremosa pote 500 g,0.5,kg,2690,2000,$2.000
+2026-08-20,Unimarc,7817,17802920777549,"Pack Leche entera natural Colun, sin tapa 12 un de 1 L",12,L,15480,15480,$14.640
+2026-08-20,Unimarc,6051,7802920009322,Leche semidescremada sin lactosa Colun 1 L,1,L,1450,1300,$1.300
+2026-08-20,Unimarc,11390,7802810010414,Margarina Sureña mix pote 450 g,0.45,kg,3790,3790,$3.000
+2026-08-20,Unimarc,11300,7802920009315,Leche entera sin lactosa Colun con tapa 1 L,1,L,1450,1300,$1.300
+2026-08-20,Unimarc,59593,7802900001926,Yoghurt Soprole protein+ trozos frutilla 155 gr,0.155,kg,820,725,4 x $2.900
+2026-08-20,Unimarc,6049,7802920009339,Leche descremada sin lactosa Colun 1 L,1,L,1450,1300,$1.300
+2026-08-20,Unimarc,4172,7802910083509,Leche descremada sin lactosa Loncoleche con tapa 1 L,1,L,1450,1450,$1.350
+2026-08-20,Unimarc,83194,7802900003296,Yoghurt Soprole protein+ trozos frutos secos 155 gr,0.155,kg,820,725,4 x $2.900
+2026-08-20,Unimarc,348,7802900107017,Crema para batir de leche Soprole natural larga vida 1 L Crema para batir Soprole  1 L,1,L,5790,5790,$4.990
+2026-08-20,Unimarc,612,7802900638016,Margarina Soprole mix con mantequilla pote 500 g Margarina Soprole mix mantequilla pote 500 g,0.5,kg,3990,3990,$3.000
+2026-08-20,Unimarc,5541,7802955004972,Yoghurt griego Danone Oikos trozos frutilla 110 g,0.11,kg,650,532.5,4 x $2.130
+2026-08-20,Unimarc,72571,7802900002305,Yoghurt Soprole protein+ trozos mango maracuyá 155 gr,0.155,kg,820,725,4 x $2.900
+2026-08-20,Unimarc,5543,7802955006525,Yoghurt griego Danone Oikos trozos durazno 110 g,0.11,kg,650,532.5,4 x $2.130
+2026-08-20,Unimarc,91768,7802900004613,Leche protein Soprole sabor cappuccino 200 ml,0.2,L,750,610,6 x $3.660
+2026-08-20,Unimarc,5545,7802955006556,Yoghurt griego Danone Oikos trozos papaya 110 g,0.11,kg,650,532.5,4 x $2.130
+2026-08-20,Unimarc,95755,7808709505160,Leche Surlat whey proteína descremada chocolate 200 ml,0.2,L,1050,833.33,6 x $5.000
+2026-08-20,Unimarc,83195,7802900003302,Yoghurt Soprole protein+ trozos manzana kiwi y plátano 155 gr,0.155,kg,820,725,4 x $2.900
+2026-08-20,Unimarc,71722,7809531801147,Huevo Coliumo grande color 30 un,,,11150,11150,
+2026-08-20,Unimarc,95753,7808709505153,Leche Surlat whey proteína descremada caramelo 200 ml,0.2,L,1050,833.33,6 x $5.000
+2026-08-20,Unimarc,93994,7802900004835,Leche cultivada Soprole sabor chirimoya cajita 170 ml,0.17,L,620,550,3 x $1.650
+2026-08-20,Unimarc,93992,7802900004828,Leche cultivada Soprole sabor frutilla cajita 170 ml,0.17,L,620,550,3 x $1.650
+2026-08-20,Unimarc,91255,7802955011260,Yogurt griego Oikos choco crunch 142 g,0.142,kg,1190,1050,$1.050
+2026-08-20,Unimarc,265,7804133005023,Huevos extra blanco grande Cintazul 12 un,,,4790,4320,$4.320
+2026-08-20,Unimarc,95754,7808709505139,Leche Surlat whey proteína descremada chocolate 1 L,1,L,3090,2450,$2.450
+2026-08-20,Unimarc,4207,7802900048013,Leche Soprole sin lactosa descremada 1 L,1,L,1390,1290,$1.290
+2026-08-20,Unimarc,90420,7802955011277,Yoghurt griego Danone Oikos nuts caramel crunch 142 g,0.142,kg,1190,1050,$1.050
+2026-08-20,Unimarc,264,7804100102106,Huevos grande blanco Yemita 12 un,,,4690,4390,$4.390
+2026-08-20,Unimarc,92067,7802900004699,Yoghurt batido Yoghito vainilla tetra mini 6 un de 75 g,0.45,kg,2090,2090,$1.700
+2026-08-20,Unimarc,87594,7802900003913,Margarina Soprole con toques de mantequilla pote 500 g,0.5,kg,3150,3150,$2.790
+2026-08-20,Unimarc,53706,7802900001469,Probiótico Soprole Uno frutilla cajitas 12 un de 80 ml Pack probiótico defensas Soprole Uno sabor frutilla con bombilla 12 un de 80 ml,0.96,L,4450,4450,$3.890
+2026-08-20,Unimarc,83611,7808709504231,Leche descremada Los Peumos 1 L,1,L,1150,1050,$1.050
+2026-08-20,Unimarc,67944,7613036441513,Pack bebida láctea chamyto Nestlé frambuesa 12 un de 80 ml,0.96,L,4390,4390,$3.650
+2026-08-20,Unimarc,55708,7802955010867,Yoghurt griego Danone Oikos natural 110 g,0.11,kg,400,400,
+2026-08-20,Unimarc,4209,7802900200817,Leche Soprole sin lactosa semidescremada 1 L,1,L,1390,1390,$1.290
+2026-08-20,Unimarc,94033,7891515642181,Margarina Qualy sabor mantequilla pote 500 gr,0.5,kg,3090,3090,$2.790
+2026-08-20,Unimarc,92076,78033580,Postre Oikos cheescake berries 132 g,0.132,kg,1350,1090,$1.090
+2026-08-20,Unimarc,97149,7802930006045,Crema ácida Quillayes 160 gr,0.16,kg,3250,3250,$2.190
+2026-08-20,Unimarc,82482,7802930005420,Kefir Quillayes sin endulzante natural 4 un de 80 ml,0.32,L,2690,2690,$2.300
+2026-08-20,Unimarc,83856,7802900003401,Leche Soprole sin lactosa entera 1 L,1,L,1390,1290,$1.290
+2026-08-20,Unimarc,91251,7802955011406,Yogurt griego Oikos miel granola crunch 142 g,0.142,kg,1190,1190,$1.050
+2026-08-20,Unimarc,84789,7802920010700,Yoghurt Colun light sabor frutilla bolsa 900 g,0.9,kg,1990,1990,$1.790
+2026-08-20,Unimarc,97148,7802930006038,Crema ácida Quillayes bajo en grasas 160 gr,0.16,kg,3250,3250,$2.190
+2026-08-20,Unimarc,4065,7802910002241,Leche en polvo Calo entera instantánea bolsa 850 g,0.85,kg,7250,7250,
+2026-08-20,Unimarc,97576,7802900005160,Mantequilla Quilque Soprole pote 200 gr,0.2,kg,3590,3000,$3.000
+2026-08-20,Unimarc,53979,7802910006690,Leche descremada sin lactosa extra proteína Loncoleche 1 L,1,L,2650,2650,
+2026-08-20,Unimarc,96274,7802200270619,Compota Vivo break avena yoghurt berries y plátano 90 gr,0.09,kg,890,890,$790
+2026-08-20,Unimarc,76770,7802910007956,Leche en polvo Calo crecer 1+ semidescremada 1.5 Kg,1.5,kg,14390,12590,$12.590
+2026-08-20,Unimarc,4100,7802900639013,Margarina Next Soprole light pote 500 g Margarina light Soprole Next pote 500 g,0.5,kg,2990,2990,$2.650
+2026-08-20,Unimarc,97949,7807975010392,Huevos Fundo Rio Alegre extra blanco 20 un,,,6490,5830,$5.830
+2026-08-20,Unimarc,92075,78033573,Postre Oikos pie de limón 132 g,0.132,kg,1350,1090,$1.090
+2026-08-20,Unimarc,263,7804100101109,Huevos extra blanco Yemita 12 un,,,4750,4750,$4.390
+2026-08-20,Unimarc,97780,7802420013096,Saborizante para leche Cola Cao chocolate 130 gr,0.13,kg,1100,1000,$1.000
+2026-08-20,Unimarc,96273,7802200270602,Compota Vivo break avena yoghurt naranja y plátano 90 gr,0.09,kg,890,790,$790
+2026-08-20,Unimarc,40296,7802955010195,Pack Minishot probiótico Calán multifruta 6 un de 90 ml,0.54,kg,2490,2000,$2.000
+2026-08-20,Unimarc,97906,7802920012155,Crema Colun sin lactosa light 200 ml,0.2,kg,1290,1090,$1.090
+2026-08-20,Unimarc,86473,7802900003791,Leche proteína Soprole sabor vainilla 1 L,1,L,2750,2490,$2.490
+2026-08-20,Unimarc,86268,7802900003678,Leche semidescremada sin lactosa Soprole frutilla 6 un de 200 ml Leche semidescremada Soprole frutilla sin lactosa 6 un de 200 ml,1.2,L,3450,3100,$3.100
+2026-08-20,Unimarc,7290,7802900050023,Leche semidescremada Soprole frutilla 1 L Leche semidescremada Soprole sabor frutilla 1 L,1,L,1790,1590,$1.590
+2026-08-20,Unimarc,7386,7802920000176,Yoghurt Colun mora bolsa 1 Kg,1,kg,2090,2090,
+2026-08-20,Unimarc,13694,7804100103226,Huevo grande blanco Yemita 6 un,,,2450,2450,$2.290
+2026-08-20,Unimarc,84690,8445290731432,Leche en polvo Nido etapa 5 bolsa 700 g,0.7,kg,9850,9850,
+2026-08-20,Unimarc,5929,7802800531110,Saborizante Cocoa Raff chocolate bolsa 1 Kg,1,kg,5990,5990,$5.000
+2026-08-20,Unimarc,93317,7802900004774,Margarina mix Soprole 200Gr,0.2,kg,1790,1590,$1.590
+2026-08-20,Unimarc,97948,7807975010385,Huevos Fundo Rio Alegre mediano blanco 30 un,,,8990,8130,$8.130
+2026-08-20,Unimarc,97939,7807975010361,Huevos Fundo Rio Alegre grande blanco 12 un,,,3590,3230,$3.230
+2026-08-20,Unimarc,83198,7802900003371,Kefir Soprole berries 1 L Kefir Soprole sabor berries 1 L,1,L,2790,2790,
+2026-08-20,Unimarc,97527,7802955011529,Yoghurt griego Oikos Danone balde 800 gr,0.8,kg,4090,4090,
+2026-08-20,Unimarc,40737,7804644450053,Huevo de campo Ecoterra gallina libre 12 un,,,7490,7490,$6.590
+2026-08-20,Unimarc,92073,7802910009141,Yoghurt Loncoleche full pro proteína natural 150 g,0.15,kg,1250,1250,
+2026-08-20,Unimarc,75430,7802900228170,Yoghurt con cereal Soprole 1+1 mini cookies 140 g Yoghurt Soprole 1+1 con mini galletas pote 140 g,0.14,kg,780,780,
+2026-08-20,Unimarc,7840,7802920777283,Crema para batir de leche Colun 200 ml Crema de leche Colun 200 ml,0.2,L,1390,1390,
+2026-08-20,Unimarc,408,7802900120016,Mantequilla Soprole con sal 125 g Mantequilla Soprole con sal pan 125 g,0.125,kg,1890,1890,
+2026-08-20,Unimarc,87525,7802920011103,Pack Yoghurt batido Los Alerces surtido 12 un de 125 g,1.44,kg,3150,2890,$2.890
+2026-08-20,Unimarc,60959,7802910007093,Leche descremada sin lactosa protein extra Loncoleche cappuccino 1 L,1,L,2590,2590,
+2026-08-20,Unimarc,97938,7807975010507,Huevos Fundo Rio Alegre gallina libre 12 un,,,4850,4850,$4.360
+2026-08-20,Unimarc,18504,7804100102205,Huevos grande color Yemita 12 un,,,4750,4750,$4.390
+2026-08-20,Unimarc,83430,7802900003326,Yoghurt Soprole 1+1 natural botella 1 Kg Yoghurt shake Soprole 1+1 sabor natural botella 1 Kg,1,kg,2790,2790,
+2026-08-20,Unimarc,1644,7804140000042,Huevo grande color La Granja 6 un,,,3090,3090,$2.890
+2026-08-20,Unimarc,9873,7804144000024,Huevo grande blanco Huevos de Talca 12 un,,,4650,4250,$4.250
+2026-08-20,Unimarc,77633,7848004940150,Arroz Nuestra Cocina G2 largo delgado 1 Kg,1,kg,1390,1390,$1.000
+2026-08-20,Unimarc,78351,2050002454538,Harina Nuestra Cocina sin polvos 1 Kg,1,kg,1390,1390,$1.000
+2026-08-20,Unimarc,77701,7798316701034,Aceite Nuestra Cocina vegetal botella 900 ml,0.9,L,1890,1890,$1.790
+2026-08-20,Unimarc,90114,7702367293356,Atún lomito Van Camp's en agua 142 g  neto - 92 g drenado Atún lomito Van Camp's en agua 92 g drenado,0.092,kg,1990,1500,2 x $3.000
+2026-08-20,Unimarc,881,7802575355171,Pack Salsa de tomate Pomarola italiana 6 un de 200 g,1.2,kg,4150,4150,$3.490
+2026-08-20,Unimarc,1052,21000026326,Mayonesa Kraft pote 789 g,0.789,kg,7290,7290,$6.190
+2026-08-20,Unimarc,31,7800120176738,Arroz Miraflores G1 largo ancho bolsa 1 Kg,1,kg,2690,2690,$2.290
+2026-08-20,Unimarc,90113,7702367012889,Atún lomito Van Camp's en aceite 142 g  neto - 92 g drenado Atún lomito Van Camp's en aceite 92 g drenado,0.092,kg,1990,1500,2 x $3.000
+2026-08-20,Unimarc,97268,7807975011115,Atún lomito Nuestra Cocina en agua 140 gr neto - 91 gr drenado,0.091,kg,1090,1090,$1.000
+2026-08-20,Unimarc,65157,7802000013607,Papas fritas Lay's Stax original lata 134 g,0.134,kg,2450,1500,2 x $3.000
+2026-08-20,Unimarc,10825,7803110108214,Lentejas Banquete 4 mm 1 Kg,1,kg,3890,3000,$3.000
+2026-08-20,Unimarc,65158,7802000013621,Papas fritas Lay's Stax crema cebolla lata 134 g,0.134,kg,2450,1500,2 x $3.000
+2026-08-20,Unimarc,97724,7802420013768,Papas fritas Marco Polo rústicas sal de mar 100 gr,0.1,kg,1190,1000,$1.000
+2026-08-20,Unimarc,3,7803200040196,Aceite Chef maravilla 0% colesterol 1 L,1,L,3690,3690,
+2026-08-20,Unimarc,91584,7802420003813,Cabritas Marco Polo sabor caramelo 140 g,0.14,kg,1290,1290,$1.000
+2026-08-20,Unimarc,425,7802950105810,Sopa de pollo Maggi con fideos sobre 70 g,0.07,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,90009,7804627651064,Pasta dip Buka yoghurt ciboullette 110 g,0.11,kg,1290,1000,$1.000
+2026-08-20,Unimarc,90008,7804627651057,Pasta dip Buka ajo suave tostado 110 g,0.11,kg,1290,1290,$1.000
+2026-08-20,Unimarc,1318,7802420002182,Papas fritas Marco Polo rústicas sal de mar bolsa 185 g,0.185,kg,2790,2190,$2.190
+2026-08-20,Unimarc,10153,7802500224442,Pack Salsa de tomate Lucchetti italiana 6 un de 200 g,1.2,kg,3890,3290,$3.290
+2026-08-20,Unimarc,97722,7802420013607,Snack mix Marco Polo 120 gr,0.12,kg,1190,1000,$1.000
+2026-08-20,Unimarc,3523,7802950105568,Sopa Maggi caracolitos sobre 76 g,0.076,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,3530,7802950105476,Crema Maggi de espárragos sobre 68 g,0.068,kg,690,563.33,3 x $1.690
+2026-08-20,Unimarc,5817,7802810008794,Aceite de oliva Chef extra virgen arbequina 1 L,1,L,16290,16290,$13.450
+2026-08-20,Unimarc,65156,7802000013614,Papas fritas Lay's stax cheddar lata 134 g,0.134,kg,2450,1500,2 x $3.000
+2026-08-20,Unimarc,14066,7800159000912,Mayonesa Kraft mayodeli doypack 850 g,0.85,kg,4250,4250,$3.590
+2026-08-20,Unimarc,91514,7802000020254,Cheetos Evercrisp palitos de queso 250 g,0.25,kg,2090,2090,$1.690
+2026-08-20,Unimarc,4034,7613030612247,Sopa de costillla Maggi con fideos sobre 60 g,0.06,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,77778,7801420002284,Arroz Nuestra Cocina grano largo G1 bolsa 1 Kg,1,kg,1690,1690,$1.390
+2026-08-20,Unimarc,65431,7807975009389,Caballa Mas Ahorro Unimarc 425 g,0.235,kg,1450,1450,$1.290
+2026-08-20,Unimarc,97499,7800159000936,Mayonesa Kraft deli doypack 200 gr,0.2,kg,1190,1190,$1.000
+2026-08-20,Unimarc,3524,7802950105742,Sopa Maggi sabor pollo con arroz sobre 70 g,0.07,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,51,7802500007021,Pasta spaghetti N° 5 Talliani al huevo 400 g Pasta spaghetti N°5 Talliani al huevo 400 g,0.4,kg,1390,1390,$1.000
+2026-08-20,Unimarc,5663,7809558102661,Endulzante líquido Daily Gotas stevia 400 ml,0.4,L,4950,4950,$3.990
+2026-08-20,Unimarc,4765,7802575040206,Pasta ravioles Carozzi con carne 400 g,0.4,kg,2590,2590,$2.100
+2026-08-20,Unimarc,59446,7802626100026,Harina Collico todo uso 1 Kg,1,kg,1550,1550,$890
+2026-08-20,Unimarc,76233,7801480000558,Arroz Nuestra Cocina G1 grano largo ancho bolsa 1 Kg,1,kg,2150,2150,$1.790
+2026-08-20,Unimarc,91162,8445291742369,Sopa Maggi carne fideos sobre 60 g,0.06,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,76471,7807975004155,Palmitos Nuestra Cocina enteros lata 400 g neto - 220 g drenado Palmitos Nuestra Cocina enteros lata 400 g,0.22,kg,2890,2890,$2.190
+2026-08-20,Unimarc,7758,7802575000552,Pasta Caracoquesos Carozzi salsa queso 296 g,0.296,kg,1950,1950,$1.590
+2026-08-20,Unimarc,93434,7802000020865,Tostitos con sal marina sabor Evercrisp 200gr,0.2,kg,2590,2590,$2.000
+2026-08-20,Unimarc,92900,7803960000652,Puré de papas instantáneo Hoffmann bolsa 125Gr PURE DE PAPAS HOFFMANN 125 GR,0.125,kg,1490,1490,$1.000
+2026-08-20,Unimarc,3531,7802950004267,Crema Maggi choclo sobre 79 g,0.079,kg,690,563.33,3 x $1.690
+2026-08-20,Unimarc,97748,7801420002352,Arroz Tucapel G2 fino escogido 1 Kg,1,kg,1300,1300,$1.000
+2026-08-20,Unimarc,3527,7802950105827,Sopa Maggi pollo con sémola sobre 68 g,0.068,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,84794,8445290864703,Crema de zapallo Maggi sobre 45 g,0.045,kg,690,563.33,3 x $1.690
+2026-08-20,Unimarc,80985,7807975004544,Champiñones Nuestra Cocina enteros lata 184 g neto - 115 g drenado Champiñones Nuestra Cocina enteros lata 184 g,0.115,kg,1090,1090,$790
+2026-08-20,Unimarc,28,7802615005523,Harina Mont Blanc con polvos 1 Kg,1,kg,1290,1290,$1.090
+2026-08-20,Unimarc,78362,7805000321550,Mayonesa Hellmann's supreme artesana frasco 735 g,0.735,kg,6190,6190,$5.350
+2026-08-20,Unimarc,76121,7801246000228,Jurel Nuestra Cocina natural 425 g neto - 300 g drenado Jurel Nuestra Cocina natural 425 g,0.3,kg,1990,1990,
+2026-08-20,Unimarc,84793,8445290846853,Crema de tomate Maggi sobre 45 g,0.045,kg,690,563.33,3 x $1.690
+2026-08-20,Unimarc,7782,7802500008042,Pasta espirales al huevo Talliani 400 g,0.4,kg,1390,1390,$1.000
+2026-08-20,Unimarc,14549,7804616320049,Aceite de oliva Las Doscientas extra virgen arbequina 500 ml,0.5,L,8990,8990,$7.990
+2026-08-20,Unimarc,84306,7802000021817,Papas fritas Lay's artesanas sal de mar bolsa 150 g,0.15,kg,2550,2000,$2.000
+2026-08-20,Unimarc,82953,7805000322519,Ketchup JB doypack 900 g,0.9,kg,3090,3090,$2.600
+2026-08-20,Unimarc,76470,7804630540409,Aceite de oliva Nuestra Cocina extra virgen 250 ml,0.25,L,4590,4590,$4.000
+2026-08-20,Unimarc,87169,8445291246560,Consomé sabor pollo Maggi 50 g,0.05,kg,650,500,4 x $2.000
+2026-08-20,Unimarc,3529,7802950005097,Crema Maggi sabor pollo sobre 72 g,0.072,kg,690,563.33,3 x $1.690
+2026-08-20,Unimarc,84792,8445290846822,Crema de mariscos Maggi sobre 45 g,0.045,kg,690,563.33,3 x $1.690
+2026-08-20,Unimarc,493,7803200070612,Aceite de oliva Chef extra virgen 500 ml,0.5,L,9250,9250,
+2026-08-20,Unimarc,75815,7800159001049,Mostaza Heinz doy pack 350 g,0.35,kg,2750,2350,$2.350
+2026-08-20,Unimarc,78195,7807975010859,Garbanzos Nuestra Cocina sin piel bolsa 1 Kg,1,kg,3790,3000,$3.000
+2026-08-20,Unimarc,3335,7802351121204,Aceitunas negras Don Juan huasco bolsa 340 g,0.2,kg,2090,1690,$1.690
+2026-08-20,Unimarc,93180,7805000324469,Pack Salsa de tomate Malloa italiana 6 un de 175 g,1.05,kg,3590,3000,$3.000
+2026-08-20,Unimarc,7779,7802500007038,Pasta tallarines N° 77 Talliani al huevo 400 g Pasta tallarines N°77 Talliani al huevo 400 g,0.4,kg,1390,1000,$1.000
+2026-08-20,Unimarc,78650,7802000015779,Cheetos Evercrisp palitos de queso 110 g,0.11,kg,1290,1000,$1.000
+2026-08-20,Unimarc,7220,7802950005936,Caldo Maggi sabor gallina 8 tabletas de 11 g,0.088,kg,1250,1000,$1.000
+2026-08-20,Unimarc,7760,7802575007261,Lasaña tradicional Carozzi caja 400 g,0.4,kg,3090,2690,$2.690
+2026-08-20,Unimarc,7221,7802950009057,Caldo Maggi sabor carne tableta 8 un de 10 g,0.088,kg,1250,1000,$1.000
+2026-08-20,Unimarc,97857,7500810046890,Tortilla de maíz Takis buckin ranch 190 gr,0.19,kg,2150,1500,2 x $3.000
+2026-08-20,Unimarc,85167,6956346400957,Duraznos Nuestra Cocina en mitades 580 g neto - 340 g drenado Duraznos Nuestra Cocina en mitades 580 g,0.34,kg,2150,1790,$1.790
+2026-08-20,Unimarc,13515,7802351441203,Chucrut Don Juan bolsa 360 g,0.2,kg,1190,970,$970
+2026-08-20,Unimarc,9411,7848004940105,Arroz Merkat largo delgado grado 2 1 Kg,1,kg,1190,1190,
+2026-08-20,Unimarc,91788,7807975007071,Gnocchi de papa Nuestra Cocina 500 g,0.5,kg,2990,2490,$2.490
+2026-08-20,Unimarc,93439,7802575347183,Salsa dip de finas hierbas Crackelet sachet 110 gr,0.11,kg,1290,1000,$1.000
+2026-08-20,Unimarc,97720,7803111003655,Salsa Bruschetta alcachofa Perfect Choice frasco 130 gr,0.13,kg,1190,1000,$1.000
+2026-08-20,Unimarc,91048,7802575015686,Pasta espirales Carozzi proteína 350 g,0.35,kg,1490,1250,$1.250
+2026-08-20,Unimarc,5943,7802420002359,Papas fritas Marco Polo rústicas merkén bolsa 185 g,0.185,kg,2790,2190,$2.190
+2026-08-20,Unimarc,91590,7809611721655,Pack Hamburguesa Super Beef tradicional 2 un de 100 g,0.2,kg,1490,1490,$1.000
+2026-08-20,Unimarc,92012,7807975007170,Choclo grano Nuestra Cocina 500 g,0.5,kg,1850,1500,2 x $3.000
+2026-08-20,Unimarc,91911,7807975008252,Arvejas Nuestra Cocina 500 g,0.5,kg,2050,1500,2 x $3.000
+2026-08-20,Unimarc,91836,7807975008238,Habas con piel Nuestra Cocina congeladas 500 g,0.5,kg,2050,1500,2 x $3.000
+2026-08-20,Unimarc,92013,7807975007323,Zapallo en cubo Nuestra Cocina 500 g,0.5,kg,1550,1500,2 x $3.000
+2026-08-20,Unimarc,91837,7807975007309,Porotos verdes francés Nuestra Cocina congeladas 350 g,0.35,kg,1490,1490,$1.190
+2026-08-20,Unimarc,13369,7801930014005,Pechuga de pollo apanada Receta del Abuelo 1 un 120 g,0.12,kg,1350,1050,2 x $2.100
+2026-08-20,Unimarc,802,7801220431109,Choclo grano Minuto Verde 500 g,0.5,kg,1990,1990,$1.750
+2026-08-20,Unimarc,86498,7807975006630,Frambuesa congelada Nuestra Cocina 250 g,0.25,kg,3190,3190,$2.590
+2026-08-20,Unimarc,698,7801300301049,Choclo grano Frutos del Maipo 500 g,0.5,kg,2190,2190,$1.790
+2026-08-20,Unimarc,576,7809611700445,Nuggets pollo Super Pollo bolsa 1 Kg,1,kg,5990,5990,$4.890
+2026-08-20,Unimarc,5526,7809611706973,Crocante de pollo Super Pollo bolsa 100 g,0.1,kg,680,680,$580
+2026-08-20,Unimarc,14751,7801930014067,Escalopa de vacuno kayser Receta del Abuelo 120 g,0.12,kg,1390,1100,2 x $2.200
+2026-08-20,Unimarc,82592,7802705401488,Postre helado Carte Dor signature dulce de leche 900 ml,0.9,L,5850,5850,$3.000
+2026-08-20,Unimarc,61118,7801930018010,Apanado de pollo PF bolsa 100 g,0.1,kg,730,730,$590
+2026-08-20,Unimarc,58721,7801930015088,Pizza PF Listo congelada jamón queso 250 g,0.25,kg,2790,2790,$2.000
+2026-08-20,Unimarc,87450,7809611718310,Medallón lomo centro Super Cerdo 120 g,0.12,kg,1590,1590,$1.000
+2026-08-20,Unimarc,1231,7801930010854,Pizza PF listo jamón queso 465 g,0.465,kg,4990,3950,$3.950
+2026-08-20,Unimarc,864,7801220000848,Pasta de choclo Minuto Verde bolsa 1 Kg,1,kg,4590,4150,$4.150
+2026-08-20,Unimarc,4425,7893000014435,Supremitas pollo Sadia rebozadas bolsa 480 g,0.48,kg,4290,4290,$3.950
+2026-08-20,Unimarc,4306,7809611700667,Nuggets Super Pollo bolsa 400 g,0.4,kg,2690,2690,$2.150
+2026-08-20,Unimarc,91905,7807975007330,Cebolla picada Nuestra Cocina congelada 250 g,0.25,kg,1290,1000,$1.000
+2026-08-20,Unimarc,58722,7801930015101,Pizza PF Listo congelada pepperoni 230 g,0.23,kg,2790,2000,$2.000
+2026-08-20,Unimarc,799,7801220801247,Ensalada primavera Minuto Verde 500 g,0.5,kg,2150,1890,$1.890
+2026-08-20,Unimarc,800,7801220000657,Papas duquesa Minuto Verde bolsa 1 Kg,1,kg,4990,4090,$4.090
+2026-08-20,Unimarc,96640,7802705402324,Helado de agua Bresler mini frugelé frambuesa 3 un de 50 ml,0.15,L,1450,1450,$1.000
+2026-08-20,Unimarc,1349,7613035760592,Pack Helado Mega mini paleta frambuesa 5 un de 60 ml,0.3,L,5950,5950,$4.690
+2026-08-20,Unimarc,89350,8445291533059,Helado Mega Savory trío tres chocolate pote 450 ml,0.45,L,4990,4990,$3.500
+2026-08-20,Unimarc,82020,614143221040,Kanikama Azul Profundo 300 g,0.3,kg,2490,2490,$1.590
+2026-08-20,Unimarc,74824,7613287221629,Helado Savory chocolate suizo y frutos del bosque 1 L,1,L,3690,3690,$3.151
+2026-08-20,Unimarc,3771,7809611700261,Croqueta pollo Super Pollo bolsa 80 g,0.08,kg,510,510,
+2026-08-20,Unimarc,82726,8445290262707,Helado La Cremería fudge brownie 1 L,1,L,6390,6390,$5.250
+2026-08-20,Unimarc,7240,7802710835155,Helado Savory chirimoya alegre cassata 1 L,1,L,3690,3690,$3.151
+2026-08-20,Unimarc,97618,7801552008222,Helado Trendy chocolate suizo y frutos del bosque 1.8 L,1.8,L,6290,6290,$5.650
+2026-08-20,Unimarc,1742,7802710832116,Helado Savory vainilla 1 L,1,L,3690,3690,$3.151
+2026-08-20,Unimarc,1743,7802710831119,Helado Savory piña cassata 1 L,1,L,3690,3690,$3.151
+2026-08-20,Unimarc,92832,7801300004100,Helado bites Frutos del Maipo frambuesa doypack 250 g,0.25,kg,7990,7990,
+2026-08-20,Unimarc,83288,7804661670366,Helado tento creamy vainilla 1.4 L,1.4,L,8190,6550,$6.550
+2026-08-20,Unimarc,74194,7613287171726,Pack paleta helado Kitkat Savory 5 un,,,6390,6390,$4.690
+2026-08-20,Unimarc,82614,8445290341730,Helado Savory banana split 1 L,1,L,3690,3690,$3.151
+2026-08-20,Unimarc,16011,7801300001000,Base tomatican Frutos del Maipo 400 g,0.4,kg,2390,2390,$2.000
+2026-08-20,Unimarc,82725,8445290262677,Helado La Cremería crunchy 3 leches 1 L,1,L,6390,6390,$5.250
+2026-08-20,Unimarc,82619,8445290341686,Helado Savory chocolate lúcuma 1 L,1,L,3690,3690,$3.151
+2026-08-20,Unimarc,82764,8445290262943,Helado La Cremería passion fruit y mango 1 L,1,L,6390,6390,$5.250
+2026-08-20,Unimarc,82723,8445290262738,Helado La Cremería cookies and cream caramelo 1 L,1,L,6390,6390,$5.250
+2026-08-20,Unimarc,78175,7802926001757,Helado San Francisco 0% azúcar chocolate nuss 680 g,0.68,kg,6450,5690,$5.690
+2026-08-20,Unimarc,91838,7807975007347,Chapsui Nuestra Cocina congelado 500 g,0.5,kg,2590,2590,
+2026-08-20,Unimarc,86645,7803408002309,Empanadas con queso congeladas como en casa 24u,0.5,kg,3590,3590,
+2026-08-20,Unimarc,78184,7802926001771,Helado San Francisco 0% azúcar frutos del bosque 680 g,0.68,kg,6450,6450,$5.690
+2026-08-20,Unimarc,82763,8445290262882,Helado La Cremería papaya cream sparkle 1 L,1,L,6390,6390,$5.250
+2026-08-20,Unimarc,78176,7802926001764,Helado San Francisco 0% azúcar vainilla 680 g,0.68,kg,6450,5690,$5.690
+2026-08-20,Unimarc,14361,7809524900871,Helado Coppelia vainilla chips sin lactosa 800 ml,0.8,L,6990,5990,$5.990
+2026-08-20,Unimarc,97593,7802926411020,Postre San Francisco chocolate con salsa chocolate sin lactosa 900 ml,0.9,L,6990,6190,$6.190
+2026-08-20,Unimarc,97592,7802926411013,Postre San Francisco vainilla caramelo sin lactosa 900 ml,0.9,L,6990,6190,$6.190
+2026-08-20,Unimarc,92830,7801300004124,Helado bites Frutos del Maipo frambuesa pote 150 g,0.15,kg,4990,4990,
+2026-08-20,Unimarc,795,7801220311104,Arvejas Minuto Verde 500 g,0.5,kg,1950,1950,
+2026-08-20,Unimarc,86646,7803408002316,Sopaipillas Como en Casa con zapallo congeladas 8 un Sopaipillas cocktail Como en Casa con zapallo congeladas 8 un,0.4,kg,2190,2190,
+2026-08-20,Unimarc,704,2050000638312,Hamburguesa vacuno La Crianza light premium 1 Kg,1,kg,12290,12290,
+2026-08-20,Unimarc,12053,7809611700865,Hamburguesa de pollo La Crianza 100 g,0.1,kg,1090,1090,
+2026-08-20,Unimarc,97512,7801300004247,Helado bites Frutos del Maipo frutilla pote 150 g,0.15,kg,5290,5290,
+2026-08-20,Unimarc,4263,7801300000218,Frambuesa Frutos del Maipo 250 g,0.25,kg,3550,3550,
+2026-08-20,Unimarc,14749,7801930013985,Suprema de pollo kayser Receta del Abuelo 120 g,0.12,kg,1490,1490,
+2026-08-20,Unimarc,96600,7807975008900,Pizza a la piedra Como en Casa suprema 700 gr,0.7,kg,5990,5990,
+2026-08-20,Unimarc,86647,7803408002323,Sopaipillas cocktail Como en Casa con zapallo congeladas 30 un,0.3,kg,2890,2890,
+2026-08-20,Unimarc,83041,7809611720153,Hamburguesa extra tasty La Crianza 100 g,0.1,kg,1090,1090,
+2026-08-20,Unimarc,9957,7801930013268,Pizza PF Listo jamón queso congelada caja 465 g,0.465,kg,5350,5350,
+2026-08-20,Unimarc,76519,7809611719188,Filete de salmón atlántico Aqua Chile con piel trozo congelado 500 g,0.5,kg,11990,11990,
+2026-08-20,Unimarc,4266,7809611700872,Hamburguesa vacuno La Crianza light premium 100 g,0.1,kg,1190,1190,
+2026-08-20,Unimarc,82464,7807975008894,Pizza a la piedra Como en Casa pepperoni 600 gr,0.6,kg,5990,5990,
+2026-08-20,Unimarc,96601,7807975008917,Pizza a la piedra Como en Casa 4 quesos 650 gr,0.65,kg,5990,5990,
+2026-08-20,Unimarc,93507,7809611722065,Hamburguesa vacuno La Crianza american burger 185 gr,0.185,kg,2290,2290,
+2026-08-20,Unimarc,804,7801220221106,Porotos verdes francés Minuto Verde 350 g,0.35,kg,1890,1890,
+2026-08-20,Unimarc,96763,7801300004254,Frambuesa bite dark Frutos del Maipo 150 gr,0.15,kg,5290,5290,
+2026-08-20,Unimarc,96764,7801300004261,Frambuesa bite dark Frutos del Maipo 250 gr,0.25,kg,7990,7990,
+2026-08-20,Unimarc,92828,7801300004094,Helado bites Frutos del Maipo arándano pote 150 g,0.15,kg,4990,4990,
+2026-08-20,Unimarc,67553,7801930013244,Pizza PF listo pepperoni congelada 430 g,0.43,kg,5350,5350,
+2026-08-20,Unimarc,81300,7807975009891,Choritos Azul Profundo 300 g,0.3,kg,2990,2990,
+2026-08-20,Unimarc,96602,7807975008924,Pizza a la piedra Como en Casa napolitana 500 gr,0.5,kg,5990,5990,
+2026-08-20,Unimarc,92831,7801300004117,Helado bites Frutos del Maipo arándano doypack 250 g,0.25,kg,7990,7990,
+2026-08-20,Unimarc,86500,7807975010606,Arándano congelado Nuestra Cocina 400 g,0.4,kg,3490,3490,
+2026-08-20,Unimarc,81301,7807975009907,Paila marina Azul Profundo 500 g,0.5,kg,4690,4690,
+2026-08-20,Unimarc,88987,7801323000691,Filete merluza tempura El Golfo 500 g,0.5,kg,5790,5790,
+2026-08-20,Unimarc,80215,7803408001586,Empanadas Como en Casa aceituna queso 10 un caja 300 g,3.0,kg,4350,4350,
+2026-08-20,Unimarc,11590,7801220003887,Piña Minuto Verde en trozo 500 g,0.5,kg,4990,4990,
+2026-08-20,Unimarc,54640,7801300002762,Ensalada rusa Frutos del Maipo 500 g,0.5,kg,2190,2190,
+2026-08-20,Unimarc,9962,7806500509875,Papel higiénico Confort una hoja familiar 8 un 120 mt,,,15690,11490,$11.490
+2026-08-20,Unimarc,1149,7806500509752,Papel higiénico Elite doble hoja ultra suave 8 un 50 mt,,,11690,8750,$8.750
+2026-08-20,Unimarc,84226,7806540009328,Papel higiénico Favorita sensación doble hoja 40 un de 22 m,,,11990,11490,$11.490
+2026-08-20,Unimarc,86702,7806500508656,Papel higiénico Confort doble hoja rendiplus 12 un 27 mt,,,7490,6290,$6.290
+2026-08-20,Unimarc,87997,7806500508670,Papel higiénico Confort doble hoja 40 un de 22 m,,,21390,13990,$13.990
+2026-08-20,Unimarc,62340,7806500507628,Papel higiénico Confort doble hoja 24 un 22 mt,,,13290,8860,$8.860
+2026-08-20,Unimarc,91004,7806500509974,Papel higiénico Elite doble hoja ultra suave 18 un 40 mt,,,19290,15690,$15.690
+2026-08-20,Unimarc,82921,7806500406846,Toalla de papel Nova ultra absorb mega rollo 2 un 26 mt,,,3750,3150,$3.150
+2026-08-20,Unimarc,85633,7806500506959,Papel higiénico Noble doble hoja super pack 40 un 22 mt,,,15390,11690,$11.690
+2026-08-20,Unimarc,86391,7806500406860,Toalla de papel Nova ultra gigante 70 m,,,4290,4290,$3.650
+2026-08-20,Unimarc,14111,7806500509820,Papel higiénico Elite doble hoja ultra suave 4 un 50 mt,,,6590,4890,$4.890
+2026-08-20,Unimarc,90945,7806500401339,Toalla de papel Nova doble hoja clásica 1 un 70 mt,,,4390,4390,$3.000
+2026-08-20,Unimarc,84876,7807975006074,Lavalozas Smart Clean aroma limón recarga 1.5 L,1.5,L,3750,3750,$2.500
+2026-08-20,Unimarc,82920,7806500406839,Toalla de papel Nova ultra absorb mega rollo 1 un 26 mt,,,1890,1000,$1.000
+2026-08-20,Unimarc,81257,7806500406822,Toalla de papel Nova gigante doble hoja 1 un (100 m),,,6750,5000,$5.000
+2026-08-20,Unimarc,82762,7806540008833,Papel higiénico Favorita acolchado doble hoja 24 un de 22 m,,,10790,7990,$7.990
+2026-08-20,Unimarc,89987,7806500406891,Toalla de papel Nova clásica 12 mt x 12 un,,,8890,6490,$6.490
+2026-08-20,Unimarc,82667,7804653341564,Toalla de papel Nubelín doble hoja 3 un de 12 m,,,2150,2150,$1.490
+2026-08-20,Unimarc,86010,7804659300633,Servilleta cóctel nubelin 300u,,,2190,1690,$1.690
+2026-08-20,Unimarc,4035,7806500226109,Servilletas Elite cocktail 200 un,,,2450,2100,$2.100
+2026-08-20,Unimarc,86739,7500435201285,Suavizante Downy brisa intenso 1 L (rinde 4L),1,L,7490,5590,$5.590
+2026-08-20,Unimarc,1190,7805045000120,Detergente líquido Popeye hipoalergénico doypack 3 L,3,L,16950,16950,$14.350
+2026-08-20,Unimarc,4257,7790520998897,Limpiador Mr. Músculo antigrasa naranja doypack 450 ml,0.45,L,2550,1650,$1.650
+2026-08-20,Unimarc,82574,7807975004803,Paño multiuso Smart Clean 3 un,,,2690,2690,$2.000
+2026-08-20,Unimarc,84459,7806500512318,Papel higiénico Elite triple hoja soft & strong 4 un 40 mt,,,6890,5490,$5.490
+2026-08-20,Unimarc,12250,7806500000228,Pañuelos Elite familiar pack 18 paquetes de 10 un,,,4650,3351,$3.351
+2026-08-20,Unimarc,83065,7807975011047,Detergente en polvo Smart Clean primavera 1 Kg,1,kg,2990,2990,$2.000
+2026-08-20,Unimarc,90163,7804659300763,Servilletas Nubelin cóctel hoja simple 150 un,,,1290,890,$890
+2026-08-20,Unimarc,85838,7805525000688,Cloro concentrado Smart Clean 2 Kg,2,kg,1990,1990,$1.790
+2026-08-20,Unimarc,86926,7805000323554,Lavaloza Quix ultra concentrado 750 ml,0.75,L,4990,4990,$4.490
+2026-08-20,Unimarc,93505,6902088981179,Detergente líquido Drive Expert 1 lt,1,L,3090,3090,$3.000
+2026-08-20,Unimarc,563,7806500165729,Pañuelos faciales Elite 3 cajas de 90 un,,,4250,3150,$3.150
+2026-08-20,Unimarc,64307,7506339332643,Suavizante Downy brisa de verano 1 L (rinde 4L),1,L,7490,7490,$5.590
+2026-08-20,Unimarc,84458,7806500512301,Papel higiénico Elite triple hoja soft & strong 12 un 40 mt,,,17250,14050,$14.050
+2026-08-20,Unimarc,96395,7806810026703,Gel limpiador inodoro Virutex energía floral 250 ml,0.25,L,2150,1000,$1.000
+2026-08-20,Unimarc,60148,7790520998835,Limpiador cocina Mr. Músculo extra power limón gatillo 500 ml,0.5,L,4250,2700,$2.700
+2026-08-20,Unimarc,88653,7790520998927,Limpiahornos Mr. Músculo fórmula avanzada aerosol 360 cc,0.36,L,7590,4900,$4.900
+2026-08-20,Unimarc,97212,7500435258333,Detergente en polvo Ariel toque de Downy 680 gr,0.68,kg,2750,2750,$2.000
+2026-08-20,Unimarc,69434,7806500001102,Pañuelos faciales Elite disney 3 cajas 90 un,,,4250,3150,$3.150
+2026-08-20,Unimarc,82733,7807975004780,Guantes multiuso Smart Clean talla M 1 par,,,2390,2390,$2.000
+2026-08-20,Unimarc,82730,7807975004674,Trapero para pisos Smart Clean gigante 50x57 cm 1 un,,,2750,2750,$2.000
+2026-08-20,Unimarc,84317,7806500406662,Toalla de papel Nova evolution absorb mega rollo 2 un 26 mt,,,4850,3460,$3.460
+2026-08-20,Unimarc,59176,7790520990020,Limpiador gel Pato Purific para inodoro brisa tropical 500 ml,0.5,L,2690,2690,$2.000
+2026-08-20,Unimarc,15297,7790520018632,Limpiador multiuso Mr. Músculo vidrios brillo sin rayas gatillo 500 ml,0.5,L,4890,2960,$2.960
+2026-08-20,Unimarc,90422,4008455548418,Renovador Dr. Beckmann ropa negra 8 un,,,5790,4390,$4.390
+2026-08-20,Unimarc,66656,4008455425412,Blanqueador Dr. Beckmann súper blanco 240 g,0.24,kg,5750,4550,$4.550
+2026-08-20,Unimarc,84813,4023103070240,Esponja Videla pur active 2 un,,,2550,2550,$2.000
+2026-08-20,Unimarc,96508,7805025698514,Cloro limpiador Clorox 5 en 1 mascotas 950 gr,0.95,L,1850,1850,$1.350
+2026-08-20,Unimarc,17523,7805045001158,Jabón de lavar Popeye super blanco 170 g,0.17,kg,1390,1390,$1.170
+2026-08-20,Unimarc,10446,7805040000781,Cloro gel Igenix eucaliptus 900 ml,0.9,L,1990,1990,$1.650
+2026-08-20,Unimarc,56144,7790520991546,Insecticida Baygon casa y jardín aerosol 450 ml,0.45,L,3950,3950,$3.390
+2026-08-20,Unimarc,55045,7790520987853,Insecticida Raid casa y jardín aerosol 420 cc Insecticida Raid casa y jardín aerosol 420 ml,0.42,L,5290,4290,$4.290
+2026-08-20,Unimarc,54265,8411660180100,Cera Alex renovadora madera piso botella 900 ml,0.9,L,8750,8750,$7.000
+2026-08-20,Unimarc,689,7790520998873,Limpiador antigrasa Mr Músculo cocina gatillo 500 ml Limpiador Mr. Músculo antigrasa cocina gatillo 500 ml,0.5,L,4190,3490,$3.490
+2026-08-20,Unimarc,66677,4008455458618,Quitamanchas Dr. Beckmann desodorante y sudor 250 ml,0.25,L,8490,6960,$6.960
+2026-08-20,Unimarc,82734,7807975004797,Guantes multiuso Smart Clean talla L,,,2390,2390,$2.000
+2026-08-20,Unimarc,56142,7790520991522,Insecticida Baygon mata cucarachas y arañas 450 ml Insecticida Baygon mata arañas y cucarachas aerosol 450 ml,0.45,L,3950,3390,$3.390
+2026-08-20,Unimarc,97610,7806810028325,Bolsa de basura Virutex power flex fresh 90 x 110 cm 10 un,,,4790,4790,$4.000
+2026-08-20,Unimarc,42222,7501058715784,Desodorante ambiental Air Wick pure premium cítricos aerosol 250 ml,0.25,L,5290,5290,$4.150
+2026-08-20,Unimarc,93449,37000509608,Detergente en cápsulas Pods Tide 31un,,,23450,23450,$20.150
+2026-08-20,Unimarc,97779,7759185008587,Pañuelos Elite triple hoja 4 paquetes  de 10 un,,,1190,1000,$1.000
+2026-08-20,Unimarc,88679,7790520025494,Insecticida Baygon todo insecto 450 cc,0.45,L,3950,3390,$3.390
+2026-08-20,Unimarc,56143,7790520991539,Insecticida Baygon moscas y mosquitos aerosol 450 ml,0.45,L,3950,3390,$3.390
+2026-08-20,Unimarc,87679,7805040005557,Pack detergente líquido Igenix higienizante frescura frutal 2 un de 3 L,6,L,11650,11650,$10.390
+2026-08-20,Unimarc,77410,7806500508748,Papel higiénico Noble doble hoja 16 un 23 mt,,,6950,6950,
+2026-08-20,Unimarc,3195,7806300010021,Pack Fósforos Copihue tradicional 10 cajas,,,1950,1950,
+2026-08-20,Unimarc,12139,7806810003384,Esponja dorada Virutex orotex antibacterial 3 un,,,3150,3150,
+2026-08-20,Unimarc,89429,7805000323561,Lavaloza Quix ultra concentrado doypack 450 ml,0.45,L,2550,2550,
+2026-08-20,Alvi,15197,7801620010843,Bebida energética Rockstar sabor sandía punch 500 ml,0.5,L,1280,1280,
+2026-08-20,Alvi,7208,8445290262387,Leche instantánea en polvo 26% materia grasa,1.35,kg,16050,16050,
+2026-08-20,Alvi,1888,7802900048013,Leche Soprole sin lactosa descremada 1 L,1,L,1440,1440,
+2026-08-20,Alvi,1889,7802900200817,Leche Soprole sin lactosa semidescremada 1 L,1,L,1440,1440,
+2026-08-20,Alvi,1092,7808743603273,Arroz Merkat grado 2 largo delgado 5 Kg Arroz grado dos largo delgado,5,kg,6890,6890,
+2026-08-20,Alvi,2945,7804100103448,Alimento perro adulto carne y arroz,18,kg,28170,28170,
+2026-08-20,Alvi,159,7804635931776,Galletas de arroz endulzada,0.11,kg,1410,1410,
+2026-08-20,Alvi,80,7750168001953,Pack galletas mini original 6 un de 36 g,0.216,kg,1500,1500,
+2026-08-20,Alvi,14,7802215505775,Galletas Costa mantequilla 140 g Galletas mantequilla,0.14,kg,840,840,
+2026-08-20,Alvi,9406,7802215502026,Galleta de soda costa 160g Galleta de soda,0.16,kg,950,950,
+2026-08-20,Alvi,15,7802215505744,Galletas Costa vino 160 g Galletas vino,0.16,kg,840,840,
+2026-08-20,Alvi,3,7802215505935,Galletas Costa choco chips 125 g Galletas choco chips,0.125,kg,840,840,
+2026-08-20,Alvi,13,7802215505812,Galletas Costa limón 140 g Galletas limón,0.14,kg,840,840,
+2026-08-20,Alvi,9368,7802215502033,Galleta de soda line,0.16,kg,950,950,
+2026-08-20,Alvi,9018,7804628248171,Galleta oblea vainilla,0.14,kg,1160,1160,
+2026-08-20,Jumbo,156484,,Bebida Pepsi Zero 1.25 L,1.25,L,1750,1750,
+2026-08-20,Jumbo,503,,Bebida Coca-Cola Zero 3 L,3.0,L,3450,3450,
+2026-08-20,Jumbo,394,,Bebida Coca-Cola Original 3 L,3.0,L,3450,3450,
+2026-08-20,Jumbo,156483,,Bebida Pepsi 1.25 L,1.25,L,1750,1750,
+2026-08-20,Jumbo,497,,Bebida Coca-Cola Light 3 L,3.0,L,3450,3450,
+2026-08-20,Jumbo,62522,,Bebida Crush Zero 1.75 L,1.75,L,2390,2390,
+2026-08-20,Jumbo,5853,,Cilantro Paquete 120 g,0.12,kg,950,950,
+2026-08-20,Jumbo,18767,,Tomate San Marzano Granel,,,1315,1315,
+2026-08-20,Jumbo,111644,,Ensalada Apio Bastones 500 g,0.5,kg,2190,2190,
+2026-08-20,Jumbo,54350,,Limón Sutil Malla 500 g,0.5,kg,1990,1990,
+2026-08-20,Jumbo,78554,,Ciruelas Deshidratadas Pote 500 g,0.5,kg,5490,5490,
+2026-08-20,Jumbo,5689,,Apio Corte Media Luna 500 g,0.5,kg,2890,2890,
+2026-08-20,Jumbo,153359,,Frutillas Blancas 200 g,0.2,kg,3290,3290,
+2026-08-20,Jumbo,88908,,Espinaca Baby Agrolam Lista para Servir 120 g,0.12,kg,2950,2950,
+2026-08-20,Jumbo,168933,,Bebida Gatorade Black Ice Edición F1 750 cc,0.75,L,1000,1000,
+2026-08-20,Jumbo,17279,,Bebida Energética Monster Ultra 473 ml,0.473,L,1890,1890,
+2026-08-20,Jumbo,138793,,Bebida Energética Monster Juice Ripper 473 ml,0.473,L,1890,1890,
+2026-08-20,Jumbo,144553,,Bebida Energética Monster Energy Zero Sugar Green 473 ml,0.473,L,1890,1890,
+2026-08-20,Jumbo,72424,,Bebida Energética Red Bull 473 ml,0.473,L,3090,3090,
+2026-08-20,Jumbo,372,,Agua Saborizada Vitamin Water Restore 500 cc,0.5,L,1250,1250,
+2026-08-20,Jumbo,48011,,Bebida Vegetal Vilay Arroz Sabor Original 1 L,1.0,L,2570,2570,
+2026-08-20,Jumbo,147537,,Bebida Energética Score Original Lata 473 cc,0.473,L,1460,1460,
+2026-08-20,Jumbo,105691,,Bebida Vegetal NotMilk Kids Chocolate 200 ml,0.2,L,1130,1130,
+2026-08-20,Jumbo,127146,,Bebida Vegetal Natrue Almendra 0% Azúcar 1 L,1.0,L,2093,2093,
+2026-08-20,Jumbo,127147,,Bebida Vegetal Natrue Avena Barista 1 L,1.0,L,2168,2168,
+2026-08-20,Jumbo,86637,,Bebida Vegetal Vilay Coco Sabor Chocolate 1 L,1.0,L,2150,2150,
+2026-08-20,Jumbo,120713,,Bebida Energética Red Bull Sin Azúcar 473 ml,0.473,L,3090,3090,
+2026-08-20,Jumbo,158855,,Bebida Vegetal Nude Barista 1 L,1.0,L,3850,3850,
+2026-08-20,Jumbo,140462,,Bebida de Avena Natrue Pumpkin Spice 1 L,1.0,L,2093,2093,
+2026-08-20,Jumbo,6737,,Leche Surlat Descremada Sin Lactosa 1 L,1.0,L,1420,1420,
+2026-08-20,Jumbo,44077,,Pack 6 un. Leche Surlat Descremada Sin Lactosa 1 L,6.0,L,8520,8520,
+2026-08-20,Jumbo,142236,,Pack 6 un. Leche Surlat Descremada Sin Lactosa 200 ml,1.2,L,3780,3780,
+2026-08-20,Jumbo,168117,,Galleta Club Social BBQ 216 g,0.216,kg,1890,1890,
+2026-08-20,Jumbo,113477,,Chocolates Rolls Crocante 100 g,0.1,kg,1490,1490,
+2026-08-20,Jumbo,113462,,Chocolates Rolls Nuts 100 g,0.1,kg,1490,1490,
+2026-08-20,Jumbo,82364,,Papas Fritas Cuisine & Co Artesanal Sal de Mar 185 g,0.185,kg,1771,1771,
+2026-08-20,Jumbo,115812,,Galletas Crackers Lorenz con Semillas 100 g,0.1,kg,2390,2390,
+2026-08-20,Jumbo,153337,,Pack 3 un. Galleta Triton Sabor Chocolate 116 g,0.348,kg,2730,2730,
