@@ -1989,7 +1989,7 @@ function renderMacroEditor(){
 }
 
 /* ============ IMPORT/EXPORT ============ */
-function exportJSON(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='wavepmo_'+today().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}
+function exportJSON(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='altuspmo_'+today().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}
 function importJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.areas||!d.inis)throw 0;db=d;logAudit('importar','Respaldo JSON importado');save();refreshAll();alert('Datos importados.');}catch(e){alert('Archivo inválido.');}};r.readAsText(f);ev.target.value='';}
 
 /* ============ CSV: PARSER ROBUSTO ============ */
@@ -2015,13 +2015,13 @@ function iniToRow(ini){
 }
 function buildCSV(rows){return [CSV_HEADERS.join(','),...rows.map(r=>r.map(csvCell).join(','))].join('\n');}
 function dl(name,content,type){const blob=new Blob(['﻿'+content],{type});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
-function exportCSV(){dl('wavepmo_iniciativas_'+today().toISOString().slice(0,10)+'.csv',buildCSV(db.inis.map(iniToRow)),'text/csv');}
+function exportCSV(){dl('altuspmo_iniciativas_'+today().toISOString().slice(0,10)+'.csv',buildCSV(db.inis.map(iniToRow)),'text/csv');}
 function downloadTemplate(withData){
   const rows=withData?db.inis.map(iniToRow):[
     ['Operaciones','Compras','Procurement / clean-sheet',3800000,'Renegociación energía','J. Fuentes','N3','no',420000,55,'2026-02-01','2026-06-01','2026-08-01','linear','Contrato PPA a evaluar','Kickoff & baseline~J. Fuentes~2026-03-01~ok ; Licitación~J. Fuentes~2026-05-15~pend'],
     ['Comercial','Ventas','Motor de crecimiento comercial',5100000,'Recuperación de churn','A. Silva','N2','no',300000,20,'2026-03-01','2026-08-01','2026-10-01','s','Modelo predictivo de fuga','Definir cohorte~A. Silva~2026-04-10~pend']
   ];
-  dl('wavepmo_plantilla.csv',buildCSV(rows),'text/csv');
+  dl('altuspmo_plantilla.csv',buildCSV(rows),'text/csv');
 }
 
 /* ============ CSV: IMPORTAR ============ */
