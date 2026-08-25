@@ -587,7 +587,13 @@ body.locked{overflow:hidden}
 
 <script>
 /* ============ ESTADO / MODELO ============ */
-const LS='wavepmo_v1';
+const LS='altuspmo_v1';
+/* Migracion de claves antiguas (wavepmo_*) a altuspmo_*: se copian una sola vez y se borran las viejas. */
+(function migrarClaves(){try{
+  [['wavepmo_v1','altuspmo_v1'],['wavepmo_savedAt','altuspmo_savedAt']].forEach(function(par){var v=localStorage.getItem(par[0]);if(v===null)return;if(localStorage.getItem(par[1])===null)localStorage.setItem(par[1],v);localStorage.removeItem(par[0]);});
+  for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k&&k.indexOf('wavepmo_dash_')===0){var nk='altuspmo_dash_'+k.slice(13);if(localStorage.getItem(nk)===null)localStorage.setItem(nk,localStorage.getItem(k));localStorage.removeItem(k);}}
+  var ses=sessionStorage.getItem('wavepmo_session');if(ses!==null){if(sessionStorage.getItem('altuspmo_session')===null)sessionStorage.setItem('altuspmo_session',ses);sessionStorage.removeItem('wavepmo_session');}
+}catch(e){}})();
 const STAGES=[
   {id:'N1',name:'Idea',conf:.15,c:'#b9c3ce',desc:'Oportunidad identificada con estimación temprana; el dueño valida supuestos.'},
   {id:'N2',name:'Caso de negocio',conf:.40,c:'#7b8fb0',desc:'Caso sólido y aprobado (Finanzas); se fija el valor objetivo (baseline). Requiere adjuntar el caso de negocio.'},
@@ -735,7 +741,7 @@ function seed(){
 function stripT(s){return s==null?s:String(s).replace(/[<>]/g,'');}
 function sanitizeIni(i){if(!i)return i;['name','owner','descripcion','palanca','supuestos','notes'].forEach(k=>{if(i[k]!=null)i[k]=stripT(i[k]);});if(i.businessCase&&i.businessCase.name)i.businessCase.name=stripT(i.businessCase.name);(i.milestones||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);if(m&&m.owner!=null)m.owner=stripT(m.owner);});(i.approvals||[]).forEach(a=>{if(a){['comment','reason','by','nombre'].forEach(k=>{if(a[k]!=null)a[k]=stripT(a[k]);});}});(i.risks||[]).forEach(r=>{if(r){['desc','detail','mit','owner','status'].forEach(k=>{if(r[k]!=null)r[k]=stripT(r[k]);});}});(i.kpis||[]).forEach(k=>{if(k){['name','unit'].forEach(f=>{if(k[f]!=null)k[f]=stripT(k[f]);});}});return i;}
 function sanitizeDb(d){if(!d)return d;(d.inis||[]).forEach(sanitizeIni);(d.areas||[]).forEach(a=>{if(a&&a.name!=null)a.name=stripT(a.name);});(d.grupos||[]).forEach(g=>{if(g&&g.name!=null)g.name=stripT(g.name);});(d.macros||[]).forEach(m=>{if(m&&m.name!=null)m.name=stripT(m.name);});if(d.meta){if(d.meta.name!=null)d.meta.name=stripT(d.meta.name);if(d.meta.user!=null)d.meta.user=stripT(d.meta.user);}return d;}
-function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('wavepmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio (local): '+new Date().toLocaleString();}
+function save(){localStorage.setItem(LS,JSON.stringify(db));localStorage.setItem('altuspmo_savedAt',new Date().toISOString());const ls=document.getElementById('lastSaved');if(ls)ls.textContent='Último cambio (local): '+new Date().toLocaleString();}
 function logAudit(action,detail){if(!db.audit)db.audit=[];const entry={ts:new Date().toISOString(),user:curUserName(),action,detail};db.audit.unshift(entry);if(db.audit.length>500)db.audit.length=500;if(typeof pushAudit==='function')pushAudit(entry);}
 function curUserName(){return (currentSession()||{}).nombre||(db.meta&&db.meta.user)||'—';}
 function iniHist(ini,action,detail){ini.history=ini.history||[];ini.history.unshift({action,user:curUserName(),fecha:new Date().toISOString(),detail:detail||''});}
@@ -970,7 +976,7 @@ function renderDash(){
 }
 
 /* ============ DASHBOARD CONFIGURABLE (por usuario) ============ */
-function dashKey(){const s=currentSession();return 'wavepmo_dash_'+((s&&s.usuario)||'anon');}
+function dashKey(){const s=currentSession();return 'altuspmo_dash_'+((s&&s.usuario)||'anon');}
 function loadDash(){try{const d=JSON.parse(localStorage.getItem(dashKey())||'null');if(Array.isArray(d)&&d.length)return d;}catch(e){}const def=defaultDash();saveDashCfg(def);return def;}
 function saveDashCfg(w){localStorage.setItem(dashKey(),JSON.stringify(w));}
 function defaultDash(){return [
@@ -2139,7 +2145,7 @@ const SHEET_URL='https://docs.google.com/spreadsheets/d/1pmRS0iZ0jNULR3GhZZglGnW
 let sync={url:DATA_URL,token:'',auto:true};
 let syncTimer=null;
 async function sha256(str){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
-function currentSession(){try{const s=JSON.parse(sessionStorage.getItem('wavepmo_session')||'null');if(s&&s.token&&Date.parse(s.expiresAt)>Date.now())return s;}catch(e){}return null;}
+function currentSession(){try{const s=JSON.parse(sessionStorage.getItem('altuspmo_session')||'null');if(s&&s.token&&Date.parse(s.expiresAt)>Date.now())return s;}catch(e){}return null;}
 function syncStatus(msg,cls){const el=document.getElementById('syncStatus');if(el)el.innerHTML=`<span style="color:${cls==='ok'?'var(--good)':cls==='err'?'var(--bad)':'var(--muted)'}">${msg}</span>`;}
 function loadSyncPanel(){
   const s=currentSession();
@@ -2202,12 +2208,12 @@ async function doLogin(){
     const r=await fetch(LOGIN_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,hash})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.error||'Usuario o contraseña inválidos');
-    sessionStorage.setItem('wavepmo_session',JSON.stringify({token:j.token,nombre:j.nombre,rol:j.rol,expiresAt:j.expiresAt,usuario:user}));
+    sessionStorage.setItem('altuspmo_session',JSON.stringify({token:j.token,nombre:j.nombre,rol:j.rol,expiresAt:j.expiresAt,usuario:user}));
     msg.style.color='var(--good)';msg.textContent='✓ Bienvenido '+(j.nombre||'');
     await bootApp();
   }catch(e){msg.style.color='var(--bad)';msg.textContent='✗ '+e.message;btn.disabled=false;}
 }
-function logout(){sessionStorage.removeItem('wavepmo_session');location.reload();}
+function logout(){sessionStorage.removeItem('altuspmo_session');location.reload();}
 function showGate(){document.getElementById('loginGate').style.display='flex';document.body.classList.add('locked');const f=document.getElementById('aiFab');if(f)f.style.display='none';const p=document.getElementById('aiPanel');if(p)p.classList.remove('on');const u=document.getElementById('lg_user');if(u)u.focus();}
 async function bootApp(){
   const s=currentSession(); if(!s){showGate();return;}
