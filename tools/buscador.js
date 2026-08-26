@@ -298,8 +298,11 @@
     $('q').addEventListener('keydown', function (ev) {
       if (ev.key === 'Enter') buscar(this.value);
     });
+    // Arranque sin pantalla en blanco: si no viene ?q= en la URL, la pagina
+    // abre con un ejemplo ya resuelto (el SKU foco). Un usuario externo ve el
+    // analisis completo funcionando de inmediato y solo escribe el suyo encima.
     var inicial = new URLSearchParams(location.search).get('q');
-    if (inicial) buscar(inicial);
+    buscar(inicial || 'coca cola zero');
   }
 
   window.Buscador = { iniciar: iniciar, buscar: buscar, _agrupar: agrupar, _clave: clave };
