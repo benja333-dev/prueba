@@ -22,10 +22,6 @@
     letter-spacing:-.01em;margin-bottom:5px;}
   header .sub{font-size:12px;color:var(--cyan-light);}
   header .sub b{color:#fff;}
-  .btn-run{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:11px;
-    font-weight:700;letter-spacing:.03em;color:var(--navy);background:var(--cyan-light);
-    padding:7px 13px;text-decoration:none;border:1px solid var(--cyan);}
-  .btn-run:hover{background:#fff;}
 
   .card{background:#fff;padding:20px 24px;margin-bottom:18px;box-shadow:0 1px 3px rgba(5,28,44,.10);}
   .card.slim{padding:16px 20px;}
@@ -180,8 +176,6 @@
   <div class="sticker">Pricing competitivo · datos en vivo</div>
   <h1 id="h-title">¿Qué precio le pongo a este producto?</h1>
   <div class="sub" id="h-sub">—</div>
-  <a class="btn-run" target="_blank" rel="noopener"
-     href="https://github.com/benja333-dev/prueba/actions/workflows/actualizar-pricing.yml">&#8635; Actualizar precios</a>
 </header>
 
 <div class="tabs" id="tabs">
@@ -742,7 +736,8 @@ function listaEs(a){
    arrancaba mostrando la captura de bebidas y la herramienta parecía ser
    sólo de bebidas. */
 $("h-sub").innerHTML = "Busca un producto, mira cómo lo tiene la competencia y decide. " +
-  "Captura diaria al <b>" + META.capturado + "</b> · <b>" + (META.n_catalogo || META.n_skus) +
+  "Los precios de la competencia se actualizan solos cada día (última captura: <b>" + META.capturado +
+  "</b>) · <b>" + (META.n_catalogo || META.n_skus) +
   "</b> SKUs en " + (META.categorias ? META.categorias.length : 1) + " categorías.";
 
 document.addEventListener("pricing:datos", function(){
