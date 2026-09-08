@@ -128,13 +128,50 @@ h3.sec{font-size:13.5px;margin:22px 0 10px;border-bottom:2px solid var(--navy);p
 <section class="tab active" id="t-marco">
   <div class="hero">
     <h2>El problema: la estrategia pide velocidad, la cultura entrega proceso</h2>
-    <p>La mayoría de las compañías no fracasa por falta de estrategia sino por incapacidad de moverse a la velocidad que la estrategia exige. La agilidad no es un método (no es "hacer Scrum"): es un conjunto de <b>rasgos organizacionales medibles</b>. Este diagnóstico los descompone en 10 dimensiones evaluables de 1 a 5, las mide por unidad de negocio <i>y</i> por función, y contrasta el resultado contra el arquetipo que la compañía decide perseguir. El output no es un score: es una lista priorizada de actividades ejecutables.</p>
+    <p>Una estrategia solo genera resultados cuando la organización tiene las capacidades para ejecutarla. La agilidad no es un método ni equivale a "hacer Scrum": es la <b>capacidad de una organización para adaptarse y ejecutar con efectividad y oportunidad</b> frente a las exigencias de su estrategia y su entorno. Este diagnóstico descompone esa capacidad en <b>10 atributos organizacionales medibles</b> de 1 a 5, los evalúa por unidad de negocio <i>y</i> por función, y contrasta el perfil observado contra el perfil <b>requerido</b> por la agenda estratégica de cada negocio. El valor no está en el score: está en traducir las brechas relevantes para la estrategia en un conjunto priorizado de mecanismos e iniciativas accionables.</p>
   </div>
 
   <div class="card">
     <h2>Las 10 dimensiones</h2>
-    <p class="hint">Sintetizadas desde cuatro cuerpos de evidencia convergentes: <b>Organizational Health Index</b> de McKinsey (9 outcomes, 43 prácticas), los <b>5 trademarks of agile organizations</b> (McKinsey, 2018), el <b>modelo Denison</b> (4 traits × 3 índices, validado contra desempeño financiero) y el <b>Competing Values Framework</b> de Cameron &amp; Quinn. Se agrupan en 4 bloques: qué perseguimos, cómo decidimos, cómo somos, cómo entregamos.</p>
+    <p class="hint">Diez atributos organizacionales, cada uno con una escala de madurez de 5 niveles descrita en <b>prácticas observables</b>, no en juicios aspiracionales. Construidos sobre seis principios metodológicos: <b>unidad conceptual</b> (cada dimensión mide un constructo y se diferencia de las demás), <b>prácticas observables</b>, <b>madurez ≠ maximalismo</b> (el nivel 5 es una práctica madura y sistemática, no "más rápido" ni "más autonomía"), <b>fit estratégico</b> (una nota alta no es necesariamente el objetivo correcto para toda dimensión), <b>triangulación</b> (encuesta + señal dura + calibración ejecutiva) y <b>accionabilidad</b>. Se agrupan en 4 bloques: <b>Dirección</b> · <b>Decisión y organización</b> · <b>Personas y liderazgo</b> · <b>Ejecución y aprendizaje</b>. La evidencia converge con el Organizational Health Index (McKinsey), los 5 trademarks of agile organizations, el modelo Denison y el Competing Values Framework de Cameron &amp; Quinn.</p>
     <div class="grid g2" id="dimGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Marco teórico: qué mide, cómo se separa y cómo se lee</h2>
+    <p class="hint">Pregunta guía del diagnóstico: <b>¿tiene esta organización los atributos que su estrategia exige?</b> No se trata de maximizar todo, sino de cerrar las brechas que importan para la agenda de cada unidad.</p>
+
+    <h4 style="font-size:14px;margin:6px 0 8px">Lógica MECE: cómo se separan las dimensiones vecinas</h4>
+    <div class="scroll"><table>
+      <thead><tr><th style="width:16%">Par</th><th>Se confunden en la práctica, pero miden cosas distintas</th></tr></thead>
+      <tbody>
+        <tr><td><b>D3 vs D4</b></td><td><b>D3</b> mide <i>quién decide</i>, con qué claridad y con qué oportunidad. <b>D4</b> mide <i>cómo se organiza el trabajo</i> para entregar resultados end-to-end atravesando silos.</td></tr>
+        <tr><td><b>D7 vs D8</b></td><td><b>D7</b> mide <i>cómo lideran</i> las personas con responsabilidad sobre otros. <b>D8</b> mide el <i>sistema de accountability y gestión del desempeño</i> que hace visibles objetivos, ownership, seguimiento y consecuencias.</td></tr>
+        <tr><td><b>D9 vs D10</b></td><td><b>D9</b> mide cómo se ejecuta y mejora sistemáticamente una operación <i>conocida</i>. <b>D10</b> mide cómo aprende la organización cuando <i>todavía no conoce</i> la respuesta, usando hipótesis, pruebas y evidencia.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4 style="font-size:14px;margin:18px 0 8px">Cómo leer la escala: madurez, no maximalismo</h4>
+    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:8px">La escala refleja el grado de desarrollo de cada atributo, pero no supone que toda organización deba aspirar al nivel 5 en todas las dimensiones. El perfil objetivo depende de la estrategia, la etapa de madurez y el contexto competitivo de cada unidad:</p>
+    <div class="scroll"><table>
+      <thead><tr><th style="width:32%">Situación de la unidad</th><th>Qué perfil suele exigir</th></tr></thead>
+      <tbody>
+        <tr><td>Unidad en <b>exploración</b></td><td>Niveles altos de experimentación, autonomía y seguridad psicológica.</td></tr>
+        <tr><td>Operación con <b>alto costo del error</b></td><td>Mayor disciplina, estandarización y accountability.</td></tr>
+        <tr><td><b>Turnaround</b></td><td>Puede necesitar temporalmente mayor centralización de ciertas decisiones críticas.</td></tr>
+        <tr><td>Unidad <b>madura</b></td><td>No necesita maximizar experimentación si su ventaja reside en confiabilidad y eficiencia.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4 style="font-size:14px;margin:18px 0 8px">Narrativa ejecutiva del modelo</h4>
+    <div class="grid g2">
+      <div class="callout" style="margin:0"><b>D1–D2 · Dirección.</b> Sabemos hacia dónde ir y qué está pasando afuera.</div>
+      <div class="callout" style="margin:0"><b>D3–D4 · Decisión y organización.</b> Podemos decidir y organizarnos para actuar.</div>
+      <div class="callout" style="margin:0"><b>D5–D7 · Personas y liderazgo.</b> Tenemos las personas y el liderazgo que lo hacen posible.</div>
+      <div class="callout" style="margin:0"><b>D8–D10 · Ejecución y aprendizaje.</b> Ejecutamos, mejoramos y aprendemos.</div>
+    </div>
+
+    <div class="callout warn" style="margin-top:16px"><b>De la escala a la encuesta:</b> los descriptores de nivel 1–5 <b>no</b> se usan directamente como alternativas de respuesta. Cada dimensión se mide idealmente con <b>3 ítems observables</b> en escala Likert (1 = totalmente en desacuerdo → 5 = totalmente de acuerdo), con opción "No tengo suficiente información" excluida del cálculo, evitando preguntas dobles y frases aspiracionales ("ponemos al cliente al centro"), y triangulando siempre con evidencia operacional y calibración ejecutiva.</div>
   </div>
 
   <div class="card">
@@ -421,71 +458,71 @@ h3.sec{font-size:13.5px;margin:22px 0 10px;border-bottom:2px solid var(--navy);p
 
 const BLOCKS = {
   A:{n:'Dirección',  c:'#2251ff'},
-  B:{n:'Decisión y estructura', c:'#00a9f4'},
-  C:{n:'Personas y cultura', c:'#00b8a2'},
-  D:{n:'Ejecución y habilitadores', c:'#7b61ff'}
+  B:{n:'Decisión y organización', c:'#00a9f4'},
+  C:{n:'Personas y liderazgo', c:'#00b8a2'},
+  D:{n:'Ejecución y aprendizaje', c:'#7b61ff'}
 };
 
 const DIMS = [
  {id:'norte', b:'A', n:'Norte estratégico compartido',
-  d:'Existe una dirección clara, traducida a prioridades concretas, y la gente en la línea puede explicarla con sus palabras y conectarla con su trabajo diario.',
-  senal:'Test de 5 minutos: pregunta a 10 personas de distintos niveles cuáles son las 3 prioridades del año. Si hay más de 5 respuestas distintas, la nota es ≤2.',
+  d:'Existe una dirección clara, traducida en pocas prioridades concretas. Las personas comprenden esas prioridades, pueden explicarlas con sus propias palabras y las utilizan para orientar decisiones, asignar tiempo y priorizar su trabajo.',
+  senal:'Test de alineamiento: preguntar a personas de distintos niveles cuáles son las 3 prioridades principales del negocio y cómo su trabajo contribuye a ellas. Medir convergencia de respuestas y % de iniciativas/recursos vinculados explícitamente a esas prioridades.',
   src:'OHI "Direction" · Denison "Mission" · Trademark 1 (North Star)',
-  r:['Cada área tiene su propia agenda; no hay prioridades declaradas','Hay estrategia en PPT pero no baja de la primera línea','Prioridades claras en el comité; difusas en la línea','La línea las conoce y las usa para decir que no a cosas','Cualquier persona explica el norte y muestra cómo su semana lo sirve']},
+  r:['Cada área opera con su propia agenda y no existe una priorización común reconocible.','Existe una estrategia definida, pero permanece principalmente en la alta dirección y tiene poca influencia sobre las decisiones cotidianas.','Las prioridades del negocio son conocidas, aunque su traducción a decisiones, recursos y trabajo diario es inconsistente.','Las prioridades están ampliamente comprendidas y se utilizan activamente para asignar recursos, resolver trade-offs y decidir qué no hacer.','Existe un norte compartido en toda la organización: las personas conectan sus decisiones y prioridades con la estrategia y ajustan su trabajo cuando ésta cambia.']},
 
  {id:'clientes', b:'A', n:'Obsesión con el cliente y foco externo',
-  d:'Decisiones ancladas en evidencia de cliente y de mercado, no en opinión interna. Incluye velocidad de reacción a movimientos de competencia.',
-  senal:'% de decisiones del comité con dato de cliente adjunto; horas de contacto directo de ejecutivos con clientes al mes; días para responder a un movimiento de precio de la competencia.',
+  d:'La organización comprende profundamente a sus clientes, competidores y entorno, integrando evidencia externa en sus decisiones. No se limita a responder a lo que el cliente declara: identifica necesidades explícitas y latentes y las convierte en decisiones que generan valor para el cliente y para el negocio.',
+  senal:'Frecuencia y calidad del contacto directo de líderes y equipos con clientes; % de decisiones relevantes sustentadas en evidencia de cliente/mercado; tiempo desde un cambio relevante del entorno hasta que es analizado y, cuando corresponde, incorporado a una decisión.',
   src:'OHI "External orientation" · Denison "Adaptability" · CVF Market',
-  r:['El cliente aparece en el discurso, nunca en la data','Se mide NPS pero no cambia decisiones','Insight de cliente en decisiones grandes, no en las diarias','Rituales estables de contacto y cierre de loop con cliente','El cliente es el árbitro por defecto de cualquier disputa interna']},
+  r:['Predomina la mirada interna. El cliente aparece en el discurso, pero rara vez aporta evidencia concreta a las decisiones.','Se recopila información de clientes y mercado, pero se utiliza principalmente como reporte y tiene poca influencia sobre las decisiones.','La evidencia de cliente y mercado influye de manera sistemática en las principales decisiones comerciales o estratégicas.','Existen mecanismos permanentes para comprender clientes, competidores y tendencias, y cerrar el loop entre insight, decisión y acción.','La organización anticipa necesidades explícitas y latentes y combina sistemáticamente evidencia de cliente, mercado y negocio para orientar decisiones, propuestas de valor e innovación.']},
 
  {id:'decision', b:'B', n:'Velocidad y calidad de decisión',
-  d:'Claridad sobre quién decide qué, decisiones delegadas al nivel más bajo con información suficiente, y ciclos cortos entre problema y resolución.',
-  senal:'Días desde que se identifica un tema hasta que se decide; número de firmas para aprobar un gasto de USD 50k; % de decisiones que suben al CEO pudiendo resolverse dos niveles abajo.',
+  d:'Existe claridad sobre quién decide qué y con qué información. Las decisiones se toman en el nivel adecuado, con la participación necesaria y sin escalaciones innecesarias, con la oportunidad y calidad que requiere el negocio.',
+  senal:'Tiempo entre identificación de un tema y decisión; % de decisiones reabiertas o escaladas después de haber sido tomadas; número de niveles/aprobaciones requeridos para decisiones recurrentes; % de decisiones cuyo dueño está explícitamente definido.',
   src:'Trademark 3 (rapid decision & learning cycles) · OHI "Coordination & control" · Bezos type-1/type-2',
-  r:['Todo escala al top; semanas o meses por decisión','Existen comités pero deciden por consenso lento','Derechos de decisión escritos, se respetan a medias','Decisiones reversibles se toman en el nivel de trabajo, en días','Ciclo de decisión en horas para lo reversible; el top solo ve lo irreversible']},
+  r:['Las decisiones se concentran en la alta dirección y las responsabilidades de decisión son poco claras.','Existen instancias formales de decisión, pero predominan la búsqueda de consenso, las múltiples aprobaciones y las escalaciones.','Los derechos de decisión están definidos para los principales procesos, aunque su aplicación todavía depende de personas o situaciones.','La mayoría de las decisiones se toma en el nivel más cercano a la información relevante, dentro de marcos claros y sin escalaciones innecesarias.','La organización distingue sistemáticamente entre tipos de decisión y aplica el nivel de análisis, participación y velocidad apropiado a cada una; las decisiones son oportunas, trazables y rara vez se reabren por falta de claridad.']},
 
- {id:'estructura', b:'B', n:'Equipos empoderados y red',
-  d:'Equipos estables, multifuncionales, con dueño claro de resultado end-to-end y recursos propios; en vez de silos funcionales que se pasan el trabajo.',
-  senal:'% de la gente en equipos con misión y KPI propios; número de traspasos entre áreas para llevar un producto de idea a mercado; permanencia media de un equipo.',
+ {id:'estructura', b:'B', n:'Equipos end-to-end y colaboración en red',
+  d:'El trabajo se organiza de manera que las personas y equipos responsables de un resultado cuentan con claridad de propósito, responsabilidades, capacidades y autoridad suficientes para gestionarlo de punta a punta, reduciendo dependencias y traspasos innecesarios entre silos.',
+  senal:'Número de traspasos entre áreas necesarios para completar procesos críticos; % de iniciativas prioritarias con owner end-to-end claramente definido; tiempo perdido en esperas/dependencias entre áreas; estabilidad de los equipos responsables de prioridades críticas.',
   src:'Trademark 2 (network of empowered teams) · Spotify squads/tribes · Haier RenDanHeYi',
-  r:['Silos funcionales puros; nadie es dueño del resultado end-to-end','Proyectos multifuncionales ad-hoc, sin dedicación','Algunos equipos dedicados en iniciativas clave','Mayoría del valor entregado por equipos estables y multifuncionales','Red de equipos con backlog, presupuesto y autoridad propios']},
+  r:['Predominan los silos funcionales y nadie tiene responsabilidad clara sobre el resultado end-to-end.','Se forman equipos multifuncionales para proyectos específicos, pero dependen continuamente de aprobaciones y recursos de las funciones.','Algunas prioridades críticas cuentan con equipos multifuncionales, ownership claro y mecanismos de coordinación definidos.','Una parte significativa del valor se entrega mediante equipos estables con responsabilidad end-to-end, capacidades complementarias y autoridad definida.','La organización opera como una red coordinada de equipos con objetivos claros, alta autonomía dentro de límites explícitos y acceso oportuno a las capacidades y recursos que necesitan.']},
 
  {id:'seguridad', b:'C', n:'Seguridad psicológica y debate',
-  d:'Se puede reportar un problema, discrepar con el jefe y admitir un error sin castigo. Sin esto no hay velocidad: los problemas se esconden y aparecen tarde.',
-  senal:'Tiempo promedio entre que alguien detecta una mala noticia y que llega al comité; % de reuniones con desacuerdo explícito registrado; rotación voluntaria de alto desempeño.',
+  d:'Las personas pueden plantear problemas, reconocer errores, pedir ayuda y discrepar constructivamente, incluso frente a posiciones de mayor jerarquía, sin temor a consecuencias personales indebidas. Los líderes promueven el debate abierto y reaccionan de manera constructiva ante las malas noticias.',
+  senal:'Tiempo entre detección y escalamiento de riesgos o desviaciones relevantes; % de problemas críticos identificados internamente antes de generar impacto; calidad del debate observable en reuniones; resultados de encuesta sobre speaking up y apertura al desacuerdo.',
   src:'Edmondson (1999) · Google Project Aristotle · OHI "Work environment"',
-  r:['Se mata al mensajero; las malas noticias llegan tarde y maquilladas','Se puede hablar en privado, nunca frente al jefe','Depende del líder: unos equipos sí, otros no','Norma explícita y modelada por líderes; se reportan errores','Los problemas se levantan en horas y quien los levanta gana reputación']},
+  r:['Existe temor a cuestionar, reconocer errores o comunicar malas noticias; los problemas tienden a hacerse visibles cuando ya han generado impacto.','Las personas pueden plantear inquietudes en ciertos espacios o relaciones de confianza, pero evitan hacerlo abiertamente ante la jerarquía.','La apertura al debate depende significativamente del líder o del equipo: conviven bolsillos de alta y baja seguridad psicológica.','Los líderes modelan activamente la apertura al desacuerdo, los errores y riesgos se plantean oportunamente y se debaten sobre sus méritos.','El debate abierto y constructivo es una norma organizacional: la información difícil emerge a tiempo, las personas desafían supuestos independientemente de la jerarquía y hacerlo mejora las decisiones en lugar de generar costos personales.']},
 
  {id:'talento', b:'C', n:'Talento móvil y modelo de personas dinámico',
-  d:'La gente se mueve rápido hacia donde está el valor; el talento crítico está en las prioridades críticas; se contrata y se sale con estándar.',
-  senal:'% del top 20% de talento asignado al top 20% de iniciativas de valor; días para reasignar a una persona; % de posiciones críticas con sucesor listo.',
+  d:'El talento y las capacidades se asignan a tiempo hacia las prioridades de mayor valor. La organización identifica roles y capacidades críticas, facilita la movilidad interna y adapta su dotación y desarrollo de personas a medida que cambian las necesidades estratégicas.',
+  senal:'% de talento crítico asignado a prioridades críticas; tiempo necesario para reasignar talento ante un cambio estratégico; % de posiciones críticas con sucesores identificados y preparados; movilidad interna hacia roles prioritarios.',
   src:'Trademark 4 (dynamic people model) · Netflix culture deck · OHI "Capabilities"',
-  r:['La gente pertenece a su jefe; moverse toma un año y una pelea','Movilidad formal existe pero es lenta y política','Se mueve talento en momentos de crisis','Reasignación trimestral abierta y transparente','El talento se asigna al valor con la misma frecuencia que el presupuesto']},
+  r:['Las personas permanecen ligadas a estructuras y jefaturas, aunque las prioridades del negocio cambien; mover talento es excepcional y difícil.','Existen mecanismos formales de movilidad, pero son lentos, burocráticos o dependen fuertemente de negociaciones entre líderes.','La organización reasigna talento ante necesidades relevantes, principalmente a través de procesos periódicos o situaciones críticas.','El talento se revisa regularmente contra las prioridades estratégicas y existen mecanismos transparentes para mover personas y capacidades cuando el negocio lo requiere.','La organización anticipa las capacidades que necesitará y reasigna, desarrolla o incorpora talento con la oportunidad requerida por la estrategia, equilibrando prioridades del negocio y desarrollo de las personas.']},
 
  {id:'liderazgo', b:'C', n:'Liderazgo y modelaje',
-  d:'Los líderes hacen lo que piden. Dedican tiempo a desarrollar gente, dan feedback duro y no protegen su feudo por sobre el resultado del grupo.',
-  senal:'% del tiempo del líder en coaching vs. reporting; resultados de 360°; ¿cuántos líderes fueron movidos el último año por comportamiento y no por resultado?',
+  d:'Los líderes modelan consistentemente los comportamientos que esperan de la organización. Dan dirección y contexto, desarrollan a sus equipos, entregan feedback claro y oportuno, promueven colaboración y anteponen el resultado del negocio a los intereses de su propia área.',
+  senal:'Resultados de evaluación 360°; tiempo efectivo dedicado a coaching y desarrollo versus reporting y control; consistencia entre comportamientos declarados y comportamientos observados en líderes.',
   src:'OHI "Leadership" · Influence Model (role modeling) · Denison "Involvement"',
-  r:['Liderazgo de control; el ejemplo contradice el discurso','Discurso correcto, agenda 100% en reporting','Un grupo de líderes modela; el resto observa','Comportamientos definidos, medidos en 360° y con consecuencias','Se promueve y se despide por comportamiento tanto como por número']},
+  r:['Predomina un liderazgo de control y los comportamientos de los líderes contradicen con frecuencia los valores o prácticas declaradas.','Los líderes comunican los comportamientos esperados, pero su agenda permanece centrada principalmente en control, reporte y resultados de corto plazo.','Existen líderes que modelan consistentemente los comportamientos esperados, pero la práctica varía significativamente entre áreas.','Los comportamientos de liderazgo están claramente definidos, son observables y se miden de manera sistemática.','Los líderes modelan de manera consistente la cultura requerida por la estrategia y generan contexto, desarrollo y colaboración de forma sostenida a través de la organización.']},
 
- {id:'accountability', b:'D', n:'Accountability y consecuencias',
-  d:'Metas claras y personales, transparencia de resultados y consecuencias reales — positivas y negativas — asociadas al desempeño.',
-  senal:'Dispersión del bono entre alto y bajo desempeño; % de metas con dueño único nombrado; % de iniciativas del año pasado con impacto verificado en el P&L.',
+ {id:'accountability', b:'D', n:'Accountability y gestión del desempeño',
+  d:'Las personas saben qué resultados les corresponde entregar, cuentan con objetivos y responsabilidades claros y asumen ownership por ellos. El desempeño es visible y genera reconocimiento, desarrollo o consecuencias consistentes y percibidas como justas.',
+  senal:'% de prioridades/iniciativas con owner único claramente identificado; % de compromisos cumplidos en plazo; grado de diferenciación de reconocimiento y consecuencias entre niveles de desempeño; claridad de objetivos individuales y de equipo.',
   src:'OHI "Accountability" · Denison "Consistency" · CVF Market',
-  r:['Metas difusas y compartidas; nadie responde por el resultado','Metas existen; sin consecuencia diferenciada','Consecuencias para el resultado extremo, no para el promedio','Meta personal, transparente y con consecuencia real','Curva de consecuencias clara y aceptada como justa por la organización']},
+  r:['Las responsabilidades y metas son difusas o colectivas, lo que dificulta identificar quién responde por un resultado.','Existen objetivos formales, pero el seguimiento es limitado y las consecuencias son poco diferenciadas.','Existe ownership claro para las principales prioridades y las consecuencias aparecen frente a desempeños particularmente altos o bajos.','Los objetivos, responsables y resultados son transparentes y existe seguimiento sistemático con reconocimiento y consecuencias consistentes.','Existe una cultura de ownership ampliamente internalizada: las personas asumen responsabilidad por resultados y compromisos, y el sistema de gestión del desempeño es predecible, diferenciado y percibido como justo.']},
 
  {id:'ejecucion', b:'D', n:'Disciplina de ejecución y mejora continua',
-  d:'Sistema de gestión operativo: cadencia de reuniones que resuelve, seguimiento visual, resolución de causa raíz y estándares que se mantienen.',
-  senal:'% de acciones de la reunión de desempeño cerradas en plazo; existencia de tablero visual único; ¿los problemas resueltos vuelven a aparecer?',
+  d:'La organización cuenta con un sistema de gestión que convierte prioridades en ejecución: cadencias claras, información relevante, seguimiento de compromisos, resolución estructurada de problemas y mecanismos para aprender de las desviaciones y sostener las mejoras.',
+  senal:'% de compromisos cerrados en fecha; % de problemas recurrentes; tiempo desde identificación de una desviación hasta la acción correctiva; existencia y uso efectivo de tableros y rutinas de gestión.',
   src:'OHI "Coordination & control" · Lean/TPS · Denison "Consistency"',
-  r:['Apagar incendios; sin cadencia ni seguimiento','Reuniones de reporte que no generan decisiones','Cadencia formal; seguimiento inconsistente','Sistema de gestión en cascada, con acciones cerradas y causa raíz','Mejora continua distribuida: la línea resuelve sin escalar y el estándar se sostiene']},
+  r:['Predomina la reacción a urgencias; no existe una cadencia consistente de seguimiento ni resolución estructurada de problemas.','Existen reuniones y reportes frecuentes, pero están orientados principalmente a informar y generan poco cierre de acciones.','Existe una cadencia formal de gestión con responsables y acciones, aunque el seguimiento y la disciplina varían entre equipos.','El sistema de gestión conecta prioridades, métricas, decisiones y acciones; los compromisos se siguen hasta su cierre y las desviaciones relevantes se abordan mediante causa raíz.','La disciplina de ejecución está instalada en todos los niveles: los equipos detectan y resuelven problemas de manera sistemática, incorporan los aprendizajes a sus estándares y reducen sostenidamente la recurrencia.']},
 
- {id:'aprendizaje', b:'D', n:'Experimentación, datos y tecnología',
-  d:'Ciclos cortos de prueba y aprendizaje, decisiones basadas en datos accesibles y tecnología que no es un cuello de botella para el negocio.',
-  senal:'Número de experimentos vivos por trimestre y % que se apaga; tiempo desde pregunta de negocio hasta dato disponible; frecuencia de release de sistemas de cara al cliente.',
-  src:'Trademark 5 (next-gen enabling technology) · OHI "Innovation & learning" · Amazon "Day 1"',
-  r:['Sin experimentos; el dato se pide por correo y llega en semanas','Pilotos anuales grandes; se evalúan tarde o nunca','Se experimenta en marketing/digital, no en el core','Cadencia de experimentos con criterio de matar/escalar y dato self-service','Aprendizaje continuo: se prueba barato, se mata rápido y se escala lo que gana']}
+ {id:'aprendizaje', b:'D', n:'Experimentación y aprendizaje basado en evidencia',
+  d:'La organización utiliza evidencia y experimentación para reducir incertidumbre y aprender. Cuando no conoce la respuesta, formula hipótesis, prueba de manera proporcional al riesgo, aprende de los resultados y escala, adapta o detiene iniciativas en función de la evidencia.',
+  senal:'Tiempo desde una pregunta relevante de negocio hasta contar con información útil para decidir; proporción de iniciativas experimentales con hipótesis y criterios explícitos de éxito/fallo; % de pruebas que se escalan, modifican o detienen según evidencia.',
+  src:'OHI "Innovation & learning" · Lean Startup (build-measure-learn) · Amazon "Day 1"',
+  r:['Las decisiones se apoyan principalmente en opinión o precedentes; obtener evidencia es difícil y experimentar es excepcional.','Existen pilotos o iniciativas de innovación aisladas, generalmente grandes, lentas y con criterios de éxito poco claros.','Algunas funciones utilizan datos y experimentación de forma habitual, pero la práctica no está extendida a las principales decisiones del negocio.','Existe una disciplina sistemática para formular hipótesis, probarlas con un nivel de inversión proporcional a la incertidumbre y decidir con evidencia si escalar, ajustar o detener.','El aprendizaje es una capacidad organizacional continua: los equipos acceden oportunamente a evidencia relevante y ajustan decisiones, productos y procesos de manera sistemática a partir de los resultados.']}
 ];
 const DIX = Object.fromEntries(DIMS.map((d,i)=>[d.id,i]));
 
@@ -691,10 +728,10 @@ const MACRO = [
   obj:'Mover el talento crítico a las prioridades críticas con la misma frecuencia con que se mueve el presupuesto.',
   res:'El top 20% de talento está en el top 20% de valor y reasignar toma semanas, no un año.',
   o:'HR + Gerente General', k:'% de talento crítico en prioridades críticas · días para reasignar'},
- {id:'M6', n:'Motor de aprendizaje, datos y tecnología', dims:['aprendizaje'], c:'#e5546c',
-  obj:'Probar barato, matar rápido y que el dato deje de ser un cuello de botella.',
-  res:'Cadencia estable de experimentos con criterio de kill y respuestas de negocio en minutos, no en semanas.',
-  o:'Líder de la unidad + Tecnología', k:'N° de experimentos y % apagados a tiempo · tiempo de pregunta a dato'}
+ {id:'M6', n:'Motor de experimentación y aprendizaje basado en evidencia', dims:['aprendizaje'], c:'#e5546c',
+  obj:'Reducir incertidumbre con hipótesis y pruebas proporcionales al riesgo: probar barato, escalar lo que funciona y detener a tiempo lo que no.',
+  res:'Cadencia estable de experimentos con hipótesis y criterios explícitos de éxito/fallo, y evidencia útil para decidir en días, no en semanas.',
+  o:'Líder de la unidad + Tecnología/Datos', k:'N° de experimentos con hipótesis y % escalados/detenidos según evidencia · tiempo de pregunta a dato'}
 ];
 const macroOf = dimId => MACRO.find(m=>m.dims.includes(dimId));
 
