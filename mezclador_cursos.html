@@ -424,17 +424,13 @@
     <button class="x" id="chatX">×</button>
   </div>
   <div id="chatSettings" style="display:none; padding:12px 14px; border-bottom:1px solid var(--line); background:var(--bg2)">
-    <p class="hint" style="margin:0 0 8px"><b>Modo IA (opcional).</b> Permite preguntas abiertas. Pega tu propia API key de Anthropic — <b>se guarda solo en este navegador</b>, nunca se sube a GitHub.</p>
+    <p class="hint" style="margin:0 0 8px"><b>Modo IA vía n8n + Gemini (opcional).</b> Pega la URL del webhook de tu n8n. La API key de Gemini vive <b>en n8n</b>, no en esta página. Importa el workflow <code>n8n_mezclador_chatbot.json</code> del repo.</p>
     <div style="display:flex; flex-direction:column; gap:8px">
-      <input type="password" id="aiKey" placeholder="sk-ant-... (tu API key)" style="width:100%">
+      <input type="text" id="aiUrl" placeholder="https://n8n-....up.railway.app/webhook/mezclador-chat" style="width:100%">
       <div style="display:flex; gap:8px; align-items:center">
-        <select id="aiModel" style="flex:1">
-          <option value="claude-haiku-4-5">Haiku 4.5 (rápido y económico)</option>
-          <option value="claude-sonnet-5">Sonnet 5 (equilibrado)</option>
-          <option value="claude-opus-5">Opus 5 (máxima calidad)</option>
-        </select>
         <button class="btn mini red" id="aiSave">Activar</button>
         <button class="btn mini ghost" id="aiOff">Apagar</button>
+        <span class="hint" style="font-size:11px">Test rápido al activar</span>
       </div>
       <p class="hint" style="margin:0; font-size:11px">Con Modo IA apagado, el asistente responde localmente (gratis, sin conexión) sobre los datos de la mezcla.</p>
     </div>
@@ -1039,11 +1035,11 @@ function chatAnswer(q){
   }
   chatAdd('No estoy seguro de eso 🤔 Prueba con: <i>"mayores puntajes"</i>, <i>"riesgos del curso 2"</i>, <i>"cuántas sin amiga"</i>, <i>"balance"</i> o <i>"índice de mezcla"</i>.','bot');
 }
-/* ---- Modo IA (opcional, usa la API key propia del usuario, guardada solo en el navegador) ---- */
+/* ---- Modo IA vía n8n + Gemini (opcional). La key de Gemini vive en n8n, no aquí. ---- */
 let AIHIST=[];
-function aiOn(){ return !!localStorage.getItem('csuv_key'); }
-function aiModel(){ return localStorage.getItem('csuv_model')||'claude-haiku-4-5'; }
-function updateChatMode(){ $('#chatMode').textContent = aiOn()? ('Modo IA · '+aiModel().replace('claude-','')) : 'Modo local · sobre tu mezcla'; }
+function aiOn(){ return !!localStorage.getItem('csuv_n8n'); }
+function aiUrl(){ return localStorage.getItem('csuv_n8n')||''; }
+function updateChatMode(){ $('#chatMode').textContent = aiOn()? 'Modo IA · n8n + Gemini' : 'Modo local · sobre tu mezcla'; }
 function buildAIContext(){
   if(!LAST) return 'Aún no se ha ejecutado ninguna mezcla.';
   const L=LAST; let s=`Total alumnas: ${L.N}. Cursos nuevos: ${L.classes.length}. Índice de mezcla: ${Math.round(L.mezclaIdx*100)}%. Con al menos una amiga: ${L.withFriend}/${L.N}.\n`;
@@ -1055,17 +1051,20 @@ function buildAIContext(){
   return s;
 }
 async function askAI(question){
-  const key=localStorage.getItem('csuv_key');
-  const sys='Eres el asistente del "Mezclador de Cursos" del Colegio Santa Úrsula de Vitacura. Respondes en español, claro y conciso, SOLO sobre los datos de la mezcla actual que se te entregan. Si te preguntan algo que no está en los datos, dilo con franqueza. No inventes nombres ni cifras.\n\nDATOS ACTUALES:\n'+buildAIContext();
+  const url=aiUrl();
+  const sys='Eres el asistente del "Mezclador de Cursos" del Colegio Santa Úrsula de Vitacura. Respondes en español, claro y conciso, SOLO sobre los datos de la mezcla actual. Si te preguntan algo que no está en los datos, dilo con franqueza. No inventes nombres ni cifras.';
   AIHIST.push({role:'user',content:question});
-  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-    headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:aiModel(),max_tokens:700,system:sys,messages:AIHIST.slice(-8)})});
-  const data=await res.json();
-  if(data.error) throw new Error(data.error.message||'error de la API');
-  const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+  const res=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({question, system:sys, context:buildAIContext(), history:AIHIST.slice(-8)})});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  let data; const raw=await res.text();
+  try{ data=JSON.parse(raw); }catch(_){ data={answer:raw}; }
+  // lee la respuesta desde varias formas posibles del workflow
+  const text=(data.answer||data.output||data.text||data.reply||data.message||
+    (data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0].text)||'').toString().trim();
+  if(!text) throw new Error('respuesta vacía del webhook');
   AIHIST.push({role:'assistant',content:text});
-  return text||'(sin respuesta)';
+  return text;
 }
 async function routeAI(q){
   chatAdd(q,'usr'); const l=$('#chatLog');
@@ -1075,14 +1074,17 @@ async function routeAI(q){
   l.scrollTop=l.scrollHeight;
 }
 $('#chatGear').addEventListener('click',()=>{ const s=$('#chatSettings'); s.style.display=s.style.display==='none'?'block':'none';
-  $('#aiKey').value=localStorage.getItem('csuv_key')||''; $('#aiModel').value=aiModel(); });
-$('#aiSave').addEventListener('click',()=>{ const k=$('#aiKey').value.trim(); if(!k){ alert('Pega tu API key primero.'); return; }
-  localStorage.setItem('csuv_key',k); localStorage.setItem('csuv_model',$('#aiModel').value); AIHIST=[];
-  $('#chatSettings').style.display='none'; updateChatMode(); chatAdd('✅ Modo IA activado ('+aiModel().replace('claude-','')+'). Ahora puedes hacerme preguntas abiertas sobre la mezcla.','bot'); });
-$('#aiOff').addEventListener('click',()=>{ localStorage.removeItem('csuv_key'); AIHIST=[]; $('#chatSettings').style.display='none'; updateChatMode(); chatAdd('Modo IA apagado — vuelvo al modo local (gratis).','bot'); });
+  $('#aiUrl').value=aiUrl(); });
+$('#aiSave').addEventListener('click',async()=>{ const u=$('#aiUrl').value.trim();
+  if(!/^https?:\/\//.test(u)){ alert('Pega la URL del webhook de n8n (empieza con https://).'); return; }
+  localStorage.setItem('csuv_n8n',u); AIHIST=[]; $('#chatSettings').style.display='none'; updateChatMode();
+  chatAdd('Conectando con n8n + Gemini…','bot');
+  try{ const t=await askAI('Preséntate en una frase como asistente del Mezclador.'); chatAdd('✅ '+t,'bot'); }
+  catch(e){ chatAdd('⚠️ Guardé la URL pero el test falló ('+e.message+'). Revisa que el workflow esté activo y con CORS habilitado. Igual puedes preguntar; si falla, respondo en modo local.','bot'); } });
+$('#aiOff').addEventListener('click',()=>{ localStorage.removeItem('csuv_n8n'); AIHIST=[]; $('#chatSettings').style.display='none'; updateChatMode(); chatAdd('Modo IA apagado — vuelvo al modo local (gratis).','bot'); });
 
 $('#chatBtn').addEventListener('click',()=>{ const w=$('#chatWin'); w.classList.toggle('on');
-  if(w.classList.contains('on')&&!$('#chatLog').children.length){ chatAdd('¡Hola! 👋 Soy el asistente del Mezclador. Pregúntame sobre la mezcla actual — o toca un botón de abajo. Con ⚙️ puedes activar el Modo IA para preguntas abiertas.','bot'); } updateChatMode(); });
+  if(w.classList.contains('on')&&!$('#chatLog').children.length){ chatAdd('¡Hola! 👋 Soy el asistente del Mezclador. Pregúntame sobre la mezcla actual — o toca un botón de abajo. Con ⚙️ puedes activar el Modo IA (n8n + Gemini) para preguntas abiertas.','bot'); } updateChatMode(); });
 $('#chatX').addEventListener('click',()=>$('#chatWin').classList.remove('on'));
 function chatSubmit(){ const v=$('#chatInput').value.trim(); if(!v) return; $('#chatInput').value=''; if(aiOn()) routeAI(v); else chatAnswer(v); }
 $('#chatSend').addEventListener('click',chatSubmit);
