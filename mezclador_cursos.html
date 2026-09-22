@@ -158,6 +158,55 @@
   footer{margin-top:40px; color:var(--muted); font-size:12.5px; border-top:1px solid var(--line); padding-top:18px; line-height:1.6}
   footer a{color:var(--red); text-decoration:none; font-weight:600}
   .scrollx{overflow-x:auto}
+
+  /* ===== Dashboard ===== */
+  .dash{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px}
+  .dashbox{background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:16px}
+  .dashbox h3{margin:0 0 14px; font-size:13px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:.04em}
+  @media (prefers-color-scheme: dark){ .dashbox h3{color:var(--text)} }
+  .distrow{display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:12.5px}
+  .distrow .cl{width:64px; font-weight:700; flex:none}
+  .distrow .track{flex:1; display:flex; height:20px; border-radius:5px; overflow:hidden; background:var(--card)}
+  .distrow .track span{display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; font-weight:700}
+  #originMatrix td,#originMatrix th{text-align:center; padding:7px 8px}
+  #originMatrix td.rowh{text-align:left; font-weight:700}
+  .heat{border-radius:6px; font-weight:700; color:var(--navy); display:inline-block; padding:3px 9px}
+  @media (prefers-color-scheme: dark){ .heat{color:#fff} }
+  .toprow{display:flex; align-items:center; gap:10px; padding:6px 4px; border-bottom:1px solid var(--line); font-size:13px}
+  .toprow .rk{width:20px; color:var(--muted); font-weight:800; flex:none}
+  .toprow .nm{flex:1}
+  .toprow .sc3{background:var(--green); color:#fff; font-size:11px; font-weight:800; padding:1px 8px; border-radius:6px}
+  .risk{display:flex; gap:9px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--line); font-size:12.5px; line-height:1.45}
+  .risk:last-child{border-bottom:none}
+  .risk .rd{margin-top:3px; flex:none}
+  .riskgrp{margin-bottom:12px}
+  .riskgrp .rt{font-weight:800; font-size:12px; margin-bottom:2px}
+
+  /* ===== Chatbot ===== */
+  #chatBtn{position:fixed; right:22px; bottom:22px; width:60px; height:60px; border-radius:50%;
+    background:var(--red); color:#fff; border:3px solid var(--gold); font-size:26px; cursor:pointer;
+    box-shadow:0 8px 24px rgba(178,31,45,.4); z-index:60; transition:transform .15s}
+  #chatBtn:hover{transform:scale(1.07)}
+  #chatWin{position:fixed; right:22px; bottom:94px; width:360px; max-width:calc(100vw - 44px); height:520px; max-height:calc(100vh - 130px);
+    background:var(--card); border:1px solid var(--line); border-radius:16px; z-index:61; display:none;
+    flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(14,42,82,.35)}
+  #chatWin.on{display:flex; animation:fade .2s ease}
+  .chathead{background:linear-gradient(120deg,var(--navy),var(--navy2)); color:#fff; padding:14px 16px; display:flex; align-items:center; gap:10px}
+  .chathead .cav{width:32px; height:32px; border-radius:8px; background:var(--red); border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none}
+  .chathead b{font-size:14px; font-family:var(--serif)} .chathead small{display:block; opacity:.8; font-size:11px}
+  .chathead .x{margin-left:auto; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; opacity:.8}
+  .chatlog{flex:1; overflow:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--bg)}
+  .msg{max-width:85%; padding:9px 12px; border-radius:12px; font-size:13px; line-height:1.5}
+  .msg.bot{background:var(--card); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:3px}
+  .msg.usr{background:var(--navy); color:#fff; align-self:flex-end; border-bottom-right-radius:3px}
+  .msg.bot b{color:var(--red)}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px; border-top:1px solid var(--line); background:var(--card)}
+  .chip{background:var(--bg2); border:1px solid var(--line); border-radius:20px; padding:5px 10px; font-size:11.5px; cursor:pointer; color:var(--navy); font-weight:600}
+  @media (prefers-color-scheme: dark){ .chip{color:var(--text)} }
+  .chip:hover{border-color:var(--red); color:var(--red)}
+  .chatin{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--card)}
+  .chatin input{flex:1}
+  .chatin button{background:var(--red); color:#fff; border:none; border-radius:8px; padding:0 14px; cursor:pointer; font-weight:700}
 </style>
 </head>
 <body>
@@ -190,9 +239,9 @@
     <div class="card">
       <h2>Panel de control <span class="k">paso 1</span></h2>
       <div class="row">
-        <label class="field">Cursos de origen<input type="number" id="nCursos" value="3" min="2" max="8"></label>
+        <label class="field">📥 Cursos que subo<input type="number" id="nCursos" value="3" min="1" max="8"></label>
         <label class="field">Alumnas por curso*<input type="number" id="nPorCurso" value="35" min="5" max="60"></label>
-        <label class="field">Cursos nuevos (destino)<input type="number" id="nDestino" value="3" min="2" max="8"></label>
+        <label class="field">📤 Cursos que quiero formar<input type="number" id="nDestino" value="3" min="2" max="8"></label>
         <label class="field">Elecciones por alumna<input type="number" id="nElecciones" value="3" min="1" max="6"></label>
         <div class="spacer"></div>
         <button class="btn sec" id="btnDummy">🎲 Datos dummy</button>
@@ -225,6 +274,36 @@
         </div>
         <p class="hint" style="margin-top:10px">Verde exige que el % de cada tramo (alto/medio/bajo) no se aleje más de la tolerancia (pestaña ②) del promedio de los cursos, y que la garantía de amistad se cumpla.</p>
       </div>
+      <div class="card">
+        <h2>📊 Dashboard <span class="k">visualización</span></h2>
+        <div class="dash">
+          <div class="dashbox">
+            <h3>Distribución de puntaje por curso</h3>
+            <div id="distChart"></div>
+            <div class="legend" style="margin-top:8px">
+              <span><span class="dot" style="background:var(--green)"></span> Alto (3)</span>
+              <span><span class="dot" style="background:var(--amber)"></span> Medio (2)</span>
+              <span><span class="dot" style="background:var(--sred)"></span> Bajo (0-1)</span>
+            </div>
+          </div>
+          <div class="dashbox">
+            <h3>Mapa de mezcla · origen → curso nuevo</h3>
+            <div class="scrollx"><table id="originMatrix"></table></div>
+            <p class="hint" style="margin-top:8px">Cuántas alumnas de cada curso de origen quedaron en cada curso nuevo — mientras más repartido, mayor mezcla.</p>
+          </div>
+        </div>
+        <div class="dash" style="margin-top:16px">
+          <div class="dashbox">
+            <h3>🏆 Mayores puntajes (top 10)</h3>
+            <div id="topScores"></div>
+          </div>
+          <div class="dashbox">
+            <h3>⚠️ Principales riesgos por curso</h3>
+            <div id="riskCards"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <h2>Composición de los cursos nuevos</h2>
         <div class="classes" id="classCols"></div>
@@ -335,6 +414,22 @@
   </footer>
 </div>
 
+<!-- ===== Asistente / Chatbot ===== -->
+<button id="chatBtn" title="Asistente del Mezclador">💬</button>
+<div id="chatWin">
+  <div class="chathead">
+    <div class="cav">🎓</div>
+    <div><b>Asistente Serviam</b><small>Responde sobre tu mezcla actual</small></div>
+    <button class="x" id="chatX">×</button>
+  </div>
+  <div class="chatlog" id="chatLog"></div>
+  <div class="chips" id="chatChips"></div>
+  <div class="chatin">
+    <input type="text" id="chatInput" placeholder="Escribe tu pregunta…" autocomplete="off">
+    <button id="chatSend">➤</button>
+  </div>
+</div>
+
 <script>
 /* =================== ESTADO =================== */
 let STUDENTS = [];
@@ -360,6 +455,10 @@ const CATALOGO = [
     p:'Fuerza a dos alumnas a quedar en el mismo curso (hermanas, apoyo mutuo, caso especial).'},
   {key:'reciproco', ci:'💞', ttl:'Priorizar elección recíproca', why:'Sociometría escolar',
     p:'Da más peso a satisfacer amistades mutuas (A elige a B y B elige a A) por sobre las de un solo sentido.'},
+  {key:'balanceOrigen', ci:'⚖️', ttl:'Reparto parejo por origen', why:'OCDE · diversidad de aula',
+    p:'Cada curso nuevo recibe una proporción similar de alumnas de cada curso de origen, para diversidad real.'},
+  {key:'noSingleton', ci:'🫂', ttl:'Evitar alumnas aisladas de su origen', why:'Bienestar socioemocional',
+    p:'Evita que queden 1 o 2 alumnas solas de su curso de origen en un curso lleno de desconocidas.'},
 ];
 
 const $ = s => document.querySelector(s);
@@ -408,6 +507,9 @@ function run(){
   const anclas=CONSTRAINTS.filter(c=>c.tipo==='anclar'&&c.on);
   const spreadAlto=CONSTRAINTS.filter(c=>c.tipo==='spreadAlto'&&c.on);
   const reciproco=CONSTRAINTS.filter(c=>c.tipo==='reciproco'&&c.on);
+  const balanceOrigen=CONSTRAINTS.filter(c=>c.tipo==='balanceOrigen'&&c.on);
+  const noSingleton=CONSTRAINTS.filter(c=>c.tipo==='noSingleton'&&c.on);
+  const ORIG=[...new Set(STUDENTS.map(s=>s.origen))];
 
   // recíprocos: pares mutuos
   const mutual = new Set();
@@ -437,7 +539,9 @@ function run(){
     let maxViol=0; maxOrigen.forEach(s=>{ if(s.origen==null||s.max==null)return; for(const bn of bins){ const c=bn.filter(id=>byId[id].origen===s.origen).length; if(c>s.max) maxViol+=(c-s.max); } });
     let altoCost=0; if(spreadAlto.length){ const ca=bins.map(bn=>bn.filter(id=>byId[id].puntaje===3).length); const m=ca.reduce((a,x)=>a+x,0)/ca.length; altoCost=ca.reduce((a,x)=>a+(x-m)**2,0); }
     let recViol=0; if(reciproco.length){ mutual.forEach(k=>{ const [i,j]=k.split('-').map(Number); if(binOf[i]!==binOf[j]) recViol++; }); }
-    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol};
+    let origCost=0; if(balanceOrigen.length){ for(const o of ORIG){ const cn=bins.map(bn=>bn.filter(id=>byId[id].origen===o).length); const m=cn.reduce((a,x)=>a+x,0)/cn.length; origCost+=cn.reduce((a,x)=>a+(x-m)**2,0); } }
+    let singViol=0; if(noSingleton.length){ for(const bn of bins){ for(const o of ORIG){ const c=bn.filter(id=>byId[id].origen===o).length; if(c>0&&c<3) singViol+=(3-c); } } }
+    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol};
   }
   function totalCost(){
     const t=costTerms();
@@ -449,9 +553,12 @@ function run(){
     let wMax=0; maxOrigen.forEach(s=>wMax+=s.weight);
     let wAlto=0; spreadAlto.forEach(s=>wAlto+=s.weight);
     let wRec=0; reciproco.forEach(s=>wRec+=s.weight);
+    let wOrig=0; balanceOrigen.forEach(s=>wOrig+=s.weight);
+    let wSing=0; noSingleton.forEach(s=>wSing+=s.weight);
     return t.balCost*wBal + t.sizeCost*wTam + t.friendViol*wFri
       + t.sepViol*(wSep||60) + t.joinViol*(wJoin||60) + t.maxViol*(wMax||40)/10
-      + t.altoCost*(wAlto/25) + t.recViol*(wRec/8);
+      + t.altoCost*(wAlto/25) + t.recViol*(wRec/8)
+      + t.origCost*(wOrig/40) + t.singViol*(wSing/4);
   }
 
   // reparación de afinidades
@@ -500,8 +607,10 @@ function run(){
   mezclaIdx=1-(mezclaIdx/classes.length-1/origenes.length)/(1-1/origenes.length);
   mezclaIdx=Math.max(0,Math.min(1,mezclaIdx));
 
-  LAST={classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),
-    sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,
+  // matriz origen -> destino
+  const matrix={}; ORIG.forEach(o=>{ matrix[o]=classes.map(c=>c.studs.filter(s=>s.origen===o).length); });
+  LAST={classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,
+    sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,
     tol:(cBalance?cBalance.tol:8)};
   render();
 }
@@ -531,6 +640,8 @@ function render(){
   if(L.maxOrigen.length) kpis.push({lbl:'Tope curso origen', val:ct.maxViol===0?'OK':ct.maxViol+' ✕', note:`${L.maxOrigen.length} regla(s)`, color:ct.maxViol===0?'green':'amber'});
   if(L.spreadAlto.length) kpis.push({lbl:'Puntajes altos repartidos', val:'σ '+Math.sqrt(ct.altoCost/L.classes.length).toFixed(1), note:'menor = más parejo', color:ct.altoCost<=L.classes.length?'green':'amber'});
   if(L.reciproco.length) kpis.push({lbl:'Amistades mutuas rotas', val:ct.recViol, note:'pares recíprocos separados', color:ct.recViol===0?'green':(ct.recViol<=3?'amber':'red')});
+  if(L.balanceOrigen.length) kpis.push({lbl:'Reparto por origen', val:'σ '+Math.sqrt(ct.origCost/(L.ORIG.length*L.classes.length)).toFixed(1), note:'menor = más parejo', color:ct.origCost<=L.ORIG.length*2?'green':'amber'});
+  if(L.noSingleton.length) kpis.push({lbl:'Alumnas aisladas', val:ct.singViol===0?'OK':ct.singViol, note:'grupos de origen <3', color:ct.singViol===0?'green':(ct.singViol<=3?'amber':'red')});
 
   kpis.forEach(k=>{ const d=document.createElement('div'); d.className='kpi';
     d.innerHTML=`<span class="dot ${k.color} dotpos"></span><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="note">${k.note}</div>`; kg.appendChild(d); });
@@ -577,7 +688,64 @@ function render(){
       <div class="clslist">${rows}</div>`;
     cc.appendChild(div);
   });
+  renderDashboard();
   $('#btnExport').disabled=false;
+}
+
+/* =================== DASHBOARD =================== */
+function courseRisks(c,L){
+  const risks=[]; const tot=c.studs.length||1;
+  // sin amiga
+  const sinAmiga=c.studs.filter(s=>!s.elecciones.some(f=>c.ids.includes(f)));
+  if(sinAmiga.length) risks.push({sev:'red', t:`${sinAmiga.length} alumna(s) sin ninguna amiga`, d:sinAmiga.map(s=>s.nombre.split(' ')[0]).join(', ')});
+  // concentración de origen
+  L.ORIG.forEach(o=>{ const cnt=c.studs.filter(s=>s.origen===o).length; const pct=cnt/tot*100;
+    if(pct>=55) risks.push({sev:'amber', t:`Sobre-representación del curso origen ${o}`, d:`${cnt} de ${tot} (${Math.round(pct)}%) vienen del mismo curso`});
+    if(cnt>0&&cnt<3) risks.push({sev:'amber', t:`Alumnas aisladas del origen ${o}`, d:`solo ${cnt} alumna(s) de ese curso — riesgo de sentirse sola`});
+  });
+  // desbalance puntaje alto
+  const altoPct=c.alto/tot*100, avgAlto=avgShare(L,'alto')*100;
+  if(altoPct-avgAlto>=L.tol) risks.push({sev:'amber', t:'Concentración de puntaje alto', d:`${c.alto} altas (${Math.round(altoPct)}%) vs. promedio ${Math.round(avgAlto)}%`});
+  if(avgAlto-altoPct>=L.tol) risks.push({sev:'amber', t:'Déficit de puntaje alto', d:`${c.alto} altas (${Math.round(altoPct)}%) vs. promedio ${Math.round(avgAlto)}%`});
+  // tamaño
+  const sizes=L.classes.map(x=>x.studs.length); const spread=Math.max(...sizes)-Math.min(...sizes);
+  if(spread>=3){ if(tot===Math.max(...sizes)) risks.push({sev:'amber',t:'Curso más grande',d:`${tot} alumnas (diferencia de ${spread} con el menor)`});
+    if(tot===Math.min(...sizes)) risks.push({sev:'amber',t:'Curso más chico',d:`${tot} alumnas`}); }
+  if(!risks.length) risks.push({sev:'green', t:'Sin riesgos relevantes', d:'balanceado y con afinidades cubiertas'});
+  return risks;
+}
+function renderDashboard(){
+  const L=LAST; if(!L) return;
+  const cols=['var(--cA)','var(--cB)','var(--cC)','var(--cD)','var(--cE)','var(--cA)','var(--cB)','var(--cC)'];
+  // distribución
+  const dc=$('#distChart'); dc.innerHTML='';
+  L.classes.forEach((c,i)=>{ const tot=c.studs.length||1;
+    const seg=(n,col)=>{ const w=n/tot*100; return w>0?`<span style="width:${w}%;background:${col}">${n}</span>`:''; };
+    dc.innerHTML+=`<div class="distrow"><span class="cl">Curso ${i+1}</span>
+      <div class="track">${seg(c.alto,'var(--green)')}${seg(c.medio,'var(--amber)')}${seg(c.bajo,'var(--sred)')}</div></div>`;
+  });
+  // matriz origen->destino con heat
+  const mt=$('#originMatrix'); const maxV=Math.max(1,...L.ORIG.map(o=>Math.max(...L.matrix[o])));
+  const head='<thead><tr><th>Origen ↓ / Nuevo →</th>'+L.classes.map((c,i)=>`<th>C${i+1}</th>`).join('')+'<th>Total</th></tr></thead>';
+  let body='<tbody>';
+  L.ORIG.forEach(o=>{ const tot=L.matrix[o].reduce((a,x)=>a+x,0);
+    body+='<tr><td class="rowh">Origen '+o+'</td>'+L.matrix[o].map(v=>{ const a=0.10+0.6*(v/maxV); return `<td><span class="heat" style="background:rgba(178,31,45,${a.toFixed(2)}); min-width:26px">${v}</span></td>`; }).join('')+'<td><b>'+tot+'</b></td></tr>';
+  });
+  const colTot=L.classes.map((c,i)=>L.ORIG.reduce((a,o)=>a+L.matrix[o][i],0));
+  body+='<tr><td class="rowh">Total</td>'+colTot.map(v=>`<td><b>${v}</b></td>`).join('')+`<td><b>${L.N}</b></td></tr></tbody>`;
+  mt.innerHTML=head+body;
+  // top scores
+  const ts=$('#topScores'); const byCourse={}; L.classes.forEach((c,i)=>c.studs.forEach(s=>byCourse[s.id]=i+1));
+  const top=[...STUDENTS].sort((a,b)=>b.puntaje-a.puntaje).slice(0,10);
+  ts.innerHTML=top.map((s,i)=>`<div class="toprow"><span class="rk">${i+1}</span>
+    <span class="nm">${s.nombre} <small style="color:var(--muted)">(orig ${s.origen} → C${byCourse[s.id]})</small></span>
+    <span class="sc3" style="background:${s.puntaje>=3?'var(--green)':s.puntaje===2?'var(--amber)':'var(--sred)'}">${s.puntaje}</span></div>`).join('');
+  // riesgos
+  const rc=$('#riskCards'); rc.innerHTML='';
+  L.classes.forEach((c,i)=>{ const risks=courseRisks(c,L);
+    rc.innerHTML+=`<div class="riskgrp"><div class="rt" style="color:${cols[i]}">Curso ${i+1}</div>`+
+      risks.map(r=>`<div class="risk"><span class="dot ${r.sev} rd"></span><div><b>${r.t}</b><br><span style="color:var(--muted)">${r.d}</span></div></div>`).join('')+`</div>`;
+  });
 }
 
 /* =================== DATOS =================== */
@@ -698,6 +866,8 @@ function describeRule(c){
   if(c.tipo==='maxOrigen') return `Máximo <b>${c.max}</b> alumnas del curso origen <b>${c.origen}</b> por curso nuevo.`;
   if(c.tipo==='spreadAlto') return `Reparte de forma pareja a las alumnas de puntaje alto (3) entre los cursos.`;
   if(c.tipo==='reciproco') return `Prioriza mantener juntas a las parejas que se eligieron mutuamente.`;
+  if(c.tipo==='balanceOrigen') return `Reparte de forma pareja a las alumnas de cada curso de origen entre los cursos nuevos.`;
+  if(c.tipo==='noSingleton') return `Penaliza dejar a 1 o 2 alumnas solas de su curso de origen en un curso nuevo.`;
   return '';
 }
 window.toggleCons=(id,v)=>{ const c=CONSTRAINTS.find(x=>x.id===id); if(c)c.on=v; };
@@ -710,7 +880,7 @@ function renderCatalog(){
   const box=$('#catalogo'); box.innerHTML='';
   CATALOGO.forEach(cat=>{
     // ¿ya está agregada? (para globales spreadAlto/reciproco)
-    const global=(cat.key==='spreadAlto'||cat.key==='reciproco');
+    const global=['spreadAlto','reciproco','balanceOrigen','noSingleton'].includes(cat.key);
     const exists=global && CONSTRAINTS.some(c=>c.tipo===cat.key);
     const div=document.createElement('div'); div.className='catcard'+(exists?' added':'');
     div.innerHTML=`<div class="ci">${cat.ci}</div><h4>${cat.ttl}</h4>
@@ -724,6 +894,8 @@ window.quickAdd=(key)=>{
   const gid='c'+Date.now();
   if(key==='spreadAlto'){ CONSTRAINTS.push({id:gid,tipo:'spreadAlto',on:true,weight:70,dura:false,ttl:'Distribuir puntajes altos',desc:'No concentrar a las alumnas de puntaje 3 en un mismo curso.'}); }
   else if(key==='reciproco'){ CONSTRAINTS.push({id:gid,tipo:'reciproco',on:true,weight:60,dura:false,ttl:'Priorizar elección recíproca',desc:'Mantener juntas a las parejas que se eligieron mutuamente.'}); }
+  else if(key==='balanceOrigen'){ CONSTRAINTS.push({id:gid,tipo:'balanceOrigen',on:true,weight:60,dura:false,ttl:'Reparto parejo por origen',desc:'Cada curso nuevo recibe una proporción similar de cada curso de origen.'}); }
+  else if(key==='noSingleton'){ CONSTRAINTS.push({id:gid,tipo:'noSingleton',on:true,weight:65,dura:false,ttl:'Evitar alumnas aisladas de su origen',desc:'Evita dejar 1 o 2 alumnas solas de su curso de origen.'}); }
   else { // requieren parámetros → llevar al formulario manual
     $('#newType').value=key; rebuildParamPickers();
     document.querySelector('[data-tab="restr"]').click();
@@ -781,6 +953,81 @@ $('#btnAddCons').addEventListener('click',addConstraint);
 $('#newType').addEventListener('change',rebuildParamPickers);
 $('#nDestino').addEventListener('change',rebuildParamPickers);
 $('#fileXlsx').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0]); });
+
+/* =================== CHATBOT (asistente local sobre tus datos) =================== */
+const CHIPS=['¿Cuántas alumnas hay?','Mayores puntajes','Riesgos del Curso 1','¿Cuántas sin amiga?','Balance de puntaje','Índice de mezcla','Reglas activas','¿Cómo funciona?'];
+function chatAdd(text,who){ const l=$('#chatLog'); const d=document.createElement('div'); d.className='msg '+who; d.innerHTML=text; l.appendChild(d); l.scrollTop=l.scrollHeight; }
+function chatChips(){ const c=$('#chatChips'); c.innerHTML=''; CHIPS.forEach(q=>{ const b=document.createElement('button'); b.className='chip'; b.textContent=q; b.onclick=()=>{ chatAnswer(q); }; c.appendChild(b); }); }
+function num(w){ const m=w.match(/\d+/); return m?+m[0]:null; }
+function chatAnswer(q){
+  chatAdd(q,'usr');
+  const t=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const L=LAST;
+  const need=()=>{ chatAdd('Primero ejecuta una mezcla en la pestaña ① y te respondo con esos datos 😊','bot'); };
+  let r='';
+  if(/hola|buenas|hey|ayuda|puedes|que sabes|qué haces|opciones/.test(t)){
+    r='Soy tu asistente sobre <b>esta</b> mezcla. Puedo decirte: cuántas alumnas hay, los mayores puntajes, los riesgos de cada curso, cuántas quedaron sin amiga, el balance, el índice de mezcla y las reglas activas. Prueba los botones de abajo 👇';
+    chatAdd(r,'bot'); return;
+  }
+  if(/como funciona|metodolog|algoritmo|explica el motor/.test(t)){
+    r='El motor hace 3 pasos: <b>1)</b> reparte en "serpiente" por puntaje (cursos parejos), <b>2)</b> repara afinidades intercambiando alumnas de igual puntaje hasta que cada una tenga ≥1 amiga, <b>3)</b> optimiza el resto de reglas. Todo respetando el balance. Más detalle en la pestaña ④.';
+    chatAdd(r,'bot'); return;
+  }
+  if(/regla|restricc/.test(t)){
+    const on=CONSTRAINTS.filter(c=>c.on);
+    r='<b>Reglas activas ('+on.length+'):</b><br>'+on.map(c=>'• '+c.ttl+(c.dura?' <i>(dura)</i>':' <i>(blanda)</i>')).join('<br>')+'<br><br>Puedes activarlas o eliminarlas en la pestaña ②.';
+    chatAdd(r,'bot'); return;
+  }
+  if(!L){ need(); return; }
+  const pct=Math.round(L.withFriend/L.N*100);
+  if(/cuantas alumnas|cuantos alumnos|total de alumnas|cuanta gente|numero de alumnas/.test(t)){
+    chatAdd(`Hay <b>${L.N} alumnas</b> repartidas en <b>${L.classes.length} cursos</b> nuevos de tamaños ${L.classes.map(c=>c.studs.length).join(' / ')}.`,'bot'); return;
+  }
+  if(/sin amiga|sin ninguna|aislad|sola|no quedo con/.test(t)){
+    const sinList=[]; L.classes.forEach((c)=>c.studs.forEach(s=>{ if(!s.elecciones.some(f=>c.ids.includes(f))) sinList.push(s.nombre); }));
+    if(!sinList.length){ chatAdd(`✅ <b>Ninguna</b> quedó sin amiga: el 100% tiene al menos una compañera que eligió.`,'bot'); }
+    else{ chatAdd(`Quedaron <b>${sinList.length}</b> sin ninguna amiga (${pct}% cubierto): ${sinList.join(', ')}. Sube el peso de "Garantía de amistad" o afloja otras reglas duras.`,'bot'); }
+    return;
+  }
+  if(/mayor|top|mejores puntaje|altas|puntaje alto|lidera|liderazgo/.test(t)){
+    const byCourse={}; L.classes.forEach((c,i)=>c.studs.forEach(s=>byCourse[s.id]=i+1));
+    const top=[...STUDENTS].sort((a,b)=>b.puntaje-a.puntaje).slice(0,5);
+    const altas=STUDENTS.filter(s=>s.puntaje>=3).length;
+    r=`Hay <b>${altas} alumnas con puntaje alto (3)</b>. Top 5:<br>`+top.map((s,i)=>`${i+1}. ${s.nombre} — puntaje ${s.puntaje} (→ Curso ${byCourse[s.id]})`).join('<br>')+'<br><br>Míralo completo en el Dashboard 🏆';
+    chatAdd(r,'bot'); return;
+  }
+  if(/riesgo|problema|alerta|peligro/.test(t)){
+    const n=num(t);
+    if(n && L.classes[n-1]){ const risks=courseRisks(L.classes[n-1],L);
+      r=`<b>Riesgos del Curso ${n}:</b><br>`+risks.map(x=>({red:'🔴',amber:'🟡',green:'🟢'}[x.sev]+' '+x.t+' — '+x.d)).join('<br>'); }
+    else{ r='<b>Riesgos por curso:</b><br>'+L.classes.map((c,i)=>{ const rs=courseRisks(c,L); const worst=rs.find(x=>x.sev==='red')||rs.find(x=>x.sev==='amber')||rs[0]; return `Curso ${i+1}: ${({red:'🔴',amber:'🟡',green:'🟢'}[worst.sev])} ${worst.t}`; }).join('<br>')+'<br><br>Pregúntame "riesgos del curso 2" para el detalle.'; }
+    chatAdd(r,'bot'); return;
+  }
+  if(/balance|equilibr|distribu/.test(t)){
+    let worst=0; for(const tr of ['alto','medio','bajo']){ const sh=L.classes.map(c=>c[tr]/(c.studs.length||1)); const m=sh.reduce((a,x)=>a+x,0)/sh.length; worst=Math.max(worst,Math.max(...sh.map(x=>Math.abs(x-m)))*100); }
+    const ok=worst<=L.tol;
+    r=`El tramo más desviado está a <b>${worst.toFixed(1)} pp</b> del promedio (tolerancia ${L.tol} pp): ${ok?'🟢 balanceado':'🟡 sobre la tolerancia'}. Promedios por curso: ${L.classes.map((c,i)=>'C'+(i+1)+' '+c.prom.toFixed(2)).join(' · ')}.`;
+    chatAdd(r,'bot'); return;
+  }
+  if(/mezcla|revuelt|origen|junt.* de nuevo|separ.* curso/.test(t)){
+    const pm=Math.round(L.mezclaIdx*100);
+    r=`El <b>índice de mezcla</b> es ${pm}% ${pm>=55?'🟢':pm>=30?'🟡':'🔴'}. `+(pm<55?'Está bajo porque respetar amistades reagrupa a las que venían juntas — agrega "Forzar mezcla entre cursos" en la pestaña ②.':'Los cursos originales se rompieron bien.');
+    chatAdd(r,'bot'); return;
+  }
+  if(/curso\s*\d/.test(t)){
+    const n=num(t); const c=L.classes[n-1];
+    if(c){ r=`<b>Curso ${n}:</b> ${c.studs.length} alumnas · promedio ${c.prom.toFixed(2)} · Alto ${c.alto} / Medio ${c.medio} / Bajo ${c.bajo} · ${c.conAmiga}/${c.studs.length} con amiga.`; }
+    else r='No tengo ese curso — hay '+L.classes.length+' cursos.';
+    chatAdd(r,'bot'); return;
+  }
+  chatAdd('No estoy seguro de eso 🤔 Prueba con: <i>"mayores puntajes"</i>, <i>"riesgos del curso 2"</i>, <i>"cuántas sin amiga"</i>, <i>"balance"</i> o <i>"índice de mezcla"</i>.','bot');
+}
+$('#chatBtn').addEventListener('click',()=>{ const w=$('#chatWin'); w.classList.toggle('on');
+  if(w.classList.contains('on')&&!$('#chatLog').children.length){ chatAdd('¡Hola! 👋 Soy el asistente del Mezclador. Pregúntame lo que quieras sobre la mezcla actual — o toca un botón de abajo.','bot'); } });
+$('#chatX').addEventListener('click',()=>$('#chatWin').classList.remove('on'));
+$('#chatSend').addEventListener('click',()=>{ const v=$('#chatInput').value.trim(); if(v){ chatAnswer(v); $('#chatInput').value=''; } });
+$('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=$('#chatInput').value.trim(); if(v){ chatAnswer(v); $('#chatInput').value=''; } } });
+chatChips();
 
 /* init */
 renderConstraints(); renderCatalog(); genDummy(); run();
