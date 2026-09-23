@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mezclador de Cursos — Colegio Santa Úrsula de Vitacura</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="xlsx.full.min.js"></script>
+<script>if(typeof XLSX==='undefined'){document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');}</script>
 <style>
   /* ===== Identidad Colegio Santa Úrsula de Vitacura: azul marino + rojo institucional + dorado escudo ===== */
   :root{
@@ -137,6 +138,19 @@
   .weight{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted)}
   .weight input[type=range]{width:120px}
 
+  /* rúbrica */
+  .dimc{border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:11px; background:var(--card); border-left:4px solid var(--gold)}
+  .dimc .top{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .dimc .top input.nm{font-weight:700; font-size:15px; flex:1; min-width:160px}
+  .dimc .top .peso{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:700}
+  .dimc .top .peso input{width:74px}
+  .dimc .desc{margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .dimc .desc label{font-size:11px; font-weight:700; color:var(--muted); display:flex; flex-direction:column; gap:4px}
+  .dimc .desc textarea{background:var(--bg2); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px; font-family:inherit; font-size:12.5px; resize:vertical; min-height:52px}
+  .dimc .desc .lvl2{border-left:3px solid var(--green); padding-left:8px}
+  .dimc .desc .lvl1{border-left:3px solid var(--sred); padding-left:8px}
+  @media(max-width:560px){ .dimc .desc{grid-template-columns:1fr} }
+
   /* catálogo recomendado */
   .cat{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px}
   .catcard{border:1px solid var(--line); border-radius:12px; padding:15px; background:var(--bg2); display:flex; flex-direction:column}
@@ -230,8 +244,9 @@
   <div class="tabs">
     <button class="tab on" data-tab="mezcla">① Mezcla &amp; resultado</button>
     <button class="tab" data-tab="restr">② Restricciones</button>
-    <button class="tab" data-tab="datos">③ Datos &amp; Excel</button>
-    <button class="tab" data-tab="metodo">④ Metodología</button>
+    <button class="tab" data-tab="rubrica">③ Rúbrica (puntajes)</button>
+    <button class="tab" data-tab="datos">④ Datos &amp; Excel</button>
+    <button class="tab" data-tab="metodo">⑤ Metodología</button>
   </div>
 
   <!-- ============ TAB 1 ============ -->
@@ -348,14 +363,48 @@
     </div>
   </section>
 
-  <!-- ============ TAB 3 ============ -->
+  <!-- ============ TAB RÚBRICA ============ -->
+  <section class="panel" id="rubrica">
+    <div class="callout navy">
+      <b>Así se calcula el puntaje.</b> Cada alumna se evalúa por dimensión en <b>2 (alto)</b> o <b>1 (bajo)</b>. El puntaje es el <b>promedio ponderado</b> de esas notas según el peso de cada dimensión, y si una queda <b>vacía</b> se recalcula solo sobre las presentes (no se castiga). Todo es <b>editable y vivo</b>: cambia un peso, agrega o borra una dimensión, y los puntajes y el balance se recalculan.
+    </div>
+
+    <div class="card">
+      <h2>Dimensiones evaluadas <span class="k">editable</span></h2>
+      <div class="row" style="margin-bottom:8px">
+        <div class="kpi" style="min-width:150px"><div class="lbl">Suma de pesos</div><div class="val" id="pesoSum">100%</div><div class="note" id="pesoNote">se usa proporcional</div></div>
+        <label class="field">Umbral Alto ≥<input type="number" id="umbAlto" value="1.67" step="0.01" min="1" max="2"></label>
+        <label class="field">Umbral Medio ≥<input type="number" id="umbMedio" value="1.34" step="0.01" min="1" max="2"></label>
+        <div class="spacer"></div>
+        <button class="btn sec" id="btnNormaliza" title="Reescalar los pesos para que sumen 100%">Normalizar a 100%</button>
+      </div>
+      <div id="dimList"></div>
+      <button class="btn ghost" id="btnAddDim" style="margin-top:12px">➕ Agregar dimensión</button>
+      <p class="hint" style="margin-top:10px">Al editar un peso o una nota, se recalculan los puntajes. Vuelve a la pestaña ① y pulsa <b>Ejecutar mezcla</b> para re-balancear.</p>
+    </div>
+
+    <div class="card">
+      <h2>Escala de nivel</h2>
+      <div class="scrollx"><table>
+        <thead><tr><th>Nivel</th><th>Rango de puntaje</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge green">Alto</span></td><td id="rngAlto">≥ 1,67</td><td>Fortalezas consolidadas en la mayoría de las dimensiones</td></tr>
+          <tr><td><span class="badge amber">Medio</span></td><td id="rngMedio">1,34 – 1,66</td><td>Mixto: algunas fortalezas, algunas por desarrollar</td></tr>
+          <tr><td><span class="badge red">Bajo</span></td><td id="rngBajo">&lt; 1,34</td><td>Varias dimensiones descendidas — requiere apoyo</td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">El balance de cursos usa estos tres niveles (el semáforo) para que ningún curso quede desbalanceado.</p>
+    </div>
+  </section>
+
+  <!-- ============ TAB 4 ============ -->
   <section class="panel" id="datos">
     <div class="card">
       <h2>Flujo con Excel <span class="k">paso a paso</span></h2>
       <p class="hint" style="line-height:1.7">
         <b>1)</b> Elige cuántos cursos vas a subir (arriba, "Cursos de origen") y la cantidad de alumnas.<br>
-        <b>2)</b> Descarga la plantilla — trae una fila por alumna, con <code>3 elecciones</code> dentro de su mismo curso y una columna <code>Puntaje</code> (0 a 3).<br>
-        <b>3)</b> Complétala con tus alumnas reales (cada curso puede tener 35, 37, 38… no importa) y súbela.<br>
+        <b>2)</b> Descarga la plantilla — trae una fila por alumna, con las <code>elecciones</code> dentro de su mismo curso y una columna por cada <b>dimensión</b> de la rúbrica (nota 2 o 1, o vacío).<br>
+        <b>3)</b> Complétala con tus alumnas reales (cada curso puede tener 35, 37, 38… no importa) y súbela. También acepta el formato de tu Excel actual (Elección 1–4 + dimensiones).<br>
         <b>4)</b> Ve a la pestaña ① y ejecuta la mezcla.
       </p>
       <div class="row" style="margin-top:14px">
@@ -447,6 +496,7 @@
 /* =================== ESTADO =================== */
 let STUDENTS = [];
 let LAST = null;
+let DATA_IS_DUMMY = true;
 let CONSTRAINTS = [
   {id:'amistad', tipo:'amistad', on:true, weight:100, dura:true,
     ttl:'Garantía de amistad', desc:'Cada alumna queda con al menos una de las compañeras que eligió.'},
@@ -485,7 +535,38 @@ const APEL=["Vergara","Errázuriz","Larraín","Undurraga","Mackenna","Fernández
 function rint(n){return Math.floor(Math.random()*n)}
 function letter(i){return String.fromCharCode(65+i)}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rint(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
-function bucket(p){return p>=3?'alto':p===2?'medio':'bajo';}
+
+/* =================== RÚBRICA (dimensiones editables, todo vivo) =================== */
+/* Cada alumna se evalúa por dimensión en 2 (alto) o 1 (bajo). Puntaje = promedio
+   ponderado renormalizado sobre las dimensiones presentes → rango 1,00-2,00.
+   Nivel: Alto ≥ UMBRAL_ALTO, Medio ≥ UMBRAL_MEDIO, Bajo el resto. */
+let UMBRAL_ALTO=1.67, UMBRAL_MEDIO=1.34;
+let DIMENSIONS=[
+  {id:'socio', nombre:'Socio Emocional', peso:20, match:'socio',
+    alto:'Habilidades sociales adecuadas: inicia juegos/actividades, flexible, resuelve conflictos.',
+    bajo:'Habilidades sociales descendidas: dificultad para integrarse, comunicarse y resolver conflictos.'},
+  {id:'conducta', nombre:'Conducta', peso:20, match:'conduct|disciplin',
+    alto:'Conducta adecuada al aula, respeta los acuerdos esenciales y las normas del RIE.',
+    bajo:'Dificultad para respetar los acuerdos esenciales y/o comete faltas al RIE.'},
+  {id:'aprend', nombre:'Aprendizaje', peso:15, match:'aprend',
+    alto:'Habilidades cognitivas consolidadas: atención, memoria, planificación, pensamiento crítico.',
+    bajo:'Dificultad para planificar y organizar; inquietud motora y/o distractibilidad.'},
+  {id:'apoyo', nombre:'Nómina de Apoyo', peso:20, match:'n[oó]mina|apoyo',
+    alto:'Alumna identificada con altas capacidades.',
+    bajo:'Alumna en nómina de apoyo con Necesidades Educativas Especiales (NEE).'},
+  {id:'lider', nombre:'Liderazgo', peso:15, match:'lider',
+    alto:'Liderazgo positivo: incluye a pares aisladas, resuelve conflictos, motiva.',
+    bajo:'Liderazgo negativo: excluye, se burla o habla mal para mantener poder.'},
+  {id:'familia', nombre:'Familia', peso:10, match:'famil',
+    alto:'Familia alineada con el proyecto: empática, respetuosa y participativa.',
+    bajo:'Familia con relaciones conflictivas, crítica o desinteresada en lo escolar.'},
+];
+function computeScore(dims){ let num=0,den=0; for(const d of DIMENSIONS){ const v=dims?dims[d.id]:null; if(v===1||v===2){ num+=v*d.peso; den+=d.peso; } } return den? num/den : null; }
+function nivelOf(p){ if(p==null) return 'medio'; return p>=UMBRAL_ALTO?'alto':(p>=UMBRAL_MEDIO?'medio':'bajo'); }
+function recomputeScores(){ STUDENTS.forEach(s=>{ s.puntaje=computeScore(s.dims); s.nivel=nivelOf(s.puntaje); }); }
+function scoreLabel(s){ return s.puntaje==null?'—':s.puntaje.toFixed(2); }
+function nivelColor(n){ return n==='alto'?'var(--green)':n==='medio'?'var(--amber)':'var(--sred)'; }
+function randDimVal(dimId){ if(dimId==='apoyo') return Math.random()<0.80?null:(Math.random()<0.3?2:1); return Math.random()<0.15?null:(Math.random()<0.60?2:1); }
 
 /* =================== DUMMIES =================== */
 function genDummy(){
@@ -495,12 +576,13 @@ function genDummy(){
     const g=[];
     for(let k=0;k<nP;k++){
       let nm; do{ nm=NAMES_F[rint(NAMES_F.length)]+" "+APEL[rint(APEL.length)]; }while(used.has(nm)); used.add(nm);
-      const r=Math.random(); const p=r<.18?0:r<.5?1:r<.82?2:3;
-      const st={id:id++,nombre:nm,origen:letter(c),elecciones:[],puntaje:p}; g.push(st); STUDENTS.push(st);
+      const dims={}; DIMENSIONS.forEach(d=>{ dims[d.id]=randDimVal(d.id); });
+      const st={id:id++,nombre:nm,origen:letter(c),elecciones:[],dims}; st.puntaje=computeScore(dims); st.nivel=nivelOf(st.puntaje);
+      g.push(st); STUDENTS.push(st);
     }
     for(const st of g){ const pool=g.filter(x=>x.id!==st.id); shuffle(pool); st.elecciones=pool.slice(0,nE).map(x=>x.id); }
   }
-  LAST=null; refreshDataTable(); rebuildParamPickers();
+  DATA_IS_DUMMY=true; LAST=null; refreshDataTable(); rebuildParamPickers();
   $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> · ${nC} cursos origen · datos dummy`;
   $('#uploadMsg').textContent=`Generadas ${STUDENTS.length} alumnas dummy.`;
   $('#btnExport').disabled=false;
@@ -536,12 +618,12 @@ function run(){
   function swap(i,j){ const bi=binOf[i],bj=binOf[j]; bins[bi][bins[bi].indexOf(i)]=j; bins[bj][bins[bj].indexOf(j)]=i; binOf[i]=bj; binOf[j]=bi; }
   const hasFriend=id=>byId[id].elecciones.some(f=>binOf[f]===binOf[id]);
 
-  for(const a of anclas){ if(a.sid==null||a.bin==null)continue; if(binOf[a.sid]!==a.bin){ const p=byId[a.sid].puntaje; let cand=bins[a.bin].find(x=>byId[x].puntaje===p)||bins[a.bin][0]; if(cand!=null) swap(a.sid,cand); } }
+  for(const a of anclas){ if(a.sid==null||a.bin==null)continue; if(binOf[a.sid]!==a.bin){ const nv=byId[a.sid].nivel; let cand=bins[a.bin].find(x=>byId[x].nivel===nv)||bins[a.bin][0]; if(cand!=null) swap(a.sid,cand); } }
 
   function costTerms(){
     let balCost=0;
     for(const t of ['alto','medio','bajo']){
-      const sh=bins.map(bn=>bn.filter(id=>bucket(byId[id].puntaje)===t).length/(bn.length||1));
+      const sh=bins.map(bn=>bn.filter(id=>byId[id].nivel===t).length/(bn.length||1));
       const m=sh.reduce((a,x)=>a+x,0)/sh.length; balCost+=sh.reduce((a,x)=>a+(x-m)**2,0);
     }
     const sizes=bins.map(x=>x.length); const tm=sizes.reduce((a,x)=>a+x,0)/sizes.length;
@@ -550,7 +632,7 @@ function run(){
     let sepViol=0; separaciones.forEach(s=>{ if(s.aid!=null&&s.bid!=null&&binOf[s.aid]===binOf[s.bid]) sepViol++; });
     let joinViol=0; juntar.forEach(s=>{ if(s.aid!=null&&s.bid!=null&&binOf[s.aid]!==binOf[s.bid]) joinViol++; });
     let maxViol=0; maxOrigen.forEach(s=>{ if(s.origen==null||s.max==null)return; for(const bn of bins){ const c=bn.filter(id=>byId[id].origen===s.origen).length; if(c>s.max) maxViol+=(c-s.max); } });
-    let altoCost=0; if(spreadAlto.length){ const ca=bins.map(bn=>bn.filter(id=>byId[id].puntaje===3).length); const m=ca.reduce((a,x)=>a+x,0)/ca.length; altoCost=ca.reduce((a,x)=>a+(x-m)**2,0); }
+    let altoCost=0; if(spreadAlto.length){ const ca=bins.map(bn=>bn.filter(id=>byId[id].nivel==='alto').length); const m=ca.reduce((a,x)=>a+x,0)/ca.length; altoCost=ca.reduce((a,x)=>a+(x-m)**2,0); }
     let recViol=0; if(reciproco.length){ mutual.forEach(k=>{ const [i,j]=k.split('-').map(Number); if(binOf[i]!==binOf[j]) recViol++; }); }
     let origCost=0; if(balanceOrigen.length){ for(const o of ORIG){ const cn=bins.map(bn=>bn.filter(id=>byId[id].origen===o).length); const m=cn.reduce((a,x)=>a+x,0)/cn.length; origCost+=cn.reduce((a,x)=>a+(x-m)**2,0); } }
     let singViol=0; if(noSingleton.length){ for(const bn of bins){ for(const o of ORIG){ const c=bn.filter(id=>byId[id].origen===o).length; if(c>0&&c<3) singViol+=(3-c); } } }
@@ -582,7 +664,7 @@ function run(){
       guard++; const base=totalCost(); let bg=0,bc=null; const targets=new Set();
       byId[v.id].elecciones.forEach(f=>targets.add(binOf[f]));
       for(const tb of targets) for(const cand of bins[tb]){
-        if(byId[cand].puntaje!==v.puntaje) continue;
+        if(byId[cand].nivel!==v.nivel) continue;
         swap(v.id,cand); const g=base-totalCost(); swap(v.id,cand);
         if(g>bg){bg=g;bc=cand;}
       }
@@ -596,7 +678,7 @@ function run(){
     for(let i=0;i<STUDENTS.length&&guard<MAXIT;i++){
       for(let j=i+1;j<STUDENTS.length;j++){
         const a=STUDENTS[i], c=STUDENTS[j];
-        if(binOf[a.id]===binOf[c.id]||a.puntaje!==c.puntaje) continue;
+        if(binOf[a.id]===binOf[c.id]||a.nivel!==c.nivel) continue;
         guard++; const base=totalCost(); swap(a.id,c.id);
         if(totalCost()<base-1e-9) improved=true; else swap(a.id,c.id);
         if(guard>=MAXIT) break;
@@ -607,10 +689,10 @@ function run(){
   const classes=bins.map((bin,ix)=>{
     const studs=bin.map(id=>byId[id]);
     return {ix, ids:bin, studs,
-      alto:studs.filter(s=>bucket(s.puntaje)==='alto').length,
-      medio:studs.filter(s=>bucket(s.puntaje)==='medio').length,
-      bajo:studs.filter(s=>bucket(s.puntaje)==='bajo').length,
-      prom:studs.reduce((a,s)=>a+s.puntaje,0)/(studs.length||1),
+      alto:studs.filter(s=>s.nivel==='alto').length,
+      medio:studs.filter(s=>s.nivel==='medio').length,
+      bajo:studs.filter(s=>s.nivel==='bajo').length,
+      prom:(()=>{ const v=studs.filter(s=>s.puntaje!=null); return v.length?v.reduce((a,s)=>a+s.puntaje,0)/v.length:0; })(),
       conAmiga:studs.filter(s=>hasFriend(s.id)).length};
   });
   const withFriend=STUDENTS.filter(s=>hasFriend(s.id)).length;
@@ -693,7 +775,7 @@ function render(){
     c.studs.sort((a,b)=>b.puntaje-a.puntaje).forEach(s=>{
       const ok=s.elecciones.some(f=>c.ids.includes(f));
       rows+=`<div class="stud"><span class="miniorig" style="background:${oColor[s.origen]||'var(--muted)'}">${s.origen}</span>
-        <span class="nm">${s.nombre}</span><span class="sc">${s.puntaje}</span><span class="fr ${ok?'ok':'no'}">${ok?'✓':'✕'}</span></div>`;
+        <span class="nm">${s.nombre}</span><span class="sc" style="color:${nivelColor(s.nivel)}" title="Nivel ${s.nivel}">${scoreLabel(s)}</span><span class="fr ${ok?'ok':'no'}">${ok?'✓':'✕'}</span></div>`;
     });
     div.innerHTML=`<div class="clshead" style="background:${cols[i]}"><h3>Curso ${i+1}</h3><span class="cnt">${tot} alumnas · prom ${c.prom.toFixed(2)}</span></div>
       <div class="bar"><span style="width:${wA}%;background:var(--green)"></span><span style="width:${wM}%;background:var(--amber)"></span><span style="width:${wB}%;background:var(--sred)"></span></div>
@@ -749,10 +831,10 @@ function renderDashboard(){
   mt.innerHTML=head+body;
   // top scores
   const ts=$('#topScores'); const byCourse={}; L.classes.forEach((c,i)=>c.studs.forEach(s=>byCourse[s.id]=i+1));
-  const top=[...STUDENTS].sort((a,b)=>b.puntaje-a.puntaje).slice(0,10);
+  const top=[...STUDENTS].sort((a,b)=>(b.puntaje||0)-(a.puntaje||0)).slice(0,10);
   ts.innerHTML=top.map((s,i)=>`<div class="toprow"><span class="rk">${i+1}</span>
     <span class="nm">${s.nombre} <small style="color:var(--muted)">(orig ${s.origen} → C${byCourse[s.id]})</small></span>
-    <span class="sc3" style="background:${s.puntaje>=3?'var(--green)':s.puntaje===2?'var(--amber)':'var(--sred)'}">${s.puntaje}</span></div>`).join('');
+    <span class="sc3" style="background:${nivelColor(s.nivel)}">${scoreLabel(s)}</span></div>`).join('');
   // riesgos
   const rc=$('#riskCards'); rc.innerHTML='';
   L.classes.forEach((c,i)=>{ const risks=courseRisks(c,L);
@@ -770,38 +852,45 @@ function refreshDataTable(){
     const el=s.elecciones.map(id=>byId[id]?byId[id].nombre.split(' ')[0]:'?').join(', ');
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${i+1}</td><td>${s.nombre}</td><td><span class="pill" style="background:${oColor[s.origen]||'var(--muted)'}">${s.origen}</span></td>
-      <td style="color:var(--muted)">${el}</td><td><b>${s.puntaje}</b></td>`;
+      <td style="color:var(--muted)">${el}</td><td><b style="color:${nivelColor(s.nivel)}">${scoreLabel(s)}</b> <small style="color:var(--muted)">${s.nivel}</small></td>`;
     tb.appendChild(tr);
   });
 }
 
 /* =================== EXCEL =================== */
 function downloadTemplate(){
-  const nC=+$('#nCursos').value, nP=+$('#nPorCurso').value, nE=+$('#nElecciones').value;
-  const header=['Nombre','CursoOrigen']; for(let i=1;i<=nE;i++) header.push('Eleccion'+i); header.push('Puntaje');
+  const nC=+$('#nCursos').value, nP=+$('#nPorCurso').value; const nE=Math.max(1,+$('#nElecciones').value);
+  const dnames=DIMENSIONS.map(d=>d.nombre);
+  const header=['Curso actual','Selecciona tu nombre']; for(let i=1;i<=nE;i++) header.push('Elección '+i); header.push(...dnames);
   const rows=[header]; const used=new Set(); const roster=[];
   for(let c=0;c<nC;c++){ const g=[];
     for(let k=0;k<nP;k++){ let nm; do{ nm=NAMES_F[rint(NAMES_F.length)]+" "+APEL[rint(APEL.length)]; }while(used.has(nm)); used.add(nm);
-      g.push({nombre:nm,origen:letter(c)}); }
+      g.push({nombre:nm,origen:c+1}); }
     roster.push(g);
   }
   roster.forEach(g=>{ g.forEach(st=>{
     const pool=g.filter(x=>x.nombre!==st.nombre); shuffle(pool);
     const el=pool.slice(0,nE).map(x=>x.nombre);
-    rows.push([st.nombre, st.origen, ...el, rint(4)]);
+    const dims=DIMENSIONS.map(d=>{ const v=randDimVal(d.id); return v==null?'':v; });
+    rows.push([st.origen, st.nombre, ...el, ...dims]);
   }); });
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  // hoja de instrucciones
   const help=[['INSTRUCCIONES'],
     ['1. Una fila por alumna.'],
-    ['2. CursoOrigen: A, B, C… (el curso actual de la alumna).'],
-    ['3. Eleccion1..'+nE+': nombres EXACTOS de compañeras del MISMO curso de origen.'],
-    ['4. Puntaje: número de 0 a 3 (0-1 = bajo, 2 = medio, 3 = alto).'],
-    ['5. Cada curso puede tener distinto número de alumnas (35, 37, 38…).'],
-    ['6. Guarda y súbelo en la pestaña ③ de la herramienta.']];
+    ['2. Curso actual: 1, 2, 3… (o A, B, C) — el curso actual de la alumna.'],
+    ['3. Elección 1..'+nE+': nombres EXACTOS de compañeras del MISMO curso.'],
+    ['4. Dimensiones: nota 2 (alto) o 1 (bajo). Si dejas una vacía, el puntaje se'],
+    ['   recalcula solo sobre las presentes (no se castiga).'],
+    ['5. Los pesos de cada dimensión se definen en la pestaña ③ Rúbrica.'],
+    ['6. Cada curso puede tener distinto número de alumnas (35, 37, 38…).'],
+    ['7. Guarda y súbelo en la pestaña ④ de la herramienta.']];
   const wsh=XLSX.utils.aoa_to_sheet(help);
+  const wr=[['Dimensión','Peso %','Nivel 2 (alto)','Nivel 1 (bajo)']];
+  DIMENSIONS.forEach(d=>wr.push([d.nombre,d.peso,d.alto,d.bajo]));
+  const wsr=XLSX.utils.aoa_to_sheet(wr);
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Alumnas');
+  XLSX.utils.book_append_sheet(wb,ws,'Nuevos cursos');
+  XLSX.utils.book_append_sheet(wb,wsr,'Rúbrica');
   XLSX.utils.book_append_sheet(wb,wsh,'Instrucciones');
   XLSX.writeFile(wb,`plantilla_mezclador_${nC}cursos.xlsx`);
 }
@@ -810,25 +899,38 @@ function importXlsx(file){
   rd.onload=e=>{
     try{
       const wb=XLSX.read(e.target.result,{type:'array'});
-      const ws=wb.Sheets[wb.SheetNames.find(n=>/alumn/i.test(n))||wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-      if(!rows.length){ $('#uploadMsg').innerHTML='<span style="color:var(--sred)">El archivo está vacío.</span>'; return; }
-      const keys=Object.keys(rows[0]);
-      const kName=keys.find(k=>/nombre|name|alumn/i.test(k))||keys[0];
-      const kOrig=keys.find(k=>/curso|origen|clase|class|grupo/i.test(k))||keys[1];
-      const kPunt=keys.find(k=>/punt|score|nota|nivel/i.test(k));
-      const kElec=keys.filter(k=>/elec|amig|friend|pref|choice/i.test(k));
+      const ws=wb.Sheets[wb.SheetNames.find(n=>/nuevos\s*cursos|alumn/i.test(n))||wb.SheetNames[0]];
+      const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(!aoa.length){ $('#uploadMsg').innerHTML='<span style="color:var(--sred)">El archivo está vacío.</span>'; return; }
+      // localizar la fila de encabezados (la que trae "nombre"/"selecciona")
+      let hIdx=aoa.findIndex(row=>row.some(c=>/nombre|selecciona/i.test(String(c))));
+      if(hIdx<0) hIdx=0;
+      const keys=aoa[hIdx].map(c=>String(c).trim());
+      const rows=aoa.slice(hIdx+1).map(row=>{ const o={}; keys.forEach((h,i)=>{ if(h) o[h]=row[i]; }); return o; });
+      const kName=keys.find(k=>/nombre|selecciona|alumn/i.test(k))||keys[0];
+      const kOrig=keys.find(k=>/curso\s*actual/i.test(k))||keys.find(k=>(/curso|origen|clase|grupo/i.test(k))&&!/nuevo/i.test(k))||keys[1];
+      const kPunt=keys.find(k=>/punt|score|nota/i.test(k));
+      const kElec=keys.filter(k=>/^\s*elecci[oó]n/i.test(k)||/^\s*eleccion\s*\d/i.test(k));
+      // mapear dimensiones de la rúbrica a columnas del Excel
+      const dimKey={}; DIMENSIONS.forEach(d=>{ const rx=new RegExp(d.match,'i'); const k=keys.find(k=>k&&k!==kName&&!kElec.includes(k)&&rx.test(k)); if(k) dimKey[d.id]=k; });
+      const nDims=Object.keys(dimKey).length;
       STUDENTS=[]; let id=0; const nameToId={};
-      rows.forEach(r=>{ const nombre=String(r[kName]).trim(); if(!nombre) return;
-        const origen=String(r[kOrig]).trim()||'A'; let p=parseInt(r[kPunt]); if(isNaN(p))p=rint(4); p=Math.max(0,Math.min(3,p));
-        const st={id:id++,nombre,origen,elecciones:[],puntaje:p,_raw:kElec.map(k=>String(r[k]).trim())};
+      rows.forEach(r=>{ const nombre=String(r[kName]??'').trim(); if(!nombre||/^pesos/i.test(nombre)) return;
+        const origen=String(r[kOrig]??'').trim()||'A';
+        let dims=null, puntaje, nivel;
+        if(nDims){ dims={}; let any=false; DIMENSIONS.forEach(d=>{ let v=null; if(dimKey[d.id]!=null){ const p=parseInt(r[dimKey[d.id]]); if(p===1||p===2){ v=p; any=true; } } dims[d.id]=v; });
+          puntaje=any?computeScore(dims):null; nivel=nivelOf(puntaje); }
+        else { let p=parseFloat(r[kPunt]); if(isNaN(p)) p=null; puntaje=p; nivel = p==null?'medio':(p>=3?'alto':p>=2?'medio':'bajo'); }
+        const st={id:id++,nombre,origen,elecciones:[],dims,puntaje,nivel,_raw:kElec.map(k=>String(r[k]??'').trim())};
         STUDENTS.push(st); nameToId[nombre.toLowerCase()]=st.id; });
       STUDENTS.forEach(st=>{ st.elecciones=st._raw.map(n=>nameToId[n.toLowerCase()]).filter(x=>x!=null&&x!==st.id); delete st._raw; });
-      LAST=null; refreshDataTable(); rebuildParamPickers();
+      DATA_IS_DUMMY=false; LAST=null; refreshDataTable(); rebuildParamPickers();
       const origenes=[...new Set(STUDENTS.map(s=>s.origen))];
       const sizes=origenes.map(o=>o+':'+STUDENTS.filter(s=>s.origen===o).length).join('  ');
       $('#nCursos').value=origenes.length; $('#nDestino').value=origenes.length;
-      $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes}. Ve a la pestaña ① y ejecuta la mezcla.`;
+      if(kElec.length) $('#nElecciones').value=kElec.length;
+      const scoreMsg = nDims? `puntaje ponderado por ${nDims} dimensiones` : 'puntaje leído de columna';
+      $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes} · ${kElec.length} elecciones · ${scoreMsg}. Ve a la pestaña ① y ejecuta la mezcla.`;
       $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> cargadas desde Excel`;
       $('#btnExport').disabled=false;
     }catch(err){ $('#uploadMsg').innerHTML='<span style="color:var(--sred)">Error al leer el Excel: '+err.message+'</span>'; }
@@ -838,9 +940,9 @@ function importXlsx(file){
 function exportResult(){
   if(!LAST){ alert('Ejecuta una mezcla primero.'); return; }
   const byId=LAST.byId;
-  const aoa=[['CursoNuevo','Nombre','CursoOrigen','Puntaje','TieneAmiga','Elecciones']];
+  const aoa=[['CursoNuevo','Nombre','CursoOrigen','Puntaje','Nivel','TieneAmiga','Elecciones']];
   LAST.classes.forEach((c,i)=>{ c.studs.forEach(s=>{ const ok=s.elecciones.some(f=>c.ids.includes(f));
-    aoa.push(['Curso '+(i+1),s.nombre,s.origen,s.puntaje,ok?'Sí':'No',s.elecciones.map(f=>byId[f]?byId[f].nombre:'').join(' | ')]); }); });
+    aoa.push(['Curso '+(i+1),s.nombre,s.origen,s.puntaje!=null?+s.puntaje.toFixed(2):'',s.nivel,ok?'Sí':'No',s.elecciones.map(f=>byId[f]?byId[f].nombre:'').join(' | ')]); }); });
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Mezcla'); XLSX.writeFile(wb,'mezcla_cursos_resultado.xlsx');
 }
@@ -951,6 +1053,53 @@ function addConstraint(){
   renderConstraints(); renderCatalog();
 }
 
+/* =================== RÚBRICA (editable, vivo) =================== */
+function pesoTotal(){ return DIMENSIONS.reduce((a,d)=>a+(+d.peso||0),0); }
+function renderRubric(){
+  const box=$('#dimList'); if(!box) return; box.innerHTML='';
+  DIMENSIONS.forEach(d=>{
+    const div=document.createElement('div'); div.className='dimc';
+    div.innerHTML=`<div class="top">
+        <input class="nm" type="text" value="${(d.nombre||'').replace(/"/g,'&quot;')}" onchange="dimSet('${d.id}','nombre',this.value)">
+        <span class="peso">Peso <input type="number" min="0" max="100" step="1" value="${d.peso}" onchange="dimSet('${d.id}','peso',this.value)"> %</span>
+        <button class="btn ghost mini" onclick="dimDel('${d.id}')">Eliminar</button>
+      </div>
+      <div class="desc">
+        <label class="lvl2">Nivel 2 · Alto<textarea onchange="dimSet('${d.id}','alto',this.value)">${d.alto||''}</textarea></label>
+        <label class="lvl1">Nivel 1 · Bajo<textarea onchange="dimSet('${d.id}','bajo',this.value)">${d.bajo||''}</textarea></label>
+      </div>`;
+    box.appendChild(div);
+  });
+  const tot=pesoTotal();
+  $('#pesoSum').textContent=tot+'%';
+  $('#pesoSum').style.color = tot===100?'var(--green)':'var(--amber)';
+  $('#pesoNote').textContent = tot===100?'suma exacta':'se usa proporcional (renormaliza)';
+}
+window.dimSet=(id,field,val)=>{ const d=DIMENSIONS.find(x=>x.id===id); if(!d) return;
+  if(field==='peso'){ d.peso=Math.max(0,+val||0); } else { d[field]=val; if(field==='nombre'){ d.match=val.toLowerCase().replace(/[^a-zñ]+/gi,'').slice(0,6)||d.match; } }
+  applyRubric(); };
+window.dimDel=(id)=>{ if(DIMENSIONS.length<=1){ alert('Debe quedar al menos una dimensión.'); return; }
+  DIMENSIONS=DIMENSIONS.filter(x=>x.id!==id); STUDENTS.forEach(s=>{ if(s.dims) delete s.dims[id]; }); applyRubric(); };
+$('#btnAddDim')&&$('#btnAddDim').addEventListener('click',()=>{
+  const id='dim'+Date.now();
+  DIMENSIONS.push({id, nombre:'Nueva dimensión', peso:10, match:'nueva', alto:'Describe el nivel alto (nota 2).', bajo:'Describe el nivel bajo (nota 1).'});
+  // para datos dummy, poblar la nueva dimensión para que se note; para datos reales, dejar vacía (se completa en el Excel)
+  STUDENTS.forEach(s=>{ if(!s.dims) s.dims={}; s.dims[id] = DATA_IS_DUMMY? randDimVal(id) : null; });
+  applyRubric(true);
+});
+$('#umbAlto')&&$('#umbAlto').addEventListener('change',e=>{ UMBRAL_ALTO=+e.target.value||1.67; updateRanges(); applyRubric(); });
+$('#umbMedio')&&$('#umbMedio').addEventListener('change',e=>{ UMBRAL_MEDIO=+e.target.value||1.34; updateRanges(); applyRubric(); });
+$('#btnNormaliza')&&$('#btnNormaliza').addEventListener('click',()=>{ const tot=pesoTotal(); if(tot>0){ DIMENSIONS.forEach(d=>d.peso=Math.round(d.peso/tot*100)); } applyRubric(true); });
+function updateRanges(){ $('#rngAlto').textContent='≥ '+UMBRAL_ALTO.toFixed(2).replace('.',',');
+  $('#rngMedio').textContent=UMBRAL_MEDIO.toFixed(2).replace('.',',')+' – '+(UMBRAL_ALTO-0.01).toFixed(2).replace('.',',');
+  $('#rngBajo').innerHTML='&lt; '+UMBRAL_MEDIO.toFixed(2).replace('.',','); }
+function applyRubric(rerender){
+  recomputeScores(); refreshDataTable();
+  const tot=pesoTotal(); if($('#pesoSum')){ $('#pesoSum').textContent=tot+'%'; $('#pesoSum').style.color=tot===100?'var(--green)':'var(--amber)'; $('#pesoNote').textContent=tot===100?'suma exacta':'se usa proporcional (renormaliza)'; }
+  if(rerender) renderRubric();
+  if(LAST) run();   // todo vivo: re-balancea con el nuevo puntaje
+}
+
 /* =================== TABS =================== */
 $$('.tab').forEach(t=>t.addEventListener('click',()=>{
   $$('.tab').forEach(x=>x.classList.remove('on')); $$('.panel').forEach(x=>x.classList.remove('on'));
@@ -1004,9 +1153,9 @@ function chatAnswer(q){
   }
   if(/mayor|top|mejores puntaje|altas|puntaje alto|lidera|liderazgo/.test(t)){
     const byCourse={}; L.classes.forEach((c,i)=>c.studs.forEach(s=>byCourse[s.id]=i+1));
-    const top=[...STUDENTS].sort((a,b)=>b.puntaje-a.puntaje).slice(0,5);
-    const altas=STUDENTS.filter(s=>s.puntaje>=3).length;
-    r=`Hay <b>${altas} alumnas con puntaje alto (3)</b>. Top 5:<br>`+top.map((s,i)=>`${i+1}. ${s.nombre} — puntaje ${s.puntaje} (→ Curso ${byCourse[s.id]})`).join('<br>')+'<br><br>Míralo completo en el Dashboard 🏆';
+    const top=[...STUDENTS].sort((a,b)=>(b.puntaje||0)-(a.puntaje||0)).slice(0,5);
+    const altas=STUDENTS.filter(s=>s.nivel==='alto').length;
+    r=`Hay <b>${altas} alumnas de nivel alto</b>. Top 5:<br>`+top.map((s,i)=>`${i+1}. ${s.nombre} — ${scoreLabel(s)} (${s.nivel} → Curso ${byCourse[s.id]})`).join('<br>')+'<br><br>Míralo completo en el Dashboard 🏆';
     chatAdd(r,'bot'); return;
   }
   if(/riesgo|problema|alerta|peligro/.test(t)){
@@ -1044,9 +1193,9 @@ function buildAIContext(){
   if(!LAST) return 'Aún no se ha ejecutado ninguna mezcla.';
   const L=LAST; let s=`Total alumnas: ${L.N}. Cursos nuevos: ${L.classes.length}. Índice de mezcla: ${Math.round(L.mezclaIdx*100)}%. Con al menos una amiga: ${L.withFriend}/${L.N}.\n`;
   L.classes.forEach((c,i)=>{ s+=`Curso ${i+1}: ${c.studs.length} alumnas, prom ${c.prom.toFixed(2)}, alto ${c.alto}, medio ${c.medio}, bajo ${c.bajo}, con amiga ${c.conAmiga}. Riesgos: ${courseRisks(c,L).map(r=>r.t).join('; ')}.\n`; });
-  const top=[...STUDENTS].sort((a,b)=>b.puntaje-a.puntaje).slice(0,8);
+  const top=[...STUDENTS].sort((a,b)=>(b.puntaje||0)-(a.puntaje||0)).slice(0,8);
   const byC={}; L.classes.forEach((c,i)=>c.studs.forEach(st=>byC[st.id]=i+1));
-  s+='Mayores puntajes: '+top.map(t=>`${t.nombre} (${t.puntaje}, orig ${t.origen}→C${byC[t.id]})`).join('; ')+'.\n';
+  s+='Mayores puntajes: '+top.map(t=>`${t.nombre} (${scoreLabel(t)} ${t.nivel}, orig ${t.origen}→C${byC[t.id]})`).join('; ')+'.\n';
   s+='Reglas activas: '+CONSTRAINTS.filter(c=>c.on).map(c=>c.ttl).join('; ')+'.';
   return s;
 }
@@ -1092,7 +1241,7 @@ $('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') chatSubmit()
 chatChips();
 
 /* init */
-renderConstraints(); renderCatalog(); genDummy(); run();
+renderConstraints(); renderCatalog(); renderRubric(); updateRanges(); genDummy(); run();
 </script>
 </body>
 </html>
