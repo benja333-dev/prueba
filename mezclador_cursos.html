@@ -316,7 +316,7 @@
           <div class="spacer"></div>
           <button class="btn sec" id="btnExport" disabled>⬆️ Exportar</button>
         </div>
-        <p class="hint" style="margin:10px 0 12px">Te propongo tres mezclas válidas distintas. Compáralas y elige la que mejor equilibre todo — cada una tiene sus métricas abajo.</p>
+        <p class="hint" style="margin:10px 0 12px">Cada alternativa optimiza una prioridad distinta: <b>⚖️ equilibrada</b>, <b>🤝 más amistades juntas</b> o <b>🔀 más mezcla entre cursos</b> — todas respetan las reglas duras y quedan igual de balanceadas por puntaje. Compáralas y elige; al seleccionar una ves su detalle abajo.</p>
         <div id="altSelector" class="row" style="gap:8px"></div>
         <div class="scrollx" style="margin-top:12px"><table id="altCompare"></table></div>
       </div>
@@ -429,8 +429,6 @@
       <h2>Dimensiones evaluadas <span class="k">editable</span></h2>
       <div class="row" style="margin-bottom:8px">
         <div class="kpi" style="min-width:150px"><div class="lbl">Suma de pesos</div><div class="val" id="pesoSum">100%</div><div class="note" id="pesoNote">se usa proporcional</div></div>
-        <label class="field">Umbral Alto ≥<input type="number" id="umbAlto" value="1.67" step="0.01" min="1" max="2"></label>
-        <label class="field">Umbral Medio ≥<input type="number" id="umbMedio" value="1.34" step="0.01" min="1" max="2"></label>
         <div class="spacer"></div>
         <button class="btn sec" id="btnNormaliza" title="Reescalar los pesos para que sumen 100%">Normalizar a 100%</button>
       </div>
@@ -623,12 +621,18 @@ function genDummy(){
 /* =================== MOTOR =================== */
 function run(){
   if(!STUDENTS.length){ alert('Primero genera datos dummy o sube tu Excel (pestaña ①).'); return; }
-  ALTS=[computeMix(),computeMix(),computeMix()];
+  ALTS=[computeMix('balance'),computeMix('amistad'),computeMix('mezcla')];
   SELECTED=0;
   renderAltSelector();
   selectAlt(0);
 }
-function computeMix(){
+const PROFILES={
+  balance:{label:'Equilibrada (por defecto)', ci:'⚖️'},
+  amistad:{label:'Prioriza amistades', ci:'🤝'},
+  mezcla:{label:'Prioriza mezcla de cursos', ci:'🔀'},
+};
+function computeMix(profile){
+  profile=profile||'balance';
   const nDest=+$('#nDestino').value, N=STUDENTS.length;
   const byId=Object.fromEntries(STUDENTS.map(s=>[s.id,s]));
   const cAmistad=CONSTRAINTS.find(c=>c.id==='amistad');
@@ -679,7 +683,11 @@ function computeMix(){
     let singViol=0; if(noSingleton.length){ for(const bn of bins){ for(const o of ORIG){ const c=bn.filter(id=>byId[id].origen===o).length; if(c>0&&c<3) singViol+=(3-c); } } }
     let capViol=0; if(friendCap.length){ STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; if(fc>FCAP) capViol+=(fc-FCAP); }); }
     let mustViol=0; mustWith.forEach(m=>{ if(m.sid==null)return; (m.fids||[]).forEach(f=>{ if(binOf[f]!=null&&binOf[m.sid]!=null&&binOf[f]!==binOf[m.sid]) mustViol++; }); });
-    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol,capViol,mustViol};
+    // términos de perfil: más amistades juntas / más mezcla de orígenes
+    let friendTogether=0; STUDENTS.forEach(s=>{ friendTogether+=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; });
+    const totalChoices=STUDENTS.reduce((a,s)=>a+s.elecciones.length,0);
+    let concCost=0; for(const bn of bins){ const n=bn.length||1; for(const o of ORIG){ const sh=bn.filter(id=>byId[id].origen===o).length/n; concCost+=sh*sh; } }
+    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol,capViol,mustViol,friendTogether,totalChoices,concCost};
   }
   function totalCost(){
     const t=costTerms();
@@ -695,11 +703,16 @@ function computeMix(){
     let wSing=0; noSingleton.forEach(s=>wSing+=s.weight);
     let wCap=0; friendCap.forEach(s=>wCap+=s.weight);
     let wMust=0; mustWith.forEach(s=>wMust+=s.weight);
+    // sesgo del perfil de la alternativa
+    let prof=0;
+    if(profile==='balance') prof += t.balCost*60;
+    else if(profile==='amistad') prof += (t.totalChoices - t.friendTogether)*6;
+    else if(profile==='mezcla') prof += t.concCost*45;
     return t.balCost*wBal + t.sizeCost*wTam + t.friendViol*wFri
       + t.sepViol*(wSep||60) + t.joinViol*(wJoin||60) + t.maxViol*(wMax||40)/10
       + t.altoCost*(wAlto/25) + t.recViol*(wRec/8)
       + t.origCost*(wOrig/40) + t.singViol*(wSing/4) + t.capViol*(wCap/6)
-      + t.mustViol*((wMust||90)*3);
+      + t.mustViol*((wMust||90)*3) + prof;
   }
 
   // reparación de afinidades
@@ -754,7 +767,7 @@ function computeMix(){
   const maxE=Math.max(1,...STUDENTS.map(s=>s.elecciones.length));
   const friendDist=Array(maxE+1).fill(0);
   STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; friendDist[Math.min(fc,maxE)]++; });
-  return {classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,friendDist,maxE,
+  return {classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,friendDist,maxE,profile,
     sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,friendCap,mustWith,
     tol:(cBalance?cBalance.tol:8)};
 }
@@ -796,21 +809,22 @@ function altMetrics(L){
   const sizes=L.classes.map(c=>c.studs.length); const spread=Math.max(...sizes)-Math.min(...sizes);
   return {friend,bal:worst,mezcla,withMany,spread};
 }
+function altName(L,i){ const pr=PROFILES[L.profile]||{ci:'',label:''}; return `${pr.ci} Alt ${i+1} · ${pr.label}`; }
 function renderAltSelector(){
   const sel=$('#altSelector'); if(!sel) return; sel.innerHTML='';
   ALTS.forEach((L,i)=>{ const b=document.createElement('button');
-    b.className='btn '+(i===SELECTED?'red':'sec'); b.textContent='Alternativa '+(i+1);
+    b.className='btn '+(i===SELECTED?'red':'sec'); b.style.fontSize='12.5px'; b.textContent=altName(L,i);
     b.onclick=()=>selectAlt(i); sel.appendChild(b);
   });
   // tabla comparativa
   const t=$('#altCompare'); const dot=(c)=>`<span class="dot ${c}"></span>`;
-  let head='<thead><tr><th></th><th>Con amiga</th><th>Amistades equilibradas</th><th>Balance</th><th>Mezcla</th><th>Cursos parejos</th></tr></thead><tbody>';
+  let head='<thead><tr><th>Alternativa</th><th>Con amiga</th><th>Amistades equilibradas</th><th>Balance</th><th>Mezcla</th><th>Cursos parejos</th></tr></thead><tbody>';
   let body='';
-  ALTS.forEach((L,i)=>{ const m=altMetrics(L);
+  ALTS.forEach((L,i)=>{ const m=altMetrics(L); const pr=PROFILES[L.profile]||{ci:'',label:''};
     const cf=semColor(m.friend,100,92), cm=m.withMany===0?'green':(m.withMany<=Math.max(2,Math.round(L.N*0.06))?'amber':'red');
     const cb=m.bal<=L.tol?'green':(m.bal<=L.tol*1.6?'amber':'red'), cx=semColor(m.mezcla,55,30), cs=m.spread<=1?'green':(m.spread<=3?'amber':'red');
     body+=`<tr style="${i===SELECTED?'background:var(--card-h)':''}; cursor:pointer" onclick="selectAlt(${i})">
-      <td><b>Alt ${i+1}</b></td>
+      <td>${pr.ci} <b>Alt ${i+1}</b><br><span style="font-size:11px;color:var(--muted)">${pr.label}</span></td>
       <td>${dot(cf)} ${m.friend}%</td>
       <td>${dot(cm)} ${m.withMany===0?'✓':m.withMany+' con 3+'}</td>
       <td>${dot(cb)} ${m.bal.toFixed(1)} pp</td>
@@ -819,7 +833,8 @@ function renderAltSelector(){
   });
   t.innerHTML=head+body+'</tbody>';
 }
-window.selectAlt=(i)=>{ SELECTED=i; LAST=ALTS[i]; const bd=$('#altBadge'); if(bd) bd.textContent='Alternativa '+(i+1);
+window.selectAlt=(i)=>{ SELECTED=i; LAST=ALTS[i]; const bd=$('#altBadge'); const pr=PROFILES[ALTS[i].profile]||{ci:'',label:''};
+  if(bd) bd.textContent=`${pr.ci} Alt ${i+1} · ${pr.label}`;
   renderAltSelector(); render(); };
 function render(){
   if(!LAST)return;
