@@ -249,7 +249,7 @@
     <button class="tab on" data-tab="mezcla">① Mezcla</button>
     <button class="tab" data-tab="resultados">② Resultados e indicadores</button>
     <button class="tab" data-tab="rubrica">③ Rúbrica</button>
-    <button class="tab" data-tab="restr">④ Restricciones</button>
+    <button class="tab" data-tab="restr">④ Criterios</button>
     <button class="tab" data-tab="metodo">⑤ Metodología</button>
   </div>
 
@@ -291,6 +291,17 @@
         <button class="btn sec" id="mwAdd">＋ Agregar</button>
       </div>
       <div id="mwList" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Alumnas que NO deben quedar juntas <span class="k">separar</span></h2>
+      <p class="hint" style="margin-bottom:12px">Elige dos alumnas que <b>no pueden</b> compartir el mismo curso. Se aplica al pulsar <b>Ejecutar mezcla</b>.</p>
+      <div class="row">
+        <label class="field">Alumna A<select id="sepA" style="min-width:220px"></select></label>
+        <label class="field">Alumna B<select id="sepB" style="min-width:220px"></select></label>
+        <button class="btn sec" id="sepAdd">＋ Agregar</button>
+      </div>
+      <div id="sepList" style="margin-top:14px"></div>
     </div>
 
     <div class="card">
@@ -348,7 +359,7 @@
             </tr></thead><tbody></tbody>
           </table>
         </div>
-        <p class="hint" style="margin-top:10px">Verde exige que el % de cada nivel (alto/medio/bajo) no se aleje más de la tolerancia (pestaña ④ Restricciones) del promedio de los cursos, y que la garantía de amistad se cumpla.</p>
+        <p class="hint" style="margin-top:10px">Verde exige que el % de cada nivel (alto/medio/bajo) no se aleje más de la tolerancia (pestaña ④ Criterios) del promedio de los cursos, y que la garantía de amistad se cumpla.</p>
       </div>
       <div class="card">
         <h2>📊 Dashboard <span class="k">visualización</span></h2>
@@ -385,26 +396,25 @@
   <!-- ============ TAB RESTRICCIONES ============ -->
   <section class="panel" id="restr">
     <div class="callout navy">
-      <b>Cómo funciona:</b> las reglas base siempre están (amistad, balance, tamaño). Abajo tienes un <b>catálogo de restricciones recomendadas</b> por las mejores prácticas — agrégalas con un clic y <b>elimínalas cuando no te parezcan</b>. Cada regla dura se intenta cumplir siempre; las blandas se optimizan lo mejor posible.
+      <b>Cómo funciona:</b> los criterios base siempre están (amistad, balance, tamaño). Abajo tienes un <b>catálogo de criterios recomendados</b> por las mejores prácticas — agrégalos con un clic y <b>elimínalos cuando no te parezcan</b>. Cada criterio duro se intenta cumplir siempre; los blandos se optimizan lo mejor posible. Las restricciones por alumna (debe/ no debe quedar con) se definen en <b>① Mezcla</b>.
     </div>
 
     <div class="card">
-      <h2>Reglas activas</h2>
+      <h2>Criterios activos</h2>
       <div id="consList"></div>
     </div>
 
     <div class="card">
-      <h2>💡 Restricciones recomendadas (mejores prácticas)</h2>
-      <p class="hint" style="margin-bottom:14px">Sugeridas por los estándares de <i>class placement</i>. Agrégalas y ajústalas; si no te sirven, las eliminas con un clic.</p>
+      <h2>💡 Criterios recomendados (mejores prácticas)</h2>
+      <p class="hint" style="margin-bottom:14px">Sugeridos por los estándares de <i>class placement</i>. Agrégalos y ajústalos; si no te sirven, los eliminas con un clic.</p>
       <div class="cat" id="catalogo"></div>
     </div>
 
     <div class="card">
-      <h2>➕ Agregar una restricción manual</h2>
+      <h2>➕ Agregar un criterio manual</h2>
       <div class="row">
         <label class="field">Tipo
           <select id="newType">
-            <option value="separar">Separar dos alumnas (nunca juntas)</option>
             <option value="juntar">Mantener dos alumnas juntas</option>
             <option value="maxOrigen">Máx. del mismo curso origen por curso nuevo</option>
             <option value="anclar">Fijar una alumna a un curso nuevo</option>
@@ -415,7 +425,7 @@
         <div class="spacer"></div>
         <button class="btn sec" id="btnAddCons">Agregar</button>
       </div>
-      <p class="hint" style="margin-top:12px">Tras agregar, vuelve a la pestaña ① y pulsa <b>Ejecutar mezcla</b>.</p>
+      <p class="hint" style="margin-top:12px">Tras agregar, vuelve a ① Mezcla y pulsa <b>Ejecutar mezcla</b>.</p>
     </div>
   </section>
 
@@ -458,7 +468,7 @@
       <p class="hint" style="line-height:1.7">
         <b>1. Reparto inicial balanceado.</b> Se ordenan las alumnas por puntaje y se reparten en "serpiente" (1-2-3-3-2-1…) entre los cursos nuevos: cada curso arranca con tamaño y mix de puntaje casi idénticos, aun cuando los cursos de origen tengan distinto tamaño.<br><br>
         <b>2. Reparación de afinidades.</b> Para cada alumna que quedó sin ninguna de sus elecciones, se busca un <i>intercambio</i> con una compañera de igual puntaje en otro curso, de modo que quede junto a al menos una amiga <b>sin romper el balance ni el tamaño</b>.<br><br>
-        <b>3. Optimización local.</b> Mientras existan intercambios (de igual nivel) que reduzcan el "costo" total, se aplican. El costo suma, ponderadamente, todas las reglas activas de la pestaña ④ Restricciones.
+        <b>3. Optimización local.</b> Mientras existan intercambios (de igual nivel) que reduzcan el "costo" total, se aplican. El costo suma, ponderadamente, todos los criterios activos de la pestaña ④ Criterios.
       </p>
       <div class="callout red" style="margin-top:16px">
         <b>Tensión que debes conocer:</b> "mezclar los cursos" y "que cada una quede con una amiga de su curso actual" tiran en sentidos opuestos — las amigas vienen del mismo curso de origen. El motor prioriza la amistad; para forzar más mezcla, agrega la recomendada <b>"Máx. del mismo curso origen"</b>. El KPI <b>Índice de mezcla</b> muestra cuánto se rompieron los cursos originales.
@@ -540,8 +550,6 @@ const CATALOGO = [
     p:'Limita cuántas alumnas del mismo curso de origen pueden quedar juntas, para romper de verdad los grupos previos.'},
   {key:'spreadAlto', ci:'⭐', ttl:'Distribuir puntajes altos', why:'Class Solver',
     p:'Reparte de forma pareja a las alumnas de puntaje alto (3) para no concentrar el "liderazgo" en un solo curso.'},
-  {key:'separar', ci:'⛔', ttl:'Separar dos alumnas', why:'Class Composer · keep apart',
-    p:'Define parejas que nunca deben compartir curso (conflictos, dinámicas que no funcionan).'},
   {key:'juntar', ci:'🤝', ttl:'Mantener juntas', why:'Class Composer · keep together',
     p:'Fuerza a dos alumnas a quedar en el mismo curso (hermanas, apoyo mutuo, caso especial).'},
   {key:'reciproco', ci:'💞', ttl:'Priorizar elección recíproca', why:'Sociometría escolar',
@@ -612,7 +620,7 @@ function genDummy(){
     }
     for(const st of g){ const pool=g.filter(x=>x.id!==st.id); shuffle(pool); st.elecciones=pool.slice(0,nE).map(x=>x.id); }
   }
-  DATA_IS_DUMMY=true; LAST=null; ALTS=[]; refreshDataTable(); rebuildParamPickers(); renderCurrentCols(); fillMustWith();
+  DATA_IS_DUMMY=true; LAST=null; ALTS=[]; refreshDataTable(); rebuildParamPickers(); renderCurrentCols(); fillMustWith(); fillSep();
   $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> · ${nC} cursos origen · datos dummy`;
   $('#uploadMsg').textContent=`Generadas ${STUDENTS.length} alumnas dummy.`;
   $('#btnExport').disabled=false;
@@ -861,7 +869,7 @@ function render(){
   expl.push(balOk?`<span class="badge green">Verde</span> Balance: el tramo más desviado está a ${worst.toFixed(1)} pp (bajo la tolerancia de ${L.tol} pp).`
     :`<span class="badge amber">Amarillo</span> Balance: hay un tramo a ${worst.toFixed(1)} pp del promedio, sobre la tolerancia de ${L.tol} pp. Sube el peso de "Balance de puntaje" o afloja otras reglas.`);
   expl.push(pctMezcla>=55?`<span class="badge green">Verde</span> Mezcla: se rompieron bien los cursos originales (${pctMezcla}%).`
-    :`<span class="badge ${pctMezcla>=30?'amber':'red'}">${pctMezcla>=30?'Amarillo':'Rojo'}</span> Mezcla: baja (${pctMezcla}%) porque la garantía de amistad agrupa a las que venían juntas. Agrega "Forzar mezcla entre cursos" (pestaña ②) para subirla.`);
+    :`<span class="badge ${pctMezcla>=30?'amber':'red'}">${pctMezcla>=30?'Amarillo':'Rojo'}</span> Mezcla: baja (${pctMezcla}%) porque la garantía de amistad agrupa a las que venían juntas. Agrega "Forzar mezcla entre cursos" (pestaña ④ Criterios) para subirla.`);
   $('#kpiExplain').innerHTML=expl.join('<br>');
 
   const tb=$('#balanceTable tbody'); tb.innerHTML='';
@@ -1061,7 +1069,7 @@ function importXlsx(file, autoRun){
       const origenes=[...new Set(STUDENTS.map(s=>s.origen))];
       const sizes=origenes.map(o=>o+':'+STUDENTS.filter(s=>s.origen===o).length).join('  ');
       $('#nCursos').value=origenes.length; $('#nDestino').value=origenes.length;
-      renderCurrentCols(); fillMustWith();
+      renderCurrentCols(); fillMustWith(); fillSep();
       const scoreMsg = nDims? `puntaje ponderado por ${nDims} dimensiones` : 'puntaje leído de columna';
       $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes} · ${kElec.length} elecciones · ${scoreMsg}. Ve a la pestaña ① y ejecuta la mezcla.`;
       $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> cargadas desde Excel`;
@@ -1085,7 +1093,7 @@ function exportResult(){
 function renderConstraints(){
   const box=$('#consList'); box.innerHTML='';
   CONSTRAINTS.forEach(c=>{
-    if(c.tipo==='mustWith') return;  // se gestionan en la pestaña ① Mezcla
+    if(c.tipo==='mustWith'||c.tipo==='separar') return;  // se gestionan en la pestaña ① Mezcla
     const div=document.createElement('div'); div.className='cons '+(c.dura?'hardrule':'softrule')+((c.tipo==='balance')?' open':'');
     const dura=c.dura;
     let body='';
@@ -1228,6 +1236,33 @@ $('#mwAdd')&&$('#mwAdd').addEventListener('click',()=>{
   renderMustWith(); renderConstraints();
 });
 
+/* separar: alumnas que NO deben quedar juntas (gestionado en ① Mezcla) */
+function fillSep(){
+  const a=$('#sepA'), b=$('#sepB'); if(!a||!b) return;
+  const opts=STUDENTS.map(s=>`<option value="${s.id}">${s.nombre} (curso ${s.origen})</option>`).join('');
+  a.innerHTML=opts; b.innerHTML=opts; if(STUDENTS[1]) b.value=STUDENTS[1].id;
+  renderSepList();
+}
+function renderSepList(){
+  const box=$('#sepList'); if(!box) return;
+  const list=CONSTRAINTS.filter(c=>c.tipo==='separar');
+  const byId=Object.fromEntries(STUDENTS.map(x=>[x.id,x]));
+  if(!list.length){ box.innerHTML='<span class="hint">Sin pares separados todavía.</span>'; return; }
+  box.innerHTML=list.map(c=>{ const na=byId[c.aid]?byId[c.aid].nombre.split(' ').slice(-2).join(' '):'?'; const nb=byId[c.bid]?byId[c.bid].nombre.split(' ').slice(-2).join(' '):'?';
+    return `<div class="pairtag" style="margin:0 8px 8px 0"><b>${na}</b> ⛔ <b>${nb}</b>
+      <button onclick="sepDel('${c.id}')" title="Eliminar">✕</button></div>`; }).join('');
+}
+window.sepDel=(id)=>{ CONSTRAINTS=CONSTRAINTS.filter(c=>c.id!==id); renderSepList(); renderConstraints(); };
+$('#sepAdd')&&$('#sepAdd').addEventListener('click',()=>{
+  if(!STUDENTS.length){ alert('Sube tu Excel o genera dummies primero.'); return; }
+  const aid=+$('#sepA').value, bid=+$('#sepB').value;
+  if(aid===bid){ alert('Elige dos alumnas distintas.'); return; }
+  const byId=Object.fromEntries(STUDENTS.map(x=>[x.id,x]));
+  CONSTRAINTS.push({id:'sep'+Date.now(),tipo:'separar',on:true,weight:80,dura:true,aid,bid,
+    ttl:'Separar: '+byId[aid].nombre.split(' ')[0]+' + '+byId[bid].nombre.split(' ')[0], desc:'No pueden compartir curso.'});
+  renderSepList(); renderConstraints();
+});
+
 /* =================== RÚBRICA (editable, vivo) =================== */
 function pesoTotal(){ return DIMENSIONS.reduce((a,d)=>a+(+d.peso||0),0); }
 function renderRubric(){
@@ -1330,12 +1365,12 @@ function chatAnswer(q){
     chatAdd(r,'bot'); return;
   }
   if(/como funciona|metodolog|algoritmo|explica el motor/.test(t)){
-    r='El motor hace 3 pasos: <b>1)</b> reparte en "serpiente" por puntaje (cursos parejos), <b>2)</b> repara afinidades intercambiando alumnas de igual puntaje hasta que cada una tenga ≥1 amiga, <b>3)</b> optimiza el resto de reglas. Todo respetando el balance. Más detalle en la pestaña ④.';
+    r='El motor hace 3 pasos: <b>1)</b> reparte en "serpiente" por puntaje (cursos parejos), <b>2)</b> repara afinidades intercambiando alumnas de igual puntaje hasta que cada una tenga ≥1 amiga, <b>3)</b> optimiza el resto de reglas. Todo respetando el balance. Más detalle en la pestaña ⑤ Metodología.';
     chatAdd(r,'bot'); return;
   }
   if(/regla|restricc/.test(t)){
     const on=CONSTRAINTS.filter(c=>c.on);
-    r='<b>Reglas activas ('+on.length+'):</b><br>'+on.map(c=>'• '+c.ttl+(c.dura?' <i>(dura)</i>':' <i>(blanda)</i>')).join('<br>')+'<br><br>Puedes activarlas o eliminarlas en la pestaña ②.';
+    r='<b>Reglas activas ('+on.length+'):</b><br>'+on.map(c=>'• '+c.ttl+(c.dura?' <i>(dura)</i>':' <i>(blanda)</i>')).join('<br>')+'<br><br>Puedes activarlos o eliminarlos en la pestaña ④ Criterios.';
     chatAdd(r,'bot'); return;
   }
   if(!L){ need(); return; }
@@ -1380,7 +1415,7 @@ function chatAnswer(q){
   }
   if(/mezcla|revuelt|origen|junt.* de nuevo|separ.* curso/.test(t)){
     const pm=Math.round(L.mezclaIdx*100);
-    r=`El <b>índice de mezcla</b> es ${pm}% ${pm>=55?'🟢':pm>=30?'🟡':'🔴'}. `+(pm<55?'Está bajo porque respetar amistades reagrupa a las que venían juntas — agrega "Forzar mezcla entre cursos" en la pestaña ②.':'Los cursos originales se rompieron bien.');
+    r=`El <b>índice de mezcla</b> es ${pm}% ${pm>=55?'🟢':pm>=30?'🟡':'🔴'}. `+(pm<55?'Está bajo porque respetar amistades reagrupa a las que venían juntas — agrega "Forzar mezcla entre cursos" en la pestaña ④ Criterios.':'Los cursos originales se rompieron bien.');
     chatAdd(r,'bot'); return;
   }
   if(/curso\s*\d/.test(t)){
