@@ -242,10 +242,10 @@
   </div>
 
   <div class="tabs">
-    <button class="tab on" data-tab="mezcla">① Mezcla &amp; resultado</button>
-    <button class="tab" data-tab="restr">② Restricciones</button>
-    <button class="tab" data-tab="rubrica">③ Rúbrica (puntajes)</button>
-    <button class="tab" data-tab="datos">④ Datos &amp; Excel</button>
+    <button class="tab on" data-tab="mezcla">① Mezcla</button>
+    <button class="tab" data-tab="resultados">② Resultados e indicadores</button>
+    <button class="tab" data-tab="rubrica">③ Rúbrica</button>
+    <button class="tab" data-tab="restr">④ Restricciones</button>
     <button class="tab" data-tab="metodo">⑤ Metodología</button>
   </div>
 
@@ -258,6 +258,7 @@
         <label class="field">📤 Cursos que quiero formar<input type="number" id="nDestino" value="3" min="2" max="8"></label>
         <label class="field">Elecciones por alumna<input type="number" id="nElecciones" value="3" min="1" max="6"></label>
         <div class="spacer"></div>
+        <label class="btn sec" style="cursor:pointer; display:inline-flex; align-items:center">📤 Subir Excel<input type="file" id="fileXlsxTop" accept=".xlsx,.xls,.csv" style="display:none"></label>
         <button class="btn sec" id="btnDummy">🎲 Datos dummy</button>
         <button class="btn red" id="btnRun">⚙️ Ejecutar mezcla</button>
       </div>
@@ -272,9 +273,48 @@
 
     <div id="results" style="display:none">
       <div class="card">
-        <h2>Semáforo de la mezcla <span class="k">resumen</span></h2>
-        <div class="kpis" id="kpiGrid"></div>
+        <h2>Composición de los cursos nuevos</h2>
+        <div class="classes" id="classCols"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Datos &amp; plantilla <span class="k">Excel</span></h2>
+      <p class="hint" style="line-height:1.6; margin-bottom:12px">Sube tu Excel (también con el botón <b>Subir Excel</b> de arriba) o descarga una plantilla para completarla. Formato: una fila por alumna, Curso actual, Elección 1–4 del mismo curso, y una columna por cada dimensión de la rúbrica (nota 2/1/vacío).</p>
+      <div class="row">
+        <label class="btn sec" style="cursor:pointer; display:inline-flex; align-items:center">📤 Subir Excel<input type="file" id="fileXlsx" accept=".xlsx,.xls,.csv" style="display:none"></label>
+        <button class="btn sec" id="btnTemplate">⬇️ Descargar plantilla</button>
+        <div class="spacer"></div>
+        <span class="hint" id="uploadMsg"></span>
+      </div>
+      <div class="scrollx" style="margin-top:14px">
+        <table id="dataTable">
+          <thead><tr><th>#</th><th>Nombre</th><th>Curso origen</th><th>Elecciones</th><th>Puntaje</th></tr></thead><tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAB RESULTADOS ============ -->
+  <section class="panel" id="resultados">
+    <div class="card" id="resEmpty">
+      <p class="hint">Aún no hay resultados. Ve a <b>① Mezcla</b>, sube tu Excel o genera dummies y pulsa <b>Ejecutar mezcla</b>.</p>
+    </div>
+    <div id="resultsInd" style="display:none">
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+          <h2 style="margin:0">Semáforo de la mezcla</h2>
+          <div class="spacer"></div>
+          <button class="btn sec" id="btnExport" disabled>⬆️ Exportar resultado</button>
+        </div>
+        <div class="kpis" id="kpiGrid" style="margin-top:16px"></div>
         <p class="hint" id="kpiExplain" style="margin-top:14px"></p>
+      </div>
+      <div class="card">
+        <h2>🤝 Reparto de amistades</h2>
+        <p class="hint" style="margin-bottom:12px">Con cuántas de sus elecciones quedó cada alumna. La idea es que sea <b>equilibrado</b>: que nadie quede con todas sus amigas mientras otras quedan con una sola.</p>
+        <div id="friendDist"></div>
+        <p class="hint" id="friendNote" style="margin-top:10px"></p>
       </div>
       <div class="card">
         <h2>Balance de puntaje por curso nuevo</h2>
@@ -282,22 +322,22 @@
           <table id="balanceTable">
             <thead><tr>
               <th>Curso nuevo</th><th>N°</th><th>Puntaje prom.</th>
-              <th>Alto (3)</th><th>Medio (2)</th><th>Bajo (0-1)</th><th>Con amiga</th><th>Estado</th>
+              <th>Alto</th><th>Medio</th><th>Bajo</th><th>Con amiga</th><th>Estado</th>
             </tr></thead><tbody></tbody>
           </table>
         </div>
-        <p class="hint" style="margin-top:10px">Verde exige que el % de cada tramo (alto/medio/bajo) no se aleje más de la tolerancia (pestaña ②) del promedio de los cursos, y que la garantía de amistad se cumpla.</p>
+        <p class="hint" style="margin-top:10px">Verde exige que el % de cada nivel (alto/medio/bajo) no se aleje más de la tolerancia (pestaña ④ Restricciones) del promedio de los cursos, y que la garantía de amistad se cumpla.</p>
       </div>
       <div class="card">
         <h2>📊 Dashboard <span class="k">visualización</span></h2>
         <div class="dash">
           <div class="dashbox">
-            <h3>Distribución de puntaje por curso</h3>
+            <h3>Distribución de nivel por curso</h3>
             <div id="distChart"></div>
             <div class="legend" style="margin-top:8px">
-              <span><span class="dot" style="background:var(--green)"></span> Alto (3)</span>
-              <span><span class="dot" style="background:var(--amber)"></span> Medio (2)</span>
-              <span><span class="dot" style="background:var(--sred)"></span> Bajo (0-1)</span>
+              <span><span class="dot" style="background:var(--green)"></span> Alto</span>
+              <span><span class="dot" style="background:var(--amber)"></span> Medio</span>
+              <span><span class="dot" style="background:var(--sred)"></span> Bajo</span>
             </div>
           </div>
           <div class="dashbox">
@@ -317,15 +357,10 @@
           </div>
         </div>
       </div>
-
-      <div class="card">
-        <h2>Composición de los cursos nuevos</h2>
-        <div class="classes" id="classCols"></div>
-      </div>
     </div>
   </section>
 
-  <!-- ============ TAB 2 ============ -->
+  <!-- ============ TAB RESTRICCIONES ============ -->
   <section class="panel" id="restr">
     <div class="callout navy">
       <b>Cómo funciona:</b> las reglas base siempre están (amistad, balance, tamaño). Abajo tienes un <b>catálogo de restricciones recomendadas</b> por las mejores prácticas — agrégalas con un clic y <b>elimínalas cuando no te parezcan</b>. Cada regla dura se intenta cumplir siempre; las blandas se optimizan lo mejor posible.
@@ -396,42 +431,14 @@
     </div>
   </section>
 
-  <!-- ============ TAB 4 ============ -->
-  <section class="panel" id="datos">
-    <div class="card">
-      <h2>Flujo con Excel <span class="k">paso a paso</span></h2>
-      <p class="hint" style="line-height:1.7">
-        <b>1)</b> Elige cuántos cursos vas a subir (arriba, "Cursos de origen") y la cantidad de alumnas.<br>
-        <b>2)</b> Descarga la plantilla — trae una fila por alumna, con las <code>elecciones</code> dentro de su mismo curso y una columna por cada <b>dimensión</b> de la rúbrica (nota 2 o 1, o vacío).<br>
-        <b>3)</b> Complétala con tus alumnas reales (cada curso puede tener 35, 37, 38… no importa) y súbela. También acepta el formato de tu Excel actual (Elección 1–4 + dimensiones).<br>
-        <b>4)</b> Ve a la pestaña ① y ejecuta la mezcla.
-      </p>
-      <div class="row" style="margin-top:14px">
-        <input type="file" id="fileXlsx" accept=".xlsx,.xls,.csv">
-        <div class="spacer"></div>
-        <button class="btn sec" id="btnTemplate">⬇️ Descargar plantilla (según nº de cursos)</button>
-        <button class="btn ghost" id="btnExport" disabled>⬆️ Exportar resultado</button>
-      </div>
-      <p class="hint" id="uploadMsg" style="margin-top:12px"></p>
-    </div>
-    <div class="card">
-      <h2>Datos actuales</h2>
-      <div class="scrollx">
-        <table id="dataTable">
-          <thead><tr><th>#</th><th>Nombre</th><th>Curso origen</th><th>Elecciones</th><th>Puntaje</th></tr></thead><tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ TAB 4 ============ -->
+  <!-- ============ TAB METODOLOGÍA ============ -->
   <section class="panel" id="metodo">
     <div class="card">
       <h2>Cómo decide el motor</h2>
       <p class="hint" style="line-height:1.7">
         <b>1. Reparto inicial balanceado.</b> Se ordenan las alumnas por puntaje y se reparten en "serpiente" (1-2-3-3-2-1…) entre los cursos nuevos: cada curso arranca con tamaño y mix de puntaje casi idénticos, aun cuando los cursos de origen tengan distinto tamaño.<br><br>
         <b>2. Reparación de afinidades.</b> Para cada alumna que quedó sin ninguna de sus elecciones, se busca un <i>intercambio</i> con una compañera de igual puntaje en otro curso, de modo que quede junto a al menos una amiga <b>sin romper el balance ni el tamaño</b>.<br><br>
-        <b>3. Optimización local.</b> Mientras existan intercambios (de igual puntaje) que reduzcan el "costo" total, se aplican. El costo suma, ponderadamente, todas las reglas activas de la pestaña ②.
+        <b>3. Optimización local.</b> Mientras existan intercambios (de igual nivel) que reduzcan el "costo" total, se aplican. El costo suma, ponderadamente, todas las reglas activas de la pestaña ④ Restricciones.
       </p>
       <div class="callout red" style="margin-top:16px">
         <b>Tensión que debes conocer:</b> "mezclar los cursos" y "que cada una quede con una amiga de su curso actual" tiran en sentidos opuestos — las amigas vienen del mismo curso de origen. El motor prioriza la amistad; para forzar más mezcla, agrega la recomendada <b>"Máx. del mismo curso origen"</b>. El KPI <b>Índice de mezcla</b> muestra cuánto se rompieron los cursos originales.
@@ -521,6 +528,8 @@ const CATALOGO = [
     p:'Cada curso nuevo recibe una proporción similar de alumnas de cada curso de origen, para diversidad real.'},
   {key:'noSingleton', ci:'🫂', ttl:'Evitar alumnas aisladas de su origen', why:'Bienestar socioemocional',
     p:'Evita que queden 1 o 2 alumnas solas de su curso de origen en un curso lleno de desconocidas.'},
+  {key:'friendCap', ci:'🤝', ttl:'Repartir amistades', why:'Equidad social',
+    p:'Evita que una alumna quede con todas sus amigas y otras con solo una: limita a un máximo por alumna para repartir mejor.'},
 ];
 
 const $ = s => document.querySelector(s);
@@ -603,6 +612,8 @@ function run(){
   const reciproco=CONSTRAINTS.filter(c=>c.tipo==='reciproco'&&c.on);
   const balanceOrigen=CONSTRAINTS.filter(c=>c.tipo==='balanceOrigen'&&c.on);
   const noSingleton=CONSTRAINTS.filter(c=>c.tipo==='noSingleton'&&c.on);
+  const friendCap=CONSTRAINTS.filter(c=>c.tipo==='friendCap'&&c.on);
+  const FCAP=friendCap.length? Math.max(1,friendCap[0].cap||2) : 99;
   const ORIG=[...new Set(STUDENTS.map(s=>s.origen))];
 
   // recíprocos: pares mutuos
@@ -635,7 +646,8 @@ function run(){
     let recViol=0; if(reciproco.length){ mutual.forEach(k=>{ const [i,j]=k.split('-').map(Number); if(binOf[i]!==binOf[j]) recViol++; }); }
     let origCost=0; if(balanceOrigen.length){ for(const o of ORIG){ const cn=bins.map(bn=>bn.filter(id=>byId[id].origen===o).length); const m=cn.reduce((a,x)=>a+x,0)/cn.length; origCost+=cn.reduce((a,x)=>a+(x-m)**2,0); } }
     let singViol=0; if(noSingleton.length){ for(const bn of bins){ for(const o of ORIG){ const c=bn.filter(id=>byId[id].origen===o).length; if(c>0&&c<3) singViol+=(3-c); } } }
-    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol};
+    let capViol=0; if(friendCap.length){ STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; if(fc>FCAP) capViol+=(fc-FCAP); }); }
+    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol,capViol};
   }
   function totalCost(){
     const t=costTerms();
@@ -649,10 +661,11 @@ function run(){
     let wRec=0; reciproco.forEach(s=>wRec+=s.weight);
     let wOrig=0; balanceOrigen.forEach(s=>wOrig+=s.weight);
     let wSing=0; noSingleton.forEach(s=>wSing+=s.weight);
+    let wCap=0; friendCap.forEach(s=>wCap+=s.weight);
     return t.balCost*wBal + t.sizeCost*wTam + t.friendViol*wFri
       + t.sepViol*(wSep||60) + t.joinViol*(wJoin||60) + t.maxViol*(wMax||40)/10
       + t.altoCost*(wAlto/25) + t.recViol*(wRec/8)
-      + t.origCost*(wOrig/40) + t.singViol*(wSing/4);
+      + t.origCost*(wOrig/40) + t.singViol*(wSing/4) + t.capViol*(wCap/6);
   }
 
   // reparación de afinidades
@@ -703,8 +716,12 @@ function run(){
 
   // matriz origen -> destino
   const matrix={}; ORIG.forEach(o=>{ matrix[o]=classes.map(c=>c.studs.filter(s=>s.origen===o).length); });
-  LAST={classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,
-    sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,
+  // reparto de amistades: cuántas elecciones quedaron junto a cada alumna
+  const maxE=Math.max(1,...STUDENTS.map(s=>s.elecciones.length));
+  const friendDist=Array(maxE+1).fill(0);
+  STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; friendDist[Math.min(fc,maxE)]++; });
+  LAST={classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,friendDist,maxE,
+    sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,friendCap,
     tol:(cBalance?cBalance.tol:8)};
   render();
 }
@@ -714,8 +731,13 @@ function semColor(pct,warn,bad){ if(pct>=warn)return'green'; if(pct>=bad)return'
 function avgShare(L,t){ const sh=L.classes.map(c=>c[t]/(c.studs.length||1)); return sh.reduce((a,x)=>a+x,0)/sh.length; }
 function render(){
   if(!LAST)return; $('#results').style.display='block';
+  if($('#resEmpty')) $('#resEmpty').style.display='none';
+  if($('#resultsInd')) $('#resultsInd').style.display='block';
   const L=LAST, N=L.N;
   const pctFriend=Math.round(L.withFriend/N*100), pctMezcla=Math.round(L.mezclaIdx*100);
+  const fd=L.friendDist||[N]; const withMany=fd.slice(3).reduce((a,x)=>a+x,0); const withOne=fd[1]||0; const withZero=fd[0]||0;
+  let maxHas=0; fd.forEach((c,i)=>{ if(c>0) maxHas=i; });
+  const friendSkew = withMany===0?'green':(withMany<=Math.max(2,Math.round(N*0.06))?'amber':'red');
   let worst=0;
   for(const t of ['alto','medio','bajo']){ const sh=L.classes.map(c=>c[t]/(c.studs.length||1)); const m=sh.reduce((a,x)=>a+x,0)/sh.length; worst=Math.max(worst,Math.max(...sh.map(x=>Math.abs(x-m)))*100); }
   const balOk=worst<=L.tol;
@@ -724,6 +746,7 @@ function render(){
   const kg=$('#kpiGrid'); kg.innerHTML='';
   const kpis=[
     {lbl:'Con al menos una amiga', val:pctFriend+'%', note:`${L.withFriend} de ${N} alumnas`, color:semColor(pctFriend,100,92)},
+    {lbl:'Amistades equilibradas', val:withMany===0?'✓':withMany+' con 3+', note:`${withOne} con 1 · máx ${maxHas}`, color:friendSkew},
     {lbl:'Balance de puntaje', val:worst.toFixed(1)+' pp', note:`desvío máx. (tol. ${L.tol} pp)`, color:balOk?'green':(worst<=L.tol*1.6?'amber':'red')},
     {lbl:'Cursos parejos', val:'±'+spread, note:`tamaños: ${sizes.join(' / ')}`, color:spread<=1?'green':(spread<=3?'amber':'red')},
     {lbl:'Índice de mezcla', val:pctMezcla+'%', note:'ruptura de cursos originales', color:semColor(pctMezcla,55,30)},
@@ -736,6 +759,7 @@ function render(){
   if(L.reciproco.length) kpis.push({lbl:'Amistades mutuas rotas', val:ct.recViol, note:'pares recíprocos separados', color:ct.recViol===0?'green':(ct.recViol<=3?'amber':'red')});
   if(L.balanceOrigen.length) kpis.push({lbl:'Reparto por origen', val:'σ '+Math.sqrt(ct.origCost/(L.ORIG.length*L.classes.length)).toFixed(1), note:'menor = más parejo', color:ct.origCost<=L.ORIG.length*2?'green':'amber'});
   if(L.noSingleton.length) kpis.push({lbl:'Alumnas aisladas', val:ct.singViol===0?'OK':ct.singViol, note:'grupos de origen <3', color:ct.singViol===0?'green':(ct.singViol<=3?'amber':'red')});
+  if(L.friendCap&&L.friendCap.length) kpis.push({lbl:'Tope de amistades', val:ct.capViol===0?'OK':ct.capViol+' ✕', note:`máx ${L.friendCap[0].cap} por alumna`, color:ct.capViol===0?'green':'amber'});
 
   kpis.forEach(k=>{ const d=document.createElement('div'); d.className='kpi';
     d.innerHTML=`<span class="dot ${k.color} dotpos"></span><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="note">${k.note}</div>`; kg.appendChild(d); });
@@ -782,6 +806,7 @@ function render(){
       <div class="clslist">${rows}</div>`;
     cc.appendChild(div);
   });
+  renderFriendDist();
   renderDashboard();
   $('#btnExport').disabled=false;
 }
@@ -807,6 +832,24 @@ function courseRisks(c,L){
     if(tot===Math.min(...sizes)) risks.push({sev:'amber',t:'Curso más chico',d:`${tot} alumnas`}); }
   if(!risks.length) risks.push({sev:'green', t:'Sin riesgos relevantes', d:'balanceado y con afinidades cubiertas'});
   return risks;
+}
+function renderFriendDist(){
+  const L=LAST, el=$('#friendDist'); if(!L||!el) return;
+  const fd=L.friendDist, N=L.N, maxC=Math.max(1,...fd);
+  const colors=['var(--sred)','var(--amber)','var(--green)','var(--cA)','var(--cB)','var(--cE)'];
+  el.innerHTML=fd.map((cnt,i)=>{
+    const w=cnt/maxC*100, pc=Math.round(cnt/N*100);
+    return `<div class="distrow"><span class="cl">${i} amiga${i===1?'':'s'}</span>
+      <div class="track"><span style="width:${Math.max(w,cnt?6:0)}%;background:${colors[Math.min(i,colors.length-1)]}">${cnt||''}</span></div>
+      <span style="width:44px;text-align:right;color:var(--muted)">${pc}%</span></div>`;
+  }).join('');
+  const withMany=fd.slice(3).reduce((a,x)=>a+x,0), withOne=fd[1]||0, withZero=fd[0]||0;
+  let maxHas=0; fd.forEach((c,i)=>{ if(c>0) maxHas=i; });
+  let note;
+  if(withZero>0) note=`<span class="badge red">Ojo</span> ${withZero} alumna(s) quedaron con <b>ninguna</b> amiga. Sube el peso de "Garantía de amistad" (pestaña ④).`;
+  else if(withMany>0 && withOne>0) note=`<span class="badge amber">Desigual</span> Hay <b>${withMany}</b> alumna(s) con 3+ amigas mientras <b>${withOne}</b> quedaron con solo 1. Para repartir mejor, agrega <b>"Repartir amistades"</b> en la pestaña ④.`;
+  else note=`<span class="badge green">Equilibrado</span> El reparto está parejo (máximo ${maxHas} amiga${maxHas===1?'':'s'} por alumna, ninguna aislada).`;
+  $('#friendNote').innerHTML=note;
 }
 function renderDashboard(){
   const L=LAST; if(!L) return;
@@ -893,7 +936,7 @@ function downloadTemplate(){
   XLSX.utils.book_append_sheet(wb,wsh,'Instrucciones');
   XLSX.writeFile(wb,`plantilla_mezclador_${nC}cursos.xlsx`);
 }
-function importXlsx(file){
+function importXlsx(file, autoRun){
   const rd=new FileReader();
   rd.onload=e=>{
     try{
@@ -932,6 +975,7 @@ function importXlsx(file){
       $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes} · ${kElec.length} elecciones · ${scoreMsg}. Ve a la pestaña ① y ejecuta la mezcla.`;
       $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> cargadas desde Excel`;
       $('#btnExport').disabled=false;
+      if(autoRun) run();
     }catch(err){ $('#uploadMsg').innerHTML='<span style="color:var(--sred)">Error al leer el Excel: '+err.message+'</span>'; }
   };
   rd.readAsArrayBuffer(file);
@@ -982,6 +1026,7 @@ function describeRule(c){
   if(c.tipo==='reciproco') return `Prioriza mantener juntas a las parejas que se eligieron mutuamente.`;
   if(c.tipo==='balanceOrigen') return `Reparte de forma pareja a las alumnas de cada curso de origen entre los cursos nuevos.`;
   if(c.tipo==='noSingleton') return `Penaliza dejar a 1 o 2 alumnas solas de su curso de origen en un curso nuevo.`;
+  if(c.tipo==='friendCap') return `Limita a <b>${c.cap}</b> las amigas por alumna, para repartir las amistades de forma equilibrada.`;
   return '';
 }
 window.toggleCons=(id,v)=>{ const c=CONSTRAINTS.find(x=>x.id===id); if(c)c.on=v; };
@@ -994,7 +1039,7 @@ function renderCatalog(){
   const box=$('#catalogo'); box.innerHTML='';
   CATALOGO.forEach(cat=>{
     // ¿ya está agregada? (para globales spreadAlto/reciproco)
-    const global=['spreadAlto','reciproco','balanceOrigen','noSingleton'].includes(cat.key);
+    const global=['spreadAlto','reciproco','balanceOrigen','noSingleton','friendCap'].includes(cat.key);
     const exists=global && CONSTRAINTS.some(c=>c.tipo===cat.key);
     const div=document.createElement('div'); div.className='catcard'+(exists?' added':'');
     div.innerHTML=`<div class="ci">${cat.ci}</div><h4>${cat.ttl}</h4>
@@ -1010,6 +1055,7 @@ window.quickAdd=(key)=>{
   else if(key==='reciproco'){ CONSTRAINTS.push({id:gid,tipo:'reciproco',on:true,weight:60,dura:false,ttl:'Priorizar elección recíproca',desc:'Mantener juntas a las parejas que se eligieron mutuamente.'}); }
   else if(key==='balanceOrigen'){ CONSTRAINTS.push({id:gid,tipo:'balanceOrigen',on:true,weight:60,dura:false,ttl:'Reparto parejo por origen',desc:'Cada curso nuevo recibe una proporción similar de cada curso de origen.'}); }
   else if(key==='noSingleton'){ CONSTRAINTS.push({id:gid,tipo:'noSingleton',on:true,weight:65,dura:false,ttl:'Evitar alumnas aisladas de su origen',desc:'Evita dejar 1 o 2 alumnas solas de su curso de origen.'}); }
+  else if(key==='friendCap'){ CONSTRAINTS.push({id:gid,tipo:'friendCap',on:true,weight:60,dura:false,cap:2,ttl:'Repartir amistades (máx 2)',desc:'Limita a 2 las amigas por alumna para repartir mejor.'}); }
   else { // requieren parámetros → llevar al formulario manual
     $('#newType').value=key; rebuildParamPickers();
     document.querySelector('[data-tab="restr"]').click();
@@ -1113,7 +1159,8 @@ $('#btnExport').addEventListener('click',exportResult);
 $('#btnAddCons').addEventListener('click',addConstraint);
 $('#newType').addEventListener('change',rebuildParamPickers);
 $('#nDestino').addEventListener('change',rebuildParamPickers);
-$('#fileXlsx').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0]); });
+$('#fileXlsx').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0],true); });
+$('#fileXlsxTop').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0],true); });
 
 /* =================== CHATBOT (asistente local sobre tus datos) =================== */
 const CHIPS=['¿Cuántas alumnas hay?','Mayores puntajes','Riesgos del Curso 1','¿Cuántas sin amiga?','Balance de puntaje','Índice de mezcla','Reglas activas','¿Cómo funciona?'];
