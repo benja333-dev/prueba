@@ -263,7 +263,6 @@
         <button class="btn red" id="btnRun">⚙️ Ejecutar mezcla</button>
       </div>
       <p class="hint" style="margin-top:10px">*Solo para generar dummies. Al subir tu Excel, el tamaño de cada curso nuevo se calcula como <b>promedio</b>: total de alumnas ÷ cursos que quieres formar.</p>
-      <div id="sizeHint" style="margin-top:10px; font-size:13px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:10px 14px"></div>
       <div class="legend">
         <span><span class="dot green"></span> Cumple</span>
         <span><span class="dot amber"></span> En el límite</span>
@@ -562,16 +561,6 @@ let DIMENSIONS=[
     alto:'Familia alineada con el proyecto: empática, respetuosa y participativa.',
     bajo:'Familia con relaciones conflictivas, crítica o desinteresada en lo escolar.'},
 ];
-function updateSizeHint(){
-  const el=$('#sizeHint'); if(!el) return;
-  const N=STUDENTS.length, nD=Math.max(1,+$('#nDestino').value);
-  if(!N){ el.innerHTML='<span style="color:var(--muted)">Sube tu Excel o genera dummies para ver el tamaño de curso.</span>'; return; }
-  const base=Math.floor(N/nD), resto=N%nD;
-  const min=base, max=resto? base+1 : base;
-  const dist=Array.from({length:nD},(_,i)=> i<resto? base+1 : base);
-  el.innerHTML=`<b>${N} alumnas</b> ÷ <b>${nD} cursos</b> → promedio <b style="color:var(--red)">${(N/nD).toFixed(1)}</b> por curso `
-    +`(reparto real: ${dist.join(' / ')}${min!==max?` — difieren en 1`:''}). El motor iguala los tamaños al promedio automáticamente.`;
-}
 function computeScore(dims){ let num=0,den=0; for(const d of DIMENSIONS){ const v=dims?dims[d.id]:null; if(v===1||v===2){ num+=v*d.peso; den+=d.peso; } } return den? num/den : null; }
 function nivelOf(p){ if(p==null) return 'medio'; return p>=UMBRAL_ALTO?'alto':(p>=UMBRAL_MEDIO?'medio':'bajo'); }
 function recomputeScores(){ STUDENTS.forEach(s=>{ s.puntaje=computeScore(s.dims); s.nivel=nivelOf(s.puntaje); }); }
@@ -593,7 +582,7 @@ function genDummy(){
     }
     for(const st of g){ const pool=g.filter(x=>x.id!==st.id); shuffle(pool); st.elecciones=pool.slice(0,nE).map(x=>x.id); }
   }
-  DATA_IS_DUMMY=true; LAST=null; refreshDataTable(); rebuildParamPickers(); updateSizeHint();
+  DATA_IS_DUMMY=true; LAST=null; refreshDataTable(); rebuildParamPickers();
   $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> · ${nC} cursos origen · datos dummy`;
   $('#uploadMsg').textContent=`Generadas ${STUDENTS.length} alumnas dummy.`;
   $('#btnExport').disabled=false;
@@ -943,7 +932,7 @@ function importXlsx(file){
       const scoreMsg = nDims? `puntaje ponderado por ${nDims} dimensiones` : 'puntaje leído de columna';
       $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes} · ${kElec.length} elecciones · ${scoreMsg}. Ve a la pestaña ① y ejecuta la mezcla.`;
       $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> cargadas desde Excel`;
-      updateSizeHint(); $('#btnExport').disabled=false;
+      $('#btnExport').disabled=false;
     }catch(err){ $('#uploadMsg').innerHTML='<span style="color:var(--sred)">Error al leer el Excel: '+err.message+'</span>'; }
   };
   rd.readAsArrayBuffer(file);
@@ -1124,8 +1113,7 @@ $('#btnTemplate').addEventListener('click',downloadTemplate);
 $('#btnExport').addEventListener('click',exportResult);
 $('#btnAddCons').addEventListener('click',addConstraint);
 $('#newType').addEventListener('change',rebuildParamPickers);
-$('#nDestino').addEventListener('change',()=>{ rebuildParamPickers(); updateSizeHint(); });
-$('#nCursos').addEventListener('change',updateSizeHint);
+$('#nDestino').addEventListener('change',rebuildParamPickers);
 $('#fileXlsx').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0]); });
 
 /* =================== CHATBOT (asistente local sobre tus datos) =================== */
