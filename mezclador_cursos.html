@@ -255,14 +255,13 @@
       <h2>Panel de control <span class="k">paso 1</span></h2>
       <div class="row">
         <label class="field">📥 Cursos que subo<input type="number" id="nCursos" value="3" min="1" max="8"></label>
-        <label class="field">Alumnas por curso*<input type="number" id="nPorCurso" value="35" min="5" max="60"></label>
         <label class="field">📤 Cursos que quiero formar<input type="number" id="nDestino" value="3" min="2" max="8"></label>
         <label class="field">Elecciones por alumna<input type="number" id="nElecciones" value="3" min="1" max="6"></label>
         <div class="spacer"></div>
         <button class="btn sec" id="btnDummy">🎲 Datos dummy</button>
         <button class="btn red" id="btnRun">⚙️ Ejecutar mezcla</button>
       </div>
-      <p class="hint" style="margin-top:10px">*Solo para generar dummies. Al subir tu Excel, el tamaño de cada curso nuevo se calcula como <b>promedio</b>: total de alumnas ÷ cursos que quieres formar.</p>
+      <p class="hint" style="margin-top:10px">Al subir tu Excel, el tamaño de cada curso nuevo se calcula como <b>promedio</b>: total de alumnas ÷ cursos que quieres formar.</p>
       <div class="legend">
         <span><span class="dot green"></span> Cumple</span>
         <span><span class="dot amber"></span> En el límite</span>
@@ -570,7 +569,7 @@ function randDimVal(dimId){ if(dimId==='apoyo') return Math.random()<0.80?null:(
 
 /* =================== DUMMIES =================== */
 function genDummy(){
-  const nC=+$('#nCursos').value, nP=+$('#nPorCurso').value, nE=+$('#nElecciones').value;
+  const nC=+$('#nCursos').value, nP=35, nE=+$('#nElecciones').value;  // 35 = tamaño dummy por curso
   STUDENTS=[]; let id=0; const used=new Set();
   for(let c=0;c<nC;c++){
     const g=[];
@@ -859,7 +858,7 @@ function refreshDataTable(){
 
 /* =================== EXCEL =================== */
 function downloadTemplate(){
-  const nC=+$('#nCursos').value, nP=+$('#nPorCurso').value; const nE=Math.max(1,+$('#nElecciones').value);
+  const nC=+$('#nCursos').value, nP=35; const nE=Math.max(1,+$('#nElecciones').value);
   const dnames=DIMENSIONS.map(d=>d.nombre);
   const header=['Curso actual','Selecciona tu nombre']; for(let i=1;i<=nE;i++) header.push('Elección '+i); header.push(...dnames);
   const rows=[header]; const used=new Set(); const roster=[];
