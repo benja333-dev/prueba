@@ -1259,7 +1259,7 @@ window.dimSet=(id,field,val)=>{ const d=DIMENSIONS.find(x=>x.id===id); if(!d) re
   if(field==='peso'){ d.peso=Math.max(0,+val||0); } else { d[field]=val; if(field==='nombre'){ d.match=val.toLowerCase().replace(/[^a-zñ]+/gi,'').slice(0,6)||d.match; } }
   applyRubric(field==='peso'||field==='nombre'); };
 window.dimDel=(id)=>{ if(DIMENSIONS.length<=1){ alert('Debe quedar al menos una dimensión.'); return; }
-  DIMENSIONS=DIMENSIONS.filter(x=>x.id!==id); STUDENTS.forEach(s=>{ if(s.dims) delete s.dims[id]; }); applyRubric(); };
+  DIMENSIONS=DIMENSIONS.filter(x=>x.id!==id); STUDENTS.forEach(s=>{ if(s.dims) delete s.dims[id]; }); applyRubric(true); };
 $('#btnAddDim')&&$('#btnAddDim').addEventListener('click',()=>{
   const id='dim'+Date.now();
   DIMENSIONS.push({id, nombre:'Nueva dimensión', peso:10, match:'nueva', alto:'Describe el nivel alto (nota 2).', bajo:'Describe el nivel bajo (nota 1).'});
