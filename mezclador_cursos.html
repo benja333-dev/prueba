@@ -280,15 +280,23 @@
     </div>
 
     <div class="card">
-      <h2>Datos &amp; plantilla <span class="k">Excel</span></h2>
-      <p class="hint" style="line-height:1.6; margin-bottom:12px">Sube tu Excel (también con el botón <b>Subir Excel</b> de arriba) o descarga una plantilla para completarla. Formato: una fila por alumna, Curso actual, Elección 1–4 del mismo curso, y una columna por cada dimensión de la rúbrica (nota 2/1/vacío).</p>
-      <div class="row">
-        <label class="btn sec" style="cursor:pointer; display:inline-flex; align-items:center">📤 Subir Excel<input type="file" id="fileXlsx" accept=".xlsx,.xls,.csv" style="display:none"></label>
-        <button class="btn sec" id="btnTemplate">⬇️ Descargar plantilla</button>
-        <div class="spacer"></div>
-        <span class="hint" id="uploadMsg"></span>
+      <h2>Restricción por alumna <span class="k">quedan juntas sí o sí</span></h2>
+      <p class="hint" style="margin-bottom:12px">Elige una alumna y marca con cuál(es) de sus elecciones debe quedar <b>obligatoriamente</b> en el mismo curso. Se aplica al pulsar <b>Ejecutar mezcla</b>.</p>
+      <div class="row" style="align-items:flex-start">
+        <label class="field">Alumna<select id="mwStudent" style="min-width:220px"></select></label>
+        <div style="flex:1; min-width:220px">
+          <div class="field" style="margin-bottom:6px">Debe quedar con (marca 1–3):</div>
+          <div id="mwChoices" style="display:flex; flex-wrap:wrap; gap:8px"></div>
+        </div>
+        <button class="btn sec" id="mwAdd">＋ Agregar</button>
       </div>
-      <div class="scrollx" style="margin-top:14px">
+      <div id="mwList" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Datos actuales</h2>
+      <span class="hint" id="uploadMsg"></span>
+      <div class="scrollx" style="margin-top:10px">
         <table id="dataTable">
           <thead><tr><th>#</th><th>Nombre</th><th>Curso origen</th><th>Elecciones</th><th>Puntaje</th></tr></thead><tbody></tbody>
         </table>
@@ -606,7 +614,7 @@ function genDummy(){
     }
     for(const st of g){ const pool=g.filter(x=>x.id!==st.id); shuffle(pool); st.elecciones=pool.slice(0,nE).map(x=>x.id); }
   }
-  DATA_IS_DUMMY=true; LAST=null; ALTS=[]; refreshDataTable(); rebuildParamPickers(); renderCurrentCols();
+  DATA_IS_DUMMY=true; LAST=null; ALTS=[]; refreshDataTable(); rebuildParamPickers(); renderCurrentCols(); fillMustWith();
   $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> · ${nC} cursos origen · datos dummy`;
   $('#uploadMsg').textContent=`Generadas ${STUDENTS.length} alumnas dummy.`;
   $('#btnExport').disabled=false;
@@ -634,6 +642,7 @@ function computeMix(){
   const reciproco=CONSTRAINTS.filter(c=>c.tipo==='reciproco'&&c.on);
   const balanceOrigen=CONSTRAINTS.filter(c=>c.tipo==='balanceOrigen'&&c.on);
   const noSingleton=CONSTRAINTS.filter(c=>c.tipo==='noSingleton'&&c.on);
+  const mustWith=CONSTRAINTS.filter(c=>c.tipo==='mustWith'&&c.on);
   const friendCap=CONSTRAINTS.filter(c=>c.tipo==='friendCap'&&c.on);
   const FCAP=friendCap.length? Math.max(1,friendCap[0].cap||2) : 99;
   const ORIG=[...new Set(STUDENTS.map(s=>s.origen))];
@@ -669,7 +678,8 @@ function computeMix(){
     let origCost=0; if(balanceOrigen.length){ for(const o of ORIG){ const cn=bins.map(bn=>bn.filter(id=>byId[id].origen===o).length); const m=cn.reduce((a,x)=>a+x,0)/cn.length; origCost+=cn.reduce((a,x)=>a+(x-m)**2,0); } }
     let singViol=0; if(noSingleton.length){ for(const bn of bins){ for(const o of ORIG){ const c=bn.filter(id=>byId[id].origen===o).length; if(c>0&&c<3) singViol+=(3-c); } } }
     let capViol=0; if(friendCap.length){ STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; if(fc>FCAP) capViol+=(fc-FCAP); }); }
-    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol,capViol};
+    let mustViol=0; mustWith.forEach(m=>{ if(m.sid==null)return; (m.fids||[]).forEach(f=>{ if(binOf[f]!=null&&binOf[m.sid]!=null&&binOf[f]!==binOf[m.sid]) mustViol++; }); });
+    return {balCost,sizeCost,friendViol,sepViol,joinViol,maxViol,altoCost,recViol,origCost,singViol,capViol,mustViol};
   }
   function totalCost(){
     const t=costTerms();
@@ -684,10 +694,12 @@ function computeMix(){
     let wOrig=0; balanceOrigen.forEach(s=>wOrig+=s.weight);
     let wSing=0; noSingleton.forEach(s=>wSing+=s.weight);
     let wCap=0; friendCap.forEach(s=>wCap+=s.weight);
+    let wMust=0; mustWith.forEach(s=>wMust+=s.weight);
     return t.balCost*wBal + t.sizeCost*wTam + t.friendViol*wFri
       + t.sepViol*(wSep||60) + t.joinViol*(wJoin||60) + t.maxViol*(wMax||40)/10
       + t.altoCost*(wAlto/25) + t.recViol*(wRec/8)
-      + t.origCost*(wOrig/40) + t.singViol*(wSing/4) + t.capViol*(wCap/6);
+      + t.origCost*(wOrig/40) + t.singViol*(wSing/4) + t.capViol*(wCap/6)
+      + t.mustViol*((wMust||90)*3);
   }
 
   // reparación de afinidades
@@ -743,7 +755,7 @@ function computeMix(){
   const friendDist=Array(maxE+1).fill(0);
   STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; friendDist[Math.min(fc,maxE)]++; });
   return {classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,friendDist,maxE,
-    sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,friendCap,
+    sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,friendCap,mustWith,
     tol:(cBalance?cBalance.tol:8)};
 }
 
@@ -840,6 +852,7 @@ function render(){
   if(L.balanceOrigen.length) kpis.push({lbl:'Reparto por origen', val:'σ '+Math.sqrt(ct.origCost/(L.ORIG.length*L.classes.length)).toFixed(1), note:'menor = más parejo', color:ct.origCost<=L.ORIG.length*2?'green':'amber'});
   if(L.noSingleton.length) kpis.push({lbl:'Alumnas aisladas', val:ct.singViol===0?'OK':ct.singViol, note:'grupos de origen <3', color:ct.singViol===0?'green':(ct.singViol<=3?'amber':'red')});
   if(L.friendCap&&L.friendCap.length) kpis.push({lbl:'Tope de amistades', val:ct.capViol===0?'OK':ct.capViol+' ✕', note:`máx ${L.friendCap[0].cap} por alumna`, color:ct.capViol===0?'green':'amber'});
+  if(L.mustWith&&L.mustWith.length) kpis.push({lbl:'Restricciones por alumna', val:ct.mustViol===0?'OK':ct.mustViol+' ✕', note:`${L.mustWith.length} alumna(s) obligada(s)`, color:ct.mustViol===0?'green':'red'});
 
   kpis.forEach(k=>{ const d=document.createElement('div'); d.className='kpi';
     d.innerHTML=`<span class="dot ${k.color} dotpos"></span><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="note">${k.note}</div>`; kg.appendChild(d); });
@@ -1050,7 +1063,7 @@ function importXlsx(file, autoRun){
       const origenes=[...new Set(STUDENTS.map(s=>s.origen))];
       const sizes=origenes.map(o=>o+':'+STUDENTS.filter(s=>s.origen===o).length).join('  ');
       $('#nCursos').value=origenes.length; $('#nDestino').value=origenes.length;
-      renderCurrentCols();
+      renderCurrentCols(); fillMustWith();
       const scoreMsg = nDims? `puntaje ponderado por ${nDims} dimensiones` : 'puntaje leído de columna';
       $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes} · ${kElec.length} elecciones · ${scoreMsg}. Ve a la pestaña ① y ejecuta la mezcla.`;
       $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> cargadas desde Excel`;
@@ -1074,6 +1087,7 @@ function exportResult(){
 function renderConstraints(){
   const box=$('#consList'); box.innerHTML='';
   CONSTRAINTS.forEach(c=>{
+    if(c.tipo==='mustWith') return;  // se gestionan en la pestaña ① Mezcla
     const div=document.createElement('div'); div.className='cons '+(c.dura?'hardrule':'softrule')+((c.tipo==='balance')?' open':'');
     const dura=c.dura;
     let body='';
@@ -1178,6 +1192,44 @@ function addConstraint(){
   renderConstraints(); renderCatalog();
 }
 
+/* =================== RESTRICCIÓN POR ALUMNA (debe quedar con…) =================== */
+function fillMustWith(){
+  const sel=$('#mwStudent'); if(!sel) return;
+  sel.innerHTML=STUDENTS.map(s=>`<option value="${s.id}">${s.nombre} (curso ${s.origen})</option>`).join('');
+  mwRenderChoices();
+  renderMustWith();
+}
+window.mwRenderChoices=()=>{
+  const box=$('#mwChoices'); if(!box) return;
+  const sid=+$('#mwStudent').value; const s=STUDENTS.find(x=>x.id===sid);
+  const byId=Object.fromEntries(STUDENTS.map(x=>[x.id,x]));
+  if(!s||!s.elecciones.length){ box.innerHTML='<span class="hint">Esta alumna no tiene elecciones registradas.</span>'; return; }
+  box.innerHTML=s.elecciones.map(f=>{ const fn=byId[f]?byId[f].nombre:'?';
+    return `<label class="pairtag" style="cursor:pointer"><input type="checkbox" value="${f}" style="margin-right:5px">${fn}</label>`; }).join('');
+};
+function renderMustWith(){
+  const box=$('#mwList'); if(!box) return;
+  const list=CONSTRAINTS.filter(c=>c.tipo==='mustWith');
+  const byId=Object.fromEntries(STUDENTS.map(x=>[x.id,x]));
+  if(!list.length){ box.innerHTML='<span class="hint">Sin restricciones por alumna todavía.</span>'; return; }
+  box.innerHTML=list.map(c=>{ const nm=byId[c.sid]?byId[c.sid].nombre:'?';
+    const fr=(c.fids||[]).map(f=>byId[f]?byId[f].nombre.split(' ').slice(-2).join(' '):'?').join(', ');
+    return `<div class="pairtag" style="margin:0 8px 8px 0"><b>${nm.split(' ').slice(-2).join(' ')}</b> con ${fr}
+      <button onclick="mwDel('${c.id}')" title="Eliminar">✕</button></div>`; }).join('');
+}
+window.mwDel=(id)=>{ CONSTRAINTS=CONSTRAINTS.filter(c=>c.id!==id); renderMustWith(); renderConstraints(); };
+$('#mwStudent')&&$('#mwStudent').addEventListener('change',mwRenderChoices);
+$('#mwAdd')&&$('#mwAdd').addEventListener('click',()=>{
+  if(!STUDENTS.length){ alert('Sube tu Excel o genera dummies primero.'); return; }
+  const sid=+$('#mwStudent').value;
+  const fids=Array.from($('#mwChoices').querySelectorAll('input:checked')).map(x=>+x.value);
+  if(!fids.length){ alert('Marca al menos una compañera con la que debe quedar.'); return; }
+  const s=STUDENTS.find(x=>x.id===sid);
+  CONSTRAINTS.push({id:'mw'+Date.now(),tipo:'mustWith',on:true,weight:90,dura:true,sid,fids,
+    ttl:'Debe quedar: '+s.nombre.split(' ').slice(-2).join(' '), desc:'Queda sí o sí con las compañeras marcadas.'});
+  renderMustWith(); renderConstraints();
+});
+
 /* =================== RÚBRICA (editable, vivo) =================== */
 function pesoTotal(){ return DIMENSIONS.reduce((a,d)=>a+(+d.peso||0),0); }
 function renderRubric(){
@@ -1237,19 +1289,38 @@ $$('.tab').forEach(t=>t.addEventListener('click',()=>{
 /* =================== EVENTOS =================== */
 $('#btnDummy').addEventListener('click',genDummy);
 $('#btnRun').addEventListener('click',run);
-$('#btnTemplate').addEventListener('click',downloadTemplate);
 $('#btnExport').addEventListener('click',exportResult);
 $('#btnAddCons').addEventListener('click',addConstraint);
 $('#newType').addEventListener('change',rebuildParamPickers);
 $('#nDestino').addEventListener('change',rebuildParamPickers);
-$('#fileXlsx').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0],true); });
 $('#fileXlsxTop').addEventListener('change',e=>{ if(e.target.files[0]) importXlsx(e.target.files[0],true); });
 
 /* =================== CHATBOT (asistente local sobre tus datos) =================== */
-const CHIPS=['¿Cuántas alumnas hay?','Mayores puntajes','Riesgos del Curso 1','¿Cuántas sin amiga?','Balance de puntaje','Índice de mezcla','Reglas activas','¿Cómo funciona?'];
+const CHIPS=['¿Con qué amigas quedó…?','¿Cuántas alumnas hay?','Mayores puntajes','Riesgos del Curso 1','¿Cuántas sin amiga?','Balance de puntaje','Índice de mezcla','Reglas activas'];
 function chatAdd(text,who){ const l=$('#chatLog'); const d=document.createElement('div'); d.className='msg '+who; d.innerHTML=text; l.appendChild(d); l.scrollTop=l.scrollHeight; }
-function chatChips(){ const c=$('#chatChips'); c.innerHTML=''; CHIPS.forEach(q=>{ const b=document.createElement('button'); b.className='chip'; b.textContent=q; b.onclick=()=>{ chatAnswer(q); }; c.appendChild(b); }); }
+function chatChips(){ const c=$('#chatChips'); c.innerHTML=''; CHIPS.forEach(q=>{ const b=document.createElement('button'); b.className='chip'; b.textContent=q;
+  b.onclick=()=>{ if(q.includes('…')){ const inp=$('#chatInput'); inp.value='¿Con qué amigas quedó '; inp.focus(); } else chatAnswer(q); };
+  c.appendChild(b); }); }
 function num(w){ const m=w.match(/\d+/); return m?+m[0]:null; }
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+const STOP=new Set(['con','que','qui','quien','quede','quedo','como','las','los','una','unos','del','por','para','amiga','amigas','amigos','curso','nuevo','puntaje','nivel','donde','esta','este','tiene','cuales','cual','sus']);
+function findStudent(q){
+  const words=norm(q).split(/[^a-zñ]+/).filter(w=>w.length>=3 && !STOP.has(w));
+  let best=null,score=0,ties=[];
+  STUDENTS.forEach(s=>{ const parts=norm(s.nombre).split(/\s+/); const sc=parts.filter(pp=>words.includes(pp)).length;
+    if(sc>score){ score=sc; best=s; ties=[s]; } else if(sc===score && sc>0){ ties.push(s); } });
+  return {best,score,ties};
+}
+function studentInfo(s,L){
+  const byId=L.byId; const cls=L.classes.find(c=>c.ids.includes(s.id)); if(!cls) return `${s.nombre} no está en la mezcla actual.`;
+  const idx=L.classes.indexOf(cls)+1;
+  const juntas=s.elecciones.filter(f=>cls.ids.includes(f)).map(f=>byId[f]?byId[f].nombre:'');
+  const sep=s.elecciones.filter(f=>!cls.ids.includes(f)).map(f=>byId[f]?byId[f].nombre:'');
+  let r=`<b>${s.nombre}</b> quedó en el <b>Curso ${idx}</b> (origen ${s.origen}, nivel ${s.nivel}${s.puntaje!=null?`, puntaje ${s.puntaje.toFixed(2)}`:''}).<br>`;
+  r+= juntas.length? `✅ Quedó con ${juntas.length} de sus elecciones: <b>${juntas.join(', ')}</b>.` : `⚠️ No quedó con ninguna de las que eligió.`;
+  if(sep.length) r+=`<br>➖ Separada de: ${sep.join(', ')}.`;
+  return r;
+}
 function chatAnswer(q){
   chatAdd(q,'usr');
   const t=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
@@ -1271,6 +1342,15 @@ function chatAnswer(q){
   }
   if(!L){ need(); return; }
   const pct=Math.round(L.withFriend/L.N*100);
+  // --- pregunta por una alumna específica (ej: "con qué amigas quedó María") ---
+  const fs=findStudent(q);
+  const nameyKw=/(amiga|amig|qued|con qui|junto|junta|separ|curso|puntaje|nivel|donde|dónde|qué curso|que curso)/.test(t);
+  if(fs.best && (fs.score>=2 || (fs.score>=1 && nameyKw))){
+    if(fs.ties.length>1 && fs.score<2){
+      chatAdd('Hay varias que coinciden: '+fs.ties.slice(0,8).map(s=>s.nombre).join(', ')+'. ¿A cuál te refieres? (escribe nombre y apellido)','bot'); return;
+    }
+    chatAdd(studentInfo(fs.best,L),'bot'); return;
+  }
   if(/cuantas alumnas|cuantos alumnos|total de alumnas|cuanta gente|numero de alumnas/.test(t)){
     chatAdd(`Hay <b>${L.N} alumnas</b> repartidas en <b>${L.classes.length} cursos</b> nuevos de tamaños ${L.classes.map(c=>c.studs.length).join(' / ')}.`,'bot'); return;
   }
@@ -1311,7 +1391,7 @@ function chatAnswer(q){
     else r='No tengo ese curso — hay '+L.classes.length+' cursos.';
     chatAdd(r,'bot'); return;
   }
-  chatAdd('No estoy seguro de eso 🤔 Prueba con: <i>"mayores puntajes"</i>, <i>"riesgos del curso 2"</i>, <i>"cuántas sin amiga"</i>, <i>"balance"</i> o <i>"índice de mezcla"</i>.','bot');
+  chatAdd('No estoy seguro de eso 🤔 Prueba con: <i>"¿con qué amigas quedó [nombre y apellido]?"</i>, <i>"¿en qué curso quedó [nombre]?"</i>, <i>"mayores puntajes"</i>, <i>"riesgos del curso 2"</i> o <i>"balance"</i>.','bot');
 }
 /* ---- Modo IA vía n8n + Gemini (opcional). La key de Gemini vive en n8n, no aquí. ---- */
 let AIHIST=[];
@@ -1325,7 +1405,15 @@ function buildAIContext(){
   const top=[...STUDENTS].sort((a,b)=>(b.puntaje||0)-(a.puntaje||0)).slice(0,8);
   const byC={}; L.classes.forEach((c,i)=>c.studs.forEach(st=>byC[st.id]=i+1));
   s+='Mayores puntajes: '+top.map(t=>`${t.nombre} (${scoreLabel(t)} ${t.nivel}, orig ${t.origen}→C${byC[t.id]})`).join('; ')+'.\n';
-  s+='Reglas activas: '+CONSTRAINTS.filter(c=>c.on).map(c=>c.ttl).join('; ')+'.';
+  s+='Reglas activas: '+CONSTRAINTS.filter(c=>c.on).map(c=>c.ttl).join('; ')+'.\n\n';
+  // Detalle por alumna: curso nuevo, nivel, con qué elecciones quedó y de cuáles quedó separada
+  const byId=L.byId;
+  s+='DETALLE POR ALUMNA (nombre | curso nuevo | nivel | quedó con | separada de):\n';
+  L.classes.forEach((c,i)=>{ c.studs.forEach(st=>{
+    const juntas=st.elecciones.filter(f=>c.ids.includes(f)).map(f=>byId[f]?byId[f].nombre:'');
+    const sep=st.elecciones.filter(f=>!c.ids.includes(f)).map(f=>byId[f]?byId[f].nombre:'');
+    s+=`- ${st.nombre} | C${i+1} | ${st.nivel} | con: ${juntas.join(', ')||'ninguna'} | separada de: ${sep.join(', ')||'—'}\n`;
+  }); });
   return s;
 }
 async function askAI(question){
@@ -1362,7 +1450,7 @@ $('#aiSave').addEventListener('click',async()=>{ const u=$('#aiUrl').value.trim(
 $('#aiOff').addEventListener('click',()=>{ localStorage.removeItem('csuv_n8n'); AIHIST=[]; $('#chatSettings').style.display='none'; updateChatMode(); chatAdd('Modo IA apagado — vuelvo al modo local (gratis).','bot'); });
 
 $('#chatBtn').addEventListener('click',()=>{ const w=$('#chatWin'); w.classList.toggle('on');
-  if(w.classList.contains('on')&&!$('#chatLog').children.length){ chatAdd('¡Hola! 👋 Soy el asistente del Mezclador. Pregúntame sobre la mezcla actual — o toca un botón de abajo. Con ⚙️ puedes activar el Modo IA (n8n + Gemini) para preguntas abiertas.','bot'); } updateChatMode(); });
+  if(w.classList.contains('on')&&!$('#chatLog').children.length){ chatAdd('¡Hola! 👋 Soy el asistente del Mezclador. Puedes preguntarme por una alumna, ej. <i>"¿con qué amigas quedó María López?"</i>, o por los riesgos, el balance, etc. Con ⚙️ activas el Modo IA (n8n + Gemini) para preguntas totalmente abiertas.','bot'); } updateChatMode(); });
 $('#chatX').addEventListener('click',()=>$('#chatWin').classList.remove('on'));
 function chatSubmit(){ const v=$('#chatInput').value.trim(); if(!v) return; $('#chatInput').value=''; if(aiOn()) routeAI(v); else chatAnswer(v); }
 $('#chatSend').addEventListener('click',chatSubmit);
