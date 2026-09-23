@@ -138,18 +138,22 @@
   .weight{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted)}
   .weight input[type=range]{width:120px}
 
-  /* rúbrica */
-  .dimc{border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:11px; background:var(--card); border-left:4px solid var(--gold)}
+  /* rúbrica (compacta) */
+  .dimc{border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin-bottom:8px; background:var(--card)}
   .dimc .top{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .dimc .top input.nm{font-weight:700; font-size:15px; flex:1; min-width:160px}
-  .dimc .top .peso{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:700}
-  .dimc .top .peso input{width:74px}
-  .dimc .desc{margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .dimc .top input.nm{font-weight:700; font-size:14px; flex:1; min-width:140px; border:1px solid transparent; background:transparent; padding:5px 4px}
+  .dimc .top input.nm:hover,.dimc .top input.nm:focus{border-color:var(--line); background:var(--bg2)}
+  .wbar{width:90px; height:8px; border-radius:5px; background:var(--bg2); overflow:hidden; flex:none}
+  .wbar span{display:block; height:100%; background:var(--gold)}
+  .dimc .top .peso{display:flex; align-items:center; gap:4px; font-size:12px; color:var(--muted); font-weight:700}
+  .dimc .top .peso input{width:56px}
+  .dimc .desc{margin-top:10px; display:none; grid-template-columns:1fr 1fr; gap:10px}
+  .dimc.open .desc{display:grid}
   .dimc .desc label{font-size:11px; font-weight:700; color:var(--muted); display:flex; flex-direction:column; gap:4px}
   .dimc .desc textarea{background:var(--bg2); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px; font-family:inherit; font-size:12.5px; resize:vertical; min-height:52px}
   .dimc .desc .lvl2{border-left:3px solid var(--green); padding-left:8px}
   .dimc .desc .lvl1{border-left:3px solid var(--sred); padding-left:8px}
-  @media(max-width:560px){ .dimc .desc{grid-template-columns:1fr} }
+  @media(max-width:560px){ .dimc .desc{grid-template-columns:1fr} .wbar{display:none} }
 
   /* catálogo recomendado */
   .cat{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px}
@@ -256,7 +260,6 @@
       <div class="row">
         <label class="field">📥 Cursos que subo<input type="number" id="nCursos" value="3" min="1" max="8"></label>
         <label class="field">📤 Cursos que quiero formar<input type="number" id="nDestino" value="3" min="2" max="8"></label>
-        <label class="field">Elecciones por alumna<input type="number" id="nElecciones" value="3" min="1" max="6"></label>
         <div class="spacer"></div>
         <label class="btn sec" style="cursor:pointer; display:inline-flex; align-items:center">📤 Subir Excel<input type="file" id="fileXlsxTop" accept=".xlsx,.xls,.csv" style="display:none"></label>
         <button class="btn sec" id="btnDummy">🎲 Datos dummy</button>
@@ -271,11 +274,9 @@
       </div>
     </div>
 
-    <div id="results" style="display:none">
-      <div class="card">
-        <h2>Composición de los cursos nuevos</h2>
-        <div class="classes" id="classCols"></div>
-      </div>
+    <div class="card">
+      <h2>Composición de los cursos actuales <span class="k">lo que subes</span></h2>
+      <div class="classes" id="currentCols"></div>
     </div>
 
     <div class="card">
@@ -303,9 +304,18 @@
     <div id="resultsInd" style="display:none">
       <div class="card">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
-          <h2 style="margin:0">Semáforo de la mezcla</h2>
+          <h2 style="margin:0">3 alternativas de mezcla <span class="k">no hay una sola solución</span></h2>
           <div class="spacer"></div>
-          <button class="btn sec" id="btnExport" disabled>⬆️ Exportar resultado</button>
+          <button class="btn sec" id="btnExport" disabled>⬆️ Exportar</button>
+        </div>
+        <p class="hint" style="margin:10px 0 12px">Te propongo tres mezclas válidas distintas. Compáralas y elige la que mejor equilibre todo — cada una tiene sus métricas abajo.</p>
+        <div id="altSelector" class="row" style="gap:8px"></div>
+        <div class="scrollx" style="margin-top:12px"><table id="altCompare"></table></div>
+      </div>
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+          <h2 style="margin:0">Semáforo de la mezcla</h2>
+          <span class="badge green" id="altBadge" style="font-size:12px">Alternativa 1</span>
         </div>
         <div class="kpis" id="kpiGrid" style="margin-top:16px"></div>
         <p class="hint" id="kpiExplain" style="margin-top:14px"></p>
@@ -315,6 +325,10 @@
         <p class="hint" style="margin-bottom:12px">Con cuántas de sus elecciones quedó cada alumna. La idea es que sea <b>equilibrado</b>: que nadie quede con todas sus amigas mientras otras quedan con una sola.</p>
         <div id="friendDist"></div>
         <p class="hint" id="friendNote" style="margin-top:10px"></p>
+      </div>
+      <div class="card">
+        <h2>Composición de los cursos nuevos</h2>
+        <div class="classes" id="classCols"></div>
       </div>
       <div class="card">
         <h2>Balance de puntaje por curso nuevo</h2>
@@ -414,7 +428,7 @@
       </div>
       <div id="dimList"></div>
       <button class="btn ghost" id="btnAddDim" style="margin-top:12px">➕ Agregar dimensión</button>
-      <p class="hint" style="margin-top:10px">Al editar un peso o una nota, se recalculan los puntajes. Vuelve a la pestaña ① y pulsa <b>Ejecutar mezcla</b> para re-balancear.</p>
+      <p class="hint" style="margin-top:10px">Al editar un peso o una nota, se recalculan los puntajes y las 3 alternativas se re-balancean solas. Usa <b>✎ textos</b> para ver o editar la descripción de cada nivel.</p>
     </div>
 
     <div class="card">
@@ -502,6 +516,8 @@
 /* =================== ESTADO =================== */
 let STUDENTS = [];
 let LAST = null;
+let ALTS = [];
+let SELECTED = 0;
 let DATA_IS_DUMMY = true;
 let CONSTRAINTS = [
   {id:'amistad', tipo:'amistad', on:true, weight:100, dura:true,
@@ -578,7 +594,7 @@ function randDimVal(dimId){ if(dimId==='apoyo') return Math.random()<0.80?null:(
 
 /* =================== DUMMIES =================== */
 function genDummy(){
-  const nC=+$('#nCursos').value, nP=35, nE=+$('#nElecciones').value;  // 35 = tamaño dummy por curso
+  const nC=+$('#nCursos').value, nP=35, nE=4;  // 35 = tamaño dummy por curso; 4 = elecciones
   STUDENTS=[]; let id=0; const used=new Set();
   for(let c=0;c<nC;c++){
     const g=[];
@@ -590,7 +606,7 @@ function genDummy(){
     }
     for(const st of g){ const pool=g.filter(x=>x.id!==st.id); shuffle(pool); st.elecciones=pool.slice(0,nE).map(x=>x.id); }
   }
-  DATA_IS_DUMMY=true; LAST=null; refreshDataTable(); rebuildParamPickers();
+  DATA_IS_DUMMY=true; LAST=null; ALTS=[]; refreshDataTable(); rebuildParamPickers(); renderCurrentCols();
   $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> · ${nC} cursos origen · datos dummy`;
   $('#uploadMsg').textContent=`Generadas ${STUDENTS.length} alumnas dummy.`;
   $('#btnExport').disabled=false;
@@ -598,7 +614,13 @@ function genDummy(){
 
 /* =================== MOTOR =================== */
 function run(){
-  if(!STUDENTS.length){ alert('Primero genera datos dummy o sube tu Excel (pestaña ③).'); return; }
+  if(!STUDENTS.length){ alert('Primero genera datos dummy o sube tu Excel (pestaña ①).'); return; }
+  ALTS=[computeMix(),computeMix(),computeMix()];
+  SELECTED=0;
+  renderAltSelector();
+  selectAlt(0);
+}
+function computeMix(){
   const nDest=+$('#nDestino').value, N=STUDENTS.length;
   const byId=Object.fromEntries(STUDENTS.map(s=>[s.id,s]));
   const cAmistad=CONSTRAINTS.find(c=>c.id==='amistad');
@@ -720,17 +742,75 @@ function run(){
   const maxE=Math.max(1,...STUDENTS.map(s=>s.elecciones.length));
   const friendDist=Array(maxE+1).fill(0);
   STUDENTS.forEach(s=>{ const fc=s.elecciones.filter(f=>binOf[f]===binOf[s.id]).length; friendDist[Math.min(fc,maxE)]++; });
-  LAST={classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,friendDist,maxE,
+  return {classes,withFriend,mezclaIdx,N,byId,cost:costTerms(),ORIG,matrix,friendDist,maxE,
     sep:separaciones,join:juntar,maxOrigen,spreadAlto,reciproco,balanceOrigen,noSingleton,friendCap,
     tol:(cBalance?cBalance.tol:8)};
-  render();
 }
 
 /* =================== RENDER =================== */
 function semColor(pct,warn,bad){ if(pct>=warn)return'green'; if(pct>=bad)return'amber'; return'red'; }
 function avgShare(L,t){ const sh=L.classes.map(c=>c[t]/(c.studs.length||1)); return sh.reduce((a,x)=>a+x,0)/sh.length; }
+
+/* ---- Composición de los cursos ACTUALES (lo que se sube) ---- */
+function renderCurrentCols(){
+  const cc=$('#currentCols'); if(!cc) return; cc.innerHTML='';
+  if(!STUDENTS.length){ cc.innerHTML='<p class="hint">Sube tu Excel o genera dummies para ver los cursos actuales.</p>'; return; }
+  const oColor={A:'var(--cA)',B:'var(--cB)',C:'var(--cC)',D:'var(--cD)',E:'var(--cE)',F:'var(--gold)'};
+  const byId=Object.fromEntries(STUDENTS.map(s=>[s.id,s]));
+  const ORIG=[...new Set(STUDENTS.map(s=>s.origen))];
+  ORIG.forEach((o,i)=>{
+    const studs=STUDENTS.filter(s=>s.origen===o);
+    const col=oColor[o]||['var(--cA)','var(--cB)','var(--cC)','var(--cD)','var(--cE)'][i%5];
+    let rows='';
+    studs.slice().sort((a,b)=>(b.puntaje||0)-(a.puntaje||0)).forEach(s=>{
+      const el=s.elecciones.map(f=>byId[f]?byId[f].nombre.split(' ')[0]:'?').join(', ');
+      rows+=`<div class="stud"><span class="nm">${s.nombre}</span><span class="sc" style="color:${nivelColor(s.nivel)}">${scoreLabel(s)}</span></div>
+        <div style="font-size:10.5px;color:var(--muted);padding:0 8px 4px 8px">elige: ${el||'—'}</div>`;
+    });
+    const div=document.createElement('div'); div.className='clscard';
+    div.innerHTML=`<div class="clshead" style="background:${col}"><h3>Curso ${o}</h3><span class="cnt">${studs.length} alumnas</span></div>
+      <div class="clslist">${rows}</div>`;
+    cc.appendChild(div);
+  });
+}
+
+/* ---- 3 alternativas ---- */
+function altMetrics(L){
+  const N=L.N;
+  const friend=Math.round(L.withFriend/N*100);
+  let worst=0; for(const t of ['alto','medio','bajo']){ const sh=L.classes.map(c=>c[t]/(c.studs.length||1)); const m=sh.reduce((a,x)=>a+x,0)/sh.length; worst=Math.max(worst,Math.max(...sh.map(x=>Math.abs(x-m)))*100); }
+  const mezcla=Math.round(L.mezclaIdx*100);
+  const fd=L.friendDist||[]; const withMany=fd.slice(3).reduce((a,x)=>a+x,0);
+  const sizes=L.classes.map(c=>c.studs.length); const spread=Math.max(...sizes)-Math.min(...sizes);
+  return {friend,bal:worst,mezcla,withMany,spread};
+}
+function renderAltSelector(){
+  const sel=$('#altSelector'); if(!sel) return; sel.innerHTML='';
+  ALTS.forEach((L,i)=>{ const b=document.createElement('button');
+    b.className='btn '+(i===SELECTED?'red':'sec'); b.textContent='Alternativa '+(i+1);
+    b.onclick=()=>selectAlt(i); sel.appendChild(b);
+  });
+  // tabla comparativa
+  const t=$('#altCompare'); const dot=(c)=>`<span class="dot ${c}"></span>`;
+  let head='<thead><tr><th></th><th>Con amiga</th><th>Amistades equilibradas</th><th>Balance</th><th>Mezcla</th><th>Cursos parejos</th></tr></thead><tbody>';
+  let body='';
+  ALTS.forEach((L,i)=>{ const m=altMetrics(L);
+    const cf=semColor(m.friend,100,92), cm=m.withMany===0?'green':(m.withMany<=Math.max(2,Math.round(L.N*0.06))?'amber':'red');
+    const cb=m.bal<=L.tol?'green':(m.bal<=L.tol*1.6?'amber':'red'), cx=semColor(m.mezcla,55,30), cs=m.spread<=1?'green':(m.spread<=3?'amber':'red');
+    body+=`<tr style="${i===SELECTED?'background:var(--card-h)':''}; cursor:pointer" onclick="selectAlt(${i})">
+      <td><b>Alt ${i+1}</b></td>
+      <td>${dot(cf)} ${m.friend}%</td>
+      <td>${dot(cm)} ${m.withMany===0?'✓':m.withMany+' con 3+'}</td>
+      <td>${dot(cb)} ${m.bal.toFixed(1)} pp</td>
+      <td>${dot(cx)} ${m.mezcla}%</td>
+      <td>${dot(cs)} ±${m.spread}</td></tr>`;
+  });
+  t.innerHTML=head+body+'</tbody>';
+}
+window.selectAlt=(i)=>{ SELECTED=i; LAST=ALTS[i]; const bd=$('#altBadge'); if(bd) bd.textContent='Alternativa '+(i+1);
+  renderAltSelector(); render(); };
 function render(){
-  if(!LAST)return; $('#results').style.display='block';
+  if(!LAST)return;
   if($('#resEmpty')) $('#resEmpty').style.display='none';
   if($('#resultsInd')) $('#resultsInd').style.display='block';
   const L=LAST, N=L.N;
@@ -901,7 +981,7 @@ function refreshDataTable(){
 
 /* =================== EXCEL =================== */
 function downloadTemplate(){
-  const nC=+$('#nCursos').value, nP=35; const nE=Math.max(1,+$('#nElecciones').value);
+  const nC=+$('#nCursos').value, nP=35, nE=4;
   const dnames=DIMENSIONS.map(d=>d.nombre);
   const header=['Curso actual','Selecciona tu nombre']; for(let i=1;i<=nE;i++) header.push('Elección '+i); header.push(...dnames);
   const rows=[header]; const used=new Set(); const roster=[];
@@ -970,7 +1050,7 @@ function importXlsx(file, autoRun){
       const origenes=[...new Set(STUDENTS.map(s=>s.origen))];
       const sizes=origenes.map(o=>o+':'+STUDENTS.filter(s=>s.origen===o).length).join('  ');
       $('#nCursos').value=origenes.length; $('#nDestino').value=origenes.length;
-      if(kElec.length) $('#nElecciones').value=kElec.length;
+      renderCurrentCols();
       const scoreMsg = nDims? `puntaje ponderado por ${nDims} dimensiones` : 'puntaje leído de columna';
       $('#uploadMsg').innerHTML=`<span style="color:var(--green)">✓ Cargadas ${STUDENTS.length} alumnas</span> · ${sizes} · ${kElec.length} elecciones · ${scoreMsg}. Ve a la pestaña ① y ejecuta la mezcla.`;
       $('#dataState').innerHTML=`<b style="color:var(--text)">${STUDENTS.length} alumnas</b> cargadas desde Excel`;
@@ -1103,11 +1183,14 @@ function pesoTotal(){ return DIMENSIONS.reduce((a,d)=>a+(+d.peso||0),0); }
 function renderRubric(){
   const box=$('#dimList'); if(!box) return; box.innerHTML='';
   DIMENSIONS.forEach(d=>{
+    const tot=pesoTotal()||1; const w=Math.round((+d.peso||0)/tot*100);
     const div=document.createElement('div'); div.className='dimc';
     div.innerHTML=`<div class="top">
         <input class="nm" type="text" value="${(d.nombre||'').replace(/"/g,'&quot;')}" onchange="dimSet('${d.id}','nombre',this.value)">
-        <span class="peso">Peso <input type="number" min="0" max="100" step="1" value="${d.peso}" onchange="dimSet('${d.id}','peso',this.value)"> %</span>
-        <button class="btn ghost mini" onclick="dimDel('${d.id}')">Eliminar</button>
+        <div class="wbar" title="${w}% del total"><span style="width:${w}%"></span></div>
+        <span class="peso"><input type="number" min="0" max="100" step="1" value="${d.peso}" onchange="dimSet('${d.id}','peso',this.value)"> %</span>
+        <button class="btn ghost mini" title="Editar descripciones" onclick="this.closest('.dimc').classList.toggle('open')">✎ textos</button>
+        <button class="btn ghost mini" title="Eliminar" onclick="dimDel('${d.id}')">✕</button>
       </div>
       <div class="desc">
         <label class="lvl2">Nivel 2 · Alto<textarea onchange="dimSet('${d.id}','alto',this.value)">${d.alto||''}</textarea></label>
@@ -1122,7 +1205,7 @@ function renderRubric(){
 }
 window.dimSet=(id,field,val)=>{ const d=DIMENSIONS.find(x=>x.id===id); if(!d) return;
   if(field==='peso'){ d.peso=Math.max(0,+val||0); } else { d[field]=val; if(field==='nombre'){ d.match=val.toLowerCase().replace(/[^a-zñ]+/gi,'').slice(0,6)||d.match; } }
-  applyRubric(); };
+  applyRubric(field==='peso'||field==='nombre'); };
 window.dimDel=(id)=>{ if(DIMENSIONS.length<=1){ alert('Debe quedar al menos una dimensión.'); return; }
   DIMENSIONS=DIMENSIONS.filter(x=>x.id!==id); STUDENTS.forEach(s=>{ if(s.dims) delete s.dims[id]; }); applyRubric(); };
 $('#btnAddDim')&&$('#btnAddDim').addEventListener('click',()=>{
