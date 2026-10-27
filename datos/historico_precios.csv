@@ -47302,3 +47302,875 @@ fecha,retailer,sku,ean,nombre,cantidad,unidad,precio_lista,precio_efectivo,mecan
 2026-10-26,Jumbo,152819,,Chocolates Vizzio 90 g,0.09,kg,1000,1000,
 2026-10-26,Jumbo,169384,,Galleta de Arroz Mizos Choc Avellana 25 g,0.025,kg,580,580,
 2026-10-26,Jumbo,165556,,Galleta Lata Mini Shortbread Walker 100 g,0.1,kg,7990,7990,
+2026-10-27,Unimarc,3819,7801610001974,Bebida Coca Cola original 1 L,1,L,1690,1000,2 x $2.000
+2026-10-27,Unimarc,484,7801610001653,Bebida Coca Cola original desechable 3 L,3,L,3390,2590,$2.590
+2026-10-27,Unimarc,5867,7801610000571,Bebida Coca Cola original botella 591 ml,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,6677,7801610591994,Bebida Sprite botella 591 ml,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,90391,7801610002926,FANTA NARANJA FULL SUGAR 591 ML PET,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,97634,9990000000135,Bebida Coca Cola Original Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,97653,9990000000128,Bebida Sprite Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,12571,7802100360182,Bebida Canada Dry ginger ale no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,98035,9990000000129,Bebida Fanta Naranja Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,98026,9990000000080,Bebida Limón Soda retornable 2 L (Incluye envase),2,L,2960,2960,
+2026-10-27,Unimarc,98046,9990000000079,Bebida Kem Piña Retornable 2 L (Incluye envase),2,L,2960,2960,
+2026-10-27,Unimarc,97654,9990000000081,Bebida Pap retornable 2 L (Incluye envase),2,L,2960,2960,
+2026-10-27,Unimarc,9838,7801620014513,Bebida Pepsi no retornable 1.5 L,1.5,L,2090,2090,
+2026-10-27,Unimarc,3283,7802100300188,Bebida Pap no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,3286,7802100340184,Bebida Limón Soda no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,3284,7802100330215,Bebida Orange Crush no retornable 1.5 L,1.5,L,2090,2090,
+2026-10-27,Unimarc,3285,7802100350183,Bebida Kem piña no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,3282,7802100290168,Bebida Bilz no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,98025,9990000000083,Bebida Bilz retornable  2 L (Incluye envase),2,L,2960,2960,
+2026-10-27,Unimarc,98347,7801610003862,Bebida Schweppes ginger ale desechable 3 L,3,L,3290,2590,$2.590
+2026-10-27,Unimarc,57399,7801610350904,Bebida Coca Cola zero 1 L,1,L,1690,1000,2 x $2.000
+2026-10-27,Unimarc,655,7801610355534,Bebida Coca Cola zero desechable 3 L,3,L,3390,2590,$2.590
+2026-10-27,Unimarc,569,7801610650103,Bebida Coca Cola light 1 L,1,L,1690,1000,2 x $2.000
+2026-10-27,Unimarc,5871,7801610000601,Bebida Coca Cola zero botella 591 ml,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,578,7801610352151,Bebida Coca Cola light desechable 3 L,3,L,3390,2590,$2.590
+2026-10-27,Unimarc,14276,7801610591123,Bebida Fanta sin azúcar botella 591 ml,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,5869,7801610000595,Bebida Coca Cola light botella 591 ml,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,1722,7801610591888,Bebida Sprite zero botella 591 ml,0.591,L,1350,995,2 x $1.990
+2026-10-27,Unimarc,13988,7801620006860,Bebida Pepsi zero no retornable 1.5 L,1.5,L,2090,2090,
+2026-10-27,Unimarc,98374,,Bebida Schweppes ginger ale zero desechable 3 L,3,L,3290,2590,$2.590
+2026-10-27,Unimarc,98036,9990000000136,Bebida Coca Cola Zero Azúcar Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,55293,7801620008048,Bebida Canada Dry ginger ale zero no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,98037,9990000000137,Bebida Sprite Zero Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,98038,9990000000138,Bebida Coca Cola Light Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,97684,9990000000036,Bebida Fanta Zero Retornable 2 L (Incluye envase),2,L,2780,2780,
+2026-10-27,Unimarc,3626,7801620853204,Bebida Orange Crush light no retornable 1.5 L,1.5,L,2090,2090,
+2026-10-27,Unimarc,6346,7801620005306,Bebida Kem zero no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,3960,7801620151058,Bebida Canada Dry ginger ale light no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,6179,7801620004910,Bebida Pap zero no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,633,7801620002787,Bebida Limón Soda light no retornable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,6177,7801620004958,Bebida Bilz zero no retronable 1.5 L,1.5,L,2190,2190,
+2026-10-27,Unimarc,97362,2050003673310,Set 10 vasos plástico rojos Dkora 500 cc,0.5,L,1590,1590,
+2026-10-27,Unimarc,324,2707,Tomate larga vida granel 500 g,1,kg,995,995,
+2026-10-27,Unimarc,1418,7804610850337,Zanahoria de jugo bolsa 1 Kg,1,kg,1490,1490,
+2026-10-27,Unimarc,7652,1276,Mangos granel 500 g,1,kg,1575,1495,$1.495
+2026-10-27,Unimarc,319,7804675170111,Pimentón verde 1 un Pimenton Verde 1 U,,,1150,1150,
+2026-10-27,Unimarc,84424,2050003803724,Kiwi bolsa 1 Kg,1.0,kg,2890,2890,
+2026-10-27,Unimarc,1426,7804653140006,Zapallo camote envasado 700 g,0.7,kg,2390,2390,
+2026-10-27,Unimarc,303,7808744701923,Coliflor 1 un,,,1790,1790,
+2026-10-27,Unimarc,341,2050003368827,Betarraga bolsa 5 un,,,1550,1550,
+2026-10-27,Unimarc,97176,753519475226,Castaña de caju sabor toffee Platinum 368gr,0.368,kg,12190,10730,$10.730
+2026-10-27,Unimarc,97132,7808743606823,Maní sin sal Tento 140gr,0.14,kg,1190,990,$990
+2026-10-27,Unimarc,45942,7804672830162,Menta fresca Jardín Secreto estuche 30 g,0.03,kg,1090,1090,
+2026-10-27,Unimarc,3450,2050003368803,Perejil atado 120 g,0.12,kg,680,680,
+2026-10-27,Unimarc,494,7804668360048,Apio corazón Dole 2 un,,,3290,3290,
+2026-10-27,Unimarc,454,44419210018,Tomate romanita pote 10 un aprox,0.34,kg,3650,3650,
+2026-10-27,Unimarc,283,2050003672306,Pera bolsa 1 Kg,1,kg,1950,1950,
+2026-10-27,Unimarc,299,2245,Cebolla morada granel 500 g,1,kg,1145,1145,
+2026-10-27,Unimarc,295,2800905000000,Berenjena 1 un,,,800,800,
+2026-10-27,Unimarc,1633,90197,Tomates beef tomaval granel 500 g,1,kg,1325,1325,
+2026-10-27,Unimarc,332,2506473000007,Manzana verde granel 500 g,1,kg,1295,1295,
+2026-10-27,Unimarc,10829,7804646490071,Rúcula bolsa 200 g,0.2,kg,1790,1790,
+2026-10-27,Unimarc,307,7804631430136,Jengibre bandeja 100 g,0.1,kg,1590,1590,
+2026-10-27,Unimarc,853,2050000150180,Mix hojas verdes surtido Freshcut bandeja 150 g,0.15,kg,2490,2490,
+2026-10-27,Unimarc,333,7804654130037,Cebolla malla 3 un aprox,,,1990,1990,
+2026-10-27,Unimarc,304,8065100,Diente de dragón bandeja 250 g,0.25,kg,1090,1090,
+2026-10-27,Unimarc,42757,7804672150017,Ajos display 150 g,0.15,kg,1450,1450,
+2026-10-27,Unimarc,92963,2050003728720,Manzana pink lady Guardian 1Kg,1,kg,2450,2450,
+2026-10-27,Unimarc,61760,7804636170594,Mix italiano Fresh Cut 150 g,0.15,kg,2490,2490,
+2026-10-27,Unimarc,9912,7804600760271,Tomate Triple Tasty pack 500 g,0.5,kg,4590,4590,
+2026-10-27,Unimarc,275,1291,Manzana fuji granel 500 g,1,kg,1295,1295,
+2026-10-27,Unimarc,6951,2594913000007,Tomates racimo tomaval granel 500 g,1,kg,1325,1325,
+2026-10-27,Unimarc,3439,2501293000008,Manzana royal gala granel 500 g,1,kg,1295,1295,
+2026-10-27,Unimarc,82086,7804627171517,Mix cajuna Tribu 700 g,0.7,kg,8690,8690,
+2026-10-27,Unimarc,9877,7801365000253,Champiñones Ostra bandeja 200 g.,0.2,kg,1950,1950,
+2026-10-27,Unimarc,885,2050000155338,Rúcula Freshcut bandeja 150 g,0.15,kg,2590,2590,
+2026-10-27,Unimarc,82087,7804627171524,Mix power mix Tribu 700 g,0.7,kg,8690,8690,
+2026-10-27,Unimarc,45941,7804672830193,Hierbabuena Jardín Secreto estuche 30 g,0.03,kg,1090,1090,
+2026-10-27,Unimarc,75150,7804675170036,Pimentón naranjo 1 un,,,1890,1890,
+2026-10-27,Unimarc,13603,7804623480231,Puerro baby Agrosano 200 g,0.2,kg,1890,1890,
+2026-10-27,Unimarc,1093,2713,Tomates italianos granel 500 g,1,kg,1325,1325,
+2026-10-27,Unimarc,1721,7804636170488,Kale baby Freshcut 150 g,0.15,kg,2490,2490,
+2026-10-27,Unimarc,43342,7804033000098,Brotes de arveja Mas Vida 150 g,0.15,kg,1550,1550,
+2026-10-27,Unimarc,206,850026410082,Espárragos verdes 340 g,0.34,kg,3190,3190,
+2026-10-27,Unimarc,53709,7804033000074,Pak choi Más Vida bandeja 400 g,0.4,kg,1890,1890,
+2026-10-27,Unimarc,52284,94174,Manzana jazz granel 500 g,1,kg,1295,1295,
+2026-10-27,Unimarc,74642,7804670730075,Piña picada Izi pote 400 g,0.4,kg,4090,4090,
+2026-10-27,Unimarc,931,7804097000782,Salsa verde Genial pote 200 g,0.2,kg,2050,2050,
+2026-10-27,Unimarc,74643,7804670730082,Mango picado Izi pote 400 g,0.4,kg,4290,4290,
+2026-10-27,Unimarc,97992,7804033000418,Mix brotes Más Vida sprout mix envasado 120 gr,0.12,kg,1290,1290,
+2026-10-27,Unimarc,44693,7801365087780,Champiñón Portobello bandeja 400 g,0.4,kg,3990,3990,
+2026-10-27,Unimarc,59498,7804623480668,Limón Vegus orgánico malla 1 Kg,1,kg,2550,2550,
+2026-10-27,Unimarc,3448,7804033000210,Endibias bandeja 250 g,0.25,kg,2850,2850,
+2026-10-27,Unimarc,73576,7804610851730,Ensalada repollo blanco Proverde 300 g,0.3,kg,1890,1890,
+2026-10-27,Unimarc,14528,7804097000553,Cebolla en cubos Apostoles 200 g,0.2,kg,2090,2090,
+2026-10-27,Unimarc,73583,7804610851846,Ensalada espinaca Proverde 200 g,0.2,kg,1990,1990,
+2026-10-27,Unimarc,97177,753519476278,Almendras cubiertas de chocolate Platinum 340gr,0.34,kg,11250,9900,$9.900
+2026-10-27,Unimarc,85722,2050002956063,Esparrago verde Santa Emilia 300 Gr Paquete de espárragos verdes Santa Emilia 300 g,0.34,kg,2690,2690,
+2026-10-27,Unimarc,33757,7809596800901,Rúcula Ecocultiva orgánica 200 g,0.2,kg,2550,2550,
+2026-10-27,Unimarc,92206,7803468005388,Pan de molde Castaño multigrano proteína 620 g,0.62,kg,2790,2490,$2.490
+2026-10-27,Unimarc,14486,7803468003001,Pan  cóctel tapadito bolsa 350 g,0.35,kg,2630,2350,$2.350
+2026-10-27,Unimarc,80312,782150025231,Hojarascas D´lilis 240 g,0.24,kg,2890,2590,$2.590
+2026-10-27,Unimarc,87504,7802730000410,Barquillo en vaso Amada Masa 10 un,,,1290,1000,$1.000
+2026-10-27,Unimarc,77003,7807975003561,Queque relleno dulce de leche Amada Masa 250 g,0.25,kg,1990,1590,$1.590
+2026-10-27,Unimarc,83209,7803403003240,Pan de molde Ideal cero cero integral 600 g,0.6,kg,3350,3350,
+2026-10-27,Unimarc,76830,7792180138736,Pack mini queque relleno dulce de leche Amada Masa 5 un,,,2190,1690,$1.690
+2026-10-27,Unimarc,90056,7803468004923,Brownie Castaño sin azúcar añadida 4 un,0.2,kg,3490,2690,$2.690
+2026-10-27,Unimarc,92211,7803468005395,Pan de molde Castaño calabaza proteína 600 g,0.6,kg,2790,2490,$2.490
+2026-10-27,Unimarc,90057,7803468004930,Mini brownie bañado Castaño 4 un,0.14,kg,1990,1490,$1.490
+2026-10-27,Unimarc,97842,7803403004810,Queque vainilla Agua de Piedra 160 gr,0.16,kg,1490,1190,$1.190
+2026-10-27,Unimarc,92205,7803468005371,Pan de molde Castaño linaza chía prebiótico 600 g,0.6,kg,2790,2490,$2.490
+2026-10-27,Unimarc,90096,7803468004886,Brownie nueces Castaño 4 un,0.248,kg,3390,2690,$2.690
+2026-10-27,Unimarc,97843,7803403004827,Queque de chocolate Agua de Piedra 160 gr,0.26,kg,1490,1190,$1.190
+2026-10-27,Unimarc,75090,7807975002984,Muffin marmoleado Amada Masa 3 un,,,2690,2100,$2.100
+2026-10-27,Unimarc,75080,7807975002991,Muffin vainilla relleno dulce de leche Amada Masa 3 un,,,2790,2190,$2.190
+2026-10-27,Unimarc,77002,7807975003554,Queque vainilla Amada Masa 220 g,0.22,kg,1890,1490,$1.490
+2026-10-27,Unimarc,77001,7807975003547,Queque chocolate Amada Masa 220 g,0.22,kg,1890,1490,$1.490
+2026-10-27,Unimarc,91548,7803468005210,Brookie Castaño brownie más cookie 4 un,0.2,kg,3550,2690,$2.690
+2026-10-27,Unimarc,75089,7807975002977,Muffin vainilla Amada Masa 3 un,,,2690,2100,$2.100
+2026-10-27,Unimarc,98291,7807975011771,Muffin choco chips Amada Masa 200 gr,0.2,kg,2590,2050,$2.050
+2026-10-27,Unimarc,97604,7803468005746,Brownie chips Castaño 4 un,0.248,kg,3190,2690,$2.690
+2026-10-27,Unimarc,98625,7802095181168,Tortilla Pancho Villa no refrigerada L 8 un 224 gr,0.224,kg,2390,2000,$2.000
+2026-10-27,Unimarc,91540,7803468004909,Mini brownie nueces Castaño 6 un,0.18,kg,2590,2190,$2.190
+2026-10-27,Unimarc,97605,7803468005777,Mini brownie chips Castaño 6 un,0.18,kg,2490,2190,$2.190
+2026-10-27,Unimarc,98150,7803403005367,Galleta Pinguino Marinela 128 gr,0.128,kg,2290,2000,$2.000
+2026-10-27,Unimarc,84603,7803468004534,Pan de molde Kingsbury perfecto bolsa 580 g,0.58,kg,4150,4150,
+2026-10-27,Unimarc,77650,7803495004361,Pan de molde blanco XL Amada Masa 750 g,0.75,kg,2590,2590,
+2026-10-27,Unimarc,98196,7807975011177,Churro tradicional prefrito Tento 320 gr,0.32,kg,4490,4490,
+2026-10-27,Unimarc,93853,7803403004483,Tortilla Rapiditas Ideal cero y cero 8 un,0.2,kg,1850,1850,
+2026-10-27,Unimarc,988,7803473002242,Tortilla mexicana Tía Rosa fajita 10 un bolsa 320 g,0.32,kg,2350,2350,
+2026-10-27,Unimarc,80188,7804651842803,Pan dobladita Amada Masa 6 un,0.48,kg,3190,3190,
+2026-10-27,Unimarc,9921,7804623700674,Magdalena Buenas Migas vainilla bandeja 9 un,,,2750,2750,
+2026-10-27,Unimarc,98197,7807975011184,Mini churros prefritos Tento manjar 180 gr,0.18,kg,3190,3190,
+2026-10-27,Unimarc,91723,7807975007385,Kuchen de manzana Amada Masa 1 un,0.65,kg,6990,6990,
+2026-10-27,Unimarc,97066,7803500000494,Prepizza sin gluten No + Gluten 300 gr,0.3,kg,2750,2750,
+2026-10-27,Unimarc,54222,7804651841622,Pan de molde sandwich La Selecta familiar integral bolsa 800 g,0.8,kg,4090,4090,
+2026-10-27,Unimarc,3976,7803473000750,Pan pita Ideal integral 8 un bolsa 344 g,0.344,kg,1990,1990,
+2026-10-27,Unimarc,11258,7803468001274,Pan de hamburguesa Castaño brioche bolsa 660 g,0.66,kg,4050,4050,
+2026-10-27,Unimarc,54229,7804618460385,Masa pre pizza Spagnolia a la piedra bolsa 2 un,0.264,kg,2050,2050,
+2026-10-27,Unimarc,83208,7803403003233,Pan molde Ideal cero cero blanco 580 g,0.58,kg,3450,3450,
+2026-10-27,Unimarc,98527,7807975012891,Torta selva negra especial Amada Masa 15P,,,12990,12990,
+2026-10-27,Unimarc,55643,7803403002588,Pan hamburguesa Ideal artesano 8 un bolsa 720 g,0.72,kg,4350,4350,
+2026-10-27,Unimarc,97589,7803495002961,Tarta volcán de chocolate Pulmahue 580 gr,0.58,kg,7090,7090,
+2026-10-27,Unimarc,57684,7798120546982,Merengues blancos Macrodeli bolsa 100 g,0.1,kg,2550,2550,
+2026-10-27,Unimarc,9920,7804623700735,Magdalena Buenas Migas tres leches bandeja 9 un,,,2750,2750,
+2026-10-27,Unimarc,82510,7803403003110,Pan de molde Ideal protein10 integral 650 g,0.65,kg,3650,3650,
+2026-10-27,Unimarc,91726,7807975007392,Kuchen de frambuesa Amada Masa 1 un,0.65,kg,6990,6990,
+2026-10-27,Unimarc,75372,7807975003301,Trenza rusa Amada Masa 420 g,0.42,kg,2790,2790,
+2026-10-27,Unimarc,14509,7803468003087,Masa pre pizza Castaño 250 g,0.25,kg,1790,1790,
+2026-10-27,Unimarc,91882,7898954933689,Pan hamburguesa sin gluten Schar 130 g,0.13,kg,3390,3390,
+2026-10-27,Unimarc,92091,7802730000472,Barquillo Best Buddies relleno avellanas  90 g,0.09,kg,2590,2590,
+2026-10-27,Unimarc,90254,7803495005672,Pan molde Amada Masa integral XL 750 g,0.75,kg,2690,2690,
+2026-10-27,Unimarc,92200,7803403004193,Gansito Marinela caja 5 un,0.25,kg,3650,3650,
+2026-10-27,Unimarc,92092,7802730000496,Barquillo Best Buddies relleno choco maní 90 g,0.09,kg,2590,2590,
+2026-10-27,Unimarc,11579,7803525999674,Queque Nutra Bien naranja premium 250 g,0.25,kg,2850,2850,
+2026-10-27,Unimarc,96736,7803403004551,Pan de molde Cena blanco XL 700 gr,0.7,kg,2590,2590,
+2026-10-27,Unimarc,90635,2797392000012,Pan campo linaza El Espigal 400 g,0.4,kg,1590,1590,
+2026-10-27,Unimarc,14480,4101540704550,Queque Schlunder limón 400 g,0.4,kg,5090,5090,
+2026-10-27,Unimarc,96261,7804603870144,Kit masa pizza + salsa Saint Jacques 1 un,0.5,kg,5550,5550,
+2026-10-27,Unimarc,3975,7803473711120,Pan pita Ideal blanco 8 un bolsa 344 g,0.344,kg,1990,1990,
+2026-10-27,Unimarc,5405,787359176586,Crutones Fresh Toppings queso y ajo 80 g,0.08,kg,2090,2090,
+2026-10-27,Unimarc,92201,7803473006080,Rayita Marinela vainilla caja 5 un,0.15,kg,2550,2550,
+2026-10-27,Unimarc,75001,7802920009803,Leche en polvo Colun entera instantáneo doypack 900 g,0.9,kg,8650,7750,$7.750
+2026-10-27,Unimarc,7398,7802920000930,Yoghurt Colun frutilla 125 g,0.125,kg,310,250,4 x $1.000
+2026-10-27,Unimarc,7400,7802920000954,Yoghurt Colun vainilla 125 g,0.125,kg,310,250,4 x $1.000
+2026-10-27,Unimarc,407,7802900121013,Mantequilla Soprole con sal 250 gr,0.25,kg,3190,3190,
+2026-10-27,Unimarc,82955,8445290262387,Leche en polvo Nido entera tarro 1.350 g,1.35,kg,16690,16690,
+2026-10-27,Unimarc,97635,7807975010453,Huevos Fundo Río Alegre extra blanco 20 un,,,6590,5000,$5.000
+2026-10-27,Unimarc,15097,7802920000992,Yoghurt Colun piña 125 g,0.125,kg,310,250,4 x $1.000
+2026-10-27,Unimarc,7402,7802920000978,Yoghurt Colun mora 125 g,0.125,kg,310,250,4 x $1.000
+2026-10-27,Unimarc,7399,7802920000947,Yoghurt Colun frambuesa 125 g,0.125,kg,310,250,4 x $1.000
+2026-10-27,Unimarc,7530,7802900056070,Leche semidescremada Soprole chocolate 200 ml Leche chocolate semidescremada Soprole 200 ml,0.2,L,620,500,6 x $3.000
+2026-10-27,Unimarc,97991,8445291797758,Leche en polvo Nido sin lactosa 1+ bolsa 600 gr,0.6,kg,9990,7590,$7.590
+2026-10-27,Unimarc,73648,7802900002381,Leche proteína natural Soprole semidescremada 1 L Leche proteína natural Soprole protein+ semidescremada 1 L,1,L,2990,2190,$2.190
+2026-10-27,Unimarc,68560,7802900002220,Yoghurt Soprole 1+1 pote 155 g,0.155,kg,560,460,2 x $920
+2026-10-27,Unimarc,87167,7802900003975,Leche Soprole semidescremada con avena 200 ml,0.2,L,630,500,6 x $3.000
+2026-10-27,Unimarc,1706,7802900237295,Probiótico Soprole Uno frutilla 18 un de 80 ml Pack probiótico defensas Soprole Uno sabor frutilla 18 un de 80 ml,1.44,L,6690,5290,$5.290
+2026-10-27,Unimarc,95754,7808709505139,Leche Surlat whey proteína descremada chocolate 1 L,1,L,3250,2850,$2.850
+2026-10-27,Unimarc,82672,7808709504217,Leche Los Peumos semidescremada 1 L,1,L,1190,1000,$1.000
+2026-10-27,Unimarc,415,7803200019635,Manteca Astra pan 200 g,0.2,kg,2450,2020,$2.020
+2026-10-27,Unimarc,7527,7802900056025,Leche semidescremada Soprole frutilla 200 ml Leche semidescremada Soprole sabor frutilla 200 ml,0.2,L,620,500,6 x $3.000
+2026-10-27,Unimarc,7089,7802900028473,Leche semidescremada Soprole chocolate requetepatitas 200 ml Leche Soprole sabor chocolate receta original 200 ml,0.2,L,620,500,6 x $3.000
+2026-10-27,Unimarc,87675,7804608122002,Jalea Nuestra Cocina guinda 100 g,0.1,kg,300,250,4 x $1.000
+2026-10-27,Unimarc,87676,7804608122019,Jalea Nuestra Cocina naranja 100 g,0.1,kg,300,250,4 x $1.000
+2026-10-27,Unimarc,7529,7802900057077,Leche semidescremada Soprole chocolate 6 un de 200 ml Pack leche semidescremada Soprole sabor chocolate 6 un de 200 ml,1.2,L,3690,3000,$3.000
+2026-10-27,Unimarc,95752,7808709505146,Leche Surlat whey proteína descremada caramelo 1 L,1,L,3250,2850,$2.850
+2026-10-27,Unimarc,97949,7807975010392,Huevos Fundo Rio Alegre extra blanco 20 un,,,6590,6050,$6.050
+2026-10-27,Unimarc,87673,7804608121982,Jalea Nuestra Cocina limón 100 g,0.1,kg,300,250,4 x $1.000
+2026-10-27,Unimarc,11613,78093010,Jalea Nestlé frambuesa pote 110 g,0.11,kg,390,333.33,3 x $1.000
+2026-10-27,Unimarc,408,7802900120016,Mantequilla Soprole con sal 125 g Mantequilla Soprole con sal pan 125 g,0.125,kg,1950,1560,$1.560
+2026-10-27,Unimarc,87674,7804608121999,Jalea Nuestra Cocina frambuesa 100 g,0.1,kg,300,250,4 x $1.000
+2026-10-27,Unimarc,11614,7809305800000,Jalea Nestlé naranja pote 110 g,0.11,kg,390,333.33,3 x $1.000
+2026-10-27,Unimarc,97655,7807975010460,Huevos Fundo Río Alegre mediano blanco 30 un,,,7850,7000,$7.000
+2026-10-27,Unimarc,7243,7613032722883,Jalea Nestlé piña pote 110 g,0.11,kg,390,333.33,3 x $1.000
+2026-10-27,Unimarc,265,7804133005023,Huevos extra blanco grande Cintazul 12 un,,,4990,4200,$4.200
+2026-10-27,Unimarc,264,7804100102106,Huevos grande blanco Yemita 12 un,,,3990,3550,$3.550
+2026-10-27,Unimarc,97685,7807975010484,Huevos Fundo Río Alegre grande color 12 un,,,3750,3270,$3.270
+2026-10-27,Unimarc,92052,8445291423893,Leche en polvo Nido entera 300 g,0.3,kg,4350,3260,$3.260
+2026-10-27,Unimarc,83611,7808709504231,Leche descremada Los Peumos 1 L,1,L,1190,1000,$1.000
+2026-10-27,Unimarc,54358,7802900001421,Leche proteína Soprole semidescremada con cacao 1 L Leche proteína Soprole Protein+ sabor chocolate 1 L,1,L,2950,2190,$2.190
+2026-10-27,Unimarc,86473,7802900003791,Leche proteína Soprole sabor vainilla 1 L,1,L,2950,2190,$2.190
+2026-10-27,Unimarc,83189,17808709504245,Pack leche semidescremada Los Peumos 12 un de 1 L,12,L,14280,14280,
+2026-10-27,Unimarc,7526,7802900057022,Leche semidescremada Soprole frutilla 6 un de 200 ml Pack leche semidescremada Soprole sabor frutilla 6 un de 200 ml,1.2,L,3690,3000,$3.000
+2026-10-27,Unimarc,83406,7804100002789,Huevo Yemita extra blanco 18 un,,,6990,5990,$5.990
+2026-10-27,Unimarc,7088,7802900284077,Leche semidescremada Soprole chocolate requetepatitas 6 un de 200 ml Leche Soprole sabor chocolate receta original 6 un de 200 ml,1.2,L,3690,3000,$3.000
+2026-10-27,Unimarc,13694,7804100103226,Huevo grande blanco Yemita 6 un,,,2390,1990,$1.990
+2026-10-27,Unimarc,1644,7804140000042,Huevo grande color La Granja 6 un,,,3090,2390,$2.390
+2026-10-27,Unimarc,97576,7802900005160,Mantequilla Quilque Soprole pote 200 gr,0.2,kg,3550,3000,$3.000
+2026-10-27,Unimarc,89470,8445291225275,Postre Goodnes protein caramelo 115 g,0.115,kg,880,880,
+2026-10-27,Unimarc,11944,7798316701003,Aceite Merkat vegetal 900 ml,0.9,L,1650,1650,
+2026-10-27,Unimarc,77724,7798141972975,Azúcar granulada Nuestra Cocina G2 bolsa 1 Kg,1,kg,1250,1000,$1.000
+2026-10-27,Unimarc,97268,7807975011115,Atún lomito Nuestra Cocina en agua 140 gr neto - 91 gr drenado,0.091,kg,1090,1000,$1.000
+2026-10-27,Unimarc,78351,2050002454538,Harina Nuestra Cocina sin polvos 1 Kg,1,kg,1390,910,$910
+2026-10-27,Unimarc,78548,7807975008726,Salsa de tomate Nuestra Cocina 6 un de 200 g,1.2,kg,3190,2890,$2.890
+2026-10-27,Unimarc,77701,7798316701034,Aceite Nuestra Cocina vegetal botella 900 ml,0.9,L,2090,1990,$1.990
+2026-10-27,Unimarc,84696,7804627780399,Azúcar Nuestra Cocina granulada bolsa 1.3 Kg,1.3,kg,1650,1290,$1.290
+2026-10-27,Unimarc,76234,7801420002260,Arroz Nuestra Cocina G2 grano largo ancho bolsa 1 Kg,1,kg,1550,1500,2 x $3.000
+2026-10-27,Unimarc,7775,7802575204035,Pasta spaghetti N° 5 Trattoría al huevo 400 g Pasta spaghetti N°5 Trattoría al huevo 400 g,0.4,kg,1350,940,4 x $3.760
+2026-10-27,Unimarc,7777,7802575201034,Pasta fusilli al huevo Trattoría 400 g,0.4,kg,1350,940,4 x $3.760
+2026-10-27,Unimarc,599,7802575204110,Pasta fettuccini N°88 al huevo Trattoría  400 g,0.4,kg,1350,940,4 x $3.760
+2026-10-27,Unimarc,97269,7807975011122,Atún lomito Nuestra Cocina en aceite 140 gr neto - 91 gr drenado,0.091,kg,1090,1000,$1.000
+2026-10-27,Unimarc,6228,7802575201089,Pasta rigati Trattoría 400 g,0.4,kg,1350,940,4 x $3.760
+2026-10-27,Unimarc,93464,7805000324568,Mayonesa Hellmann's Supreme Deli doypack 650 gr,0.65,kg,3250,2690,$2.690
+2026-10-27,Unimarc,7778,7802575203014,Pasta farfalle al huevo Trattoria 400 g,0.4,kg,1350,940,4 x $3.760
+2026-10-27,Unimarc,86430,7807975005596,Salsa de tomate italiana merkat doypack 200g,0.2,kg,390,333.33,3 x $1.000
+2026-10-27,Unimarc,78352,2050002454583,Harina Nuestra Cocina con polvos 1 Kg,1,kg,1390,910,$910
+2026-10-27,Unimarc,57089,7801505002659,Azúcar granulada Iansa 1.7 Kg,1.7,kg,2690,2090,$2.090
+2026-10-27,Unimarc,92020,7804621471781,Atún lomito Robinson Crusoe ahumado 140 g neto - 91 g drenado,0.091,kg,1890,1500,2 x $3.000
+2026-10-27,Unimarc,79886,7802420006203,Mayonesa Nuestra Cocina 744 g,0.744,kg,3490,2590,$2.590
+2026-10-27,Unimarc,29,7802615005622,Harina Mont Blanc sin polvos 1 Kg,1,kg,1290,1290,
+2026-10-27,Unimarc,87520,7802225689083,Galletas Selz cracker orégano oliva 90 g,0.09,kg,560,455,2 x $910
+2026-10-27,Unimarc,346,7802315080301,Sucedáneo jugo de limón Traverso 500 ml,0.5,L,1250,1000,$1.000
+2026-10-27,Unimarc,87519,7802225689014,Galletas Selz cracker tradicional 90 g,0.09,kg,560,455,2 x $910
+2026-10-27,Unimarc,11086,7802337101121,Vinagre incoloro Traverso 500 ml,0.5,L,1350,1000,$1.000
+2026-10-27,Unimarc,78264,7807975010880,Porotos blanco Nuestra Cocina bolsa 1 Kg,1,kg,3490,3000,$3.000
+2026-10-27,Unimarc,77481,7790070104533,Arroz Nuestra Cocina pregraneado 1 Kg,1,kg,2290,1790,$1.790
+2026-10-27,Unimarc,84413,608875008994,Ketchup Heinz doypack 190 g,0.19,kg,1190,1000,$1.000
+2026-10-27,Unimarc,87521,7802225689090,Galletas Selz cracker merkén 90 g,0.09,kg,560,455,2 x $910
+2026-10-27,Unimarc,9411,7848004940105,Arroz Merkat largo delgado grado 2 1 Kg,1,kg,890,890,
+2026-10-27,Unimarc,78342,7802630005232,Crema Nuestra Cocina sabor espárragos sobre 68 g,0.068,kg,560,333.33,3 x $1.000
+2026-10-27,Unimarc,78113,7802630005294,Sopa Nuestra Cocina de caracolitos 76 g,0.076,kg,520,333.33,3 x $1.000
+2026-10-27,Unimarc,78112,7802630005287,Sopa Nuestra Cocina sabor costilla 60 g,0.06,kg,520,333.33,3 x $1.000
+2026-10-27,Unimarc,79893,7898097960290,Fideos de arroz Nuestra Cocina 250 g,0.25,kg,2390,2000,$2.000
+2026-10-27,Unimarc,87515,7802630005713,Crema Nuestra Cocina espinaca 68 g,0.068,kg,560,333.33,3 x $1.000
+2026-10-27,Unimarc,78110,7802630005256,Crema Nuestra Cocina pollo 72 g,0.072,kg,560,333.33,3 x $1.000
+2026-10-27,Unimarc,70229,6950664566548,Salsa de tomate Merkat italiana 200 g,0.2,kg,380,333.33,3 x $1.000
+2026-10-27,Unimarc,78114,7802630005300,Sopa Nuestra Cocina pollo con arroz 70 g,0.07,kg,520,333.33,3 x $1.000
+2026-10-27,Unimarc,96430,7801505003380,Azúcar blanca granulada Iansa 3 Kg,3,kg,4550,3790,$3.790
+2026-10-27,Unimarc,78109,7802630005249,Crema Nuestra Cocina de choclo 79 g,0.079,kg,560,333.33,3 x $1.000
+2026-10-27,Unimarc,98568,7802000022135,Mini Cheetos Evercrisp boliqueso 79 gr,0.079,kg,2190,1500,2 x $3.000
+2026-10-27,Unimarc,87516,7802630005737,Sopa Nuestra Cocina pollo con sémola 68 g,0.068,kg,520,333.33,3 x $1.000
+2026-10-27,Unimarc,88748,7802630005690,Sopa Nuestra Cocina carne con sémola 68 g,0.068,kg,520,333.33,3 x $1.000
+2026-10-27,Unimarc,90919,7802630005843,Crema de zapallo Nuestra Cocina 45 g,0.045,kg,550,333.33,3 x $1.000
+2026-10-27,Unimarc,93183,7802337203238,Mostaza suave vintage Traverso doypack 250Gr,0.25,kg,1250,1000,$1.000
+2026-10-27,Unimarc,34,7801420250135,Arroz Tucapel gran selección G2 laminado 1 Kg,1,kg,2090,1290,$1.290
+2026-10-27,Unimarc,91045,7802000018237,Snack Detodito I Evercrisp 220 g,0.22,kg,2850,2500,$2.500
+2026-10-27,Unimarc,4523,7802410400462,Salsa barbecue Gourmet 280 g,0.28,kg,3150,2500,$2.500
+2026-10-27,Unimarc,97227,7807975009334,Papas fritas Tento corte liso 200 gr,0.2,kg,1790,1390,$1.390
+2026-10-27,Unimarc,7871,7802410251378,Pimienta negra molida Gourmet sobre 15 g,0.015,kg,700,500,$500
+2026-10-27,Unimarc,556,7809611700407,Hamburguesas vacuno La Crianza 100 gr,0.1,kg,1090,1000,$1.000
+2026-10-27,Unimarc,89249,7809611721174,Croqueta de salmón La Crianza 80 g,0.08,kg,940,800,5 x $4.000
+2026-10-27,Unimarc,81509,7804623310019,Trucha Entre ríos arcoíris filete 500 g,0.5,kg,9490,9490,
+2026-10-27,Unimarc,98384,7801930002170,Hamburguesa Receta del Abuelo perfect taste 100 gr,0.1,kg,1190,960,5 x $4.800
+2026-10-27,Unimarc,795,7801220311104,Arvejas Minuto Verde 500 g,0.5,kg,1990,1890,$1.890
+2026-10-27,Unimarc,12041,7809611710611,Hamburguesa de pollo King 185 g,0.185,kg,1290,1000,$1.000
+2026-10-27,Unimarc,42162,7801220004402,Choclo trozado Minuto Verde 680 g,0.68,kg,4990,4490,$4.490
+2026-10-27,Unimarc,89248,7809611721136,Rollitos de salmón La Crianza 400 g,0.4,kg,5090,4090,$4.090
+2026-10-27,Unimarc,89346,8445291307513,Pack helados paleta Savory trululú 10 un,0.5,L,4990,4240,$4.240
+2026-10-27,Unimarc,12040,7809611710628,Hamburguesa de vacuno 185Gr,0.185,kg,1190,1000,$1.000
+2026-10-27,Unimarc,804,7801220221106,Porotos verdes francés Minuto Verde 350 g,0.35,kg,1850,1790,$1.790
+2026-10-27,Unimarc,9992,7613034251114,Pack Helado Crocanty Savory mini multipack 8 un de 50 ml,0.4,L,5090,4450,$4.450
+2026-10-27,Unimarc,14361,7809524900871,Helado Coppelia vainilla chips sin lactosa 800 ml,0.8,L,7590,6590,$6.590
+2026-10-27,Unimarc,8428,7801323004231,Hamburguesa merluza dorada El Golfo bolsa 200 g,0.2,kg,2450,2190,$2.190
+2026-10-27,Unimarc,96863,7809524901540,Helado Coppelia banana split sin lactosa 800 ml,0.8,L,7590,6590,$6.590
+2026-10-27,Unimarc,4493,7801220801223,Ensalada jardinera Minuto Verde 500 g,0.5,kg,2650,2480,$2.480
+2026-10-27,Unimarc,99330,7801930002590,Appetizers Receta del Abuelo jamón serrano 220 gr,0.22,kg,3690,3290,$3.290
+2026-10-27,Unimarc,99332,7801930002620,Appetizers Receta del Abuelo pastelera de choclo 220 gr,0.22,kg,3690,3290,$3.290
+2026-10-27,Unimarc,86646,7803408002316,Sopaipillas Como en Casa con zapallo congeladas 8 un Sopaipillas cocktail Como en Casa con zapallo congeladas 8 un,0.4,kg,2190,2190,
+2026-10-27,Unimarc,86598,7801300003738,Champiñon laminado congelado Frutos del Maipo 350 g,0.35,kg,2350,2350,
+2026-10-27,Unimarc,96597,7807975009259,Camarón cocido Azul Profundo pelado sin cola 100/200 bolsa 100 g,0.1,kg,1600,1600,
+2026-10-27,Unimarc,6464,7801300000706,Salteado Frutos del Maipo Chapsui Wok 500 g,0.5,kg,3490,3490,
+2026-10-27,Unimarc,4425,7893000014435,Supremitas pollo Sadia rebozadas bolsa 480 g,0.48,kg,4490,4490,
+2026-10-27,Unimarc,86647,7803408002323,Sopaipillas cocktail Como en Casa con zapallo congeladas 30 un,0.3,kg,2890,2890,
+2026-10-27,Unimarc,83038,7809611719959,Hamburguesa Super Beef 100 g,0.1,kg,770,770,
+2026-10-27,Unimarc,78175,7802926001757,Helado San Francisco 0% azúcar chocolate nuss 680 g,0.68,kg,6590,6590,
+2026-10-27,Unimarc,713,7801300000072,Papas prefritas Frutos del Maipo bolsa 500 g,0.5,kg,3150,3150,
+2026-10-27,Unimarc,89348,8445291176973,Helado Savory sin azúcar frambuesa a la crema 1 L,1,L,5950,5950,
+2026-10-27,Unimarc,13784,7801220511108,Brocoli congelado Minuto Verde 350 g,0.35,kg,1990,1990,
+2026-10-27,Unimarc,4494,7801220901145,Espinaca Minuto Verde 350 g,0.35,kg,1890,1890,
+2026-10-27,Unimarc,11630,7802926000170,Helado San Francisco sabor tronco de castañas 1 L,1,L,8290,8290,
+2026-10-27,Unimarc,82020,614143221040,Kanikama Azul Profundo 300 g,0.3,kg,2750,2750,
+2026-10-27,Unimarc,533,7801323000622,Camarones El Golfo bolsa 200 g,0.2,kg,4490,4490,
+2026-10-27,Unimarc,11626,7802926000071,Helado San Francisco sabor lúcuma manjar 1 L,1,L,8290,8290,
+2026-10-27,Unimarc,11635,7802926000965,Helado San Francisco sabor chocolate nuss 1 L,1,L,8290,8290,
+2026-10-27,Unimarc,1776,7802926000750,Helado San Francisco sabor tres leches 1 L,1,L,8290,8290,
+2026-10-27,Unimarc,3888,7801323000127,Filete de Merluza El Golfo apanada 500 g,0.5,kg,7350,7350,
+2026-10-27,Unimarc,7642,7803908003134,Pack helado Guallarauco sabor frambuesa con chocolate 8 un,0.44,kg,6150,6150,
+2026-10-27,Unimarc,78184,7802926001771,Helado San Francisco 0% azúcar frutos del bosque 680 g,0.68,kg,6590,6590,
+2026-10-27,Unimarc,4497,7801220901190,Papas prefritas Minuto Verde bolsa 500 g,0.5,kg,3250,3250,
+2026-10-27,Unimarc,4496,7801220901176,Papas duquesa Minuto Verde bolsa 500 g,0.5,kg,2890,2890,
+2026-10-27,Unimarc,11632,7802926000033,Helado San Francisco sabor frambuesa a la crema 1 L,1,L,8290,8290,
+2026-10-27,Unimarc,89096,7801323001537,Hamburguesa de merluza El Golfo 100 g,0.1,kg,1150,1150,
+2026-10-27,Unimarc,10718,7801300002250,Smoothie detox Frutos del Maipo 500 g,0.5,kg,5190,5190,
+2026-10-27,Unimarc,74191,7801552006518,Helado Trendy oreo 1 L,1,L,6250,6250,
+2026-10-27,Unimarc,80216,7803408001593,Empanadas Como en Casa napolitana 10 un caja 300 g,3.0,kg,4350,4350,
+2026-10-27,Unimarc,32284,7802926001580,Postre helado San Francisco cookies & cream 1 L,1,L,8290,8290,
+2026-10-27,Unimarc,88987,7801323000691,Filete merluza tempura El Golfo 500 g,0.5,kg,6090,6090,
+2026-10-27,Unimarc,34635,7801423000140,Camarón ecuatoriano Mar Verde medium pelados y precocidos 500 g,0.5,kg,11350,11350,
+2026-10-27,Unimarc,96053,7809611721181,Nuggets salmón La Crianza bolsa 400 gr,0.4,kg,4950,4950,
+2026-10-27,Unimarc,18037,7801423000157,Camarón ecuatoriano Mar Verde medium crudo y pelado 500 g,0.5,kg,13350,13350,
+2026-10-27,Unimarc,82519,7801323000684,Nuggets de merluza El Golfo 400 g,0.4,kg,3590,3590,
+2026-10-27,Unimarc,96496,7802926410856,Helado postre San Francisco tiramisú 900 ml,0.9,L,8290,8290,
+2026-10-27,Unimarc,91614,7806500505235,Papel higiénico Confort doble hoja rendiplus 4 un 18 mt,,,1750,1000,2 x $2.000
+2026-10-27,Unimarc,87622,7805000323677,Detergente líquido Omo ultra power doypack 400 ml,0.4,L,1290,1000,2 x $2.000
+2026-10-27,Unimarc,90526,7805000324148,Lavalozas Quix limón doypack 480 ml,0.48,L,1290,1000,2 x $2.000
+2026-10-27,Unimarc,83457,7500435160544,Detergente líquido Ariel limpieza profunda 1.8 L,1.8,L,14390,8790,2 x $17.580
+2026-10-27,Unimarc,87997,7806500508670,Papel higiénico Confort doble hoja 40 un de 22 m,,,20990,13990,$13.990
+2026-10-27,Unimarc,77274,7500435182225,Detergente líquido Ariel toque de downy 1.8 L,1.8,L,14390,8790,2 x $17.580
+2026-10-27,Unimarc,88705,7805000324087,Pack Detergente Omo ultra concentrado líquido 2 u de 500 ml,1,L,12490,11490,$11.490
+2026-10-27,Unimarc,12170,7806500507116,Papel higiénico Confort mega doble hoja 4 un de 50 m,,,5190,2690,$2.690
+2026-10-27,Unimarc,56145,7806810015516,Toallas húmedas Virutex desinfectante aroma limón 90 un,,,4850,3010,$3.010
+2026-10-27,Unimarc,81801,7805000322144,Pack detergente líquido Omo para diluir 2 un 500 ml + Suavizante Comfort puro cuidado 500 ml + lavaloza Quix 500 ml,2,L,17990,13490,$13.490
+2026-10-27,Unimarc,82762,7806540008833,Papel higiénico Favorita acolchado doble hoja 24 un de 22 m,,,10790,7990,$7.990
+2026-10-27,Unimarc,81918,7891150028944,Suavizante concentrado Comfort cuidado esencial 1 L,1,L,6590,4000,$4.000
+2026-10-27,Unimarc,90281,7891150042117,Suavizante concentrado Comfort energía floral 1 L,1,L,6590,4000,$4.000
+2026-10-27,Unimarc,120,30200003242,Servilletas Elite mesa 50 un,,,1150,575,2 x $1.150
+2026-10-27,Unimarc,74230,7804609730602,Limpiavidrios Wyn recarga doypack 450 ml,0.45,L,1990,1000,$1.000
+2026-10-27,Unimarc,77661,7807975004131,Bolsa de basura Smart Clean baño 45 x 50 cm rollo 20 un,,,1290,1000,$1.000
+2026-10-27,Unimarc,58812,7805040004451,Trapero húmedo Virginia multiuso 10 un,,,2650,2190,$2.190
+2026-10-27,Unimarc,93492,7805025698309,Quitamanchas Clorox ropa colores vivos 300 ml,0.3,L,1090,1000,2 x $2.000
+2026-10-27,Unimarc,94035,7807975008528,Traperos húmedos Smart Clean con ojal limón 10 un,,,2250,1790,$1.790
+2026-10-27,Unimarc,93493,7805025698316,Quitamanchas Clorox blanco supremo 300 ml,0.3,L,1090,1000,2 x $2.000
+2026-10-27,Unimarc,90283,7891150045484,Suavizante concentrado Comfort brisa elegante 1 L,1,L,6590,4000,$4.000
+2026-10-27,Unimarc,90282,7891150042131,Suavizante concentrado Comfort puro cuidado 1 L,1,L,6590,4000,$4.000
+2026-10-27,Unimarc,5603,7805010001411,Pack Desodorante ambiental Air Wick eléctrico surtido 3 un de 21 ml,0.063,L,13490,10900,$10.900
+2026-10-27,Unimarc,97570,7805000324384,Pack Detergente líquido Omo para diluir piel sensible 500 ml x 2 un,1,L,12490,11490,$11.490
+2026-10-27,Unimarc,90528,7805525000817,Detergente lÍquido Smart Clean matic Primavera 700 ml DET LIQ PRIMAVERA SMART CLEAN DP 700ML,0.7,L,1390,1000,$1.000
+2026-10-27,Unimarc,6492,7805010002036,Pack Desodorante ambiental Air Wick eléctrico country berries repuesto 3 un de 21 ml,0.063,L,13490,10900,$10.900
+2026-10-27,Unimarc,88946,7805525000794,Detergente líquido Smart Clean matic floral doypack 2.7 L,2.7,L,6790,4990,$4.990
+2026-10-27,Unimarc,73202,7805010004429,Pack Desodorante ambiental Air Wick eléctrico lirios de luna y seda 3 un de 21 ml,0.063,L,13490,10900,$10.900
+2026-10-27,Unimarc,12453,7805000315566,Detergente líquido Rinso matic lirios y rosas doypack 2.7 L,2.7,L,7990,6990,$6.990
+2026-10-27,Unimarc,97571,7805000324964,Pack Detergente líquido Omo para diluir aloe vera 500 ml x 2 un,1,L,12490,11490,$11.490
+2026-10-27,Unimarc,6553,7791290789883,Limpiador Cif antigrasa recarga 450 ml,0.45,L,2450,2000,$2.000
+2026-10-27,Unimarc,74289,7805040004697,Trapero húmedo Virginia con ojal aroma manzana verde 10 un,,,2650,2190,$2.190
+2026-10-27,Unimarc,94036,7807975008535,Traperos húmedos Smart Clean con ojal coco 10 un,,,2250,1790,$1.790
+2026-10-27,Unimarc,78657,7791290794375,Tabletas para lavavajilla Sun 3 en 1 (20 un) Tabletas para lavavajilla Sun 3 en 1 20 un,,,9390,7800,$7.800
+2026-10-27,Unimarc,85217,7805000323233,Cloro gel Cif lavanda máxima higiene 800 ml,0.8,L,2250,1910,$1.910
+2026-10-27,Unimarc,10007,7805000315573,Detergente líquido Rinso matic hortensias y flores blancas doypack 2.7 L,2.7,L,7990,6990,$6.990
+2026-10-27,Unimarc,93240,7807975007682,Papel higiénico doble hoja Nubelin 8 x 30mts,,,4990,4290,$4.290
+2026-10-27,Unimarc,97867,7805000325152,Lavalozas Quix ultra piel sensible 500 ml,0.5,L,3990,3390,$3.390
+2026-10-27,Unimarc,3703,7791290789906,Limpiador Cif baño 500 ml,0.5,L,3450,2950,$2.950
+2026-10-27,Unimarc,6552,7791290789913,Limpiador Cif baño recarga 450 ml,0.45,L,2450,2000,$2.000
+2026-10-27,Unimarc,85220,7805000323219,Cloro gel Cif tradicional máxima higiene 800 ml,0.8,L,2250,1910,$1.910
+2026-10-27,Unimarc,3705,7791290789876,Limpiador Cif antigrasa dosificador 500 ml,0.5,L,3450,2950,$2.950
+2026-10-27,Unimarc,12435,7805010002791,Pack Desodorante Air Wick eléctrico manzana canela repuesto 3 un de 21 ml,0.063,L,13490,10900,$10.900
+2026-10-27,Unimarc,131,7791290791954,Abrillantador Sun progess lavavajillas 500 ml,0.5,L,5450,4530,$4.530
+2026-10-27,Unimarc,84817,7807975006067,Lavalozas Smart Clean aroma limón 750 ml,0.75,L,2390,1890,$1.890
+2026-10-27,Unimarc,1558,7791290795624,Limpiador Cif expert vidrios y multiuso doypack 450 ml,0.45,L,2450,2000,$2.000
+2026-10-27,Unimarc,85221,7805000323226,Cloro gel Cif limón máxima higiene 800 ml,0.8,L,2250,1910,$1.910
+2026-10-27,Unimarc,3704,7791290795617,Limpiador Cif expert vidrios y multiuso gatillo 500 ml,0.5,L,3490,2990,$2.990
+2026-10-27,Alvi,1310,7801610000571,Bebida Coca Cola original botella 591 ml Bebida original botella,0.591,L,1040,1040,
+2026-10-27,Alvi,1261,7801610350355,Bebida Coca Cola sin azúcar lata 350 ml Bebida sin azúcar lata,0.35,L,870,870,
+2026-10-27,Alvi,1189,7801610011195,"Bebida Coca Cola, lata 350 ml Bebida lata",0.35,L,870,870,
+2026-10-27,Alvi,1312,7801610000601,Bebida Coca Cola zero botella 591 ml Bebida coca cola sin azúcar botella,0.591,L,1040,1040,
+2026-10-27,Alvi,1190,7801610001264,Bebida Coca Cola original 1.5 L Bebida original desechable,1.5,L,2130,2130,
+2026-10-27,Alvi,1262,7801610350409,Bebida Coca Cola zero 1.5 L Bebida sin azúcar,1.5,L,2130,2130,
+2026-10-27,Alvi,1188,7801610005194,Bebida Sprite lata 350 ml Bebida lata,0.35,L,870,870,
+2026-10-27,Alvi,6456,7801620009373,Bebida desechable,0.6,L,1160,1160,
+2026-10-27,Alvi,1228,7801610005651,Bebida Sprite desechable 3 L Bebida desechable,3,L,2960,2960,
+2026-10-27,Alvi,1232,7801620017552,Bebida Pepsi no retornable 3 L Bebida desechable,3,L,3270,3270,
+2026-10-27,Alvi,1229,7801620001223,Bebida Kem piña no retornable 3 L Bebida desechable,3,L,3270,3270,
+2026-10-27,Alvi,1230,7801620001193,Bebida Bilz no retornable 3 L Bebida desechable,3,L,3270,3270,
+2026-10-27,Alvi,1210,7801610022122,Bebida Coca Cola Light lata 350 ml Bebida lata,0.35,L,870,870,
+2026-10-27,Alvi,10263,7804604729021,Bebida Piri sabor cola 500 ml,0.5,L,390,390,
+2026-10-27,Alvi,1231,7801620001216,Bebida Pap no retornable 3 L Bebida desechable,3,L,3270,3270,
+2026-10-27,Alvi,9583,7801620009502,Bebida desechable,0.6,L,1160,1160,
+2026-10-27,Alvi,7169,7802820678048,Bebida isotónica Powerade frozen blast 1.1 L Bebida isotónica zero frozen blast,1.1,L,1340,1340,
+2026-10-27,Alvi,6894,7804604729045,Bebida Piri sabor piña 500 ml,0.5,L,390,390,
+2026-10-27,Alvi,6712,7801620007041,"Bebida Limón Soda zero, lata 350 ml Bebida zero lata",0.35,L,960,960,
+2026-10-27,Alvi,6700,7801610220108,Bebida Coca Cola sin azúcar lata mini 220 ml Bebida sin azúcar lata,0.22,L,690,690,
+2026-10-27,Alvi,6699,7801610220078,Bebida Sprite lata mini 220 ml Bebida lata,0.22,L,690,690,
+2026-10-27,Alvi,6454,7801620009342,Bebida zero desechable,0.6,L,1160,1160,
+2026-10-27,Alvi,6416,7801620852597,"Bebida Canada Dry agua tónica lata, 350 ml Agua tónica lata",0.35,L,960,960,
+2026-10-27,Alvi,5573,7801620853181,Bebida Orange Crush light lata 350 ml Bebida zero lata,0.35,L,960,960,
+2026-10-27,Alvi,567,7802950002959,Bebida a base de cebada Ecco Instantáneo lata 170 g Café instantáneo 100% cereal lata,0.17,kg,3690,3690,
+2026-10-27,Alvi,1224,7801610323236,Bebida Coca Cola original desechable 3 L Bebida original desechable,3,L,2960,2960,
+2026-10-27,Alvi,1259,7801610355534,Bebida Coca Cola zero desechable 3 L Bebida sin azúcar desechable,3,L,2960,2960,
+2026-10-27,Alvi,1997,7802920009315,Leche entera sin lactosa Colun con tapa 1 L Leche entera sin lactosa con tapa,1,L,1520,1520,
+2026-10-27,Alvi,2082,7802900050078,Leche semidescremada Soprole chocolate 1 L Leche semidescremada sabor chocolate,1,L,1550,1550,
+2026-10-27,Alvi,2081,7802900050023,Leche semidescremada Soprole frutilla 1 L Leche semidescremada sabor frutilla,1,L,1550,1550,
+2026-10-27,Alvi,10646,7802900028374,Leche semidescremada Soprole chocolate requetepatitas 1 L Leche chocolate original 1L,1,L,1550,1550,
+2026-10-27,Alvi,2006,7802910006690,Leche descremada sin lactosa extra proteína Loncoleche 1 L Leche descremada sin lactosa extra proteína,1,L,2170,2170,
+2026-10-27,Alvi,792,7848004940105,Arroz Merkat largo delgado grado 2 1 Kg Arroz G2 largo delgado,1,kg,890,890,
+2026-10-27,Alvi,2795,7613030099024,Picado naturnes pollo zanahoria y arroz,0.215,kg,2290,2290,
+2026-10-27,Alvi,160,7804635931783,Galletas de arroz clásica,0.11,kg,1410,1410,
+2026-10-27,Alvi,159,7804635931776,Galletas de arroz endulzada,0.11,kg,1410,1410,
+2026-10-27,Alvi,128,7802225688475,Galletas de arroz,0.1,kg,1640,1640,
+2026-10-27,Alvi,15099,7802408001138,Galletas dulces Fruna sabor chocolate 500 gr,0.5,kg,1750,1750,
+2026-10-27,Jumbo,510,,Bebida Fanta Zero 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,144365,,Bebida Fanta Naranja 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,172111,,Pack 6 un. Bebida Fanta Halloween Ghost 350 cc,2.1,L,3990,3990,
+2026-10-27,Jumbo,500,,Bebida Coca-Cola Zero 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,170144,,Bebida Coca-Cola Zero Cafeína Zero Azúcar 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,494,,Bebida Coca-Cola Light 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,43762,,Pack 6 un. Bebida Coca-Cola Zero Lata 350 cc,2.1,L,5990,5990,
+2026-10-27,Jumbo,65768,,Bebida Canada Dry Ginger Ale Zero 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,53052,,Pack 6 un. Bebida Coca-Cola Zero Mini Lata 220 cc,1.32,L,5190,5190,
+2026-10-27,Jumbo,532,,Bebida Sprite Sin Azúcar 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,172018,,Pack 6 un. Bebida Coca-Cola Zero Cafeína Zero Azúcar Lata 310 ml,1.86,L,5990,5990,
+2026-10-27,Jumbo,43763,,Pack 6 un. Bebida Coca-Cola Original 350 cc,2.1,L,5990,5990,
+2026-10-27,Jumbo,503,,Bebida Coca-Cola Zero 3 L,3.0,L,3450,3450,
+2026-10-27,Jumbo,43764,,Pack 6 un. Bebida Coca-Cola Light 350 cc,2.1,L,5990,5990,
+2026-10-27,Jumbo,506,,Bebida Crush Zero 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,53051,,Pack 6 un. Bebida Coca-Cola Light 220 cc,1.32,L,5190,5190,
+2026-10-27,Jumbo,53050,,Pack 6 un. Bebida Coca-Cola Original 220 cc,1.32,L,4990,4990,
+2026-10-27,Jumbo,17485,,Bebida Pepsi Zero 3 L,3.0,L,3250,3250,
+2026-10-27,Jumbo,512,,Bebida Kem Zero 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,383,,Bebida Canada Dry Ginger Ale 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,518,,Bebida Pap Zero 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,489,,Bebida Canada Dry Ginger Ale Light 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,515,,Bebida Limón Soda Zero 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,48180,,Bebida 7Up Zero 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,65769,,Bebida Canada Dry Ginger Ale Zero 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,53054,,Pack 6 un. Bebida Sprite Sin Azúcar 220 ml,1.32,L,5250,5250,
+2026-10-27,Jumbo,17486,,Bebida Crush Zero 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,122416,,Bebida Ginger Ale Schweppes Sin Azúcar 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,511,,Bebida Inca Kola Sin Azúcar 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,44021,,Bebida Fanta Zero Pack Lata 350 cc,0.35,L,3990,3990,
+2026-10-27,Jumbo,419,,Bebida Limón Soda 3 L,3.0,L,3330,3330,
+2026-10-27,Jumbo,413,,Bebida Kem 3 L,3.0,L,3330,3330,
+2026-10-27,Jumbo,484,,Bebida Bilz Zero 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,428,,Bebida Pap 3 L,3.0,L,3330,3330,
+2026-10-27,Jumbo,431,,Bebida Pepsi 3 L,3.0,L,3250,3250,
+2026-10-27,Jumbo,416,,Bebida Limón Soda 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,153768,,Pack 4 un. Bebida Coca-Cola Zero Azúcar Vidrio No Retornable 300 ml,1.2,L,4990,4990,
+2026-10-27,Jumbo,43978,,Pack 6 un. Bebida Canada Dry Ginger Ale Lata 350 ml,2.1,L,5850,5850,
+2026-10-27,Jumbo,380,,Bebida Bilz 3 L,3.0,L,3330,3330,
+2026-10-27,Jumbo,513,,Bebida Kem Zero 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,516,,Limón Soda Zero 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,44218,,Pack 6 un. Bebida Sprite Sin Azúcar Lata 350 ml,2.1,L,3990,3990,
+2026-10-27,Jumbo,432,,Bebida Sprite 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,486,,Bebida Bilz Zero 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,520,,Bebida Pap Zero 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,411,,Bebida Kem 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,385,,Bebida Canada Dry Ginger Ale 3 L,3.0,L,3330,3330,
+2026-10-27,Jumbo,497,,Bebida Coca-Cola Light 3 L,3.0,L,3450,3450,
+2026-10-27,Jumbo,397,,Bebida Crush 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,378,,Bebida Bilz 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,426,,Bebida Pap 1.5 L,1.5,L,2190,2190,
+2026-10-27,Jumbo,134753,,Bebida Coca Cola retornable 3 L + Envase,3.0,L,2690,2690,
+2026-10-27,Jumbo,143316,,Bebida H2Oh Limonata 2 L,2.0,L,1590,1590,
+2026-10-27,Jumbo,43836,,Pack 6 un. Bebida Sprite Lata 350 ml,2.1,L,3990,3990,
+2026-10-27,Jumbo,144505,,Pack 6 un. Bebida Fanta Pomelo Lata 350 ml,2.1,L,3990,3990,
+2026-10-27,Jumbo,399,,Bebida Crush 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,410,,Bebida Inca Kola 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,115805,,Bebida Pepsi Zero 600 ml,0.6,L,1280,1280,
+2026-10-27,Jumbo,29490,,Bebida 7Up 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,164123,,Dr Pepper Sabor Cherry 355 ml,0.355,L,1990,1990,
+2026-10-27,Jumbo,144368,,Bebida Fanta Pomelo 1.5 L,1.5,L,2290,2290,
+2026-10-27,Jumbo,170064,,Bebida Schweppes Ginger Ale Zero 3 L,3.0,L,3350,3350,
+2026-10-27,Jumbo,17445,,Bebida Kem Xtreme 1.5 L,1.5,L,1650,1650,
+2026-10-27,Jumbo,377,,Bebida 7Up 3 L,3.0,L,3290,3290,
+2026-10-27,Jumbo,154276,,Bebida Sunkist Naranja 355 ml,0.355,L,1290,1290,
+2026-10-27,Jumbo,113589,,Pack 6 un. Bebida Inca Kola 350 ml,2.1,L,3990,3990,
+2026-10-27,Jumbo,144508,,Pack 6 un. Bebida Fanta Lata 350 cc,2.1,L,3990,3990,
+2026-10-27,Jumbo,53053,,Pack 6 un. Bebida Sprite 220 ml,1.32,L,5250,5250,
+2026-10-27,Jumbo,409,,Bebida Fanta Zero 591 cc,0.591,L,1310,1310,
+2026-10-27,Jumbo,438,,Bebida Sprite Sin Azúcar 591 ml,0.591,L,1310,1310,
+2026-10-27,Jumbo,149024,,Bebida Ghali Pop Berries 350 cc,0.35,L,1850,1850,
+2026-10-27,Jumbo,168747,,Bebida Guaraná Antarctica Lata 330 cc,0.33,L,1290,1290,
+2026-10-27,Jumbo,436,,Bebida Sprite 591 ml,0.591,L,1310,1310,
+2026-10-27,Jumbo,54023,,Pack 6 un. Gaseosa Pony Malta 330 cc,1.98,L,8990,8990,
+2026-10-27,Jumbo,115793,,Bebida Pepsi 600 ml,0.6,L,1280,1280,
+2026-10-27,Jumbo,144367,,Bebida Fanta Naranja 591 ml,0.591,L,1310,1310,
+2026-10-27,Jumbo,149026,,Bebida Ghali Pop Limón Frambuesa 350 cc,0.35,L,1850,1850,
+2026-10-27,Jumbo,55918,,Bebida Pony Malta 330 cc,0.33,L,1790,1790,
+2026-10-27,Jumbo,62522,,Bebida Crush Zero 1.75 L,1.75,L,2530,2530,
+2026-10-27,Jumbo,164592,,Bebida H2OH Limonchelo 600 cc,0.6,L,1280,1280,
+2026-10-27,Jumbo,168746,,Bebida Guaraná Antarctica Zero Lata 330 cc,0.33,L,1290,1290,
+2026-10-27,Jumbo,11433,,Plátano Extra Granel (1 a 2 un. Aprox),,,725,725,
+2026-10-27,Jumbo,5867,,Limón Malla 1 kg,1.0,kg,1590,1590,
+2026-10-27,Jumbo,5870,,Palta Hass Malla 1 kg,1.0,kg,3690,3690,
+2026-10-27,Jumbo,25482,,Champiñón Bandeja 200 g,0.2,kg,1590,1590,
+2026-10-27,Jumbo,5703,,Frutilla Pote 300 g,0.3,kg,2990,2990,
+2026-10-27,Jumbo,5715,,Mango Granel (1 un. Aprox),,,1545,1545,
+2026-10-27,Jumbo,5863,,Lechuga Costina 1 un.,,,1420,1420,
+2026-10-27,Jumbo,5830,,Apio Mata 1 un.,,,1530,1530,
+2026-10-27,Jumbo,18783,,Manzana Pink Lady Granel,,,1295,1295,
+2026-10-27,Jumbo,18746,,Chirimoya Granel,,,2245,2245,
+2026-10-27,Jumbo,147181,,Arándano Prize Pote 125 g,0.125,kg,2890,2890,
+2026-10-27,Jumbo,5724,,Naranja Malla 2 kg,2.0,kg,3690,3690,
+2026-10-27,Jumbo,98213,,Manzana Sugarbee Granel,,,1445,1445,
+2026-10-27,Jumbo,5905,,Zapallo en Trozo 700 g,0.7,kg,2490,2490,
+2026-10-27,Jumbo,45143,,Kiwi Exportación Granel,,,2145,2145,
+2026-10-27,Jumbo,138016,,Manzana Cosmic Crisp Granel,,,1245,1245,
+2026-10-27,Jumbo,53945,,Manzana Verde Granel,,,1295,1295,
+2026-10-27,Jumbo,5896,,Tomate Romanita 340 g,0.34,kg,3590,3590,
+2026-10-27,Jumbo,45664,,Espárrago 340 g,0.34,kg,2990,2990,
+2026-10-27,Jumbo,5902,,Zanahoria Granel (3 a 4 un. Aprox),,,625,625,
+2026-10-27,Jumbo,53932,,Pera Packham's Granel,,,1095,1095,
+2026-10-27,Jumbo,69063,,Tomate Cóctel Variedades Granel,,,1358,1358,
+2026-10-27,Jumbo,55494,,Manzana Envy Granel,,,1295,1295,
+2026-10-27,Jumbo,18926,,Trio de Lechugas Hidropónicas Pura Hoja 1 un.,,,1790,1790,
+2026-10-27,Jumbo,5866,,Limón Granel (1 a 2 un. Aprox),,,1025,1025,
+2026-10-27,Jumbo,18774,,Pera Abate Fetel Granel,,,1095,1095,
+2026-10-27,Jumbo,18780,,Pera Forelle Granel,,,1095,1095,
+2026-10-27,Jumbo,2841,,Aliño César Gourmet Envase 250 g,0.25,kg,2690,2690,
+2026-10-27,Jumbo,167715,,Coco Fresco Unidad,,,5990,5990,
+2026-10-27,Jumbo,27908,,Castañas de Cajú Pote 120 g,0.12,kg,4390,4390,
+2026-10-27,Jumbo,71783,,Pimiento Dulce 1 un.,,,1390,1390,
+2026-10-27,Jumbo,2839,,Aliño Ajo Ciboulette Gourmet Envase 250 g,0.25,kg,2690,2690,
+2026-10-27,Jumbo,71873,,Mix Italiano Fresh Cut Pote 150 g,0.15,kg,2490,2490,
+2026-10-27,Jumbo,154176,,Manzana Modi Granel,,,1375,1375,
+2026-10-27,Jumbo,89122,,Mix Cajuna 700 g,0.7,kg,6203,6203,
+2026-10-27,Jumbo,112287,,Mix Puro Nuts 700 g,0.7,kg,8990,8990,
+2026-10-27,Jumbo,112284,,Mix Frutos Secos y Semillas 700 g,0.7,kg,7990,7990,
+2026-10-27,Jumbo,5753,,Ciruelas Dagen Sin Carozo 300 g,0.3,kg,2990,2990,
+2026-10-27,Jumbo,123040,,Nueces en Trozo Granel,,,1499,1499,
+2026-10-27,Jumbo,97330,,Maní Tostado Sin Sal 700 g,0.7,kg,2993,2993,
+2026-10-27,Jumbo,112290,,Mix Power 700 g,0.7,kg,8990,8990,
+2026-10-27,Jumbo,18925,,Lechuga Roble Verde Hidropónica 1 un.,,,1830,1830,
+2026-10-27,Jumbo,73556,,Cebolla Crujiente Ligeramente Salada 80 g,0.08,kg,2490,2490,
+2026-10-27,Jumbo,112282,,Almendra Tostada Cuisine & Co 700 g,0.7,kg,11990,11990,
+2026-10-27,Jumbo,119419,,Corazón Costina 3 un.,,,3650,3650,
+2026-10-27,Jumbo,113017,,Nuez Cuarto 700 g,0.7,kg,10690,10690,
+2026-10-27,Jumbo,93890,,Ensalada Dole Miso 270 g,0.27,kg,3003,3003,
+2026-10-27,Jumbo,94738,,Ensalada Dole Coleslaw 300 g,0.3,kg,2415,2415,
+2026-10-27,Jumbo,18927,,Lechuga Lollo Bionda Hidropónica 1 un.,,,1740,1740,
+2026-10-27,Jumbo,82490,,Champiñón Eryngii 100 g,0.1,kg,1990,1990,
+2026-10-27,Jumbo,5686,,Spring Mix Dole 150 g,0.15,kg,2723,2723,
+2026-10-27,Jumbo,5810,,Lechuga Fresh Cut Hojas Roble Verde 150 g,0.15,kg,2330,2330,
+2026-10-27,Jumbo,18856,,Chapsui Especial Más Vida 300 g,0.3,kg,2830,2830,
+2026-10-27,Jumbo,159261,,Espárrago Baby Paquete,,,3990,3990,
+2026-10-27,Jumbo,5697,,Lechuga Escarola 300 g,0.3,kg,1990,1990,
+2026-10-27,Jumbo,93574,,Mix Asiáticos Agrolam Procesado Bandeja 120 g,0.12,kg,2950,2950,
+2026-10-27,Jumbo,99429,,Mix Mango Frutilla y Piña 400 g,0.4,kg,4290,4290,
+2026-10-27,Jumbo,112283,,Mix Frutos Secos 700 g,0.7,kg,10990,10990,
+2026-10-27,Jumbo,89121,,Mix Frutos del Bosque 700 g,0.7,kg,7268,7268,
+2026-10-27,Jumbo,42385,,Cúrcuma 100 g,0.1,kg,1990,1990,
+2026-10-27,Jumbo,5675,,Ensalada Dole Apio 420 g,0.42,kg,1393,1393,
+2026-10-27,Jumbo,19020,,Papa Baby 1 kg,1.0,kg,3090,3090,
+2026-10-27,Jumbo,19061,,Champiñón Shitake 100 g,0.1,kg,990,990,
+2026-10-27,Jumbo,5854,,Cochayuyo Trozado 80 g,0.08,kg,2530,2530,
+2026-10-27,Jumbo,131581,,Mix Fruta Mango Frutilla Kiwi 400 g,0.4,kg,4290,4290,
+2026-10-27,Jumbo,18859,,Endibias 500 g,0.5,kg,4190,4190,
+2026-10-27,Jumbo,97042,,Verde aroma tomate cherry orgánica,,,3290,3290,
+2026-10-27,Jumbo,114536,,Dientes de Ajo Negro Chilote 125 g,0.125,kg,7990,7990,
+2026-10-27,Jumbo,88916,,Kit de Recarga Retardador de Descomposición de Vegetales 1 un.,,,3750,3750,
+2026-10-27,Jumbo,138197,,Apio 1 un.,,,1490,1490,
+2026-10-27,Jumbo,112285,,Mix Frutos del Bosque 700 g,0.7,kg,8990,8990,
+2026-10-27,Jumbo,5683,,Repollo Blanco Dole 300 g,0.3,kg,1393,1393,
+2026-10-27,Jumbo,97923,,Tomate Whitney 340 g,0.34,kg,2990,2990,
+2026-10-27,Jumbo,18857,,Chapsui Thai Más Vida 300 g,0.3,kg,2290,2290,
+2026-10-27,Jumbo,127086,,Hierba Passiflora Deshidratada 16 g,0.016,kg,2190,2190,
+2026-10-27,Jumbo,5781,,Mix de Frutos Secos 250 g,0.25,kg,2790,2790,
+2026-10-27,Jumbo,18945,,Ensalada Vegus Orgánica Mix Francés Vegus 150 g,0.15,kg,3490,3490,
+2026-10-27,Jumbo,93154,,Menta Orgánica,,,2990,2990,
+2026-10-27,Jumbo,122399,,Pack 6 un. Bebida Fanta Pomelo Lata 350 ml,2.1,L,3990,3990,
+2026-10-27,Jumbo,138822,,Bebida Isotónica Powerade Frozen Blast 850 ml,0.85,L,1450,1450,
+2026-10-27,Jumbo,138824,,Bebida Isotónica Powerade Frozen Blast Zero 850 ml,0.85,L,1450,1450,
+2026-10-27,Jumbo,459,,Bebida Isotónica Gatorade Cool Blue 750 ml,0.75,L,990,990,
+2026-10-27,Jumbo,134786,,Bebida Fastlyte Sabor Sandía 625 ml,0.625,L,2590,2590,
+2026-10-27,Jumbo,460,,Bebida Isotónica Gatorade Frutas Tropicales Tapa Deportiva 750 cc,0.75,L,990,990,
+2026-10-27,Jumbo,141872,,Pack 4 un. Bebida Energética Red Bull Tropical 250 ml,1.0,L,6850,6850,
+2026-10-27,Jumbo,167202,,Bebida Kem Xtreme Lata 473 cc,0.473,L,1290,1290,
+2026-10-27,Jumbo,167652,,Bebida Energética Waterdrop Cereza 12 un.,,,9990,9990,
+2026-10-27,Jumbo,170145,,Bebida Isotónica Gatorade Limón 750 cc,0.75,L,990,990,
+2026-10-27,Jumbo,128370,,Bebida Isotónica Gatorade Blue Berry Zero 1 L,1.0,L,1750,1750,
+2026-10-27,Jumbo,138828,,Bebida Isotónica Powerade Rojo 850 ml,0.85,L,1450,1450,
+2026-10-27,Jumbo,456,,Bebida Isotónica Gatorade Frutas Tropicales 500 cc,0.5,L,1190,1190,
+2026-10-27,Jumbo,163361,,Bebida Energética Mr Big Tropical Botella 720 cc,0.72,L,1240,1240,
+2026-10-27,Jumbo,163371,,Bebida Isotónica Gatorade Pink Berry Zero 1 L,1.0,L,1750,1750,
+2026-10-27,Jumbo,455,,Bebida Isotónica Gatorade Cool Blue 500 cc,0.5,L,1250,1250,
+2026-10-27,Jumbo,450,,Pack 4 un. Bebida Energética Red Bull Sin Azúcar 250 cc,1.0,L,6850,6850,
+2026-10-27,Jumbo,451,,Bebida Isotónica Gatorade Frutas Tropicales 1 L,1.0,L,1750,1750,
+2026-10-27,Jumbo,122334,,Pack 4 un. Bebida Energética Red Bull 250 ml,1.0,L,6850,6850,
+2026-10-27,Jumbo,135192,,Bebida Vegetal OraSì Barista Almendra 1 L,1.0,L,2600,2600,
+2026-10-27,Jumbo,132838,,Bebida Isotónica Gatorade Maracuyá 1 L,1.0,L,1750,1750,
+2026-10-27,Jumbo,27322,,Bebida Vegetal OraSì Arroz 1 L,1.0,L,2350,2350,
+2026-10-27,Jumbo,119248,,Bebida Isotónica Powerade Uva Zero 1.1 L,1.1,L,1590,1590,
+2026-10-27,Jumbo,119226,,Bebida Isotónica Powerade Frozen Blast Zero 1.1 L,1.1,L,1590,1590,
+2026-10-27,Jumbo,149470,,Bebida Isotónica Gatorade Limón 1 L,1.0,L,1690,1690,
+2026-10-27,Jumbo,119238,,Bebida Isotónica Powerade Rojo 1.1 L,1.1,L,1590,1590,
+2026-10-27,Jumbo,134773,,Bebida Fastlyte Sabor Frutilla 625 ml,0.625,L,2590,2590,
+2026-10-27,Jumbo,138865,,Bebida Energética Score Gorilla Zero 473 cc,0.473,L,1090,1090,
+2026-10-27,Jumbo,165404,,Bebida Suerox Zero Frutos Rojos 630 ml,0.63,L,2630,2630,
+2026-10-27,Jumbo,97844,,Bebida Energética Mr. Big 720 cc,0.72,L,1240,1240,
+2026-10-27,Jumbo,112844,,Bebida Mr. Perkins Pink Soda 200 ml,0.2,L,2000,2000,
+2026-10-27,Jumbo,146721,,Bebida Isotónica en Polvo Extra Life Boost de Hidratación Lime Sensation 15 g 10 un.,0.15,kg,10990,10990,
+2026-10-27,Jumbo,97860,,Bebida Energética Mr. Big Zero 720 ml,0.72,L,1240,1240,
+2026-10-27,Jumbo,119225,,Bebida Isotónica Powerade Frozen Blast 1.1 L,1.1,L,1590,1590,
+2026-10-27,Jumbo,153889,,Bebida Energética Red Bull Pomelo Floral 250 cc,0.25,L,1890,1890,
+2026-10-27,Jumbo,135188,,Bebida Vegetal OraSì Barista Avena 1 L,1.0,L,2790,2790,
+2026-10-27,Jumbo,169127,,Isotónica en Polvo Tropical Amazing 80 g,0.08,kg,9512,9512,
+2026-10-27,Jumbo,139999,,Bebida Fastlyte Sabor Uva 625 ml,0.625,L,2590,2590,
+2026-10-27,Jumbo,118060,,Bebida Vegetal NotMilk Zero Sin Azúcar 1 L,1.0,L,2770,2770,
+2026-10-27,Jumbo,78659,,Bebida Vegetal NotMilk Low Fat 1 L,1.0,L,2770,2770,
+2026-10-27,Jumbo,96558,,Bebida Vegetal NotMilk Original 1 L,1.0,L,2770,2770,
+2026-10-27,Jumbo,150490,,Shake de Proteína Chocolate 330 ml,0.33,L,2830,2830,
+2026-10-27,Jumbo,159452,,Bebida Energética Score Radical White 473 cc,0.473,L,1090,1090,
+2026-10-27,Jumbo,149278,,Bebida Vegetal Loncoleche Almendra 1 L,1.0,L,2300,2300,
+2026-10-27,Jumbo,161358,,Bebida Vegetal OraSi Avena Zero 1 L,1.0,L,2550,2550,
+2026-10-27,Jumbo,88559,,Bebida Vegetal Loncoleche Avena 1 L,1.0,L,2300,2300,
+2026-10-27,Jumbo,140033,,Bebida Vegetal OraSì Avena Protein 1 L,1.0,L,2700,2700,
+2026-10-27,Jumbo,142715,,Bebida Vegetal NotShake Café Caramelo 16g Proteína 250 ml,0.016,kg,1350,1350,
+2026-10-27,Jumbo,140032,,Bebida Vegetal OraSì Avena Fibra 1 L,1.0,L,2800,2800,
+2026-10-27,Jumbo,125611,,Bebida Vegetal OraSì Avena 1 L,1.0,L,2590,2590,
+2026-10-27,Jumbo,149277,,Bebida Vegetal Loncoleche Soya 1 L,1.0,L,2300,2300,
+2026-10-27,Jumbo,122365,,Bebida Vegetal NotShake Chocolate Protein 250 ml,0.25,L,1350,1350,
+2026-10-27,Jumbo,105691,,Bebida Vegetal NotMilk Kids Chocolate 200 ml,0.2,L,790,790,
+2026-10-27,Jumbo,165279,,Bebida Vegetal NotMilk French Vanilla 1 L,1.0,L,2590,2590,
+2026-10-27,Jumbo,6697,,Leche Colun Entera 1 L,1.0,L,1190,1190,
+2026-10-27,Jumbo,134758,,Leche Surlat Entera 1 L,1.0,L,1100,1100,
+2026-10-27,Jumbo,81879,,Leche Sin Lactosa Colun Descremada 1 L,1.0,L,1350,1350,
+2026-10-27,Jumbo,94824,,Leche Soprole Proteína Natural 1 L,1.0,L,2920,2920,
+2026-10-27,Jumbo,6690,,Leche Colun Semidescremada 1 L,1.0,L,1190,1190,
+2026-10-27,Jumbo,134756,,Leche Surlat Semidescremada 1 L,1.0,L,1100,1100,
+2026-10-27,Jumbo,81882,,Leche Sin Lactosa Colun Semidescremada 1 L,1.0,L,1350,1350,
+2026-10-27,Jumbo,165030,,Leche Chocolate Soprole En Simple 200 ml,0.2,L,630,630,
+2026-10-27,Jumbo,123727,,Leche en Polvo Nido Etapa 5+ 700 g,0.7,kg,8550,8550,
+2026-10-27,Jumbo,6692,,Leche Colun Descremada 1 L,1.0,L,1190,1190,
+2026-10-27,Jumbo,94828,,Leche Cuisine & Co Entera 1 L,1.0,L,1000,1000,
+2026-10-27,Jumbo,134757,,Leche Surlat Descremada 1 L,1.0,L,1100,1100,
+2026-10-27,Jumbo,94830,,Leche Cuisine & Co Descremada 1 L,1.0,L,1000,1000,
+2026-10-27,Jumbo,6731,,Leche Soprole Sin Lactosa Descremada 1 L,1.0,L,1460,1460,
+2026-10-27,Jumbo,94829,,Leche Cuisine & Co Semidescremada 1 L,1.0,L,1000,1000,
+2026-10-27,Jumbo,41830,,Leche Colun Semidescremada Chocolate Receta Original 1 L,1.0,L,1850,1850,
+2026-10-27,Jumbo,6732,,Leche Soprole Sin Lactosa Semidescremada 1 L,1.0,L,1460,1460,
+2026-10-27,Jumbo,81883,,Leche Sin Lactosa Colun Entera 1 L,1.0,L,1350,1350,
+2026-10-27,Jumbo,94832,,Leche Cuisine & Co Sin Lactosa Semidescremada 1 L,1.0,L,1000,1000,
+2026-10-27,Jumbo,44046,,Pack 6 un. Leche Colun Semidescremada Chocolate 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,155819,,Pack 6 un. Leche Colun Origen Chocolate 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,44055,,Pack 6 un. Leche Colun Entera 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,63065,,Leche Loncoleche Extra Proteína 1 L,1.0,L,2190,2190,
+2026-10-27,Jumbo,151289,,Leche Colun Origen Chocolate 1 L,1.0,L,2090,2090,
+2026-10-27,Jumbo,123051,,Leche Soprole Sin Lactosa Entera 1 L,1.0,L,1390,1390,
+2026-10-27,Jumbo,169110,,Leche Soprole Protein+ Power Natural 1 L,1.0,L,3200,3200,
+2026-10-27,Jumbo,89937,,Pack 6 un. Leche Colun Semidescremada 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,94831,,Leche Cuisine & Co Sin Lactosa Descremada 1 L,1.0,L,1000,1000,
+2026-10-27,Jumbo,44057,,Pack 6 un. Leche Colun Original Chocolate 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,6787,,Leche Colun Semidescremada Chocolate 1 L,1.0,L,1850,1850,
+2026-10-27,Jumbo,13563,,Pack 12 un. Leche Soprole Entera Natural 1 L,12.0,L,14100,14100,
+2026-10-27,Jumbo,113900,,Leche en Polvo Nido Buen Día Semidescremada 700 g,0.7,kg,6950,6950,
+2026-10-27,Jumbo,169109,,Leche Soprole Protein+ Power Peanut Butter Chocolate 1 L,1.0,L,3200,3200,
+2026-10-27,Jumbo,44061,,Pack 6 un. Leche Colun Semidescremada Vainilla 200 cc,1.2,L,3300,3300,
+2026-10-27,Jumbo,44052,,Pack 6 un. Leche Colun Semidescremada Frutilla 200 cc,1.2,L,3300,3300,
+2026-10-27,Jumbo,20460,,Leche Colun Semidescremada Frutilla 1 L,1.0,L,1930,1930,
+2026-10-27,Jumbo,20462,,Leche Colun Semidescremada Vainilla 1 L,1.0,L,1930,1930,
+2026-10-27,Jumbo,151110,,Leche Soprole Proteína Cappuccino 1 L,1.0,L,2940,2940,
+2026-10-27,Jumbo,13564,,Pack 12 un. Leche Soprole Semidescremada Natural 1 L,12.0,L,14100,14100,
+2026-10-27,Jumbo,6637,,Crema de Leche Nestlé Tarro 157 g,0.157,kg,1390,1390,
+2026-10-27,Jumbo,132687,,Leche Soprole Proteína Vainilla 1 L,1.0,L,2940,2940,
+2026-10-27,Jumbo,65513,,Leche Soprole Proteína Chocolate 1 L,1.0,L,2940,2940,
+2026-10-27,Jumbo,44077,,Pack 6 un. Leche Surlat Descremada Sin Lactosa 1 L,6.0,L,7200,7200,
+2026-10-27,Jumbo,172498,,Leche Soprole Proteína Pistacho 1 L,1.0,L,2760,2760,
+2026-10-27,Jumbo,168646,,Leche Soprole Avena con Manzana 1 L,1.0,L,1400,1400,
+2026-10-27,Jumbo,69062,,Pack 6 un. Leche Colun Light Chocolate 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,169938,,Leche Descremada Protein Plus Colun 1 L,1.0,L,2590,2590,
+2026-10-27,Jumbo,56697,,Pack 6 un. Leche Soprole Semidescremada Frutilla 200 ml,1.2,L,3650,3650,
+2026-10-27,Jumbo,169681,,Pack 6 un. Leche Soprole Sin Lactosa Plátano 200 ml,1.2,L,3150,3150,
+2026-10-27,Jumbo,44070,,Pack 6 un. Leche Soprole Sin Lactosa Chocolate 200 ml,1.2,L,3150,3150,
+2026-10-27,Jumbo,53047,,Pack 6 un. Leche Colun Descremada 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,20461,,Leche Colun Semidescremada Manjar 1 L,1.0,L,1930,1930,
+2026-10-27,Jumbo,158753,,Pack 3 un. Leche Cultivada Soprole Proteína Chirimoya 170 ml,0.51,L,1900,1900,
+2026-10-27,Jumbo,170107,,Pack 6 un. Leche Loncoleche Extra Proteína 200 ml,1.2,L,4100,4100,
+2026-10-27,Jumbo,13562,,Pack 12 un. Leche Soprole Descremada Natural 1 L,12.0,L,14100,14100,
+2026-10-27,Jumbo,96631,,Pack 12 un. Leche Cuisine & Co Sin Lactosa Semidescremada 1 L,12.0,L,12000,12000,
+2026-10-27,Jumbo,121063,,Leche Surlat Proteína Descremada Sin Lactosa 1 L,1.0,L,2000,2000,
+2026-10-27,Jumbo,6743,,Leche en Polvo Svelty Move+ Descremada 800 g,0.8,kg,6250,6250,
+2026-10-27,Jumbo,96627,,Pack 12 un. Leche Cuisine & Co Entera 1 L,12.0,L,12000,12000,
+2026-10-27,Jumbo,156694,,Leche Descremada Surlat Whey Protein Salted Caramel 1 L,1.0,L,2800,2800,
+2026-10-27,Jumbo,8756,,Leche en Polvo Svelty Sin lactosa Descremada 800 g,0.8,kg,12990,12990,
+2026-10-27,Jumbo,82515,,Pack 12 un. Leche Colun Descremada Sin Lactosa 1 L,12.0,L,16200,16200,
+2026-10-27,Jumbo,89572,,Leche en Polvo Colun Entera 900 g,0.9,kg,9190,9190,
+2026-10-27,Jumbo,96628,,Pack 12 un. Leche Cuisine & Co Semidescremada 1 L,12.0,L,12000,12000,
+2026-10-27,Jumbo,6810,,Leche Loncoleche Semidescremada Plátano 200 ml,0.2,L,570,570,
+2026-10-27,Jumbo,44078,,Pack 6 un. Leche Surlat Semidescremada Sin Lactosa 1 L,6.0,L,7200,7200,
+2026-10-27,Jumbo,142236,,Pack 6 un. Leche Surlat Descremada Sin Lactosa 200 ml,1.2,L,3000,3000,
+2026-10-27,Jumbo,6832,,Leche Soprole Sin Lactosa Chocolate 1 L,1.0,L,2250,2250,
+2026-10-27,Jumbo,96630,,Pack 12 un. Leche Cuisine & Co Sin Lactosa Descremada 1 L,12.0,L,12000,12000,
+2026-10-27,Jumbo,53058,,Pack 6 un. Leche Colun Manjar 200 ml,1.2,L,3300,3300,
+2026-10-27,Jumbo,6809,,Leche Loncoleche Semidescremada Plátano 1 L,1.0,L,1980,1980,
+2026-10-27,Jumbo,164380,,Leche Surlat Whey Protein Natural Descremada 1 L,1.0,L,2800,2800,
+2026-10-27,Jumbo,144537,,Pack 12 un. Leche Soprole Descremada Sin Lactosa 1 L,12.0,L,15600,15600,
+2026-10-27,Jumbo,113919,,Leche en Polvo Nido Entera 800 g,0.8,kg,8360,8360,
+2026-10-27,Jumbo,131304,,Pack 6 un. Leche Soprole Sin Lactosa Zerolacto Frutilla 200 ml,1.2,L,3150,3150,
+2026-10-27,Jumbo,158749,,Pack 3 un. Leche Cultivada Soprole Proteína Frutilla 170 ml,0.51,L,1900,1900,
+2026-10-27,Jumbo,94825,,Leche Cultivada Soprole Proteína Frutilla 1 L,1.0,L,3190,3190,
+2026-10-27,Jumbo,82517,,Pack 12 un. Leche Colun Entera Sin Lactosa 1 L,12.0,L,16200,16200,
+2026-10-27,Jumbo,125605,,Pack 6 un. Leche Surlat Entera Sin Lactosa 1 L,6.0,L,7200,7200,
+2026-10-27,Jumbo,137438,,Leche Semidescremada Soprole con Avena 200 ml,0.2,L,640,640,
+2026-10-27,Jumbo,173723,,Pack 6 un. Leche Soprole Proteína Pistacho 200 ml,1.2,L,3780,3780,
+2026-10-27,Jumbo,144538,,Pack 12 un. Leche Soprole Semidescremada Sin Lactosa 1 L,12.0,L,15600,15600,
+2026-10-27,Jumbo,96629,,Pack 12 un. Leche Cuisine & Co Descremada 1 L,12.0,L,12000,12000,
+2026-10-27,Jumbo,131416,,Leche Evaporada Ideal Nestlé Tarro 390 g,0.39,kg,2250,2250,
+2026-10-27,Jumbo,7111,,Multipack 12 un. Yogurt Probiótico Chamyto Frutilla 80 ml,0.96,L,4890,4890,
+2026-10-27,Jumbo,8729,,Leche en Polvo Calo Entera 850 g,0.85,kg,7690,7690,
+2026-10-27,Jumbo,82516,,Pack 12 un. Leche Colun Semidescremada Sin Lactosa 1 L,12.0,L,16200,16200,
+2026-10-27,Jumbo,63066,,Pack 12 un. Leche Loncoleche Extra Proteína 1 L,12.0,L,26280,26280,
+2026-10-27,Jumbo,156698,,Leche Descremada Surlat Whey Protein Chocolate 1 L,1.0,L,2800,2800,
+2026-10-27,Jumbo,144514,,Pack 12 un. Leche Loncoleche Entera 1 L,12.0,L,12900,12900,
+2026-10-27,Jumbo,144515,,Pack 12 un. Leche Loncoleche Descremada 1 L,12.0,L,12900,12900,
+2026-10-27,Jumbo,93754,,Leche en Polvo Colun Descremada 350 g,0.35,kg,4030,4030,
+2026-10-27,Jumbo,56710,,Pack 12 un. Leche Colun Semidescremada Chocolate Receta Original 1 L,12.0,L,23280,23280,
+2026-10-27,Jumbo,56705,,Pack 12 un. Leche Colun Vainilla 1 L,12.0,L,22440,22440,
+2026-10-27,Jumbo,123745,,Leche en Polvo Nido 3+ 700 g,0.7,kg,8550,8550,
+2026-10-27,Jumbo,16499,,Leche en Polvo Colun Entera 1440 g,1.44,kg,14990,14990,
+2026-10-27,Jumbo,93755,,Leche en Polvo Colun Descremada 800 g,0.8,kg,8250,8250,
+2026-10-27,Jumbo,139800,,Leche en Polvo Loncoleche Descremada 760 g,0.76,kg,7250,7250,
+2026-10-27,Jumbo,88332,,Leche en Polvo Loncoleche Proteína Semidescremada 550 g,0.55,kg,12490,12490,
+2026-10-27,Jumbo,45791,,Leche Colun Capuccino Light Sin Lactosa 330 cc,0.33,L,1170,1170,
+2026-10-27,Jumbo,6814,,Leche Loncoleche Semidescremada Chocolate 1 L,1.0,L,1980,1980,
+2026-10-27,Jumbo,147179,,Leche Soprole Sin Lactosa Zerolacto Frutilla 1 L,1.0,L,1890,1890,
+2026-10-27,Jumbo,97649,,Leche Condensada Doypack 200 g,0.2,kg,1100,1100,
+2026-10-27,Jumbo,6648,,Crema de Leche Soprole Natural Larga Vida 200 g.,0.2,kg,1000,1000,
+2026-10-27,Jumbo,94826,,Leche Cultivada Soprole Proteína Chirimoya 1 L,1.0,L,3190,3190,
+2026-10-27,Jumbo,44072,,Pack 6 un. Leche Soprole Semidescremada Chocolate Requetepatitas 200 ml,1.2,L,3720,3720,
+2026-10-27,Jumbo,134639,,Crema de Leche Light 200 g,0.2,kg,1290,1290,
+2026-10-27,Jumbo,122382,,Leche en Polvo Nido Semidescremada Sin Lactosa 700 g,0.7,kg,10890,10890,
+2026-10-27,Jumbo,122904,,Leche Evaporada Loncoleche 200 ml,0.2,L,900,900,
+2026-10-27,Jumbo,77134,,Leche de Cabra Las Hualtatas Entera 1 L,1.0,L,4070,4070,
+2026-10-27,Jumbo,6811,,Leche Loncoleche Sin Lactosa Vainilla 1 L,1.0,L,1850,1850,
+2026-10-27,Jumbo,164404,,Bebida Láctea Shake Shake Manjar 190 ml,0.19,L,580,580,
+2026-10-27,Jumbo,6625,,Crema de Leche Colun 200 ml,0.2,L,1250,1250,
+2026-10-27,Jumbo,143186,,Leche en Polvo Soprole Entera 800 g,0.8,kg,7490,7490,
+2026-10-27,Jumbo,156576,,Leche en Polvo Loncoleche Entera Instantánea 760 g,0.76,kg,5990,5990,
+2026-10-27,Jumbo,56444,,Multipack 12 un. Yogurt Probiótico Chamyto Frambuesa 80 ml,0.96,L,4890,4890,
+2026-10-27,Jumbo,134525,,Leche en Polvo Colun Semidescremada 900 g,0.9,kg,10390,10390,
+2026-10-27,Jumbo,99605,,Leche de Burra Polvo Asinolat Liofilizada 180 g,0.18,kg,40690,40690,
+2026-10-27,Jumbo,144763,,Leche en Polvo Svelty Sin Lactosa Descremada 300 g,0.3,kg,4270,4270,
+2026-10-27,Jumbo,115830,,Leche Condensada Alusweet Sin Azúcar 390 g,0.39,kg,5590,5590,
+2026-10-27,Jumbo,1574,,Arroz Grado 1 Banquete Premium Grano Largo y Ancho 1 kg,1.0,kg,1890,1890,
+2026-10-27,Jumbo,1621,,Arroz Grado 1 Tucapel Gran Selección Grano Largo y Ancho 1 kg,1.0,kg,2440,2440,
+2026-10-27,Jumbo,1626,,Arroz Grado 2 Tucapel Blue Grano Largo y Delgado 1 kg,1.0,kg,1810,1810,
+2026-10-27,Jumbo,92628,,Arroz Grado 2 Cuisine & Co Largo y Delgado 1 kg,1.0,kg,1430,1430,
+2026-10-27,Jumbo,1622,,Arroz Grado 1 Tucapel Pregraneado Grano Largo 1 kg,1.0,kg,2630,2630,
+2026-10-27,Jumbo,105303,,Arroz Grado 2 Cuisine & Co Grano Largo y Ancho 1 kg,1.0,kg,1490,1490,
+2026-10-27,Jumbo,1628,,Arroz Grado 2 Tucapel Gran Selección Grano Largo y Ancho 1 kg,1.0,kg,2130,2130,
+2026-10-27,Jumbo,97942,,Arroz Grado 1 Cuisine & Co Grano Largo y Delgado 1 kg,1.0,kg,1590,1590,
+2026-10-27,Jumbo,1573,,Arroz Grado 1 Banquete Grano Largo Pregraneado 1 kg,1.0,kg,2290,2290,
+2026-10-27,Jumbo,16419,,Arroz Pregraneado Miraflores 1 kg,1.0,kg,2190,2190,
+2026-10-27,Jumbo,105305,,Arroz Grado 1 Cuisine & Co Grano Largo y Ancho 3 kg,3.0,kg,4990,4990,
+2026-10-27,Jumbo,44534,,Arroz Grado 1 Tucapel Grano Largo Delgado 1 kg,1.0,kg,2430,2430,
+2026-10-27,Jumbo,1594,,Arroz Preparado Miraflores Chaufan 210 g,0.21,kg,1230,1230,
+2026-10-27,Jumbo,122390,,Arroz Basmati Tucapel 400 g,0.4,kg,2090,2090,
+2026-10-27,Jumbo,16019,,Arroz Preparado Miraflores Campesino 210 g,0.21,kg,1230,1230,
+2026-10-27,Jumbo,1623,,Arroz Grado 1 Tucapel Grano Largo y Ancho 3 kg,3.0,kg,7790,7790,
+2026-10-27,Jumbo,1576,,Arroz Grado 2 Banquete Premium Grano Largo y Ancho 1 kg,1.0,kg,2330,2330,
+2026-10-27,Jumbo,1593,,Arroz Preparado Miraflores Champiñón 210 g,0.21,kg,1230,1230,
+2026-10-27,Jumbo,100723,,Arroz Basmati Miraflores 400 g,0.4,kg,3190,3190,
+2026-10-27,Jumbo,111151,,Arroz Pregraneado Cuisine & Co 1 kg,1.0,kg,2150,2150,
+2026-10-27,Jumbo,1629,,Arroz Grado 2 Tucapel Grano Largo y Ancho Graneado 1 kg,1.0,kg,2130,2130,
+2026-10-27,Jumbo,1605,,Arroz Integral Miraflores Grado 1 de 1 kg,1.0,kg,2970,2970,
+2026-10-27,Jumbo,1596,,Arroz Preparado Primavera 210 g,0.21,kg,1230,1230,
+2026-10-27,Jumbo,1577,,Arroz Integral Banquete Multigrano 400 g,0.4,kg,1340,1340,
+2026-10-27,Jumbo,100726,,Arroz Risotto Miraflores 400 g,0.4,kg,2450,2450,
+2026-10-27,Jumbo,1634,,Arroz Especial Yang's Brand Aroma Jazmín 1 kg,1.0,kg,4480,4480,
+2026-10-27,Jumbo,16738,,Arroz Grado 1 Taj Mahal Basmati Grano Largo 1 kg,1.0,kg,6070,6070,
+2026-10-27,Jumbo,105304,,Arroz Integral Grado 1 Cuisine & Co Largo y Ancho 1 kg,1.0,kg,1890,1890,
+2026-10-27,Jumbo,137226,,Arroz Ellebi Arborio 500 g,0.5,kg,3490,3490,
+2026-10-27,Jumbo,1631,,Arroz Grado 1 Tucapel Integral 1 kg,1.0,kg,2290,2290,
+2026-10-27,Jumbo,16410,,Arroz Risotto Miraflores Champiñón 180 g,0.18,kg,2032,2032,
+2026-10-27,Jumbo,43165,,Arroz Grado 2 Tucapel Grano Largo 3 kg,3.0,kg,6450,6450,
+2026-10-27,Jumbo,137230,,Arroz Ellebi para Sushis 500 g,0.5,kg,2490,2490,
+2026-10-27,Jumbo,137227,,Arroz Ellebi Basmati 500 g,0.5,kg,3490,3490,
+2026-10-27,Jumbo,122560,,Arroz Risotto Tucapel Italiano 400 g,0.4,kg,1790,1790,
+2026-10-27,Jumbo,1617,,Arroz Risotto Tucapel Italiano 1 kg,1.0,kg,5190,5190,
+2026-10-27,Jumbo,16095,,Arroz Especial Tucapel Grado 1 para Sushi 400 g,0.4,kg,3330,3330,
+2026-10-27,Jumbo,137229,,Arroz Ellebi Carnaroli 500 g,0.5,kg,3490,3490,
+2026-10-27,Jumbo,159836,,Arroz Basmati Doypack 1000 g,1.0,kg,5860,5860,
+2026-10-27,Jumbo,6959,,Postre Soprole Arroz con Leche 130 g,0.13,kg,780,780,
+2026-10-27,Jumbo,16989,,Arroz Especial Inverni Carnaroli 500 g,0.5,kg,4990,4990,
+2026-10-27,Jumbo,159834,,Arroz Basmati Doypack 500 g,0.5,kg,3490,3490,
+2026-10-27,Jumbo,4290,,Harina de Arroz Tucapel 500 g,0.5,kg,1280,1280,
+2026-10-27,Jumbo,151454,,Risotto Queso Cuisine & Co 175 g,0.175,kg,1890,1890,
+2026-10-27,Jumbo,46381,,Cereal Infantil Nestum Arroz 250 g,0.25,kg,2950,2950,
+2026-10-27,Jumbo,151453,,Risotto Champinón Cuisine & Co 175 g,0.175,kg,1890,1890,
+2026-10-27,Jumbo,131447,,Puffs Kuna Foods Frutilla Betarraga 10 g,0.01,kg,990,990,
+2026-10-27,Jumbo,131440,,Puffs Kuna Foods Manzana Arándano 10 g,0.01,kg,990,990,
+2026-10-27,Jumbo,138138,,Puffs Kuna Foods Pera Espinaca Individual 10 g,0.01,kg,990,990,
+2026-10-27,Jumbo,124133,,Puffs Kuna Foods Plátano Zapallo 50 g,0.05,kg,3850,3850,
+2026-10-27,Jumbo,151455,,Risotto Espárragos Cuisine & Co 175 g,0.175,kg,1890,1890,
+2026-10-27,Jumbo,124131,,Puffs Kuna Foods Manzana Arándano 50 g,0.05,kg,3890,3890,
+2026-10-27,Jumbo,124127,,Puffs Kuna Foods Plátano Zapallo 10 g,0.01,kg,990,990,
+2026-10-27,Jumbo,124121,,Puffs Kuna Foods Frutilla Betarraga 50 g,0.05,kg,3850,3850,
+2026-10-27,Jumbo,1575,,Arroz Grado 1 Banquete Premium Grano Largo 2 kg,2.0,kg,4730,4730,
+2026-10-27,Jumbo,1586,,Arroz Especial Inverni Arborio Caja 500 g,0.5,kg,4990,4990,
+2026-10-27,Jumbo,16110,,Arroz Especial Tucapel Grado 1 Paella Grano Corto 1 kg,1.0,kg,3530,3530,
+2026-10-27,Jumbo,147530,,Arroz Basmati Cuisine & Co 400 g,0.4,kg,1590,1590,
+2026-10-27,Jumbo,3944,,Galletas Nik Bocado 71 g,0.071,kg,580,580,
+2026-10-27,Jumbo,165898,,Galletas Dulces Oreo Rollo Sabor Frutilla 108 g,0.108,kg,900,900,
+2026-10-27,Jumbo,115901,,Galletas Oreo Rollo Sabor Original 108 g,0.108,kg,900,900,
+2026-10-27,Jumbo,4063,,Galletas McKay Criollitas 100 g,0.1,kg,1000,1000,
+2026-10-27,Jumbo,3893,,Galleta Bon O Bon 95 g,0.095,kg,1290,1290,
+2026-10-27,Jumbo,3933,,Galletas Vino 160 g,0.16,kg,900,900,
+2026-10-27,Jumbo,3963,,Galletas Limón 140 g,0.14,kg,900,900,
+2026-10-27,Jumbo,4083,,Galletas McKay Vino 155 g,0.155,kg,990,990,
+2026-10-27,Jumbo,3932,,Galletas Mantequilla 140 g,0.14,kg,1050,1050,
+2026-10-27,Jumbo,119729,,Galletas Mini Mantequilla 35 g,0.035,kg,340,340,
+2026-10-27,Jumbo,3926,,Galletas Mini Limón 35 g,0.035,kg,340,340,
+2026-10-27,Jumbo,148184,,Galletas McKay Museo Retro 35 g,0.035,kg,380,380,
+2026-10-27,Jumbo,4156,,Galleta Dos en Uno Rigóchoc 113 g,0.113,kg,1450,1450,
+2026-10-27,Jumbo,3935,,Galletas Donuts Chocolate 100 g,0.1,kg,1000,1000,
+2026-10-27,Jumbo,3946,,Galletas Nik Frutilla 71 g,0.071,kg,580,580,
+2026-10-27,Jumbo,106292,,Galleta Rellena Chokita Bañada Chocolate 300 g 10 un.,3.0,kg,4670,4670,
+2026-10-27,Jumbo,3961,,Galletas Gretel Chocolate 85 g,0.085,kg,1000,1000,
+2026-10-27,Jumbo,3934,,Galletas Donuts Chocolate Blanco 100 g,0.1,kg,1000,1000,
+2026-10-27,Jumbo,3936,,Galletas Donuts Orange Bitter 100 g,0.1,kg,1000,1000,
+2026-10-27,Jumbo,3929,,Galletas Costa Chocolate 140 g,0.14,kg,1050,1050,
+2026-10-27,Jumbo,80086,,Galletas Bañadas Super 8 - 232 g,0.232,kg,3930,3930,
+2026-10-27,Jumbo,149096,,Galleta Bon O Bon Súper Choco 95 g,0.095,kg,1290,1290,
+2026-10-27,Jumbo,3931,,Galletas Costa Coco 125 g,0.125,kg,1050,1050,
+2026-10-27,Jumbo,3892,,Galletas Mini Conquista 35 g,0.035,kg,280,280,
+2026-10-27,Jumbo,123103,,Galletas Maná Vainilla Tripack 408 g,0.408,kg,2630,2630,
+2026-10-27,Jumbo,3972,,Galletas Maxi Chips 200 g,0.2,kg,1790,1790,
+2026-10-27,Jumbo,164133,,Galletas Dulces Chips Ahoy 222 g,0.222,kg,1990,1990,
+2026-10-27,Jumbo,141153,,Galletas Triton Mini Chocolate 40 g,0.04,kg,490,490,
+2026-10-27,Jumbo,128689,,Galleta Bon O Bon Blanco 95 g,0.095,kg,1290,1290,
+2026-10-27,Jumbo,3948,,Galletas Gretel Chocolate Blanco 85 g,0.085,kg,1000,1000,
+2026-10-27,Jumbo,122289,,Galletas Conquista Palmeritas 139 g,0.139,kg,910,910,
+2026-10-27,Jumbo,3962,,Galletas Gretel Yogurt Frutilla 85 g,0.085,kg,1000,1000,
+2026-10-27,Jumbo,144626,,Galletas Sin Azúcar Rellenas de Chocolate Elgorriaga 180 g,0.18,kg,1912,1912,
+2026-10-27,Jumbo,134522,,Galleta Mini Ecovida Chip Chocolate Sin Azúcar 30 g,0.03,kg,480,480,
+2026-10-27,Jumbo,50121,,Galletas Grill Clásica 35 g,0.035,kg,470,470,
+2026-10-27,Jumbo,137474,,Galletas Wafers Cuisine & Co Vainilla 150 g,0.15,kg,1290,1290,
+2026-10-27,Jumbo,153251,,Galleta Triton Sabor Chocowhite 116 g,0.116,kg,850,850,
+2026-10-27,Jumbo,4154,,Galletón Quaker Avena y Chips de Chocolate 40 g,0.04,kg,630,630,
+2026-10-27,Jumbo,127860,,Galletas Trencito Cubierta de Chocolate 130 g,0.13,kg,1910,1910,
+2026-10-27,Jumbo,97898,,Galletas de Maíz Salmas Horneadas 216 g,0.216,kg,3550,3550,
+2026-10-27,Jumbo,148185,,Galleta McKay Museo Retro 150 g,0.15,kg,1000,1000,
+2026-10-27,Jumbo,144135,,Galletas Sin Azúcar Rellenas de Limón Elgorriaga 180 g,0.18,kg,1912,1912,
+2026-10-27,Jumbo,3872,,Galletas McKay Soda Clásica 180 g,0.18,kg,1290,1290,
+2026-10-27,Jumbo,149532,,Pack 3 un. Galleta Triton Vainilla 116 g,0.348,kg,2670,2670,
+2026-10-27,Jumbo,3960,,Galletas Gran Cereal Fibra de Cacao 135 g,0.135,kg,1230,1230,
+2026-10-27,Jumbo,126881,,Ramitas Evercrisp Sabor Queso 230 g,0.23,kg,2130,2130,
+2026-10-27,Jumbo,153346,,Galletas Dos en Uno Rigochoc Blanco/Negro 113 g,0.113,kg,1450,1450,
+2026-10-27,Jumbo,47972,,Galletas Kelsen Ripensa Travel 454 g,0.454,kg,6690,6690,
+2026-10-27,Jumbo,158338,,Galleta Costa María 350 g,0.35,kg,2590,2590,
+2026-10-27,Jumbo,75,,"Pack 8 un. Bizcocho Chocman 33 g, 264 g neto",0.264,kg,2890,2890,
+2026-10-27,Jumbo,74950,,Galletas Grill Clásica 140 g,0.14,kg,1790,1790,
+2026-10-27,Jumbo,2975,,Choco Cracs Sabor Chocolate 160 g,0.16,kg,2230,2230,
+2026-10-27,Jumbo,126312,,Marshmallows Malva Choc Bañado Chocolate 196 g,0.196,kg,2190,2190,
+2026-10-27,Jumbo,4041,,Galletas Jules Destrooper Mantequilla 100 g,0.1,kg,3490,3490,
+2026-10-27,Jumbo,103733,,Tortillas Tostitos Sal 200 g,0.2,kg,2720,2720,
+2026-10-27,Jumbo,154100,,Galleta Oblea Larga Chocolate 120 g,0.12,kg,1330,1330,
+2026-10-27,Jumbo,150761,,Caramelos de Nata Tirma 125 g,0.125,kg,1390,1390,
+2026-10-27,Jumbo,3083,,Papas Fritas Marco Polo Rústicas Sal de Mar 185 g,0.185,kg,2690,2690,
+2026-10-27,Jumbo,171997,,Galletas de Navidad McKay Dulces con Mostacillas de Colores 120 g,0.12,kg,1000,1000,
+2026-10-27,Jumbo,149000,,Galleta Milka Bis Bañada con Chocolate 105.6 g 16 un.,1.6896,kg,2150,2150,
+2026-10-27,Jumbo,98801,,Galleta Ripensa Amore 454 g,0.454,kg,6690,6690,
+2026-10-27,Jumbo,148067,,Galleta Naranja Cúrcuma Jengibre Elgorri 240 g,0.24,kg,1592,1592,
+2026-10-27,Jumbo,2996,,Mini Tostaditas Twistos Sabor Jamón Ibérico 100 g,0.1,kg,1490,1490,
+2026-10-27,Jumbo,148102,,Galleta Sin Azúcar de Cacao con Crema Elgorriaga 180 g,0.18,kg,1912,1912,
+2026-10-27,Jumbo,142348,,Galletas Choco Rellenas Crema Elgorriaga 180 g,0.18,kg,1192,1192,
+2026-10-27,Jumbo,26892,,Galletas Gullón Sándwich Yogurt 220 g,0.22,kg,3950,3950,
+2026-10-27,Jumbo,156370,,Galletas Jules Destrooper Mantequilla Chocolate 100 g,0.1,kg,3490,3490,
+2026-10-27,Jumbo,119726,,Gomitas Ambrosito 90 g,0.09,kg,950,950,
+2026-10-27,Jumbo,144162,,Galletas de Quinoa Nutrico Cacao Nibs 150 g 5 un.,0.75,kg,4110,4110,
+2026-10-27,Jumbo,149097,,Galletas Club Social Sabor Queso Pack 9 un. x 24 g,0.216,kg,1860,1860,
+2026-10-27,Jumbo,134952,,Galletas Bañada Morocha Family 150 g,0.15,kg,1000,1000,
+2026-10-27,Jumbo,100262,,Cheezels Sabor Queso 200 g,0.2,kg,2230,2230,
+2026-10-27,Jumbo,92857,,Galletas de Arroz Mizos Chocolate Naranja Familiar 150 g,0.15,kg,3790,3790,
+2026-10-27,Jumbo,169672,,Snack Mini Cheetos Boliqueso 79 g,0.079,kg,1890,1890,
+2026-10-27,Jumbo,3994,,Galletas Ecovida Diet Sin Azúcar 120 g,0.12,kg,1340,1340,
+2026-10-27,Jumbo,123411,,Ramitas Evercrisp Sabor Original 330 g,0.33,kg,2890,2890,
+2026-10-27,Jumbo,4153,,Galletón Quaker Avena y Arándanos Rojos 40 g,0.04,kg,630,630,
+2026-10-27,Jumbo,142327,,Galletas Lambertz Lebkuchen Chocolate Blanco 250 g,0.25,kg,5790,5790,
+2026-10-27,Jumbo,3026,,Papas Fritas Kryzpo Original 130 g,0.13,kg,1650,1650,
+2026-10-27,Jumbo,119743,,Gomitas Amberries 90 g,0.09,kg,950,950,
+2026-10-27,Jumbo,19490,,Galletas Ecovida Sin Gluten Berries 150 g,0.15,kg,2590,2590,
+2026-10-27,Jumbo,154106,,Galleta Oblea Larga Vainilla 120 g,0.12,kg,1330,1330,
+2026-10-27,Jumbo,82599,,Papas Fritas Lay's Stax Crema y Cebolla 134 g,0.134,kg,2380,2380,
