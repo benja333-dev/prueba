@@ -1,0 +1,26 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+  <ribbon>
+    <tabs>
+      <tab idMso="TabHome">
+        <group id="grpStickies" label="Stickies">
+          <button id="btnStickyNew" label="Nuevo sticky" size="large"
+                  imageMso="ReviewNewComment" onAction="Rb_AddSticky"
+                  screentip="Nuevo sticky"
+                  supertip="Pega un post-it amarillo en la lamina actual con tus iniciales y la fecha, listo para escribir."/>
+          <button id="btnStickyNext" label="Siguiente" size="normal"
+                  imageMso="ReviewNextComment" onAction="Rb_NextSticky"
+                  screentip="Ir al siguiente sticky"
+                  supertip="Salta al siguiente sticky del deck (para el que revisa)."/>
+          <button id="btnStickyToggle" label="Ocultar / mostrar" size="normal"
+                  imageMso="SelectionPane" onAction="Rb_ToggleStickies"
+                  screentip="Ocultar o mostrar stickies"
+                  supertip="Oculta o muestra todos los stickies del deck sin borrarlos."/>
+          <button id="btnStickyDelete" label="Borrar todos" size="normal"
+                  imageMso="ReviewDeleteComment" onAction="Rb_DeleteAllStickies"
+                  screentip="Borrar todos los stickies"
+                  supertip="Borra todos los stickies del deck. Usar siempre antes de enviar al cliente."/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
