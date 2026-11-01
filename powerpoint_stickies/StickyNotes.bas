@@ -271,12 +271,17 @@ End Sub
 
 ' Iniciales de Office (Archivo > Opciones > General); si no hay, usuario de Windows
 Private Function GetInitials() As String
-    Dim s As String, wsh As Object
+    Dim s As String
+#If Mac Then
+    s = Environ$("USER")
+#Else
+    Dim wsh As Object
     On Error Resume Next
     Set wsh = CreateObject("WScript.Shell")
     s = wsh.RegRead("HKCU\Software\Microsoft\Office\Common\UserInfo\UserInitials")
     If Len(Trim$(s)) = 0 Then s = wsh.RegRead("HKCU\Software\Microsoft\Office\Common\UserInfo\UserName")
     On Error GoTo 0
     If Len(Trim$(s)) = 0 Then s = Environ$("USERNAME")
+#End If
     GetInitials = Trim$(s)
 End Function
